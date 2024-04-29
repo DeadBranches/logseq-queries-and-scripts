@@ -5,9 +5,16 @@
     //   `config.edn` macro:
     //     :yt "<div class='kit' data-kit='youtubeIconLinker'>$1</div>"
     //   Youtube API key:
-    //     Place your youtube API key in a block surrounded by 
+    //     1. Place your youtube API key in a block surrounded by grave accents (``)
+    //     E.g. `xxxxxxxxxxxxxxxxxxxx`
+    //     2. Copy the API key block ref
+    //     3. Enter the API key block uuid in the apiKeyBlock variable below.
     // Usage:
     //  {{yt http://www.youtube.com/watch?v=2339f99f}}
+  
+  	const apiKeyBlock = '662eef00-5520-477f-995b-8235321ee2b8';
+   
+      const apiKey = logseq.api.get_block(apiKeyBlock).content.split('`')[1];
     
       const blockId = div.closest(".ls-block").getAttribute("blockid");
       const content = logseq.api.get_block(blockId).content;
@@ -17,9 +24,6 @@
       // Urls may come from a mobile domain, or shortened url
       const videoIdPattern = new RegExp(/.+\/watch\?.*v=([\w\d\-_]+)(?:&{0,1}|^)/);
       const videoId = videoIdPattern.exec(div.innerHTML)[1];
-  
-      console.log(videoId);
-      const apiKey = 'AIzaSyBvHjPX4PIYnUQHhqFGAFfJsr0cBdGl2PU';
   
       // Get the video title from the YouTube API.
       fetch(`https://www.googleapis.com/youtube/v3/videos?part=snippet&id=${videoId}&key=${apiKey}`)
@@ -34,8 +38,6 @@
           let videoTitle = data.items[0].snippet.title;
           const youtubeLink = "{{i f214}} [" + videoTitle + "](" + div.innerHTML + ")";
           logseq.api.update_block(blockId, content.slice(0, macroStart) + youtubeLink + content.slice(macroEnd));
-  
-          console.log("fetch video title: " + videoTitle);
       })
         .catch(error => {
           console.error('Error:', error);
