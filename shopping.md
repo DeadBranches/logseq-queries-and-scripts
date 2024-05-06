@@ -1,5 +1,34 @@
 description:: Integrate products into the larger system by indicating `:product-type` or `:goods-category` specifier properties.
 
+- #### Inbox
+  Items:
+  #+BEGIN_QUERY
+  {:query
+  [:find (count ?b)
+  :in $ ?current-page
+  :where
+  [?t :block/name "inbox"]
+  [?cp :block/name ?current-page]
+  [?b :block/refs ?cp]
+  [?b :block/refs ?t]
+  ]
+  :inputs [:current-page]
+  }
+  #+END_QUERY
+	- #+BEGIN_QUERY
+	  {:query
+	  [:find (pull ?b [*])
+	  :in $ ?current-page
+	  :where
+	  [?t :block/name "inbox"]
+	  [?cp :block/name ?current-page]
+	  [?b :block/refs ?cp]
+	  [?b :block/refs ?t]
+	  ]
+	  :inputs [:current-page]
+	  }
+	  #+END_QUERY
+	-
 - ## {{i eaff}} open orders
   collapsed:: true
   *from online*
@@ -17,68 +46,39 @@ description:: Integrate products into the larger system by indicating `:product-
 	             [(get ?props :template)]
 	             )
 	  ]
+	   :result-transform 
+	    (fn [result]
+	      (sort-by 
+	        (fn [r] 
+	          (let [journal-day (get-in r [:block/page :block/journal-day])
+	                created-at (get r :block/created-at)]
+	            (- (or journal-day created-at))))
+	        result))
 	  :collapsed? false
 	  :breadcrumb-show? false
 	   }
 	  #+END_QUERY
 - ## buy
-	- Sort by
-		- ```
-		   :result-transform (fn [result] 
-		     (sort-by
-		       (juxt
-		         (fn [r] (get r :block/scheduled 99999999))
-		         (fn [r] (get r :block/content))
-		         )
-		       (map (fn [m]
-		         (update m :block/properties
-		           (fn [u] (assoc u 
-		           :scheduled (get-in m [:block/scheduled] "-") 
-		           ) )
-		         )
-		       ) result)
-		     )
-		   )
-		  ```
-	- [ + add item ]
-	  List
-	  #+BEGIN_QUERY
-	  {:title [:h4 "🎯 Deze week"]
+  id:: 662becda-d50f-4dac-9376-05e732cb9430
+  *newest first*
+	- #+BEGIN_QUERY
+	  {
 	   :query [:find (pull ?b [*])
 	    :where
-	     ; Add the criteria for which ?b you want to find here. I've added all tasks as an example.
 	     [?b :block/marker ?m]
 	     (not [(contains? #{"DONE" "CANCELED"} ?m)] )
-	     [?t :block/name "buy"]
-	     [?b :block/refs ?t]
 	    [?b :block/properties ?prop]
-	    
+	    [(contains? ?prop :goods-category)]
 	    (not (property ?b :goods-category "food"))
 	   ]
-	  
-	  :result-transform (fn [result] 
-	     (sort-by ; Any sort field here.
-	       (juxt ; sort by multiple fields
-	         (fn [r] (get r :block/scheduled 99999999)) ; sort field 1, if no value use 99999999
-	         (fn [r] (get r :block/priority "X")) ; sort field 2, if no value use X
-	         (fn [r] (get r :block/deadline 99999999)) ; sort field 3, if no value use 99999999
-	         (fn [r] (get r :block/content)) ; sort field 4
-	       )
-	       (map (fn [m] ; make a new map based on the query result
-	         (-> m ; use the threading macro to apply multiple update functions
-	           (update :block/properties ; update the block properties
-	             (fn [u] (assoc u :scheduled (get-in m [:block/scheduled] "-") :deadline (get-in m [:block/deadline] "-") ) ) ; associate the scheduled and deadline attribute values, if no value use -
-	           )
-	           (update :block/content ; update the block content
-	             (fn [c] (str c " test")) ; append the word "test" to the content
-	           )
-	         )
-	       ) result)
-	     )
-	   )
-	  
-	     
-	      
+	   :result-transform 
+	    (fn [result]
+	      (sort-by 
+	        (fn [r] 
+	          (let [journal-day (get-in r [:block/page :block/journal-day])
+	                created-at (get r :block/created-at)]
+	            (- (or journal-day created-at))))
+	        result))
 	   :breadcrumb-show? false
 	  }
 	  #+END_QUERY
@@ -143,4 +143,3 @@ description:: Integrate products into the larger system by indicating `:product-
   #+END_QUERY
 - **Mandolin**
 	- Benriner no. 95
--
