@@ -30,7 +30,6 @@ description:: Integrate products into the larger system by indicating `:product-
 	  #+END_QUERY
 	-
 - ## {{i eaff}} open orders
-  collapsed:: true
   *from online*
 	- #+BEGIN_QUERY
 	  {:query

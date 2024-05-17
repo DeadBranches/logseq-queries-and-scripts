@@ -56,7 +56,8 @@ collection:: [[logseq queries]]
    }
   
   #+END_QUERY
-- ## {{i eb6e}} query language reference
+- ## {{i eb6e}} datalog language reference
+  cateloguing advanced query syntax elements
   #+BEGIN_QUERY
   {
     :query [:find (pull ?children [*])
@@ -91,7 +92,6 @@ collection:: [[logseq queries]]
   #+END_QUERY
 	- #### Database utility functions
 	  id:: 65c59bb1-08f0-4e2f-bf0f-a7d9e5a4bb79
-	  collapsed:: true
 	  Keywords for `:inputs`
 	  *(e.g. `:current-page`, `:query-page`, etc*)
 	  {{Il ec1c,logseq db.cljs:L77,https://github.com/logseq/logseq/blob/c3df737390d4728edc865136c07ee74860bce39a/deps/graph-parser/src/logseq/graph_parser/util/db.cljs#L77}}
@@ -421,9 +421,82 @@ collection:: [[logseq queries]]
 		  })
 		  ```
 - ## {{i efd3}} query concept snippets
+  collapsed:: true
+  advanced queries labeled by use case
+	- Exclude blocks with property value *x*
+		- ```clj
+		  (not (property ?b :goods-category "food"))
+		  ```
+	- block has `:block/property` *x*
+		- ```datalog
+		    [?b :block/properties ?prop]
+		    [(contains? ?prop :goods-category)]
+		  ```
+	- `:block/marker` does not contain *X*
+		- ```datalog
+		     [?b :block/marker ?m]
+		     (not [(contains? #{"DONE" "CANCELED"} ?m)] )
+		  ```
+	- pull blocks with a specific **macro reference**
+	  id:: 6638f4e8-101f-4d66-8aa5-0782d73d32f7
+	  collapsed:: true
+	  {{button copy,copy_second_sibling,ea6f,long squat}}
+		- {{nested-code-block}}
+		  collapsed:: true
+			- copy_second_sibling:
+			  ```js
+			  const second_child = logseq.api.get_next_sibling_block(this.nestedMacroUuid);
+			  const pattern = new RegExp("```(?:[a-zA-Z\\d_-]*)*\\n(.+?)\\n```", "usgm");
+			  const match = pattern.exec(second_child.content);
+			  const clipboard = `${match[1]}\n\n[source](((${second_child.uuid})))`;
+			  navigator.clipboard.writeText(clipboard);
+			  ```
+		- collapsed:: true
+		  ```datalog
+		  {:inputs ["news"]
+		   :query 
+		    [:find (pull ?b [*])
+		     :in $ ?macro
+		     :where
+		      [?m :block/properties ?props]
+		      [(get ?props :logseq.macro-name) ?macros]
+		      [(= ?macros ?macro)]
+		      [?b :block/macros ?m]
+		     ]
+		  } 
+		  ```
+		- news!!!
+		  #+BEGIN_QUERY
+		  {:inputs ["news"]
+		   :query 
+		    [:find (pull ?b [*])
+		     :in $ ?macro
+		     :where
+		      [?m :block/properties ?props]
+		      [(get ?props :logseq.macro-name) ?macros]
+		      [(= ?macros ?macro)]
+		      [?b :block/macros ?m]
+		     ]
+		   :results-transform
+		    (fn [result] (sort-by (fn [s] (get s :block/journal-day)) (fn [a b] (compare b a)) result))
+		  
+		    :breadcrumb-show? false
+		    :children? false
+		    :group-by-page? false}
+		  #+END_QUERY
 	- **show first line** of each result
 	  collapsed:: true
 	    `:result-transform` `:view`
+	  {{button copy,copy_second_sibling,ea6f,long squat}}
+		- {{nested-code-block}}
+			- copy_second_sibling:
+			  ```js
+			  const second_child = logseq.api.get_next_sibling_block(this.nestedMacroUuid);
+			  const pattern = new RegExp("```(?:[a-zA-Z\\d_-]*)*\\n(.+?)\\n```", "usgm");
+			  const match = pattern.exec(second_child.content);
+			  const clipboard = `${match[1]}\n\n[source](((${second_child.uuid})))`;
+			  navigator.clipboard.writeText(clipboard);
+			  ```
 		- ```
 		  #+BEGIN_QUERY
 		  {:query
@@ -499,9 +572,19 @@ collection:: [[logseq queries]]
 		  ```
 	- Results as an **unordered list**
 	  collapsed:: true
-	    `:result-transform` `:view`
+	  `:result-transform` `:view`
+	  {{button copy,copy_second_sibling,ea6f,long squat}}
+		- {{nested-code-block}}
+		  collapsed:: true
+			- copy_second_sibling:
+			  ```js
+			  const second_child = logseq.api.get_next_sibling_block(this.nestedMacroUuid);
+			  const pattern = new RegExp("```(?:[a-zA-Z\\d_-]*)*\\n(.+?)\\n```", "usgm");
+			  const match = pattern.exec(second_child.content);
+			  const clipboard = `${match[1]}\n\n[source](((${second_child.uuid})))`;
+			  navigator.clipboard.writeText(clipboard);
+			  ```
 		- ```clj
-		  
 		  #+BEGIN_QUERY
 		  {:query
 		      [:find (pull ?p [*])
@@ -527,10 +610,41 @@ collection:: [[logseq queries]]
 		  }
 		  #+END_QUERY
 		  ```
+	- **Sort by journal day**
+	  id:: 663a1f42-6ff8-4a1b-a953-cca70c833e52
+	  collapsed:: true
+	    `:result-transform`
+	  {{button copy,copy_second_sibling,ea6f,long squat}}
+		- {{nested-code-block}}
+		  collapsed:: true
+			- copy_second_sibling:
+			  ```js
+			  const second_child = logseq.api.get_next_sibling_block(this.nestedMacroUuid);
+			  const pattern = new RegExp("```(?:[a-zA-Z\\d_-]*)*\\n(.+?)\\n```", "usgm");
+			  const match = pattern.exec(second_child.content);
+			  const clipboard = `${match[1]}\n\n[source](((${second_child.uuid})))`;
+			  navigator.clipboard.writeText(clipboard);
+			  ```
+		- ```datalog
+		  :result-transform
+		    (fn [result] 
+		      (sort-by (comp - (fn [r] (get-in r [:block/page :block/journal-day]))) result)
+		      )
+		  ```
 	- **Sort by date created** (or failing that, date last modified)
 	  collapsed:: true
 	    `:result-transform`
-		- {{il eb6c,Bing: sort by date created,https://sl.bing.net/4TV8A6wblI}}
+	  {{button copy,copy_second_sibling,ea6f,long squat}}
+		- {{nested-code-block}}
+		  collapsed:: true
+			- copy_second_sibling:
+			  ```js
+			  const second_child = logseq.api.get_next_sibling_block(this.nestedMacroUuid);
+			  const pattern = new RegExp("```(?:[a-zA-Z\\d_-]*)*\\n(.+?)\\n```", "usgm");
+			  const match = pattern.exec(second_child.content);
+			  const clipboard = `${match[1]}\n\n[source](((${second_child.uuid})))`;
+			  navigator.clipboard.writeText(clipboard);
+			  ```
 		- ```datalog
 		   :result-transform 
 		    (fn [result]
@@ -542,12 +656,21 @@ collection:: [[logseq queries]]
 		        result))
 		   :breadcrumb-show? false
 		  ```
-	- **Click to complete** TODO blocks via *call-api*
+		- {{il eb6c,Bing: sort by date created,https://sl.bing.net/4TV8A6wblI}}
+	- Click to complete TODO blocks via **call-api**
 	  collapsed:: true
 	    `:result-transform` `:view`
-		- > it can be done with latest call-api ability (logseq nightly)
-		- source: https://discord.com/channels/725182569297215569/743139225746145311/1047314074930782308
-		- via https://discuss.logseq.com/t/show-todo-toggle-in-query-table-view/12720/5
+	  {{button copy,copy_second_sibling,ea6f,long squat}}
+		- {{nested-code-block}}
+		  collapsed:: true
+			- copy_second_sibling:
+			  ```js
+			  const second_child = logseq.api.get_next_sibling_block(this.nestedMacroUuid);
+			  const pattern = new RegExp("```(?:[a-zA-Z\\d_-]*)*\\n(.+?)\\n```", "usgm");
+			  const match = pattern.exec(second_child.content);
+			  const clipboard = `${match[1]}\n\n[source](((${second_child.uuid})))`;
+			  navigator.clipboard.writeText(clipboard);
+			  ```
 		- ```datalog
 		  {
 		   :query [:find (pull ?b [*])
@@ -578,9 +701,23 @@ collection:: [[logseq queries]]
 		   )
 		  }
 		  ```
+		- > it can be done with latest call-api ability (logseq nightly)
+		- source: https://discord.com/channels/725182569297215569/743139225746145311/1047314074930782308
+		- via https://discuss.logseq.com/t/show-todo-toggle-in-query-table-view/12720/5
 	- Clickable **links** using `call-api` and `push_state()`
 	  collapsed:: true
 	    `:result-transform` `:view`
+	  {{button copy,copy_second_sibling,ea6f,long squat}}
+		- {{nested-code-block}}
+		  collapsed:: true
+			- copy_second_sibling:
+			  ```js
+			  const second_child = logseq.api.get_next_sibling_block(this.nestedMacroUuid);
+			  const pattern = new RegExp("```(?:[a-zA-Z\\d_-]*)*\\n(.+?)\\n```", "usgm");
+			  const match = pattern.exec(second_child.content);
+			  const clipboard = `${match[1]}\n\n[source](((${second_child.uuid})))`;
+			  navigator.clipboard.writeText(clipboard);
+			  ```
 		- ```
 		  {:view (fn
 		           ; the query will return an array with one item, so [[count]] will destructure the number
@@ -603,8 +740,18 @@ collection:: [[logseq queries]]
 		    [?pb :block/name "pile"] ; where pb is the block for a page named "pile"
 		    [?b :block/refs ?pb]]}   ; and blocks reference it
 		  ```
+	- HIDE EVERYTHING
+		- ```
+		   :breadcrumb-show? false
+		   :children? false
+		   :group-by-page? false
+		  ```
+- ### custom functions
+	- #### :sort-by-journal-day
+	  id:: 663a1fa7-6f8c-4790-b8d5-8d7c0ffff815
+	  `:result-transform`
+		- Implements ((663a1f42-6ff8-4a1b-a953-cca70c833e52))
 - ## {{i eff2}} Query library
-  id:: 65fb267e-f677-4130-a1b8-501b291c805b
   query:: ((65f7767a-9fe3-4b51-a564-c36be58ce5fa))
   collapsed:: true
   *Advanced queries I reuse*
@@ -644,7 +791,137 @@ collection:: [[logseq queries]]
   
   }
   #+END_QUERY
-	-
+	- #### {{i ed18,gray}}  logseq graph news
+	  collapsed:: true
+		- jump to: info  embed, history
+		- id:: 66415d9e-5591-4219-bc68-eb54393bccff
+		  #+BEGIN_QUERY
+		  {:inputs ["news" :5d-before :today :current-page]
+		  :query
+		  [:find (pull ?b [*])
+		  :in $ ?macro ?start ?end ?current-page
+		  :where
+		  [?m :block/properties ?props]
+		  [(get ?props :logseq.macro-name) ?macros]
+		  [(= ?macros ?macro)]
+		  [?b :block/macros ?m]
+		  [?b :block/page ?p]
+		  [?p :block/journal-day ?j-day]
+		  [(>= ?j-day ?start)]
+		  [(<= ?j-day ?end)]
+		  [?j :block/name ?current-page]
+		  [?j :block/journal-day ?day]
+		  [(= ?end ?day)]
+		        ]
+		   :result-transform :sort-by-journal-day
+		  :breadcrumb-show? false
+		  :children? false
+		  :group-by-page? false
+		  }
+		  #+END_QUERY
+	- #### {{i ed18,gray}}  Future appointments
+	  id:: 66415c9e-ff58-4281-8007-160cb44fb8b3
+	  collapsed:: true
+		- id:: 66415ca6-d397-4fc1-97f1-95f7b516e6d1
+		  #+BEGIN_QUERY
+		  {:query
+		  [:find (pull ?b [*])
+		  :in $ ?from
+		  :where
+		  [?b :block/properties ?props]
+		  [(get ?props :activity) _]
+		  [?b :block/refs ?refs]
+		  [?refs :block/journal-day ?d]
+		  [(>= ?d ?from)]
+		  ]
+		  :inputs [:tomorrow]
+		   :breadcrumb-show? false
+		   :children? false
+		   :group-by-page? false
+		  }
+		  #+END_QUERY
+	- #### {{i ed18,gray}}  *Quick view:* Grocery list
+		- id:: 663f8303-7fca-406d-83ed-d93002164105
+		  #+BEGIN_QUERY
+		  {
+		    :query [:find (pull ?b [*])
+		            :where
+		  		[?b :block/marker ?m]
+		    (not [(contains? #{"DONE" "CANCELED"} ?m)] )
+		    (property ?b :goods-category "food")
+		    ]
+		  :result-transform (fn [result]
+		                      (let [heading-pattern (re-pattern "^(TODO\\s\\{\\{grocery\\}\\}\\s+)")
+		                            macro-pattern (re-pattern "\\{\\{[iI] ([a-fA-F0-9]{4})\\}\\}")
+		                            replace-macro (fn [macro-match]
+		                                            (str "&#x" (second macro-match) ";"))
+		                            first-lines (map (fn [r]
+		                                               (let [content (get-in r [:block/content])
+		                                                     first-newline (str/index-of content "\n")
+		                                                     line (if first-newline
+		                                                            (subs content 0 first-newline)
+		                                                            content)             
+		                                                     line-without-heading (clojure.string/replace line heading-pattern "")
+		                                                     line-with-glyphs (clojure.string/replace line-without-heading macro-pattern replace-macro)]
+		                                                 {:text line-with-glyphs
+		                                                  }))
+		                                             result)]
+		                        first-lines))
+		  :view (fn [items]
+		  [:div {:class "journal-quickview"}
+		   [:div {:class "jq-icon-container"}
+		    [:a {:class "jq-icon-link" :href "#/page/grocery%20list"} "\uf21c"]
+		    [:span {:class "jq-label"} " grocery"]
+		  ]
+		   [:div {:class "jq-data"}
+		    [:span {:class "jq-items"} (interpose ", " (for [{:keys [text]} items] text))]]]
+		  )
+		  }
+		  #+END_QUERY
+	- #### {{i ed18,gray}}  *Quick view:* online orders
+		- id:: 663f79d8-20d7-4027-9ff5-500ae36ff757
+		  #+BEGIN_QUERY
+		  {
+		    :query [:find (pull ?b [*])
+		            :where 
+		            [?t :block/name "online order"]
+		            [?b :block/refs ?t]
+		            [?b :block/marker ?marker]
+		            [(contains? #{"TODO"} ?marker)]
+		              (not 
+		             [?b :block/parent ?parent]
+		             [?parent :block/properties ?props]
+		             [(get ?props :template)]
+		             )
+		    ]
+		  :result-transform (fn [result]
+		                      (let [heading-pattern (re-pattern "^(TODO\\s+)")
+		                            macro-pattern (re-pattern "\\{\\{[iI] ([a-fA-F0-9]{4})\\}\\}")
+		                            replace-macro (fn [macro-match]
+		                                            (str "&#x" (second macro-match) ";"))
+		                            first-lines (map (fn [r]
+		                                               (let [content (get-in r [:block/content])
+		                                                     first-newline (str/index-of content "\n")
+		                                                     line (if first-newline
+		                                                            (subs content 0 first-newline)
+		                                                            content)             
+		                                                     line-without-heading (clojure.string/replace line heading-pattern "")
+		                                                     line-with-glyphs (clojure.string/replace line-without-heading macro-pattern replace-macro)]
+		                                                 {:text line-with-glyphs
+		                                                  }))
+		                                             result)]
+		                        first-lines))
+		   :view (fn [items]
+		  [:div {:class "journal-quickview"}
+		    [:div {:class "jq-icon-container"}
+		      [:a {:class "jq-icon-link" :href "#/page/shopping"} "\ueaff"][:span {:class "jq-label"} "deliveries"]
+		  ]
+		    [:div {:class "jq-data"}
+		      
+		      [:span {:class "jq-items"} (interpose ", " (for [{:keys [text]} items] text))]]]
+		   )
+		  }
+		  #+END_QUERY
 	- #### Section contents
 	  id:: 65f7767a-9fe3-4b51-a564-c36be58ce5fa
 	  collapsed:: true
@@ -1221,7 +1498,6 @@ collection:: [[logseq queries]]
 		  #+END_QUERY
 		  ```
 - ## {{i eb6c}} Query prompts
-  collapsed:: true
   *For conversations with Co-pilot*
 	- ### Query predicate functions
 		- #+BEGIN_QUOTE
@@ -1393,6 +1669,229 @@ collection:: [[logseq queries]]
 		  
 		  ```
 		  #+END_QUOTE
+- ### datalog code
+  id:: 663a4752-f9b9-4dc2-b4bf-fb7b09d9c283
+  collapsed:: true
+	- #### and
+	  id:: 663a4799-cf84-4fa4-9a1b-88452254f1cf
+	  collapsed:: true
+	  {{i-github}} [datascript/parser.clj:L548](https://github.com/tonsky/datascript/blob/61edb9e76d92fad2106f9c01bc80e659a4292ea8/src/datascript/parser.cljc#L548)   {{button copy,copy_second_sibling,ea6f,long squat}}
+		- {{nested-code-block}}
+		  collapsed:: true
+			- copy_second_sibling:
+			  ```js
+			  const second_child = logseq.api.get_next_sibling_block(this.nestedMacroUuid);
+			  const pattern = new RegExp("```(?:[a-zA-Z\\d_-]*)*\\n(.+?)\\n```", "usgm");
+			  const match = pattern.exec(second_child.content);
+			  const clipboard = `${match[1]}\n\n[source](((${second_child.uuid})))`;
+			  navigator.clipboard.writeText(clipboard);
+			  ```
+		- ```datalog
+		  (defn parse-and [form]
+		    (when (and (sequential? form)
+		               (= 'and (first form)))
+		      (let [clauses* (parse-clauses (next form))]
+		        (if (not-empty clauses*)
+		          (And. clauses*)
+		          (raise "Cannot parse 'and' clause, expected [ 'and' clause+ ]"
+		                 {:error :parser/where, :form form})))))
+		  ```
+	- #### or
+	  collapsed:: true
+	  {{i-github}} [datascript/parser.clj:L557](https://github.com/tonsky/datascript/blob/61edb9e76d92fad2106f9c01bc80e659a4292ea8/src/datascript/parser.cljc#L557)  {{button copy,copy_second_sibling,ea6f,long squat}}
+		- {{nested-code-block}}
+		  collapsed:: true
+			- copy_second_sibling:
+			  ```js
+			  const second_child = logseq.api.get_next_sibling_block(this.nestedMacroUuid);
+			  const pattern = new RegExp("```(?:[a-zA-Z\\d_-]*)*\\n(.+?)\\n```", "usgm");
+			  const match = pattern.exec(second_child.content);
+			  const clipboard = `${match[1]}\n\n[source](((${second_child.uuid})))`;
+			  navigator.clipboard.writeText(clipboard);
+			  ```
+		- ```datalog
+		  (defn parse-or [form]
+		    (when-let [[source* next-form] (take-source form)]
+		      (let [[sym & clauses] next-form]
+		        (when (= 'or sym)
+		          (if-let [clauses* (parse-seq (some-fn parse-and parse-clause) clauses)]
+		            (-> (Or. source* (RuleVars. nil (collect-vars-distinct clauses*)) clauses*)
+		                (with-source form)
+		                (validate-or form))
+		            (raise "Cannot parse 'or' clause, expected [ src-var? 'or' clause+ ]"
+		                   {:error :parser/where, :form form}))))))
+		  ```
+	- #### or-join
+	  collapsed:: true
+	  {{i-github}} [datascript/parser.clj:L568](https://github.com/tonsky/datascript/blob/61edb9e76d92fad2106f9c01bc80e659a4292ea8/src/datascript/parser.cljc#L568)  {{button copy,copy_second_sibling,ea6f,long squat}}
+		- {{nested-code-block}}
+		  collapsed:: true
+			- copy_second_sibling:
+			  ```js
+			  const second_child = logseq.api.get_next_sibling_block(this.nestedMacroUuid);
+			  const pattern = new RegExp("```(?:[a-zA-Z\\d_-]*)*\\n(.+?)\\n```", "usgm");
+			  const match = pattern.exec(second_child.content);
+			  const clipboard = `${match[1]}\n\n[source](((${second_child.uuid})))`;
+			  navigator.clipboard.writeText(clipboard);
+			  ```
+		- ```datalog
+		  (defn parse-or-join [form]
+		    (when-let [[source* next-form] (take-source form)]
+		      (let [[sym vars & clauses] next-form]
+		        (when (= 'or-join sym)
+		          (let [vars*    (parse-rule-vars vars)
+		                clauses* (parse-seq (some-fn parse-and parse-clause) clauses)]
+		            (if (and vars* clauses*)
+		              (-> (Or. source* vars* clauses*)
+		                  (with-source form)
+		                  (validate-or form))
+		              (raise "Cannot parse 'or-join' clause, expected [ src-var? 'or-join' [variable+] clause+ ]"
+		                     {:error :parser/where, :form form})))))))
+		  ```
+	- #### parsing...
+	  collapsed:: true
+	  {{i-github}} [datascript/parser.clj:L43](https://github.com/tonsky/datascript/blob/61edb9e76d92fad2106f9c01bc80e659a4292ea8/src/datascript/parser.cljc#L43)   {{button copy,copy_second_sibling,ea6f,long squat}}
+		- {{nested-code-block}}
+		  collapsed:: true
+			- copy_second_sibling:
+			  ```js
+			  const second_child = logseq.api.get_next_sibling_block(this.nestedMacroUuid);
+			  const pattern = new RegExp("```(?:[a-zA-Z\\d_-]*)*\\n(.+?)\\n```", "usgm");
+			  const match = pattern.exec(second_child.content);
+			  const clipboard = `${match[1]}\n\n[source](((${second_child.uuid})))`;
+			  navigator.clipboard.writeText(clipboard);
+			  ```
+		- ```datalog
+		  (defn parse-seq [parse-el form]
+		    (when (sequential? form)
+		      (reduce #(if-let [parsed (parse-el %2)]
+		                 (conj %1 parsed)
+		                 (reduced nil))
+		              [] form)))
+		  
+		  (defn parse-where [form]
+		    (or (parse-clauses form)
+		        (raise "Cannot parse :where clause, expected [clause+]"
+		               {:error :parser/where, :form form})))
+		  
+		  (defn parse-clauses [clauses]
+		    (parse-seq parse-clause clauses))
+		  
+		  (defn parse-clause [form]
+		    (or 
+		        (parse-not       form)
+		        (parse-not-join  form)
+		        (parse-or        form)
+		        (parse-or-join   form)
+		        (parse-pred      form)
+		        (parse-fn        form)
+		        (parse-rule-expr form)
+		        (parse-pattern   form)
+		        (raise "Cannot parse clause, expected (data-pattern | pred-expr | fn-expr | rule-expr | not-clause | not-join-clause | or-clause | or-join-clause)"
+		               {:error :parser/where, :form form} )))
+		  ```
+	- #### parse spec
+	  collapsed:: true
+	  {{i-github}} [datascript/parser.clj:L407](https://github.com/tonsky/datascript/blob/61edb9e76d92fad2106f9c01bc80e659a4292ea8/src/datascript/parser.cljc#L407)
+		- ```datalog
+		  ;; clause          = (data-pattern | pred-expr | fn-expr | rule-expr | not-clause | not-join-clause | or-clause | or-join-clause)
+		  ;; data-pattern    = [ src-var? (variable | constant | '_')+ ]
+		  ;; pred-expr       = [ [ pred fn-arg+ ] ]
+		  ;; pred            = (plain-symbol | variable)
+		  ;; fn-expr         = [ [ fn fn-arg+ ] binding ]
+		  ;; fn              = (plain-symbol | variable)
+		  ;; rule-expr       = [ src-var? rule-name (variable | constant | '_')+ ]
+		  ;; not-clause      = [ src-var? 'not' clause+ ]
+		  ;; not-join-clause = [ src-var? 'not-join' [ variable+ ] clause+ ]
+		  ;; or-clause       = [ src-var? 'or' (clause | and-clause)+ ]
+		  ;; or-join-clause  = [ src-var? 'or-join' rule-vars (clause | and-clause)+ ]
+		  ;; and-clause      = [ 'and' clause+ ]
+		  
+		  (deftrecord Pattern   [source pattern])
+		  (deftrecord Predicate [fn args])
+		  (deftrecord Function  [fn args binding])
+		  (deftrecord RuleExpr  [source name args]) ;; TODO rule with constant or '_' as argument
+		  (deftrecord Not       [source vars clauses])
+		  (deftrecord Or        [source rule-vars clauses])
+		  (deftrecord And       [clauses])
+		  
+		  
+		  (defn parse-pattern-el [form]
+		    (or (parse-placeholder form)
+		        (parse-variable form)
+		        (parse-constant form)))
+		  
+		  (defn take-source [form]
+		    (when (sequential? form)
+		      (if-let [source* (parse-src-var (first form))]
+		        [source* (next form)]
+		        [(DefaultSrc.) form])))
+		        
+		  (defn parse-pattern [form]
+		    (when-let [[source* next-form] (take-source form)]
+		      (when-let [pattern* (parse-seq parse-pattern-el next-form)]
+		        (if-not (empty? pattern*)
+		          (with-source (Pattern. source* pattern*) form)
+		          (raise "Pattern could not be empty"
+		                 {:error :parser/where, :form form})))))
+		  
+		  (defn parse-call [form]
+		    (when (sequential? form)
+		      (let [[fn & args] form
+		            args  (if (nil? args) [] args)
+		            fn*   (or (parse-plain-symbol fn)
+		                      (parse-variable fn))
+		            args* (parse-seq parse-fn-arg args)]
+		        (when (and fn* args*)
+		          [fn* args*]))))
+		  
+		  (defn parse-pred [form]
+		    (when (of-size? form 1)
+		      (when-let [[fn* args*] (parse-call (first form))]
+		        (-> (Predicate. fn* args*)
+		            (with-source form)))))
+		  
+		  (defn parse-fn [form]
+		    (when (of-size? form 2)
+		      (let [[call binding] form]
+		        (when-let [[fn* args*] (parse-call call)]
+		          (when-let [binding* (parse-binding binding)]
+		            (-> (Function. fn* args* binding*)
+		                (with-source form)))))))
+		  
+		  (defn parse-rule-expr [form]
+		    (when-let [[source* next-form] (take-source form)]
+		      (let [[name & args] next-form
+		            name* (parse-plain-symbol name)
+		            args* (parse-seq parse-pattern-el args)]
+		        (when name*
+		          (cond
+		            (empty? args)
+		              (raise "rule-expr requires at least one argument"
+		                     {:error :parser/where, :form form})
+		            (nil? args*)
+		              (raise "Cannot parse rule-expr arguments, expected [ (variable | constant | '_')+ ]"
+		                     {:error :parser/where, :form form})
+		            :else
+		              (RuleExpr. source* name* args*)
+		            )))))
+		  ```
+	- #### parse spec
+	  collapsed:: true
+	  {{i-github}} [datascript/parser.clj:L229](https://github.com/tonsky/datascript/blob/61edb9e76d92fad2106f9c01bc80e659a4292ea8/src/datascript/parser.cljc#L229)
+		- ```datalog
+		  ;; find-spec        = ':find' (find-rel | find-coll | find-tuple | find-scalar)
+		  ;; find-rel         = find-elem+
+		  ;; find-coll        = [ find-elem '...' ]
+		  ;; find-scalar      = find-elem '.'
+		  ;; find-tuple       = [ find-elem+ ]
+		  ;; find-elem        = (variable | pull-expr | aggregate | custom-aggregate) 
+		  ;; pull-expr        = [ 'pull' src-var? variable pull-pattern ]
+		  ;; pull-pattern     = (constant | variable | plain-symbol)
+		  ;; aggregate        = [ aggregate-fn fn-arg+ ]
+		  ;; aggregate-fn     = plain-symbol
+		  ;; custom-aggregate = [ 'aggregate' variable fn-arg+ ]
+		  ```
 - ### {{I eade}} resources
   collapsed:: true
 	- https://charleschiugit.github.io/page/logseq/queries/

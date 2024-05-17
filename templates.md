@@ -5,224 +5,53 @@ description:: `/template`s with boilerplate for collector blocks, page tags, dai
   *Used automatically*
 	- ####  {{I ec9e}} Journal buddies
 	  id:: 662becda-117c-4bed-a4e7-d27b7cd1b6f3
-	  collapsed:: true
 	  Buttons and skincare-routine
 		- Event header for daily journal
 		  id:: 65fb3d58-f121-4f03-a702-fbc3e6e5c98c
 		  template:: Event header for daily journal
 		  template-including-parent:: false
-			- ### {{I ec9e}} [Journal buddies](logseq://graph/main?block-id=662becda-117c-4bed-a4e7-d27b7cd1b6f3)
-				- {{i ea4b}} projects
+			- ### {{i ec9e}} Journal buddies
+				- ##### {{i ea4b}}  projects
 				  collapsed:: true
 					- {{embed ((661fffe3-80b2-4405-b2ff-69e062815534))}}
 					- {{embed ((66284c88-09a4-4a61-a3bb-7aeb67dd85e4))}}
-				- ##### {{I eabe}} admin
+				- ##### {{I eabe}}  admin
+				  collapsed:: true
 					- {{button doing,doing,ec45}}  {{button organize,organization-blocks,eaad}}
-					  collapsed:: true
 						- Code Blocks
 						  doing:
 						  ```js
-						  const journal_block_uuid = getParentUUID(getParentUUID(this.target_uuid));
-						  const new_uuid = crypto.randomUUID();
-						  const new_block_content = `{{i ec45}} **Doing** today`;
-						  const options = { sibling:true, before:false, focus:false, customUUID:new_uuid }
-						  logseq.api.insert_block(journal_block_uuid, new_block_content, options);
-						  
-						  // construct doing block child button
-						  const button_block_content = "{{button do,do}}";
-						  const button_block_uuid = crypto.randomUUID();
-						  const button_block_options = { focus:false, customUUID:button_block_uuid, properties:{ collapsed: true } }
-						  logseq.api.insert_block(new_uuid, button_block_content, button_block_options)
-						  
-						  const codeblock_content = `Code block
-						  do:
-						  \`\`\`js
-						  const content = "";
-						  const options = { sibling:true, before:false, focus:true }
-						  logseq.api.insert_block(this.target_uuid, content, options);
-						  console.log('lol');
-						  \`\`\``;
-						  const codeblock_uuid = crypto.randomUUID();
-						  const codeblock_options = { focus:false, customUUID:codeblock_uuid }
-						  logseq.api.insert_block(button_block_uuid, codeblock_content, codeblock_options);
+						  journalHelper(this, 'doingBlocks');
 						  ```
 						  
 						  organization-blocks:
 						  ```js
-						  const block_content = [
-						    "### {{h-notes}} [[notes]]\n((662e67a8-8e34-4a89-b3f9-7d4fa65a47f7))",
-						    "### {{h-research}} [[research]]\n((662e691a-f289-4178-8828-d8d624de58c5))",
-						    "### {{h-writings}} [[writings]]\n((662e696b-3d43-4201-acf5-76879c81cdc6))",
-						    "### {{h-thoughts}} [[thoughts]]\n((662e68bb-da7d-4c47-a248-71f8c4554969))",
-						    "### {{h-admin}} [[admin]]\n((662e6daa-e7f1-489f-a8ae-d40add917aa1))",
-						    "### {{h-resources}} [[resources]]\n((662e6757-a3ce-4379-9519-52d6b6133dfb))"
-						  ];
-						  const buttonBlock = logseq.api.get_block(this.target_uuid);
-						  const pageId = buttonBlock.page.id;
-						  const page = logseq.api.get_page(pageId);
-						  
-						  block_content.forEach(async function(content) {
-						    await logseq.api.insert_block(page.name, content);
-						  });
-						  logseq.api.exit_editing_mode();
+						  journalHelper(this, 'organizationBlocks');
 						  ```
-					- news!!!
-					  collapsed:: true
-					  #+BEGIN_QUERY
-					  {:title "Block Data for ID 12294"
-					   :query [:find (pull ?b [*])
-					           :in $ ?macro
-					           :where
-					   [?m :block/properties ?props]
-					   [(get ?props :logseq.macro-name) ?macros]
-					  [(= ?macros ?macro)]
-					  [?b :block/macros ?m]
-					          ]
-					   :inputs ["news"]
-					   :result-transform (fn [result] result)
-					   :breadcrumb-show? false
-					   :children? false
-					   :group-by-page? false}
-					  #+END_QUERY
 				- {{button buy,buy,eb25}}  {{button grocery,grocery,f21c}}  {{button order,order,eaff}}
 				  collapsed:: true
 					- buy:
 					  ```js
-					  var new_block_content = `TODO {{buy}} 
-					  goods-category:: [[]]`;
-					  append_block_and_edit(this, "page", new_block_content);
+					  journalHelper(this, 'buy');
 					  ```
 					  
 					  grocery:
 					  ```js
-					  var new_block_content = `TODO {{grocery}}
-					  goods-category:: [[food]]`;
-					  append_block_and_edit(this, "page", new_block_content);
-					  ```
-					  
-					  doing:
-					  ```js
-					  const journal_block_uuid = getParentUUID(this.target_uuid);
-					  const new_uuid = crypto.randomUUID();
-					  const new_block_content = `{{i ec45}} **Doing** today`;
-					  const options = { sibling:true, before:false, focus:false, customUUID:new_uuid }
-					  logseq.api.insert_block(journal_block_uuid, new_block_content, options);
-					  
-					  // construct doing block child button
-					  const button_block_content = "{{button do,do}}";
-					  const button_block_uuid = crypto.randomUUID();
-					  const button_block_options = { focus:false, customUUID:button_block_uuid, properties:{ collapsed: true } }
-					  logseq.api.insert_block(new_uuid, button_block_content, button_block_options)
-					  
-					  const codeblock_content = `Code block
-					  do:
-					  \`\`\`js
-					  const content = "";
-					  const options = { sibling:true, before:false, focus:true }
-					  logseq.api.insert_block(this.target_uuid, content, options);
-					  console.log('lol');
-					  \`\`\``;
-					  const codeblock_uuid = crypto.randomUUID();
-					  const codeblock_options = { focus:false, customUUID:codeblock_uuid }
-					  logseq.api.insert_block(button_block_uuid, codeblock_content, codeblock_options);
+					  journalHelper(this, 'grocery');
 					  ```
 					  
 					  order:
 					  ```js
-					  const templateName = "online order";
-					  
-					  const thisBlock = logseq.api.get_block(this.uuid);
-					  const thisPage = logseq.api.get_page(thisBlock.page.id);
-					  
-					  const blockTree = logseq.api.get_page_blocks_tree(thisPage.uuid);
-					  
-					  const lastBlockInPage = blockTree[blockTree.length - 1];
-					  
-					  logseq.api.insert_template(lastBlockInPage.uuid, templateName);
-					  console.log("last block in page: " + JSON.stringify(lastBlockInPage));
-					  //var insertedBlockUUID = targetBlock.children[0][1];
-					  console.log(JSON.stringify(templateBlockUUID));
+					  journalHelper(this, 'onlineOrder');
 					  ```
-				- #+BEGIN_QUERY
-				  
-				  {
-				    :query [:find (pull ?b [*])
-				            :where 
-				            [?t :block/name "online order"]
-				            [?b :block/refs ?t]
-				            [?b :block/marker ?marker]
-				            [(contains? #{"TODO"} ?marker)]
-				              (not 
-				             [?b :block/parent ?parent]
-				             [?parent :block/properties ?props]
-				             [(get ?props :template)]
-				             )
-				    ]
-				  :result-transform (fn [result]
-				                      (let [heading-pattern (re-pattern "^(TODO\\s+)")
-				                            macro-pattern (re-pattern "\\{\\{[iI] ([a-fA-F0-9]{4})\\}\\}")
-				                            replace-macro (fn [macro-match]
-				                                            (str "&#x" (second macro-match) ";"))
-				                            first-lines (map (fn [r]
-				                                               (let [content (get-in r [:block/content])
-				                                                     first-newline (str/index-of content "\n")
-				                                                     line (if first-newline
-				                                                            (subs content 0 first-newline)
-				                                                            content)             
-				                                                     line-without-heading (clojure.string/replace line heading-pattern "")
-				                                                     line-with-glyphs (clojure.string/replace line-without-heading macro-pattern replace-macro)]
-				                                                 {:text line-with-glyphs
-				                                                  }))
-				                                             result)]
-				                        first-lines))
-				   :view (fn [items]
-				  [:div {:class "journal-quickview"}
-				    [:div {:class "jq-icon-container"}
-				      [:a {:class "jq-icon-link" :href "#/page/shopping"} "\ueaff"]
-				  [:span {:class "jq-label"} "deliveries"]
-				  ]
-				    [:div {:class "jq-data"}
-				      
-				      [:span {:class "jq-items"} (interpose ", " (for [{:keys [text]} items] text))]]]
-				   )
-				  }
-				  #+END_QUERY
-				- #+BEGIN_QUERY
-				  {
-				    :query [:find (pull ?b [*])
-				            :where
-				  		[?b :block/marker ?m]
-				    (not [(contains? #{"DONE" "CANCELED"} ?m)] )
-				    (property ?b :goods-category "food")
-				    ]
-				  :result-transform (fn [result]
-				                      (let [heading-pattern (re-pattern "^(TODO\\s\\{\\{grocery\\}\\}\\s+)")
-				                            macro-pattern (re-pattern "\\{\\{[iI] ([a-fA-F0-9]{4})\\}\\}")
-				                            replace-macro (fn [macro-match]
-				                                            (str "&#x" (second macro-match) ";"))
-				                            first-lines (map (fn [r]
-				                                               (let [content (get-in r [:block/content])
-				                                                     first-newline (str/index-of content "\n")
-				                                                     line (if first-newline
-				                                                            (subs content 0 first-newline)
-				                                                            content)             
-				                                                     line-without-heading (clojure.string/replace line heading-pattern "")
-				                                                     line-with-glyphs (clojure.string/replace line-without-heading macro-pattern replace-macro)]
-				                                                 {:text line-with-glyphs
-				                                                  }))
-				                                             result)]
-				                        first-lines))
-				  :view (fn [items]
-				  [:div {:class "journal-quickview"}
-				   [:div {:class "jq-icon-container"}
-				    [:a {:class "jq-icon-link" :href "#/page/grocery%20list"} "\uf21c"]
-				    [:span {:class "jq-label"} "grocery"]
-				  ]
-				   [:div {:class "jq-data"}
-				    [:span {:class "jq-items"} (interpose ", " (for [{:keys [text]} items] text))]]]
-				  )
-				  }
-				  #+END_QUERY
+				- {{embed ((663f79d8-20d7-4027-9ff5-500ae36ff757))}}
+				- {{embed ((663f8303-7fca-406d-83ed-d93002164105))}}
+				- #### {{i eafd}}  news
+				  collapsed:: true
+					- {{embed ((66415d9e-5591-4219-bc68-eb54393bccff))}}
+				- #### {{i ea53}}  future appointments
+				  collapsed:: true
+					- {{embed ((66415ca6-d397-4fc1-97f1-95f7b516e6d1))}}
 			- TODO {{i ef63}} Take medication
 			  id:: 65fdfbf2-818e-404e-9d60-7f941f29bf34
 			  {{schedule-date-today}}
