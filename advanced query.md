@@ -1,6 +1,7 @@
 description:: Saved or otherwise in-progress Logseq advanced queries. Also currently query reference and library (needs ???)
 tags:: collector, page
 collection:: [[logseq queries]]
+-share:: true
 
 - query:: ((65f61ef5-45b1-4c58-b2b5-bced3827ae44))
   #+BEGIN_QUERY
@@ -92,6 +93,7 @@ collection:: [[logseq queries]]
   #+END_QUERY
 	- #### Database utility functions
 	  id:: 65c59bb1-08f0-4e2f-bf0f-a7d9e5a4bb79
+	  collapsed:: true
 	  Keywords for `:inputs`
 	  *(e.g. `:current-page`, `:query-page`, etc*)
 	  {{Il ec1c,logseq db.cljs:L77,https://github.com/logseq/logseq/blob/c3df737390d4728edc865136c07ee74860bce39a/deps/graph-parser/src/logseq/graph_parser/util/db.cljs#L77}}
@@ -361,37 +363,51 @@ collection:: [[logseq queries]]
 	  {{il ec1c,datascript/built_ins.cljc:L81,https://https://github.com/tonsky/datascript/blob/9e3ad968ec6b25b53963f3f96c8f6cae6713d918/src/datascript/built_ins.cljc#L81}}
 		- ```clj
 		  (def query-fns {
-		    '= =, '== ==,
+		    '= =, 
+		    '== ==,
 		    'not= not=,
 		    '!= not=,
-		    '< less, '> greater,
+		    '< less, 
+		    '> greater,
 		    '<= less-equal,
 		    '>= greater-equal,
-		    '+ +, '- -, 
-		    '* *, '/ /,
-		    'quot quot, 'rem rem,
-		    'mod mod, 'inc inc,
-		    'dec dec, 'max max, 
-		    'min min, 'zero? zero?,
-		    'pos? pos?, 'neg? neg?,
-		    'even? even?, 'odd? odd?,
+		    '+ +,
+		    '- -, 
+		    '* *, 
+		    '/ /,
+		    'quot quot, 
+		    'rem rem,
+		    'mod mod, 
+		    'inc inc,
+		    'dec dec, 
+		    'max max, 
+		    'min min, 
+		    'zero? zero?,
+		    'pos? pos?,
+		    'neg? neg?,
+		    'even? even?,
+		    'odd? odd?,
 		    'compare compare,
 		    'rand rand, 
 		    'rand-int rand-int,
 		    'true? true?, 
 		    'false? false?, 
-		    'nil? nil?, 'some? some?,
-		    'not not, 'and and-fn,
+		    'nil? nil?, 
+		    'some? some?,
+		    'not not, 
+		    'and and-fn,
 		    'or or-fn,
 		    'complement complement,
 		    'identical? identical?,
 		    'identity identity,
 		    'keyword keyword, 
-		    'meta meta, 'name name, 
+		    'meta meta,
+		    'name name, 
 		    'namespace namespace,
 		    'type type,
 		    'vector vector,
-		    'list list, 'set set,
+		    'list list, 
+		    'set set,
 		    'hash-map hash-map,
 		    'array-map array-map,
 		    'count count,
@@ -399,8 +415,10 @@ collection:: [[logseq queries]]
 		    'not-empty not-empty,
 		    'empty? empty?, 
 		    'contains? contains?,
-		    'str str, 'subs, subs,
-		    'get get, 'pr-str pr-str,
+		    'str str,
+		    'subs, subs,
+		    'get get, 
+		    'pr-str pr-str,
 		    'print-str print-str,
 		    'println-str println-str,
 		    'prn-str prn-str,
@@ -417,7 +435,8 @@ collection:: [[logseq queries]]
 		    'clojure.string/includes? str/includes?,
 		    'clojure.string/starts-with? str/starts-with?,
 		    'clojure.string/ends-with? str/ends-with?
-		    'tuple vector, 'untuple identity
+		    'tuple vector, 
+		    'untuple identity
 		  })
 		  ```
 - ## {{i efd3}} query concept snippets
@@ -753,7 +772,6 @@ collection:: [[logseq queries]]
 		- Implements ((663a1f42-6ff8-4a1b-a953-cca70c833e52))
 - ## {{i eff2}} Query library
   query:: ((65f7767a-9fe3-4b51-a564-c36be58ce5fa))
-  collapsed:: true
   *Advanced queries I reuse*
   #+BEGIN_QUERY
   {
@@ -791,8 +809,110 @@ collection:: [[logseq queries]]
   
   }
   #+END_QUERY
-	- #### {{i ed18,gray}}  logseq graph news
+	- #### {{i ed18,gray}} Next appointments
+	  id:: 664ceeec-b343-4d67-94d5-4db82220f06f
+		- id:: 664e4055-3b72-4ba1-ac8b-48e34544629c
+		  #+BEGIN_QUERY
+		  {:query
+		   [:find (min ?day) ?date ?day ?content ?props ?today
+		   :keys min-day date day content properties today
+		    :in $ ?today
+		  
+		    :where
+		    [?e :block/properties ?props]
+		    [(get ?props :event) ?event]
+		    [(get ?props :date) ?date]
+		    [?e :block/refs ?refs]
+		    [?e :block/content ?content]
+		    [?refs :block/journal-day ?day]
+		    [(>= ?day ?today)]
+		  ]
+		  
+		  :view (fn [results]
+		          (let [min-day (get-in (first results) [:min-day])
+		                date (get-in (first results) [:date])
+		                today (get-in (first results) [:today])
+		                difference (- min-day today)
+		                events (map (fn [result]
+		                              (let [event-day (get-in result [:day])
+		                                    event-name (get-in result [:properties :event])
+		                                    person-names (get-in result [:properties :with])]
+		  
+		                                (when (= event-day min-day)
+		                                  (str
+		                                   (when event-name (str event-name))
+		                                   (when person-names 
+		                                     (str " with " 
+		                                          (clojure.string/join ", " (seq person-names)))))) ;when
+		  ) ;let
+		  ) ;fn
+		                            results)
+		                filtered-events (filter some? events)
+		                events-but-last (butlast filtered-events)
+		                last-event (last filtered-events)
+		                ] ;let vars
+		            
+		  [:div 
+		   [:small 
+		    (concat 
+		     (interpose ", " 
+		      (map (fn [event] 
+		             [:span {:class "amber"} event]) 
+		           events-but-last)) 
+		     [", and " 
+		      [:span {:class "amber"} last-event]])
+		    " on " date]]
+		  
+		             ) ;let
+		  ) ;fn
+		  
+		  
+		  :result-transform (fn [result]
+		                      (sort-by (fn [r] (get-in r [:day])) (fn [a b] (compare a b)) result))
+		  
+		   :inputs [:today]
+		  }
+		  #+END_QUERY
+	- #### {{i ed18,gray}} Current medication list
 	  collapsed:: true
+		- id:: 664cb068-64bb-4dc5-aa7e-b0678b63a6fe
+		  #+BEGIN_QUERY
+		  {:query
+		   [:find ?mname ?date ?day ?dose
+		    :keys mname date day dose
+		    :where
+		    [?m :block/properties ?props]
+		    [(get ?props :medication) ?mname]
+		    [(get ?props :dose) ?dose]
+		  
+		    [?m :block/page ?p]
+		    [?p :block/original-name ?day]
+		    [?p :block/journal-day ?date]]
+		  
+		   :result-transform (fn [results]
+		                       (->> results
+		                            (group-by :mname)
+		                            (map (fn [[med-name group]]
+		                                   (reduce (fn [acc curr]
+		                                             (if (> (get acc :date) (get curr :date))
+		                                               acc
+		                                               curr))
+		                                           group)))
+		                            (sort-by (comp - :date))))
+		  :view (fn [rows] [:table
+		                    [:thead [:tr
+		                             [:th "Medication name"]
+		                             [:th "Dose"]
+		                             [:th "Date"]]] 
+		                    [:tbody (for [r rows] 
+		                              [:tr
+		                               [:td [:a {:on-click (fn [] (call-api "push_state" "page" {:name (str (get-in r [:mname]))}))} 
+		                                    (get-in r [:mname])]]
+		                               [:td (get-in r [:dose])]
+		                               [:td (get-in r [:day])]])
+		                     ]])}
+		  #+END_QUERY
+	- #### {{i ed18,gray}}  logseq graph news
 		- jump to: info  embed, history
 		- id:: 66415d9e-5591-4219-bc68-eb54393bccff
 		  #+BEGIN_QUERY
@@ -1498,8 +1618,10 @@ collection:: [[logseq queries]]
 		  #+END_QUERY
 		  ```
 - ## {{i eb6c}} Query prompts
+  collapsed:: true
   *For conversations with Co-pilot*
 	- ### Query predicate functions
+	  collapsed:: true
 		- #+BEGIN_QUOTE
 		  Please read the following clojure source code for that defines the query predicate functions available for use in Logseq advanced queries as I am going to ask you some questions about it aferwards.
 		  
@@ -1578,6 +1700,7 @@ collection:: [[logseq queries]]
 		  ```
 		  #+END_QUOTE
 	- ### DSL rules
+	  collapsed:: true
 		- #+BEGIN_QUOTE
 		  File `deps/db/src/logseq/db/rules.cljc` in the logseq github repository:
 		  ```clj
