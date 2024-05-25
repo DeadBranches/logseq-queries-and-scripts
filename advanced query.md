@@ -1,7 +1,7 @@
 description:: Saved or otherwise in-progress Logseq advanced queries. Also currently query reference and library (needs ???)
 tags:: collector, page
 collection:: [[logseq queries]]
--share:: true
+repository:: DeadBranches/logseq-queries-and-scripts
 
 - query:: ((65f61ef5-45b1-4c58-b2b5-bced3827ae44))
   #+BEGIN_QUERY
@@ -58,6 +58,7 @@ collection:: [[logseq queries]]
   
   #+END_QUERY
 - ## {{i eb6e}} datalog language reference
+  collapsed:: true
   cateloguing advanced query syntax elements
   #+BEGIN_QUERY
   {
@@ -439,13 +440,25 @@ collection:: [[logseq queries]]
 		    'untuple identity
 		  })
 		  ```
-- ## {{i efd3}} query concept snippets
-  collapsed:: true
+- ## {{i efd3}}   concept snippets
   advanced queries labeled by use case
 	- Exclude blocks with property value *x*
 		- ```clj
 		  (not (property ?b :goods-category "food"))
 		  ```
+	- query **results only**  {{i ef40}}
+	  collapsed:: true
+	  `:rules`
+		- ```
+		   :breadcrumb-show? false
+		   :children? false
+		   :group-by-page? false
+		  ```
+			- template:: query results only
+			  template-including-parent:: false
+				- :breadcrumb-show? false
+				   :children? false
+				   :group-by-page? false
 	- block has `:block/property` *x*
 		- ```datalog
 		    [?b :block/properties ?prop]
@@ -508,6 +521,7 @@ collection:: [[logseq queries]]
 	    `:result-transform` `:view`
 	  {{button copy,copy_second_sibling,ea6f,long squat}}
 		- {{nested-code-block}}
+		  collapsed:: true
 			- copy_second_sibling:
 			  ```js
 			  const second_child = logseq.api.get_next_sibling_block(this.nestedMacroUuid);
@@ -759,13 +773,8 @@ collection:: [[logseq queries]]
 		    [?pb :block/name "pile"] ; where pb is the block for a page named "pile"
 		    [?b :block/refs ?pb]]}   ; and blocks reference it
 		  ```
-	- HIDE EVERYTHING
-		- ```
-		   :breadcrumb-show? false
-		   :children? false
-		   :group-by-page? false
-		  ```
 - ### custom functions
+  collapsed:: true
 	- #### :sort-by-journal-day
 	  id:: 663a1fa7-6f8c-4790-b8d5-8d7c0ffff815
 	  `:result-transform`
@@ -809,6 +818,32 @@ collection:: [[logseq queries]]
   
   }
   #+END_QUERY
+	- #### Current project
+		- id:: 664f42a4-40eb-44ba-8e8c-89dba2c17a06
+		  #+BEGIN_QUERY
+		  
+		  {:query
+		   [:find (pull ?project [:block/name])
+		    :where
+		    (page-tags ?project #{"project"})
+		    [?managers :block/name ?name]
+		    [(contains? #{"ongoing"} ?name)]
+		  
+		    [?refs-project :block/refs ?project]
+		    [?refs-project :block/parent ?project-ref-parent]
+		  
+		    [?project-ref-parent :block/refs ?managers]]
+		   :view (fn [result]
+		           [:div [:small "current: "
+		                  (for [r result]
+		                    (let [project-name (get r :block/name)]
+		                      [:a {:data-ref project-name
+		                           :style {:color "#797979"}
+		                           :on-click
+		                                   ; call-api is a magical call that allows you to call any API available
+		                                   ; in this case, it navigates to the "pile" page if you click the link
+		                           (fn [] (call-api "push_state" "page" {:name project-name}))} project-name]))]])}
+		  #+END_QUERY
 	- #### {{i ed18,gray}} Next appointments
 	  id:: 664ceeec-b343-4d67-94d5-4db82220f06f
 		- id:: 664e4055-3b72-4ba1-ac8b-48e34544629c
@@ -840,7 +875,8 @@ collection:: [[logseq queries]]
 		  
 		                                (when (= event-day min-day)
 		                                  (str
-		                                   (when event-name (str event-name))
+		                                   (when event-name 
+		                                     (str event-name))
 		                                   (when person-names 
 		                                     (str " with " 
 		                                          (clojure.string/join ", " (seq person-names)))))) ;when
@@ -857,12 +893,11 @@ collection:: [[logseq queries]]
 		    (concat 
 		     (interpose ", " 
 		      (map (fn [event] 
-		             [:span {:class "amber"} event]) 
+		             event) 
 		           events-but-last)) 
 		     [", and " 
 		      [:span {:class "amber"} last-event]])
 		    " on " date]]
-		  
 		             ) ;let
 		  ) ;fn
 		  
@@ -1226,7 +1261,6 @@ collection:: [[logseq queries]]
 			  }
 			  ```
 	- Show **last exfoliation date**
-	  collapsed:: true
 	  *Date of last `:block/marker { #{"DONE"} }` under `:block/parent` with specific ref*
 		- ```clj
 		  {:query
