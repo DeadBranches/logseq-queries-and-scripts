@@ -11,13 +11,10 @@ description:: `/template`s with boilerplate for collector blocks, page tags, dai
 		  template:: Event header for daily journal
 		  template-including-parent:: false
 			- ### {{i ec9e}} Journal buddies
-				- ##### {{i ea4b}}  projects
-				  collapsed:: true
-					- {{embed ((661fffe3-80b2-4405-b2ff-69e062815534))}}
-					- {{embed ((66284c88-09a4-4a61-a3bb-7aeb67dd85e4))}}
 				- ##### {{I eabe}}  admin
 				  collapsed:: true
 					- {{button doing,doing,ec45}}  {{button organize,organization-blocks,eaad}}
+					  collapsed:: true
 						- Code Blocks
 						  doing:
 						  ```js
@@ -28,29 +25,60 @@ description:: `/template`s with boilerplate for collector blocks, page tags, dai
 						  ```js
 						  journalHelper(this, 'organizationBlocks');
 						  ```
-				- {{button buy,buy,eb25}}  {{button grocery,grocery,f21c}}  {{button order,order,eaff}}
-				  collapsed:: true
-					- buy:
-					  ```js
-					  journalHelper(this, 'buy');
-					  ```
-					  
-					  grocery:
-					  ```js
-					  journalHelper(this, 'grocery');
-					  ```
-					  
-					  order:
-					  ```js
-					  journalHelper(this, 'onlineOrder');
-					  ```
-				- {{embed ((663f79d8-20d7-4027-9ff5-500ae36ff757))}}
-				- {{embed ((663f8303-7fca-406d-83ed-d93002164105))}}
-				- #### {{i eafd}}  news
+				- ##### {{i eafd}}  news
 				  collapsed:: true
 					- {{embed ((66415d9e-5591-4219-bc68-eb54393bccff))}}
-				- #### {{i ea53}}  future appointments
+				- {{button '',expand-shopping,eb25}}  {{button buy,add-shopping-item,eb0b}}
 				  collapsed:: true
+					- {{nested-code-block}}
+					  collapsed:: true
+						- expand-shopping:
+						  ```js
+						  logseq.api.set_block_collapsed(this.target_uuid, "toggle")
+						  ```
+						  
+						  add-shopping-item:
+						  ```js
+						  journalHelper(this, 'buy');
+						  ```
+					- {{embed ((6644ee82-6e4e-4936-af4f-8a47ece6985d))}}
+				- {{button '',expand-groceries,f21c}}  {{button grocery,add-grocery-item,eb0b}}
+				  id:: 6649f26f-70ca-4d46-96a8-555f07ae4524
+				  collapsed:: true
+					- {{nested-code-block}}
+					  collapsed:: true
+						- expand-groceries:
+						  ```js
+						  logseq.api.set_block_collapsed(this.target_uuid, "toggle")
+						  ```
+						  
+						  add-grocery-item:
+						  ```js
+						  journalHelper(this, 'grocery');
+						  ```
+					- {{embed ((663f8303-7fca-406d-83ed-d93002164105))}}
+				- {{button '',expand-online-order,eaff}}  {{button order,add-online-order,eb0b}}
+				  collapsed:: true
+					- {{nested-code-block}}
+					  collapsed:: true
+						- expand-online-order:
+						  ```js
+						  logseq.api.set_block_collapsed(this.target_uuid, "toggle")
+						  ```
+						  
+						  add-online-order:
+						  ```js
+						  journalHelper(this, 'onlineOrder');
+						  ```
+					- {{embed ((663f79d8-20d7-4027-9ff5-500ae36ff757))}}
+				- #### {{i f00e}}  project focus
+				  collapsed:: true
+				  {{embed ((664f42a4-40eb-44ba-8e8c-89dba2c17a06))}}
+					- {{embed ((661fffe3-80b2-4405-b2ff-69e062815534))}}
+					- {{embed ((66284c88-09a4-4a61-a3bb-7aeb67dd85e4))}}
+				- #### {{i ea53}}  upcoming appointment
+				  collapsed:: true
+				  {{embed ((664e4055-3b72-4ba1-ac8b-48e34544629c))}}
 					- {{embed ((66415ca6-d397-4fc1-97f1-95f7b516e6d1))}}
 			- TODO {{i ef63}} Take medication
 			  id:: 65fdfbf2-818e-404e-9d60-7f941f29bf34
@@ -75,26 +103,6 @@ description:: `/template`s with boilerplate for collector blocks, page tags, dai
 			- tags:: collector
 			  description:: 
 			  collector:: [[]]
-- ## {{I ec8f}} Query templates
-  Query boilerplate
-	- #### Advanced query boilerplate
-	  collapsed:: true
-	  to start any query
-		- template:: advanced query bootstrap
-		  template-including-parent:: false
-		  #+BEGIN_QUERY
-		  {
-		   :title [:h2 ""] ; Title for query
-		   :query [
-		           :in $ ?input
-		           :find (pull ?b [*])
-		           :where
-		           	[? : ?]
-		           ]
-		   :breadcrumb-show?
-		   :inputs ["<input>"]
-		  }
-		  #+END_QUERY
 - ---
 - Else
 	- {{embed ((66046249-db4c-4206-b001-691fad2bd2e2))}}
@@ -190,8 +198,9 @@ description:: `/template`s with boilerplate for collector blocks, page tags, dai
 	  #+END_QUERY
 - #### old
   collapsed:: true
+	- ## {{I ec8f}} Query templates
+	  Query boilerplate
 	- ### Ideation
-	  collapsed:: true
 	  Ideas, thoughs, and more
 		- ### Problem solving
 			- #### Pros and cons
@@ -243,8 +252,8 @@ description:: `/template`s with boilerplate for collector blocks, page tags, dai
 		  template-including-parent:: false
 			- **
 			  resource:: repository
-			  author:: [[']]
-			  url::
+			  author:: author
+			  url:: url
 		- #### Web page bookmark
 		  
 		  template-including-parent:: false
