@@ -825,6 +825,7 @@ repository:: DeadBranches/logseq-queries-and-scripts
 		  {:query
 		   [:find (pull ?project [:block/name])
 		    :where
+		    
 		    (page-tags ?project #{"project"})
 		    [?managers :block/name ?name]
 		    [(contains? #{"ongoing"} ?name)]
@@ -833,16 +834,22 @@ repository:: DeadBranches/logseq-queries-and-scripts
 		    [?refs-project :block/parent ?project-ref-parent]
 		  
 		    [?project-ref-parent :block/refs ?managers]]
+		   :result-transform (fn [result]
+		                       (if (empty? result)
+		                         [{:block/name "\uf4a5 none"}]
+		                         (sort-by (fn [r] (get r :block/name "none")) result)))
 		   :view (fn [result]
-		           [:div [:small "current: "
-		                  (for [r result]
+		           [:div
+		  [:span {:class "quick-view-label"} "current"]
+		                  
+		          [:span {:class "quick-view-content"} (for [r result] 
 		                    (let [project-name (get r :block/name)]
-		                      [:a {:data-ref project-name
-		                           :style {:color "#797979"}
+		                      [:a {:data-ref project-name :class "tag"
 		                           :on-click
-		                                   ; call-api is a magical call that allows you to call any API available
-		                                   ; in this case, it navigates to the "pile" page if you click the link
-		                           (fn [] (call-api "push_state" "page" {:name project-name}))} project-name]))]])}
+		                           (fn [] (call-api "push_state" "page" {:name project-name}))} project-name]))]        
+		                  ]
+		           )
+		  }
 		  #+END_QUERY
 	- #### {{i ed18,gray}} Next appointments
 	  id:: 664ceeec-b343-4d67-94d5-4db82220f06f
