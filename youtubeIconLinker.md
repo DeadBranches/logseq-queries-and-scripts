@@ -1,3 +1,5 @@
+kit:: yt
+
 - ```javascript
   logseq.kits.setStatic(function youtubeIconLinker(div){
     // Automatically fetch the title of a youtube video.
@@ -5,10 +7,12 @@
     //   `config.edn` macro:
     //     :yt "<div class='kit' data-kit='youtubeIconLinker'>$1</div>"
     //   Youtube API key:
-    //     1. Place your youtube API key in a block surrounded by grave accents (``)
-    //     E.g. `xxxxxxxxxxxxxxxxxxxx`
-    //     2. Copy the API key block ref
-    //     3. Enter the API key block uuid in the apiKeyBlock variable below.
+    //     1. Place your youtube API key alone in a block surrounded
+    //        by grave accents (``) on any page you want. 
+    //        E.g. `xxxxxxxxxxxxxxxxxxxx`
+    //     2. Copy the block reference for the block with the API key
+    //     3. Paste the block uuid into the apiKeyBlock variable below,
+    //        removing the surrounding parentheses.
     // Usage:
     //  {{yt http://www.youtube.com/watch?v=2339f99f}}
   

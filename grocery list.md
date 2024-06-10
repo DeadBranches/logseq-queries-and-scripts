@@ -1,43 +1,56 @@
-#### {{i ef40}} items on the list
+repository:: DeadBranches/logseq-queries-and-scripts
+
+- #### {{i ef40}} items on the list
 	- #+BEGIN_QUERY
-	  {:query [:find (pull ?b [*])
+	  {:inputs ["grocery"]
+	   :query
+	   [:find (pull ?b [*])
+	    :in $ ?macro
 	    :where
-	     [?b :block/marker ?m]
-	     (not [(contains? #{"DONE"} ?m)] )
-	     (property ?b :goods-category "food")
+	    [?b :block/marker ?marker]
+	    (not [(contains? #{"DONE"} ?marker)])
+	    [?b :block/macros ?m]
+	    [?m :block/properties ?props]
+	    [(get ?props :logseq.macro-name) ?macros]
+	    [(= ?macros ?macro)]
 	   ]
-	   :result-transform (fn [result] 
-	     (sort-by
-	       (juxt
-	         (fn [r] (get r :block/scheduled 99999999))
-	         (fn [r] (get r :block/content))
-	         )
-	       (map (fn [m]
-	         (update m :block/properties
-	           (fn [u] (assoc u 
-	           :scheduled (get-in m [:block/scheduled] "-") 
-	           ) )
-	         )
-	       ) result)
-	     )
-	   )
+	   :result-transform
+	   (fn [result]
+	     (sort-by 
+	      (juxt
+	       (fn [r] (get r :block/scheduled 99999999)) 
+	       (fn [r] (get r :block/content))) 
+	      (map 
+	       (fn [m] 
+	         (update 
+	          m :block/properties 
+	          (fn [u] 
+	            (assoc 
+	             u :scheduled (get-in m [:block/scheduled] "-")))))
+	       result))) 
 	   :breadcrumb-show? false
-	  }
+	    }
+	  
+	  
+	  
 	  #+END_QUERY
-- #### {{i f5f8}} in my basket
+- #### {{i f5f8}} in my basket..
 	- #+BEGIN_QUERY
-	  {
-	  :query [:find (pull ?b [*])
-	    :in $ ?end
+	  {:query 
+	   [:find (pull ?b [*]) 
+	    :in $ ?end  ?macro
 	    :where
-	     [?b :block/marker ?m]
-	     [(contains? #{"DONE"} ?m)]
-	     ;;[?t :block/name "buy"]
-	     ;;[?b :block/refs ?t]
-	     ;[?b :block/properties ?props]
-	     ;(property ?b :goods-category "food")
-	     [?b :block/updated-at ?updated]
-	     [(> ?updated ?end)]
+	    ; Find blocks marked DONE today.
+	    [?b :block/updated-at ?updated]
+	    [(> ?updated ?end)]
+	    [?b :block/marker ?marker]
+	    [(contains? #{"DONE"} ?marker)]
+	  
+	    ; Find blocks using {{grocery}}
+	    [?b :block/macros ?m]
+	    [?m :block/properties ?props]
+	    [(get ?props :logseq.macro-name) ?macros]
+	    [(= ?macros ?macro)]
 	   ]
 	   
 	   :result-transform (fn [result] 
@@ -55,18 +68,8 @@
 	       ) result)
 	     )
 	   )
-	  :inputs [:start-of-today-ms]
+	   :inputs [:start-of-today-ms "grocery"] 
+	   :breadcrumb-show? false
 	  }
 	  #+END_QUERY
-- lol 
-  action:: h
-- mushrooms. They are {{i-github}} great
-  +:: lololol
-  collapsed:: true
-  am I rite?
-	- NO YOU ARE NOT
-- hi mom
-  buttons:: nah
-  -query:: lol
-  action:: ok
 -

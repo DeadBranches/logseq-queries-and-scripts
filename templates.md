@@ -3,31 +3,73 @@ description:: `/template`s with boilerplate for collector blocks, page tags, dai
 
 - ## {{i eb96}} Daily journal
   *Used automatically*
+	- {{i ec45}} Doing block
+	  template:: Daily journal doing-block
+	  template-including-parent:: false
+		- #### {{i ec45}} **Doing** today
+		  {{button do,do,ec45,long}}
+		  
+		  {{button '',fridge,f1fa}}  {{button '',computer,ea89}}  {{button '',wash,ef48}}
+			- {{nested-code-block}}
+			  collapsed:: true
+				- do:
+				  ```js
+				  (() => {
+				  const content = "";
+				  const options = { sibling:false, before:false, focus:true }
+				  logseq.api.insert_block(this.target_uuid, content, options);
+				  })();
+				  ```
+				  
+				  fridge:
+				  ```js
+				  (() => {
+				  const content = "{{i-fridge}}  ";
+				  const options = { sibling:false, before:false, focus:true }
+				  logseq.api.insert_block(this.target_uuid, content, options);
+				  })();
+				  ```
+				  
+				  computer:
+				  ```js
+				  (() => {
+				  const content = "{{i-computer}} ";
+				  const options = { sibling:false, before:false, focus:true }
+				  logseq.api.insert_block(this.target_uuid, content, options);
+				  })();
+				  ```
+				  
+				  wash:
+				  ```js
+				  (() => {
+				  const content = "{{i-wash}} ";
+				  const options = { sibling:false, before:false, focus:true }
+				  logseq.api.insert_block(this.target_uuid, content, options);
+				  })();
+				  ```
 	- ####  {{I ec9e}} Journal buddies
 	  id:: 662becda-117c-4bed-a4e7-d27b7cd1b6f3
 	  Buttons and skincare-routine
+		- ##### {{i eafd}}  news
+		  collapsed:: true
+			- {{embed ((66415d9e-5591-4219-bc68-eb54393bccff))}}
 		- Event header for daily journal
 		  id:: 65fb3d58-f121-4f03-a702-fbc3e6e5c98c
 		  template:: Event header for daily journal
 		  template-including-parent:: false
 			- ### {{i ec9e}} Journal buddies
-				- ##### {{I eabe}}  admin
+				- {{button '',doing,ec45}}  {{button '',organization-blocks,eaad}}
 				  collapsed:: true
-					- {{button doing,doing,ec45}}  {{button organize,organization-blocks,eaad}}
-					  collapsed:: true
-						- Code Blocks
-						  doing:
-						  ```js
-						  journalHelper(this, 'doingBlocks');
-						  ```
-						  
-						  organization-blocks:
-						  ```js
-						  journalHelper(this, 'organizationBlocks');
-						  ```
-				- ##### {{i eafd}}  news
-				  collapsed:: true
-					- {{embed ((66415d9e-5591-4219-bc68-eb54393bccff))}}
+					- Code Blocks
+					  doing:
+					  ```js
+					  journalHelper(this, 'doingBlocks');
+					  ```
+					  
+					  organization-blocks:
+					  ```js
+					  journalHelper(this, 'organizationBlocks');
+					  ```
 				- {{button '',expand-shopping,eb25}}  {{button buy,add-shopping-item,eb0b}}
 				  collapsed:: true
 					- {{nested-code-block}}
@@ -42,21 +84,6 @@ description:: `/template`s with boilerplate for collector blocks, page tags, dai
 						  journalHelper(this, 'buy');
 						  ```
 					- {{embed ((6644ee82-6e4e-4936-af4f-8a47ece6985d))}}
-				- {{button '',expand-groceries,f21c}}  {{button grocery,add-grocery-item,eb0b}}
-				  id:: 6649f26f-70ca-4d46-96a8-555f07ae4524
-				  collapsed:: true
-					- {{nested-code-block}}
-					  collapsed:: true
-						- expand-groceries:
-						  ```js
-						  logseq.api.set_block_collapsed(this.target_uuid, "toggle")
-						  ```
-						  
-						  add-grocery-item:
-						  ```js
-						  journalHelper(this, 'grocery');
-						  ```
-					- {{embed ((663f8303-7fca-406d-83ed-d93002164105))}}
 				- {{button '',expand-online-order,eaff}}  {{button order,add-online-order,eb0b}}
 				  collapsed:: true
 					- {{nested-code-block}}
@@ -71,18 +98,38 @@ description:: `/template`s with boilerplate for collector blocks, page tags, dai
 						  journalHelper(this, 'onlineOrder');
 						  ```
 					- {{embed ((663f79d8-20d7-4027-9ff5-500ae36ff757))}}
-				- #### {{i f00e}}  project focus
+				- {{button '',expand-groceries,f21c}}  {{button grocery,add-grocery-item,eb0b}}
+				  id:: 6649f26f-70ca-4d46-96a8-555f07ae4524
+					- {{nested-code-block}}
+					  collapsed:: true
+						- expand-groceries:
+						  ```js
+						  logseq.api.set_block_collapsed(this.target_uuid, "toggle")
+						  ```
+						  
+						  add-grocery-item:
+						  ```js
+						  journalHelper(this, 'grocery');
+						  ```
+					- {{embed ((663f8303-7fca-406d-83ed-d93002164105))}}
+				- [:small "daily reminders"]
+					- TODO {{i ef63}} Take medication
+					  id:: 65fdfbf2-818e-404e-9d60-7f941f29bf34
+					  {{schedule-date-today}}
+				- #### {{button project focus,expand-projects,f00e,full-width-secret}}
 				  collapsed:: true
 				  {{embed ((664f42a4-40eb-44ba-8e8c-89dba2c17a06))}}
-					- {{embed ((661fffe3-80b2-4405-b2ff-69e062815534))}}
-					- {{embed ((66284c88-09a4-4a61-a3bb-7aeb67dd85e4))}}
-				- #### {{i ea53}}  upcoming appointment
+					- {{nested-code-block}}
+					  collapsed:: true
+						- expand-projects:
+						  ```js
+						  logseq.api.set_block_collapsed(this.target_uuid, "toggle")
+						  ```
+					- {{embed ((6654b591-49ea-4d3a-b9d9-1dc4f25bab0c))}}
+				- #### {{i ea53}}  upcoming appointment {{nextAppointment}}
 				  collapsed:: true
 				  {{embed ((664e4055-3b72-4ba1-ac8b-48e34544629c))}}
 					- {{embed ((66415ca6-d397-4fc1-97f1-95f7b516e6d1))}}
-			- TODO {{i ef63}} Take medication
-			  id:: 65fdfbf2-818e-404e-9d60-7f941f29bf34
-			  {{schedule-date-today}}
 - ## {{I f499}} collector blocks
   Templatea to get things started
 	- #### {{i ef11}} Numbered list
@@ -167,7 +214,6 @@ description:: `/template`s with boilerplate for collector blocks, page tags, dai
 			- ref to: ((65fb267e-8199-4ada-95e3-2232fa2d2190))
 			-
 - ### {{i ea88}} Data templates
-  collapsed:: true
   E.g. tabler icon
 	- {{embed ((65da2d57-3c21-41da-ae79-ebfc60db759f))}}
 - ---
@@ -199,6 +245,7 @@ description:: `/template`s with boilerplate for collector blocks, page tags, dai
 - #### old
   collapsed:: true
 	- ## {{I ec8f}} Query templates
+	  collapsed:: true
 	  Query boilerplate
 	- ### Ideation
 	  Ideas, thoughs, and more

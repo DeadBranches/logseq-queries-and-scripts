@@ -57,7 +57,1281 @@ repository:: DeadBranches/logseq-queries-and-scripts
    }
   
   #+END_QUERY
-- ## {{i eb6e}} datalog language reference
+- ## {{i eff2}} Query library
+  query:: ((65f7767a-9fe3-4b51-a564-c36be58ce5fa))
+  *Advanced queries I reuse*
+  #+BEGIN_QUERY
+  {
+    :query [:find (pull ?children [*])
+            :in $ ?cb ?heading-set
+            :where
+            [?children :block/parent ?cb]
+            [?children :block/properties ?prop]
+            [(get ?prop :heading) ?heading-value]
+            [(contains? ?heading-set ?heading-value)]
+    ]
+    :inputs [:current-block #{1 2 3 4 5}]
+  :result-transform (fn [result]
+                      (let [heading-pattern (re-pattern "^(#+\\s+)")
+                            first-lines (map (fn [r]
+                                               (let [content (get-in r [:block/content])
+                                                     first-newline (str/index-of content "\n")
+                                                     line (if first-newline
+                                                            (subs content 0 first-newline)
+                                                            content)
+                                                     uuid (get-in r [:block/uuid])]
+                                                 {:text (clojure.string/replace line heading-pattern "")
+                                                  :uuid uuid}))
+                                             result)]
+                        first-lines))
+  :view (fn [items]
+          [:div
+           (for [[idx {:keys [text uuid]}] (map-indexed vector items)]
+             (if (= idx (dec (count items)))
+               [:a {:href (str "logseq://graph/main?block-id=" uuid)} text]
+               [:span [:a {:href (str "logseq://graph/main?block-id=" uuid)} text] ", "]))])
+  
+  
+  
+  
+  }
+  #+END_QUERY
+	- #### Upcoming project quick-view
+	  *see [[logseq project manager]]*
+		- id:: 6654b591-49ea-4d3a-b9d9-1dc4f25bab0c
+		  #+BEGIN_QUERY
+		  {:query
+		   [:find ?current-page-id ?project-name ?manager-name ?project-properties
+		    :keys current-page-id project-name manager-name project-properties
+		    :in $ ?current-page
+		    :where
+		    ;; Step 1: Identify all project pages
+		    (page-tags ?project #{"project"})
+		  
+		      [?refs-project :block/refs ?project]
+		      ;; Ensure there is a parent block
+		  
+		      [?refs-project :block/parent ?ref-parent]
+		      ;; Check if the parent block references a manager
+		  
+		      [?ref-parent :block/refs ?managers]
+		      ;; Ensure the manager is one of the specified categories
+		  
+		      [?managers :block/name ?manager-name]
+		      [(contains? #{"next"} ?manager-name)]
+		    
+		    [?page :block/name ?current-page]
+		    [?page :block/uuid ?current-page-id]
+		    [?project :block/name ?project-name]
+		    [?project :block/properties ?project-properties]
+		  
+		  ]
+		  :result-transform (fn [results]
+		                      (let [sorted-results (sort-by (fn [r] (get r :block/name "none")) results)]
+		                        (map (fn [result]
+		                               (let [icon (get-in result [:block/properties :icon] "ef27")] ; Use fallback icon if none
+		                                 (assoc result :icon icon))) ; Associate the icon with the result
+		                             (if (empty? sorted-results)
+		                               [{:block/name "\uf4a5 none"}]
+		                               sorted-results))))
+		  
+		   :view (fn [results]
+		           [:div {:class "projects-list-container"}
+		            (map (fn [results]
+		                   (let [project-name (:project-name results)
+		                         uuid (str (:current-page-id results))
+		                         icon (:icon results)]
+		                                 ;inside let scope 
+		                      [:span {:class "project-item"}
+		                          [:a {:class "project-quick-add" 
+		                               :on-click (
+		                                          fn [] (call-api "append_block_in_page" uuid (
+		                                                                                       str "{{i " icon "}} #[[" project-name "]]")))
+		                               }
+		                           [:span {:class "project-leading-icon"} "\uf63f "] [:span {:class "project-name"} project-name]
+		                           ] [:a {
+		                                  :class "project-trailing-icon" 
+		                                  :on-click (fn [] (call-api "push_state" "page" {:name project-name}))
+		                                  } "\uea99 "
+		                              ]
+		                          ]
+		                     ))
+		                 results)
+		                                     ])
+		  :inputs [:current-page]
+		  }
+		  #+END_QUERY
+		- version 1.2
+		  collapsed:: true
+		  *introduces project icons & open page icon*
+			- #+BEGIN_QUERY
+			  {:query
+			   [:find ?current-page-id ?project-name ?manager-name ?project-properties
+			    :keys current-page-id project-name manager-name project-properties
+			    :in $ ?current-page
+			    :where
+			    ;; Step 1: Identify all project pages
+			    (page-tags ?project #{"project"})
+			  
+			      [?refs-project :block/refs ?project]
+			      ;; Ensure there is a parent block
+			  
+			      [?refs-project :block/parent ?ref-parent]
+			      ;; Check if the parent block references a manager
+			  
+			      [?ref-parent :block/refs ?managers]
+			      ;; Ensure the manager is one of the specified categories
+			  
+			      [?managers :block/name ?manager-name]
+			      [(contains? #{"next"} ?manager-name)]
+			    
+			    [?page :block/name ?current-page]
+			    [?page :block/uuid ?current-page-id]
+			    [?project :block/name ?project-name]
+			    [?project :block/properties ?project-properties]
+			  
+			  ]
+			  :result-transform (fn [results]
+			                      (let [sorted-results (sort-by (fn [r] (get r :block/name "none")) results)]
+			                        (map (fn [result]
+			                               (let [icon (get-in result [:block/properties :icon] "ef27")] ; Use fallback icon if none
+			                                 (assoc result :icon icon))) ; Associate the icon with the result
+			                             (if (empty? sorted-results)
+			                               [{:block/name "\uf4a5 none"}]
+			                               sorted-results))))
+			  
+			   :view (fn [results]
+			           [:div
+			            (map (fn [results]
+			                   (let [project-name (:project-name results)
+			                         uuid (str (:current-page-id results))
+			                         icon (:icon results)]
+			                                 ;inside let scope 
+			                     [:p [:span
+			                          [:a
+			                           {:class "tag"
+			                            :on-click (fn [] (call-api "append_block_in_page"
+			                                                       uuid
+			                                                       (str "{{i " icon "}} #[[" project-name "]]")))
+			                            }
+			                           [:span {:class "ti"} "\uf63f "] 
+			                           project-name] [:a {:class "ti"
+			                          :on-click (fn [] (call-api "push_state" "page" {:name project-name}))} 
+			                      "  \uea99 "
+			                      ] 
+			                          ]]
+			                     ))
+			                 results)
+			                                     ])
+			  :inputs [:current-page]
+			  }
+			  #+END_QUERY
+			-
+		- version 1.1
+		  collapsed:: true
+		  ![image.png](../assets/image_1717608526060_0.png)
+			- ```
+			  #+BEGIN_QUERY
+			  {:query
+			   [:find ?current-page-id ?project-name
+			    :keys current-page-id project-name
+			    :in $ ?current-page
+			    :where
+			    ;; Step 1: Identify all project pages
+			    (page-tags ?project #{"project"})
+			  
+			      [?refs-project :block/refs ?project]
+			      ;; Ensure there is a parent block
+			  
+			      [?refs-project :block/parent ?ref-parent]
+			      ;; Check if the parent block references a manager
+			  
+			      [?ref-parent :block/refs ?managers]
+			      ;; Ensure the manager is one of the specified categories
+			  
+			      [?managers :block/name ?name]
+			      [(contains? #{"next"} ?name)]
+			    
+			    [?page :block/name ?current-page]
+			    [?page :block/uuid ?current-page-id]
+			    [?project :block/name ?project-name]
+			  ]
+			  
+			   :view (fn [results]
+			           [:div
+			            (map (fn [results]
+			                   (let [project-name (:project-name results)
+			                         uuid (str (:current-page-id results))]
+			                                 ;inside let scope 
+			                     [:p [:span
+			                          [:a
+			                           {:class "tag tag-like"
+			                            :on-click (fn [] (call-api "append_block_in_page"
+			                                                       uuid
+			                                                       (str "[[" project-name "]]")))
+			                            }
+			                           [:span {:class "ti"} "\uf63f "] 
+			                           project-name]
+			                          ]]
+			                     ))
+			                 results)
+			                    
+			  
+			                    ])
+			  :inputs [:current-page]
+			  }
+			  #+END_QUERY
+			  ```
+	- #### Project management journal widget
+	  *see [[logseq project manager]]*
+		- id:: 664f42a4-40eb-44ba-8e8c-89dba2c17a06
+		  #+BEGIN_QUERY
+		  {:query
+		   [:find ?current-page-id ?project-name ?project-properties
+		    :keys current-page-id project-name project-properties
+		    :in $ ?current-page
+		    :where
+		    (page-tags ?project #{"project"})
+		    [?managers :block/name ?name]
+		    [(contains? #{"focus"} ?name)]
+		    [?refs-project :block/refs ?project]
+		    [?refs-project :block/parent ?project-ref-parent]
+		    [?project-ref-parent :block/refs ?managers]
+		    [?page :block/name ?current-page]
+		    [?page :block/uuid ?current-page-id]
+		    [?project :block/name ?project-name]
+		    [?project :block/properties ?project-properties]
+		   ]
+		  
+		   :result-transform (fn [results]
+		                       (let [sorted-results (sort-by (fn [r] (get r :block/name "none")) results)]
+		                         (map (fn [result]
+		                                (let [icon (get-in result [:project-properties :-icon] "ef27")] ; Use fallback icon if none
+		                                  (assoc result :icon icon))) ; Associate the icon with the result
+		                              (if (empty? sorted-results)
+		                                [{:block/name "\uf4a5 none"}]
+		                                sorted-results))))
+		   
+		  :view (fn [results]
+		            (map (fn [result]
+		                   (let [project-name (:project-name result)
+		                         uuid (str (:current-page-id result))
+		                         icon (:icon result)] ; Define icon here
+		                     [:div {:class "quick-view-container"} 
+		                      [:span {:class "leading-slot"} "focus"]
+		                      [:span {:class "content-slot"}
+		                       [:a {:data-ref project-name :class "link"
+		                            :on-click (fn [] (call-api "append_block_in_page" uuid (str "\n{{i " icon "}} #[[" project-name "]]")))}
+		                        project-name]]
+		                      [:span {:class "trailing-slot"}
+		                       [:a {:class "project-trailing-icon"
+		                            :on-click (fn [] (call-api "push_state" "page" {:name project-name}))}
+		                        "\uea99"]]
+		                      ]
+		                     ))
+		                 results))
+		   :inputs [:current-page]
+		  }
+		  #+END_QUERY
+		- History
+		  id:: 6653554c-6a4b-4673-9f08-a7e58a13c5fe
+		  collapsed:: true
+			- version 2.4 improves styling
+			- version 2.3
+			  collapsed:: true
+			  *introduces project icon for added blocks*
+				- ```
+				  #+BEGIN_QUERY
+				  {:query
+				   [:find ?current-page-id ?project-name ?project-properties
+				    :keys current-page-id project-name project-properties
+				    :in $ ?current-page
+				    :where
+				    (page-tags ?project #{"project"})
+				    [?managers :block/name ?name]
+				    [(contains? #{"focus"} ?name)]
+				    [?refs-project :block/refs ?project]
+				    [?refs-project :block/parent ?project-ref-parent]
+				    [?project-ref-parent :block/refs ?managers]
+				    [?page :block/name ?current-page]
+				    [?page :block/uuid ?current-page-id]
+				    [?project :block/name ?project-name]
+				    [?project :block/properties ?project-properties]
+				   ]
+				   :result-transform (fn [results]
+				                       (let [sorted-results (sort-by (fn [r] (get r :block/name "none")) results)]
+				                         (map (fn [result]
+				                                (let [icon (get-in result [:project-properties :icon] "ef27")] ; Use fallback icon if none
+				                                  (assoc result :icon icon))) ; Associate the icon with the result
+				                              (if (empty? sorted-results)
+				                                [{:block/name "\uf4a5 none"}]
+				                                sorted-results))))
+				   :view (fn [results]
+				           [:div
+				            [:span {:class "quick-view-label"} "focus"]
+				            (map (fn [result]
+				                   (let [project-name (:project-name result)
+				                         uuid (str (:current-page-id result))
+				                         icon (:icon result)] ; Define icon here
+				                     [:span {:class "quick-view-content"}
+				                      [:a {:class "ti light-gray"
+				                           :on-click (fn [] (call-api "push_state" "page" {:name project-name}))} 
+				                       "  \uea99 "
+				                       ] [:a {:data-ref project-name :class "tag"
+				                              :on-click (fn [] (call-api "append_block_in_page" uuid (str "\n{{i " icon "}} #[[" project-name "]]")))}
+				                          project-name]
+				                      ]))
+				                 results)])
+				   :inputs [:current-page]
+				  }
+				  #+END_QUERY
+				  ```
+			- version 2.2
+			  collapsed:: true
+			  *introduces open project icon*
+				- ```
+				  #+BEGIN_QUERY
+				  {:query
+				   [:find ?current-page-id ?project-name
+				    :keys current-page-id project-name
+				    :in $ ?current-page
+				    :where
+				  
+				    (page-tags ?project #{"project"})
+				    [?managers :block/name ?name]
+				    [(contains? #{"focus"} ?name)]
+				    [?refs-project :block/refs ?project]
+				    [?refs-project :block/parent ?project-ref-parent]
+				    [?project-ref-parent :block/refs ?managers]
+				    [?page :block/name ?current-page]
+				    [?page :block/uuid ?current-page-id]
+				    [?project :block/name ?project-name]]
+				   :result-transform (fn [result]
+				                       (if (empty? result)
+				                         [{:block/name "\uf4a5 none"}]
+				                         (sort-by (fn [r] (get r :block/name "none")) result)))
+				  
+				   :view (fn [results]
+				           [:div
+				            [:span {:class "quick-view-label"} "focus"]
+				            (map (fn [result]
+				                   (let [project-name (:project-name result)
+				                         uuid (str (:current-page-id result))
+				                         icon (:icon result)]
+				                     [:span {:class "quick-view-content"}
+				                      [:a {:class "ti light-gray"
+				                           :on-click (fn [] (call-api "push_state" "page" {:name project-name}))}
+				                       "  \uea99 "] [:a {:data-ref project-name :class "tag"
+				                                         :on-click (fn [] (call-api "append_block_in_page" uuid (str "\n{{project}} #[[" project-name "]]")))}
+				                                     project-name]]))
+				                 results)])
+				  
+				   :inputs [:current-page]}
+				  
+				  
+				  #+END_QUERY
+				  ```
+			- version 2.1
+			  collapsed:: true
+				- ```
+				  #+BEGIN_QUERY
+				  
+				  {:query
+				  [:find ?current-page-id ?project-name
+				  :keys current-page-id project-name
+				  :in $ ?current-page
+				  :where
+				  
+				  (page-tags ?project #{"project"})
+				  [?managers :block/name ?name]
+				  [(contains? #{"focus"} ?name)]
+				  [?refs-project :block/refs ?project]
+				  [?refs-project :block/parent ?project-ref-parent]
+				  [?project-ref-parent :block/refs ?managers]
+				  [?page :block/name ?current-page]
+				  [?page :block/uuid ?current-page-id]
+				  [?project :block/name ?project-name]
+				  ]
+				  :result-transform (fn [result]
+				                     (if (empty? result)
+				                       [{:block/name "\uf4a5 none"}]
+				                       (sort-by (fn [r] (get r :block/name "none")) result)))
+				  
+				  :view (fn [results]
+				          [:div
+				           [:span {:class "quick-view-label"} "focus"]
+				           (map (fn [result]
+				                  (let [project-name (:project-name result)
+				                        uuid (str (:current-page-id result))]
+				                    [:span {:class "quick-view-content"}
+				                    [:a {:data-ref project-name :class "tag"
+				                         :on-click (fn [] (call-api "append_block_in_page" uuid (str "\n{{project}} #[[" project-name "]]")))}
+				                     project-name]]))
+				                results)])
+				  
+				  :inputs [:current-page]
+				  }
+				  #+END_QUERY
+				  ```
+			- version 2.0
+			  collapsed:: true
+				- ```
+				  #+BEGIN_QUERY
+				  {:query
+				  [:find ?current-page-id ?project-name
+				  :keys current-page-id project-name
+				  :in $ ?current-page
+				  :where
+				  
+				  (page-tags ?project #{"project"})
+				  [?managers :block/name ?name]
+				  [(contains? #{"focus"} ?name)]
+				  [?refs-project :block/refs ?project]
+				  [?refs-project :block/parent ?project-ref-parent]
+				  [?project-ref-parent :block/refs ?managers]
+				  [?page :block/name ?current-page]
+				  [?page :block/uuid ?current-page-id]
+				  [?project :block/name ?project-name]
+				  ]
+				  :result-transform (fn [result]
+				                     (if (empty? result)
+				                       [{:block/name "\uf4a5 none"}]
+				                       (sort-by (fn [r] (get r :block/name "none")) result)))
+				  
+				  :view (fn [results]
+				          [:div
+				           [:span {:class "quick-view-label"} "focus"]
+				           (map (fn [result]
+				                  (let [project-name (:project-name result)
+				                        uuid (str (:current-page-id result))]
+				                    [:span {:class "quick-view-content"}
+				                    [:a {:data-ref project-name :class "tag"
+				                         :on-click (fn [] (call-api "append_block_in_page" uuid (str "[[" project-name "]]")))}
+				                     project-name]]))
+				                results)])
+				  
+				  :inputs [:current-page]
+				  }
+				  #+END_QUERY
+				  ```
+			- version 1.0
+			  collapsed:: true
+				- ```
+				  #+BEGIN_QUERY
+				  
+				  {:query
+				   [:find (pull ?project [:block/name])
+				    :where
+				    
+				    (page-tags ?project #{"project"})
+				    [?managers :block/name ?name]
+				    [(contains? #{"focus"} ?name)]
+				  
+				    [?refs-project :block/refs ?project]
+				    [?refs-project :block/parent ?project-ref-parent]
+				  
+				    [?project-ref-parent :block/refs ?managers]]
+				   :result-transform (fn [result]
+				                       (if (empty? result)
+				                         [{:block/name "\uf4a5 none"}]
+				                         (sort-by (fn [r] (get r :block/name "none")) result)))
+				   :view (fn [result]
+				           [:div
+				  [:span {:class "quick-view-label"} "focus"]
+				                  
+				          [:span {:class "quick-view-content"} (for [r result] 
+				                    (let [project-name (get r :block/name)]
+				                      [:a {:data-ref project-name :class "tag"
+				                           :on-click
+				                           (fn [] (call-api "push_state" "14723" {:name project-name}))} project-name]))]        
+				                  ]
+				           )
+				  }
+				  #+END_QUERY
+				  ```
+	- ####  Next appointments
+	  id:: 664ceeec-b343-4d67-94d5-4db82220f06f
+		- i want it to look like this:
+		  {{embed ((1d9cd183-464e-44d6-9add-3b2c8e32d106))}}
+		- id:: 6660535c-5420-4cdb-ba03-5e9ab8e66213
+		  #+BEGIN_QUERY
+		  {:query
+		   [:find (min ?day) ?date ?day ?content ?props ?today
+		   :keys min-day date day content properties today
+		    :in $ ?today
+		  
+		    :where
+		    [?e :block/properties ?props]
+		    [(get ?props :event) ?event]
+		    [(get ?props :date) ?date]
+		    [?e :block/refs ?refs]
+		    [?e :block/content ?content]
+		    [?refs :block/journal-day ?day]
+		    [(>= ?day ?today)]
+		  ]
+		  
+		  :view 
+		   (fn [results]
+		     (let
+		      [min-day (get-in (first results) [:min-day])
+		       date-set (get-in (first results) [:date])
+		       date (if (set? date-set)
+		              (first date-set)
+		              date-set)
+		       ;date (get-in (first results) [:date])
+		       today (get-in (first results) [:today])
+		       difference (- min-day today)
+		       events
+		       (map
+		        (fn [result]
+		          (let
+		           [event-day (get-in result [:day])
+		            event-name (get-in result [:properties :event])
+		            person-names (get-in result [:properties :with])]
+		            (when (= event-day min-day) 
+		              (str
+		               (when event-name
+		                 (str event-name))
+		               (when person-names
+		                 (str " with " (clojure.string/join ", " (seq person-names))))))))
+		        results)
+		       filtered-events (filter some? events)
+		       events-but-last (butlast filtered-events)
+		       last-event (last filtered-events)] 
+		       [:div
+		        [:small
+		         (if (= 1 (count filtered-events))
+		           (str (first filtered-events) " on " date)
+		           (str
+		            (clojure.string/join ", " (butlast filtered-events))
+		            ", and "
+		            (last filtered-events)
+		            " on " date))]]))
+		         
+		         
+		  
+		  :result-transform (fn [result]
+		                      (sort-by (fn [r] (get-in r [:day])) (fn [a b] (compare a b)) result))
+		  
+		   :inputs [:today]
+		  }
+		  #+END_QUERY
+			- id:: 664e4055-3b72-4ba1-ac8b-48e34544629c
+			  #+BEGIN_QUERY
+			  {:query
+			   [:find (min ?day) ?date ?day ?content ?props ?today
+			   :keys min-day date day content properties today
+			    :in $ ?today
+			  
+			    :where
+			    [?e :block/properties ?props]
+			    [(get ?props :event) ?event]
+			    [(get ?props :date) ?date]
+			    [?e :block/refs ?refs]
+			    [?e :block/content ?content]
+			    [?refs :block/journal-day ?day]
+			    [(>= ?day ?today)]
+			  ]
+			  
+			  :view 
+			   (fn [results]
+			     (let
+			      [min-day (get-in (first results) [:min-day])
+			       date-set (get-in (first results) [:date])
+			       date (if (set? date-set)
+			              (first date-set)
+			              date-set)
+			       ;date (get-in (first results) [:date])
+			       today (get-in (first results) [:today])
+			       difference (- min-day today)
+			       events
+			       (map
+			        (fn [result]
+			          (let
+			           [event-day (get-in result [:day])
+			            event-name (get-in result [:properties :event])
+			            person-names (get-in result [:properties :with])]
+			            (when (= event-day min-day) 
+			              (str
+			               (when event-name
+			                 (str event-name))
+			               (when person-names
+			                 (str " with " (clojure.string/join ", " (seq person-names))))))))
+			        results)
+			       filtered-events (filter some? events)
+			       events-but-last (butlast filtered-events)
+			       last-event (last filtered-events)] 
+			       [:div
+			        [:small
+			         (if (= 1 (count filtered-events))
+			           ;(str (first filtered-events) " on " date)
+			            (str (first filtered-events))
+			           (str
+			            (clojure.string/join ", " (butlast filtered-events))
+			            ", and "
+			            (last filtered-events)
+			            ;" on " date)
+			            )
+			  )]]))
+			         
+			         
+			  
+			  :result-transform (fn [result]
+			                      (sort-by (fn [r] (get-in r [:day])) (fn [a b] (compare a b)) result))
+			  
+			   :inputs [:today]
+			  }
+			  #+END_QUERY
+		- old versions
+		  collapsed:: true
+			- ```
+			  #+BEGIN_QUERYo
+			  {:query
+			   [:find (min ?day) ?date ?day ?content ?props ?today
+			   :keys min-day date day content properties today
+			    :in $ ?today
+			  
+			    :where
+			    [?e :block/properties ?props]
+			    [(get ?props :event) ?event]
+			    [(get ?props :date) ?date]
+			    [?e :block/refs ?refs]
+			    [?e :block/content ?content]
+			    [?refs :block/journal-day ?day]
+			    [(>= ?day ?today)]
+			  ]
+			  
+			  :view 
+			   (fn [results]
+			     (let
+			      [min-day
+			       (get-in (first results) [:min-day])
+			       date (get-in (first results) [:date])
+			       today (get-in (first results) [:today])
+			       difference (- min-day today)
+			       events
+			       (map
+			        (fn [result]
+			          (let
+			           [event-day (get-in result [:day])
+			            event-name (get-in result [:properties :event])
+			            person-names (get-in result [:properties :with])]
+			            (when (= event-day min-day) 
+			              (str
+			               (when event-name
+			                 (str event-name))
+			               (when person-names
+			                 (str " with " (clojure.string/join ", " (seq person-names))))))))
+			        results)
+			       filtered-events (filter some? events)
+			       events-but-last (butlast filtered-events)
+			       last-event (last filtered-events)] 
+			       [:div
+			        [:small
+			         (concat
+			          (interpose
+			           ", " 
+			           (map 
+			            (fn [event] event) 
+			            events-but-last)) 
+			          [", and " 
+			           [:span (str last-event)]]) 
+			         " on " date]]) )
+			  
+			  :result-transform (fn [result]
+			                      (sort-by (fn [r] (get-in r [:day])) (fn [a b] (compare a b)) result))
+			  
+			   :inputs [:today]
+			  }
+			  #+END_QUERY
+			  ```
+			- ```
+			  #+BEGIN_QUERY
+			  {:query
+			   [:find (min ?day) ?date ?day ?content ?props ?today
+			   :keys min-day date day content properties today
+			    :in $ ?today
+			  
+			    :where
+			    [?e :block/properties ?props]
+			    [(get ?props :event) ?event]
+			    [(get ?props :date) ?date]
+			    [?e :block/refs ?refs]
+			    [?e :block/content ?content]
+			    [?refs :block/journal-day ?day]
+			    [(>= ?day ?today)]
+			  ]
+			  
+			  :view 
+			   (fn [results]
+			     (let
+			      [min-day
+			       (get-in (first results) [:min-day])
+			       date (get-in (first results) [:date])
+			       today (get-in (first results) [:today])
+			       difference (- min-day today)
+			       events
+			       (map
+			        (fn [result]
+			          (let
+			           [event-day (get-in result [:day])
+			            event-name (get-in result [:properties :event])
+			            person-names (get-in result [:properties :with])]
+			            (when (= event-day min-day) 
+			              (str
+			               (when event-name
+			                 (str event-name))
+			               (when person-names
+			                 (str " with " (clojure.string/join ", " (seq person-names))))))))
+			        results)
+			       filtered-events (filter some? events)
+			       events-but-last (butlast filtered-events)
+			       last-event (last filtered-events)] 
+			       [:div
+			        [:small
+			         (if (= 1 (count filtered-events))
+			           (str (first filtered-events) " on " date)
+			           (str
+			            (clojure.string/join ", " (butlast filtered-events))
+			            ", and "
+			            (last filtered-events)
+			            " on " date))]]))
+			  
+			  :result-transform (fn [result]
+			                      (sort-by (fn [r] (get-in r [:day])) (fn [a b] (compare a b)) result))
+			  
+			   :inputs [:today]
+			  }
+			  #+END_QUERY
+			  ```
+	- #### Current medication list
+	  collapsed:: true
+		- id:: 664cb068-64bb-4dc5-aa7e-b0678b63a6fe
+		  #+BEGIN_QUERY
+		  {:query
+		   [:find ?mname ?date ?day ?dose
+		    :keys mname date day dose
+		    :where
+		    [?m :block/properties ?props]
+		    [(get ?props :medication) ?mname]
+		    [(get ?props :dose) ?dose]
+		  
+		    [?m :block/page ?p]
+		    [?p :block/original-name ?day]
+		    [?p :block/journal-day ?date]]
+		  
+		   :result-transform (fn [results]
+		                       (->> results
+		                            (group-by :mname)
+		                            (map (fn [[med-name group]]
+		                                   (reduce (fn [acc curr]
+		                                             (if (> (get acc :date) (get curr :date))
+		                                               acc
+		                                               curr))
+		                                           group)))
+		                            (sort-by (comp - :date))))
+		  :view (fn [rows] [:table
+		                    [:thead [:tr
+		                             [:th "Medication name"]
+		                             [:th "Dose"]
+		                             [:th "Date"]]] 
+		                    [:tbody (for [r rows] 
+		                              [:tr
+		                               [:td [:a {:on-click (fn [] (call-api "push_state" "page" {:name (str (get-in r [:mname]))}))} 
+		                                    (get-in r [:mname])]]
+		                               [:td (get-in r [:dose])]
+		                               [:td (get-in r [:day])]])
+		                     ]])}
+		  #+END_QUERY
+	- #### logseq graph news
+	  collapsed:: true
+		- jump to: info  embed, history
+		- id:: 66415d9e-5591-4219-bc68-eb54393bccff
+		  #+BEGIN_QUERY
+		  {:inputs ["news" :5d-before :today :current-page]
+		  :query
+		  [:find (pull ?b [*])
+		  :in $ ?macro ?start ?end ?current-page
+		  :where
+		  [?m :block/properties ?props]
+		  [(get ?props :logseq.macro-name) ?macros]
+		  [(= ?macros ?macro)]
+		  [?b :block/macros ?m]
+		  [?b :block/page ?p]
+		  [?p :block/journal-day ?j-day]
+		  [(>= ?j-day ?start)]
+		  [(<= ?j-day ?end)]
+		  [?j :block/name ?current-page]
+		  [?j :block/journal-day ?day]
+		  [(= ?end ?day)]
+		        ]
+		   :result-transform :sort-by-journal-day
+		  :breadcrumb-show? false
+		  :children? false
+		  :group-by-page? false
+		  }
+		  #+END_QUERY
+	- #### Future appointments
+	  id:: 66415c9e-ff58-4281-8007-160cb44fb8b3
+	  collapsed:: true
+		- id:: 66415ca6-d397-4fc1-97f1-95f7b516e6d1
+		  #+BEGIN_QUERY
+		  {:query
+		  [:find (pull ?b [*])
+		  :in $ ?from
+		  :where
+		  [?b :block/properties ?props]
+		  [(get ?props :activity) _]
+		  [?b :block/refs ?refs]
+		  [?refs :block/journal-day ?d]
+		  [(>= ?d ?from)]
+		  ]
+		  :inputs [:tomorrow]
+		   :breadcrumb-show? false
+		   :children? false
+		   :group-by-page? false
+		  }
+		  #+END_QUERY
+	- #### Grocery list (journal widget)
+		- id:: 663f8303-7fca-406d-83ed-d93002164105
+		  #+BEGIN_QUERY
+		  {
+		    :query [:find (pull ?b [*])
+		            :where
+		  		[?b :block/marker ?m]
+		    (not [(contains? #{"DONE" "CANCELED"} ?m)] )
+		    (property ?b :goods-category "food")
+		    ]
+		  :result-transform (fn [result]
+		                      (let [heading-pattern (re-pattern "^(TODO\\s\\{\\{grocery\\}\\}\\s+)")
+		                            macro-pattern (re-pattern "\\{\\{[iI] ([a-fA-F0-9]{4})\\}\\}")
+		                            replace-macro (fn [macro-match]
+		                                            (str "&#x" (second macro-match) ";"))
+		                            first-lines (map (fn [r]
+		                                               (let [content (get-in r [:block/content])
+		                                                     first-newline (str/index-of content "\n")
+		                                                     line (if first-newline
+		                                                            (subs content 0 first-newline)
+		                                                            content)             
+		                                                     line-without-heading (clojure.string/replace line heading-pattern "")
+		                                                     line-with-glyphs (clojure.string/replace line-without-heading macro-pattern replace-macro)]
+		                                                 {:text line-with-glyphs
+		                                                  }))
+		                                             result)]
+		                        first-lines))
+		  :view (fn [items]
+		  [:div {:class "journal-quickview"}
+		   [:div {:class "jq-icon-container"}
+		    [:a {:class "jq-icon-link" :href "#/page/grocery%20list"} "\uf21c"]
+		    [:span {:class "jq-label"} " grocery"]
+		  ]
+		   [:div {:class "jq-data"}
+		    [:span {:class "jq-items"} (interpose ", " (for [{:keys [text]} items] text))]]]
+		  )
+		  }
+		  #+END_QUERY
+	- #### online orders (journal widget)
+	  collapsed:: true
+		- id:: 663f79d8-20d7-4027-9ff5-500ae36ff757
+		  #+BEGIN_QUERY
+		  {
+		    :query [:find (pull ?b [*])
+		            :where 
+		            [?t :block/name "online order"]
+		            [?b :block/refs ?t]
+		            [?b :block/marker ?marker]
+		            [(contains? #{"TODO"} ?marker)]
+		              (not 
+		             [?b :block/parent ?parent]
+		             [?parent :block/properties ?props]
+		             [(get ?props :template)]
+		             )
+		    ]
+		  :result-transform (fn [result]
+		                      (let [heading-pattern (re-pattern "^(TODO\\s+)")
+		                            macro-pattern (re-pattern "\\{\\{[iI] ([a-fA-F0-9]{4})\\}\\}")
+		                            replace-macro (fn [macro-match]
+		                                            (str "&#x" (second macro-match) ";"))
+		                            first-lines (map (fn [r]
+		                                               (let [content (get-in r [:block/content])
+		                                                     first-newline (str/index-of content "\n")
+		                                                     line (if first-newline
+		                                                            (subs content 0 first-newline)
+		                                                            content)             
+		                                                     line-without-heading (clojure.string/replace line heading-pattern "")
+		                                                     line-with-glyphs (clojure.string/replace line-without-heading macro-pattern replace-macro)]
+		                                                 {:text line-with-glyphs
+		                                                  }))
+		                                             result)]
+		                        first-lines))
+		   :view (fn [items]
+		  [:div {:class "journal-quickview"}
+		    [:div {:class "jq-icon-container"}
+		      [:a {:class "jq-icon-link" :href "#/page/shopping"} "\ueaff"][:span {:class "jq-label"} "deliveries"]
+		  ]
+		    [:div {:class "jq-data"}
+		      
+		      [:span {:class "jq-items"} (interpose ", " (for [{:keys [text]} items] text))]]]
+		   )
+		  }
+		  #+END_QUERY
+	- #### Section contents
+	  id:: 65f7767a-9fe3-4b51-a564-c36be58ce5fa
+	  collapsed:: true
+	  Linked list of children w/ headers (dynamically specified)
+		- ```datalog
+		  #+BEGIN_QUERY
+		  {
+		    :query [:find (pull ?children [*])
+		            :in $ ?cb ?heading-set
+		            :where
+		            [?children :block/parent ?cb]
+		            [?children :block/properties ?prop]
+		            [(get ?prop :heading) ?heading-value]
+		            [(contains? ?heading-set ?heading-value)]
+		    ]
+		    :inputs [:current-block #{1 2 3}]
+		  :result-transform (fn [result]
+		                      (let [heading-pattern (re-pattern "^(#+\\s+)")
+		                            first-lines (map (fn [r]
+		                                               (let [content (get-in r [:block/content])
+		                                                     first-newline (str/index-of content "\n")
+		                                                     line (if first-newline
+		                                                            (subs content 0 first-newline)
+		                                                            content)
+		                                                     uuid (get-in r [:block/uuid])]
+		                                                 {:text (clojure.string/replace line heading-pattern "")
+		                                                  :uuid uuid}))
+		                                             result)]
+		                        first-lines))
+		  :view (fn [items]
+		          [:div
+		           (for [[idx {:keys [text uuid]}] (map-indexed vector items)]
+		             (if (= idx (dec (count items)))
+		               [:a {:href (str "logseq://graph/main?block-id=" uuid)} text]
+		               [:span [:a {:href (str "logseq://graph/main?block-id=" uuid)} text] ", "]))])
+		  }
+		  #+END_QUERY
+		  ```
+	- #### Page table of contents
+	  id:: 65f61ef5-45b1-4c58-b2b5-bced3827ae44
+	  collapsed:: true
+	  ![image.png](../assets/image_1713994770190_0.png)
+		- [[Wednesday, Apr 24th, 2024]]: Created an improved and updated **page table of contents**.
+		  Improvement: fixes text being rendered in `.ti` font.
+		  (see ((662becd7-fa05-45af-b368-bfe0144befc9)) )
+		- #### improved table of content
+		  id:: 662becd7-fa05-45af-b368-bfe0144befc9
+		  collapsed:: true
+			- ```md
+			  #+BEGIN_QUERY
+			  
+			  {:inputs [:parent-block #{1 2 3}]
+			   :query [:find (pull ?children [*])
+			           :in $ ?cb ?heading-set
+			           :where
+			           [?children :block/parent ?cb]
+			           [?children :block/properties ?prop]
+			           [(get ?prop :heading) ?heading-value]
+			           [(contains? ?heading-set ?heading-value)]]
+			   :result-transform
+			   (fn [result]
+			     (let [heading-pattern (re-pattern "^(#+\\s+)") ;; => `### ` ; used to get rid of header
+			           icon-macro-pattern (re-pattern "(\\s*\\{\\{[iI] [a-fA-F0-9]{4}\\}\\}\\s*)") ;; => ` {{i f3f3}} ` ; used for getting rid of icon 
+			           glyph-pattern (re-pattern "^.*\\{\\{[iI] ([a-fA-F0-9]{4})\\}\\}.*") ;; => `f3f3` ; used to isolate glyph code
+			           replace-macro (fn [macro-match]
+			                           (if (seq macro-match)
+			                             (second macro-match)
+			                             ""))
+			  
+			           ;icon-pattern (re-pattern "\\s*\\{\\{[iI] ([a-fA-F0-9]{4})\\}\\}\\s*")
+			           ;macro-pattern (re-pattern "\\{\\{[iI] ([a-fA-F0-9]{4})\\}\\}")
+			           first-lines (map (fn [r]
+			                              (let [content (get-in r [:block/content])
+			                                    first-newline (str/index-of content "\n")
+			                                    line (if first-newline (subs content 0 first-newline) content)
+			                                    uuid (get-in r [:block/uuid])
+			  
+			                                    line-without-heading (clojure.string/replace line heading-pattern "")
+			                                    line-without-heading-or-icon (clojure.string/replace line-without-heading icon-macro-pattern "")
+			                                    ;glyph-code (clojure.string/replace line glyph-pattern replace-macro)
+			                                    ;glyph-code (clojure.string/replace line )
+			                                    ;line-with-glyphs (clojure.string/replace line-without-heading macro-pattern replace-macro)
+			                                    ]
+			                                {:text line-without-heading-or-icon
+			                                 :icon (if (re-find glyph-pattern line)
+			                                         (str "&#x" (replace-macro (re-find glyph-pattern line)))
+			                                         "")
+			                                 :uuid uuid}))
+			                            result)]
+			       first-lines))
+			  :view (fn [items]
+			          [:div
+			           (interpose ", "
+			                      (for [{:keys [text icon uuid]} items]
+			                        [:a {:class "tag" :href (str "logseq://graph/main?block-id=" uuid)}
+			                         (if (and (seq icon) (not (empty? icon)))
+			                           [:span {:class "ti" :dangerouslySetInnerHTML {:__html icon}}]
+			                           "")
+			                         [:span {:dangerouslySetInnerHTML {:__html text}}]]))])
+			   }
+			  
+			  #+END_QUERY
+			  ```
+		- 2024-03-10 (code block)
+		  collapsed:: true
+			- ```datalog
+			  #+BEGIN_QUERY
+			  {
+			    :inputs [:parent-block #{1 2 3}]
+			    :query [:find (pull ?children [*])
+			            :in $ ?cb ?heading-set
+			            :where
+			            [?children :block/parent ?cb]
+			            [?children :block/properties ?prop]
+			            [(get ?prop :heading) ?heading-value]
+			            [(contains? ?heading-set ?heading-value)]
+			    ]
+			  :result-transform (fn [result]
+			                      (let [heading-pattern (re-pattern "^(#+\\s+)")
+			                            macro-pattern (re-pattern "\\{\\{[iI] ([a-fA-F0-9]{4})\\}\\}")
+			                            replace-macro (fn [macro-match]
+			                                            (str "&#x" (second macro-match) ";"))
+			                            first-lines (map (fn [r]
+			                                               (let [content (get-in r [:block/content])
+			                                                     first-newline (str/index-of content "\n")
+			                                                     line (if first-newline
+			                                                            (subs content 0 first-newline)
+			                                                            content)
+			                                                     uuid (get-in r [:block/uuid])
+			                                                     line-without-heading (clojure.string/replace line heading-pattern "")
+			                                                     line-with-glyphs (clojure.string/replace line-without-heading macro-pattern replace-macro)]
+			                                                 {:text line-with-glyphs
+			                                                  :uuid uuid}))
+			                                             result)]
+			                        first-lines))
+			  :view (fn [items]
+			          [:div
+			           (interpose ", "
+			             (for [{:keys [text uuid]} items]
+			               [:a {:class "tag" :href (str "logseq://graph/main?block-id=" uuid)
+			                    :dangerouslySetInnerHTML {:__html text}}]))])
+			  }
+			  #+END_QUERY
+			  ```
+		- 2024-03-05 (code block)
+		  collapsed:: true
+			- ```datalog
+			  {
+			    :inputs [:parent-block #{1 2 3}]
+			    :query [:find (pull ?children [*])
+			            :in $ ?cb ?heading-set
+			            :where
+			            [?children :block/parent ?cb]
+			            [?children :block/properties ?prop]
+			            [(get ?prop :heading) ?heading-value]
+			            [(contains? ?heading-set ?heading-value)]
+			    ]
+			  :result-transform (fn [result]
+			                      (let [heading-pattern (re-pattern "^(#+\\s+)")
+			                            macro-pattern (re-pattern "\\{\\{[iI] ([a-fA-F0-9]{4})\\}\\}")
+			                            replace-macro (fn [macro-match]
+			                                            (str "&#x" (second macro-match) ";"))
+			                            first-lines (map (fn [r]
+			                                               (let [content (get-in r [:block/content])
+			                                                     first-newline (str/index-of content "\n")
+			                                                     line (if first-newline
+			                                                            (subs content 0 first-newline)
+			                                                            content)
+			                                                     uuid (get-in r [:block/uuid])
+			                                                     line-without-heading (clojure.string/replace line heading-pattern "")
+			                                                     line-with-glyphs (clojure.string/replace line-without-heading macro-pattern replace-macro)]
+			                                                 {:text line-with-glyphs
+			                                                  :uuid uuid}))
+			                                             result)]
+			                        first-lines))
+			  :view (fn [items]
+			          [:div
+			           (interpose ", "
+			             (for [{:keys [text uuid]} items]
+			               [:a {:class "tag" :href (str "logseq://graph/main?block-id=" uuid)
+			                    :dangerouslySetInnerHTML {:__html text}}]))])
+			  }
+			  ```
+	- Show **last exfoliation date**
+	  collapsed:: true
+	  *Date of last `:block/marker { #{"DONE"} }` under `:block/parent` with specific ref*
+		- ```clj
+		  {:query
+		   [:find ?name ?day ?routine-element
+		   :keys name day routine-element
+		    :in $ ?routine-name ?routine-element
+		    :where
+		    ;; Block is child of "skin-care routine"
+		    [?bid-scr :block/name ?routine-name]
+		    [?bid-ref-scr :block/refs ?bid-scr]
+		    [?bid-chd-ref-scr :block/parent ?bid-ref-scr]
+		    ;; Block has reference to "exfoliation"
+		    [?bid-exf :block/name ?routine-element]
+		    [?bid-chd-ref-scr :block/refs ?bid-exf]
+		    [?bid-chd-ref-scr :block/marker "DONE"] ; is done
+		  
+		    [?bid-chd-ref-scr :block/page ?result-page]
+		    [?result-page :block/original-name ?name]
+		    [?result-page :block/journal-day ?day]
+		    ]
+		   :inputs ["skin-care routine" "exfoliation"]
+		   :result-transform (fn [result]
+		                       (reverse (sort-by (fn [h] 
+		                                  (get h :day)) result)))
+		  :view (fn [rows]
+		          [:div [:b 
+		                 (str "last " 
+		                      (get (first rows) :routine-element))] 
+		           (str ": " 
+		                (get (first rows) :name))])
+		   }
+		  
+		  ```
+	- Individual **medication dose**
+	  id:: 660c9a6b-a79d-4bd7-bc24-02f8d0fb588a
+	  collapsed:: true
+	  *From dose changes in journal page*\
+		- *Current dose is: 5mg*
+		- ```edn
+		  #+BEGIN_QUERY
+		  {:query
+		   [:find ?date ?day ?dose
+		    :keys date day dose
+		    :in $ ?medication
+		    :where
+		    [?m :block/properties ?props]
+		    [(get ?props :medication) ?mname]
+		    [(get ?props :dose) ?dose]
+		    [(contains? ?mname ?medication)]
+		    ;; ^- :medication contains name of current page
+		    [?m :block/page ?p]
+		    [?p :block/original-name ?day]
+		    [?p :block/journal-day ?date]
+		    ]
+		   :inputs [:current-page]
+		  :result-transform (fn [result]
+		                       (sort-by (fn [h] 
+		                                  (get h :date)) 
+		                                (fn [a b] (compare b a)) 
+		                                result))
+		  
+		   :view (fn [rows]
+		           [:div
+		           
+		            (str "Current dose is ") 
+		                 [:i (get (first rows) :dose)]
+		  
+		            ])}
+		  }
+		  #+END_QUERY
+		  #[[advanced query]]
+		  ```
+	- Find **lost blocks**
+	  id:: 65ff0dba-73e5-4e18-b24d-e3647f09eb31
+	  collapsed:: true
+	  That ended up on other pages
+		- ```datalog
+		  id:: 65fb3d5b-62ff-4797-a485-b9c7b06474f4
+		  #+BEGIN_QUERY
+		  {:query
+		   [:find (pull ?b [*])
+		    :in $ ?current-page ?property-name
+		    :where
+		    [?b :block/properties ?prop]
+		    [(get ?prop ?property-name)]
+		    [?b :block/page ?p]
+		    [?p :block/name ?page-name]
+		    [(not= ?current-page ?page-name)]
+		    ]
+		   ;; Change :template to what ever property you desire to find located
+		   ;; On pages other than the current one.
+		   :inputs [:current-page :template]
+		   }
+		  #+END_QUERY
+		  ```
+	- Ordered **clickable task blocks**
+	  collapsed:: true
+	  Makes a Grocery items list
+		- ```datalog
+		   {:query [:find (pull ?b [*])
+		     :where
+		      ; Add the criteria for which ?b you want to find here. I've added all tasks as an example.
+		      [?b :block/marker ?m]
+		      (not [(contains? #{"DONE" "CANCELED"} ?m)] )
+		      [?t :block/name "buy"]
+		      [?b :block/refs ?t]
+		      ;[?b :block/properties ?props]
+		      (property ?b :goods-category "food")
+		   
+		    ]
+		    :result-transform (fn [result] 
+		      (sort-by ; Any sort field here.
+		        (juxt ; sort by multiple fields
+		          (fn [r] (get r :block/scheduled 99999999)) ; sort field 1, if no value use 99999999
+		          (fn [r] (get r :block/priority "X")) ; sort field 2, if no value use X
+		          (fn [r] (get r :block/deadline 99999999)) ; sort field 3, if no value use 99999999
+		          (fn [r] (get r :block/content)) ; sort field 4
+		        )
+		        (map (fn [m] ; make a new map based on the query result
+		          (update m :block/properties ; update the block properties
+		            (fn [u] (assoc u :scheduled (get-in m [:block/scheduled] "-") :deadline (get-in m [:block/deadline] "-") ) ) ; associate the scheduled and deadline attribute values, if no value use -
+		          )
+		        ) result)
+		      )
+		    )
+		    :breadcrumb-show? false
+		   }
+		  ```
+	- Show **unfinished tasks** on `:current-page`
+	  collapsed:: true
+		- ![2024-02-08-23-10-36.jpeg](../assets/2024-02-08-23-10-36.jpeg)
+		- ```clj
+		  #+BEGIN_PINNED
+		  
+		  #+BEGIN_QUERY
+		  {:title [:h2 "Open Tasks ?page"]
+		   :query [
+		           :find (pull ?b [*])
+		           :in $ ?page
+		           :where 
+		           [?b :block/marker ?marker]
+		           (task ?b #{"TODO"})
+		           (page ?b ?page)
+		          ]
+		   :inputs [:current-page]
+		  }
+		  #+END_QUERY 
+		  #+END_PINNED
+		  ```
+	- Results from **dynamic input** text
+	    {{I eb1c}} Find an icon
+	- **query** dynamic input: markers
+	  collapsed:: true
+	  Match markers specified in :inputs
+	  `:inputs [:current-page #{"TODO" "DOING"}]`
+		- ![image.png](../assets/image_1711462196038_0.png)
+		- ```
+		  #+BEGIN_QUERY
+		  {
+		  :inputs [:current-page #{"TODO" "DOING"}]
+		  :query [:find (pull ?b [*])
+		  :in $ ?current-page ?markers
+		  :where
+		  [?p :block/name ?current-page]
+		  [?b :block/page ?p]
+		  [?b :block/marker ?m]
+		  [(contains? ?markers ?m)]
+		  ]
+		  }
+		  #+END_QUERY
+		  ```
+- ## {{i efc5}} datalog language reference
   collapsed:: true
   cateloguing advanced query syntax elements
   #+BEGIN_QUERY
@@ -440,34 +1714,42 @@ repository:: DeadBranches/logseq-queries-and-scripts
 		    'untuple identity
 		  })
 		  ```
-- ## {{i efd3}}   concept snippets
+- ## {{i eb6d}}  concept snippets
   advanced queries labeled by use case
-	- Exclude blocks with property value *x*
-		- ```clj
-		  (not (property ?b :goods-category "food"))
-		  ```
-	- query **results only**  {{i ef40}}
-	  collapsed:: true
-	  `:rules`
-		- ```
-		   :breadcrumb-show? false
-		   :children? false
-		   :group-by-page? false
-		  ```
-			- template:: query results only
-			  template-including-parent:: false
-				- :breadcrumb-show? false
-				   :children? false
-				   :group-by-page? false
-	- block has `:block/property` *x*
+	- ### :rules
+		- query **results only**
+			- ```
+			   :breadcrumb-show? false
+			   :children? false
+			   :group-by-page? false
+			  ```
+				- template:: query results only
+				  template-including-parent:: false
+					- :breadcrumb-show? false
+					   :children? false
+					   :group-by-page? false
+	- ### :where
+		- #### without :properties *value*
+		  collapsed:: true
+			- Exclude blocks with property value *x*
+			- ```clj
+			  (not (property ?b :goods-category "food"))
+			  ```
+	- block has `:block/property` *:x*
 		- ```datalog
 		    [?b :block/properties ?prop]
 		    [(contains? ?prop :goods-category)]
 		  ```
+	- block has `:block/property` *:x* with value *"y"*
+		- ```datalog
+		  [?b :block/properties ?props]
+		  [(get ?props :goods-category) ?category]
+		  [(contains? ?category "mushroom")]
+		  ```
 	- `:block/marker` does not contain *X*
 		- ```datalog
-		     [?b :block/marker ?m]
-		     (not [(contains? #{"DONE" "CANCELED"} ?m)] )
+		  [?b :block/marker ?m]
+		  (not [(contains? #{"DONE" "CANCELED"} ?m)] )
 		  ```
 	- pull blocks with a specific **macro reference**
 	  id:: 6638f4e8-101f-4d66-8aa5-0782d73d32f7
@@ -485,17 +1767,17 @@ repository:: DeadBranches/logseq-queries-and-scripts
 			  ```
 		- collapsed:: true
 		  ```datalog
-		  {:inputs ["news"]
-		   :query 
-		    [:find (pull ?b [*])
-		     :in $ ?macro
-		     :where
-		      [?m :block/properties ?props]
-		      [(get ?props :logseq.macro-name) ?macros]
-		      [(= ?macros ?macro)]
-		      [?b :block/macros ?m]
-		     ]
-		  } 
+		  {:inputs ["grocery"]
+		   :query
+		   [:find (pull ?b [*])
+		    :in $ ?macro
+		    :where
+		    [?m :block/properties ?props]
+		    [(get ?props :logseq.macro-name) ?macros]
+		    [(= ?macros ?macro)]
+		    [?b :block/macros ?m]
+		   ]
+		   }
 		  ```
 		- news!!!
 		  #+BEGIN_QUERY
@@ -773,891 +2055,17 @@ repository:: DeadBranches/logseq-queries-and-scripts
 		    [?pb :block/name "pile"] ; where pb is the block for a page named "pile"
 		    [?b :block/refs ?pb]]}   ; and blocks reference it
 		  ```
-- ### custom functions
+- ## {{i eb6e}} My functions
   collapsed:: true
-	- #### :sort-by-journal-day
-	  id:: 663a1fa7-6f8c-4790-b8d5-8d7c0ffff815
-	  `:result-transform`
-		- Implements ((663a1f42-6ff8-4a1b-a953-cca70c833e52))
-- ## {{i eff2}} Query library
-  query:: ((65f7767a-9fe3-4b51-a564-c36be58ce5fa))
-  *Advanced queries I reuse*
-  #+BEGIN_QUERY
-  {
-    :query [:find (pull ?children [*])
-            :in $ ?cb ?heading-set
-            :where
-            [?children :block/parent ?cb]
-            [?children :block/properties ?prop]
-            [(get ?prop :heading) ?heading-value]
-            [(contains? ?heading-set ?heading-value)]
-    ]
-    :inputs [:current-block #{1 2 3 4 5}]
-  :result-transform (fn [result]
-                      (let [heading-pattern (re-pattern "^(#+\\s+)")
-                            first-lines (map (fn [r]
-                                               (let [content (get-in r [:block/content])
-                                                     first-newline (str/index-of content "\n")
-                                                     line (if first-newline
-                                                            (subs content 0 first-newline)
-                                                            content)
-                                                     uuid (get-in r [:block/uuid])]
-                                                 {:text (clojure.string/replace line heading-pattern "")
-                                                  :uuid uuid}))
-                                             result)]
-                        first-lines))
-  :view (fn [items]
-          [:div
-           (for [[idx {:keys [text uuid]}] (map-indexed vector items)]
-             (if (= idx (dec (count items)))
-               [:a {:href (str "logseq://graph/main?block-id=" uuid)} text]
-               [:span [:a {:href (str "logseq://graph/main?block-id=" uuid)} text] ", "]))])
-  
-  
-  
-  
-  }
-  #+END_QUERY
-	- #### Current project
-		- id:: 664f42a4-40eb-44ba-8e8c-89dba2c17a06
-		  #+BEGIN_QUERY
-		  
-		  {:query
-		   [:find (pull ?project [:block/name])
-		    :where
-		    
-		    (page-tags ?project #{"project"})
-		    [?managers :block/name ?name]
-		    [(contains? #{"ongoing"} ?name)]
-		  
-		    [?refs-project :block/refs ?project]
-		    [?refs-project :block/parent ?project-ref-parent]
-		  
-		    [?project-ref-parent :block/refs ?managers]]
-		   :result-transform (fn [result]
-		                       (if (empty? result)
-		                         [{:block/name "\uf4a5 none"}]
-		                         (sort-by (fn [r] (get r :block/name "none")) result)))
-		   :view (fn [result]
-		           [:div
-		  [:span {:class "quick-view-label"} "current"]
-		                  
-		          [:span {:class "quick-view-content"} (for [r result] 
-		                    (let [project-name (get r :block/name)]
-		                      [:a {:data-ref project-name :class "tag"
-		                           :on-click
-		                           (fn [] (call-api "push_state" "page" {:name project-name}))} project-name]))]        
-		                  ]
-		           )
-		  }
-		  #+END_QUERY
-	- #### {{i ed18,gray}} Next appointments
-	  id:: 664ceeec-b343-4d67-94d5-4db82220f06f
-		- id:: 664e4055-3b72-4ba1-ac8b-48e34544629c
-		  #+BEGIN_QUERY
-		  {:query
-		   [:find (min ?day) ?date ?day ?content ?props ?today
-		   :keys min-day date day content properties today
-		    :in $ ?today
-		  
-		    :where
-		    [?e :block/properties ?props]
-		    [(get ?props :event) ?event]
-		    [(get ?props :date) ?date]
-		    [?e :block/refs ?refs]
-		    [?e :block/content ?content]
-		    [?refs :block/journal-day ?day]
-		    [(>= ?day ?today)]
-		  ]
-		  
-		  :view (fn [results]
-		          (let [min-day (get-in (first results) [:min-day])
-		                date (get-in (first results) [:date])
-		                today (get-in (first results) [:today])
-		                difference (- min-day today)
-		                events (map (fn [result]
-		                              (let [event-day (get-in result [:day])
-		                                    event-name (get-in result [:properties :event])
-		                                    person-names (get-in result [:properties :with])]
-		  
-		                                (when (= event-day min-day)
-		                                  (str
-		                                   (when event-name 
-		                                     (str event-name))
-		                                   (when person-names 
-		                                     (str " with " 
-		                                          (clojure.string/join ", " (seq person-names)))))) ;when
-		  ) ;let
-		  ) ;fn
-		                            results)
-		                filtered-events (filter some? events)
-		                events-but-last (butlast filtered-events)
-		                last-event (last filtered-events)
-		                ] ;let vars
-		            
-		  [:div 
-		   [:small 
-		    (concat 
-		     (interpose ", " 
-		      (map (fn [event] 
-		             event) 
-		           events-but-last)) 
-		     [", and " 
-		      [:span {:class "amber"} last-event]])
-		    " on " date]]
-		             ) ;let
-		  ) ;fn
-		  
-		  
-		  :result-transform (fn [result]
-		                      (sort-by (fn [r] (get-in r [:day])) (fn [a b] (compare a b)) result))
-		  
-		   :inputs [:today]
-		  }
-		  #+END_QUERY
-	- #### {{i ed18,gray}} Current medication list
+  for `:result-transform` and `:view` clauses
+	- ### {{i f38e}} `:result-transform` functions
 	  collapsed:: true
-		- id:: 664cb068-64bb-4dc5-aa7e-b0678b63a6fe
-		  #+BEGIN_QUERY
-		  {:query
-		   [:find ?mname ?date ?day ?dose
-		    :keys mname date day dose
-		    :where
-		    [?m :block/properties ?props]
-		    [(get ?props :medication) ?mname]
-		    [(get ?props :dose) ?dose]
-		  
-		    [?m :block/page ?p]
-		    [?p :block/original-name ?day]
-		    [?p :block/journal-day ?date]]
-		  
-		   :result-transform (fn [results]
-		                       (->> results
-		                            (group-by :mname)
-		                            (map (fn [[med-name group]]
-		                                   (reduce (fn [acc curr]
-		                                             (if (> (get acc :date) (get curr :date))
-		                                               acc
-		                                               curr))
-		                                           group)))
-		                            (sort-by (comp - :date))))
-		  :view (fn [rows] [:table
-		                    [:thead [:tr
-		                             [:th "Medication name"]
-		                             [:th "Dose"]
-		                             [:th "Date"]]] 
-		                    [:tbody (for [r rows] 
-		                              [:tr
-		                               [:td [:a {:on-click (fn [] (call-api "push_state" "page" {:name (str (get-in r [:mname]))}))} 
-		                                    (get-in r [:mname])]]
-		                               [:td (get-in r [:dose])]
-		                               [:td (get-in r [:day])]])
-		                     ]])}
-		  #+END_QUERY
-	- #### {{i ed18,gray}}  logseq graph news
-		- jump to: info  embed, history
-		- id:: 66415d9e-5591-4219-bc68-eb54393bccff
-		  #+BEGIN_QUERY
-		  {:inputs ["news" :5d-before :today :current-page]
-		  :query
-		  [:find (pull ?b [*])
-		  :in $ ?macro ?start ?end ?current-page
-		  :where
-		  [?m :block/properties ?props]
-		  [(get ?props :logseq.macro-name) ?macros]
-		  [(= ?macros ?macro)]
-		  [?b :block/macros ?m]
-		  [?b :block/page ?p]
-		  [?p :block/journal-day ?j-day]
-		  [(>= ?j-day ?start)]
-		  [(<= ?j-day ?end)]
-		  [?j :block/name ?current-page]
-		  [?j :block/journal-day ?day]
-		  [(= ?end ?day)]
-		        ]
-		   :result-transform :sort-by-journal-day
-		  :breadcrumb-show? false
-		  :children? false
-		  :group-by-page? false
-		  }
-		  #+END_QUERY
-	- #### {{i ed18,gray}}  Future appointments
-	  id:: 66415c9e-ff58-4281-8007-160cb44fb8b3
-	  collapsed:: true
-		- id:: 66415ca6-d397-4fc1-97f1-95f7b516e6d1
-		  #+BEGIN_QUERY
-		  {:query
-		  [:find (pull ?b [*])
-		  :in $ ?from
-		  :where
-		  [?b :block/properties ?props]
-		  [(get ?props :activity) _]
-		  [?b :block/refs ?refs]
-		  [?refs :block/journal-day ?d]
-		  [(>= ?d ?from)]
-		  ]
-		  :inputs [:tomorrow]
-		   :breadcrumb-show? false
-		   :children? false
-		   :group-by-page? false
-		  }
-		  #+END_QUERY
-	- #### {{i ed18,gray}}  *Quick view:* Grocery list
-		- id:: 663f8303-7fca-406d-83ed-d93002164105
-		  #+BEGIN_QUERY
-		  {
-		    :query [:find (pull ?b [*])
-		            :where
-		  		[?b :block/marker ?m]
-		    (not [(contains? #{"DONE" "CANCELED"} ?m)] )
-		    (property ?b :goods-category "food")
-		    ]
-		  :result-transform (fn [result]
-		                      (let [heading-pattern (re-pattern "^(TODO\\s\\{\\{grocery\\}\\}\\s+)")
-		                            macro-pattern (re-pattern "\\{\\{[iI] ([a-fA-F0-9]{4})\\}\\}")
-		                            replace-macro (fn [macro-match]
-		                                            (str "&#x" (second macro-match) ";"))
-		                            first-lines (map (fn [r]
-		                                               (let [content (get-in r [:block/content])
-		                                                     first-newline (str/index-of content "\n")
-		                                                     line (if first-newline
-		                                                            (subs content 0 first-newline)
-		                                                            content)             
-		                                                     line-without-heading (clojure.string/replace line heading-pattern "")
-		                                                     line-with-glyphs (clojure.string/replace line-without-heading macro-pattern replace-macro)]
-		                                                 {:text line-with-glyphs
-		                                                  }))
-		                                             result)]
-		                        first-lines))
-		  :view (fn [items]
-		  [:div {:class "journal-quickview"}
-		   [:div {:class "jq-icon-container"}
-		    [:a {:class "jq-icon-link" :href "#/page/grocery%20list"} "\uf21c"]
-		    [:span {:class "jq-label"} " grocery"]
-		  ]
-		   [:div {:class "jq-data"}
-		    [:span {:class "jq-items"} (interpose ", " (for [{:keys [text]} items] text))]]]
-		  )
-		  }
-		  #+END_QUERY
-	- #### {{i ed18,gray}}  *Quick view:* online orders
-		- id:: 663f79d8-20d7-4027-9ff5-500ae36ff757
-		  #+BEGIN_QUERY
-		  {
-		    :query [:find (pull ?b [*])
-		            :where 
-		            [?t :block/name "online order"]
-		            [?b :block/refs ?t]
-		            [?b :block/marker ?marker]
-		            [(contains? #{"TODO"} ?marker)]
-		              (not 
-		             [?b :block/parent ?parent]
-		             [?parent :block/properties ?props]
-		             [(get ?props :template)]
-		             )
-		    ]
-		  :result-transform (fn [result]
-		                      (let [heading-pattern (re-pattern "^(TODO\\s+)")
-		                            macro-pattern (re-pattern "\\{\\{[iI] ([a-fA-F0-9]{4})\\}\\}")
-		                            replace-macro (fn [macro-match]
-		                                            (str "&#x" (second macro-match) ";"))
-		                            first-lines (map (fn [r]
-		                                               (let [content (get-in r [:block/content])
-		                                                     first-newline (str/index-of content "\n")
-		                                                     line (if first-newline
-		                                                            (subs content 0 first-newline)
-		                                                            content)             
-		                                                     line-without-heading (clojure.string/replace line heading-pattern "")
-		                                                     line-with-glyphs (clojure.string/replace line-without-heading macro-pattern replace-macro)]
-		                                                 {:text line-with-glyphs
-		                                                  }))
-		                                             result)]
-		                        first-lines))
-		   :view (fn [items]
-		  [:div {:class "journal-quickview"}
-		    [:div {:class "jq-icon-container"}
-		      [:a {:class "jq-icon-link" :href "#/page/shopping"} "\ueaff"][:span {:class "jq-label"} "deliveries"]
-		  ]
-		    [:div {:class "jq-data"}
-		      
-		      [:span {:class "jq-items"} (interpose ", " (for [{:keys [text]} items] text))]]]
-		   )
-		  }
-		  #+END_QUERY
-	- #### Section contents
-	  id:: 65f7767a-9fe3-4b51-a564-c36be58ce5fa
-	  collapsed:: true
-	  Linked list of children w/ headers (dynamically specified)
-		- ```datalog
-		  #+BEGIN_QUERY
-		  {
-		    :query [:find (pull ?children [*])
-		            :in $ ?cb ?heading-set
-		            :where
-		            [?children :block/parent ?cb]
-		            [?children :block/properties ?prop]
-		            [(get ?prop :heading) ?heading-value]
-		            [(contains? ?heading-set ?heading-value)]
-		    ]
-		    :inputs [:current-block #{1 2 3}]
-		  :result-transform (fn [result]
-		                      (let [heading-pattern (re-pattern "^(#+\\s+)")
-		                            first-lines (map (fn [r]
-		                                               (let [content (get-in r [:block/content])
-		                                                     first-newline (str/index-of content "\n")
-		                                                     line (if first-newline
-		                                                            (subs content 0 first-newline)
-		                                                            content)
-		                                                     uuid (get-in r [:block/uuid])]
-		                                                 {:text (clojure.string/replace line heading-pattern "")
-		                                                  :uuid uuid}))
-		                                             result)]
-		                        first-lines))
-		  :view (fn [items]
-		          [:div
-		           (for [[idx {:keys [text uuid]}] (map-indexed vector items)]
-		             (if (= idx (dec (count items)))
-		               [:a {:href (str "logseq://graph/main?block-id=" uuid)} text]
-		               [:span [:a {:href (str "logseq://graph/main?block-id=" uuid)} text] ", "]))])
-		  }
-		  #+END_QUERY
-		  ```
-	- #### Page table of contents
-	  id:: 65f61ef5-45b1-4c58-b2b5-bced3827ae44
-	  collapsed:: true
-	  ![image.png](../assets/image_1713994770190_0.png)
-		- [[Wednesday, Apr 24th, 2024]]: Created an improved and updated **page table of contents**.
-		  Improvement: fixes text being rendered in `.ti` font.
-		  (see ((662becd7-fa05-45af-b368-bfe0144befc9)) )
-		- #### improved table of content
-		  id:: 662becd7-fa05-45af-b368-bfe0144befc9
+		- #### Sort by journal day
+		  id:: 663a1fa7-6f8c-4790-b8d5-8d7c0ffff815
 		  collapsed:: true
-			- ```md
-			  #+BEGIN_QUERY
-			  
-			  {:inputs [:parent-block #{1 2 3}]
-			   :query [:find (pull ?children [*])
-			           :in $ ?cb ?heading-set
-			           :where
-			           [?children :block/parent ?cb]
-			           [?children :block/properties ?prop]
-			           [(get ?prop :heading) ?heading-value]
-			           [(contains? ?heading-set ?heading-value)]]
-			   :result-transform
-			   (fn [result]
-			     (let [heading-pattern (re-pattern "^(#+\\s+)") ;; => `### ` ; used to get rid of header
-			           icon-macro-pattern (re-pattern "(\\s*\\{\\{[iI] [a-fA-F0-9]{4}\\}\\}\\s*)") ;; => ` {{i f3f3}} ` ; used for getting rid of icon 
-			           glyph-pattern (re-pattern "^.*\\{\\{[iI] ([a-fA-F0-9]{4})\\}\\}.*") ;; => `f3f3` ; used to isolate glyph code
-			           replace-macro (fn [macro-match]
-			                           (if (seq macro-match)
-			                             (second macro-match)
-			                             ""))
-			  
-			           ;icon-pattern (re-pattern "\\s*\\{\\{[iI] ([a-fA-F0-9]{4})\\}\\}\\s*")
-			           ;macro-pattern (re-pattern "\\{\\{[iI] ([a-fA-F0-9]{4})\\}\\}")
-			           first-lines (map (fn [r]
-			                              (let [content (get-in r [:block/content])
-			                                    first-newline (str/index-of content "\n")
-			                                    line (if first-newline (subs content 0 first-newline) content)
-			                                    uuid (get-in r [:block/uuid])
-			  
-			                                    line-without-heading (clojure.string/replace line heading-pattern "")
-			                                    line-without-heading-or-icon (clojure.string/replace line-without-heading icon-macro-pattern "")
-			                                    ;glyph-code (clojure.string/replace line glyph-pattern replace-macro)
-			                                    ;glyph-code (clojure.string/replace line )
-			                                    ;line-with-glyphs (clojure.string/replace line-without-heading macro-pattern replace-macro)
-			                                    ]
-			                                {:text line-without-heading-or-icon
-			                                 :icon (if (re-find glyph-pattern line)
-			                                         (str "&#x" (replace-macro (re-find glyph-pattern line)))
-			                                         "")
-			                                 :uuid uuid}))
-			                            result)]
-			       first-lines))
-			  :view (fn [items]
-			          [:div
-			           (interpose ", "
-			                      (for [{:keys [text icon uuid]} items]
-			                        [:a {:class "tag" :href (str "logseq://graph/main?block-id=" uuid)}
-			                         (if (and (seq icon) (not (empty? icon)))
-			                           [:span {:class "ti" :dangerouslySetInnerHTML {:__html icon}}]
-			                           "")
-			                         [:span {:dangerouslySetInnerHTML {:__html text}}]]))])
-			   }
-			  
-			  #+END_QUERY
-			  ```
-		- 2024-03-10 (code block)
-		  collapsed:: true
-			- ```datalog
-			  #+BEGIN_QUERY
-			  {
-			    :inputs [:parent-block #{1 2 3}]
-			    :query [:find (pull ?children [*])
-			            :in $ ?cb ?heading-set
-			            :where
-			            [?children :block/parent ?cb]
-			            [?children :block/properties ?prop]
-			            [(get ?prop :heading) ?heading-value]
-			            [(contains? ?heading-set ?heading-value)]
-			    ]
-			  :result-transform (fn [result]
-			                      (let [heading-pattern (re-pattern "^(#+\\s+)")
-			                            macro-pattern (re-pattern "\\{\\{[iI] ([a-fA-F0-9]{4})\\}\\}")
-			                            replace-macro (fn [macro-match]
-			                                            (str "&#x" (second macro-match) ";"))
-			                            first-lines (map (fn [r]
-			                                               (let [content (get-in r [:block/content])
-			                                                     first-newline (str/index-of content "\n")
-			                                                     line (if first-newline
-			                                                            (subs content 0 first-newline)
-			                                                            content)
-			                                                     uuid (get-in r [:block/uuid])
-			                                                     line-without-heading (clojure.string/replace line heading-pattern "")
-			                                                     line-with-glyphs (clojure.string/replace line-without-heading macro-pattern replace-macro)]
-			                                                 {:text line-with-glyphs
-			                                                  :uuid uuid}))
-			                                             result)]
-			                        first-lines))
-			  :view (fn [items]
-			          [:div
-			           (interpose ", "
-			             (for [{:keys [text uuid]} items]
-			               [:a {:class "tag" :href (str "logseq://graph/main?block-id=" uuid)
-			                    :dangerouslySetInnerHTML {:__html text}}]))])
-			  }
-			  #+END_QUERY
-			  ```
-		- 2024-03-05 (code block)
-		  collapsed:: true
-			- ```datalog
-			  {
-			    :inputs [:parent-block #{1 2 3}]
-			    :query [:find (pull ?children [*])
-			            :in $ ?cb ?heading-set
-			            :where
-			            [?children :block/parent ?cb]
-			            [?children :block/properties ?prop]
-			            [(get ?prop :heading) ?heading-value]
-			            [(contains? ?heading-set ?heading-value)]
-			    ]
-			  :result-transform (fn [result]
-			                      (let [heading-pattern (re-pattern "^(#+\\s+)")
-			                            macro-pattern (re-pattern "\\{\\{[iI] ([a-fA-F0-9]{4})\\}\\}")
-			                            replace-macro (fn [macro-match]
-			                                            (str "&#x" (second macro-match) ";"))
-			                            first-lines (map (fn [r]
-			                                               (let [content (get-in r [:block/content])
-			                                                     first-newline (str/index-of content "\n")
-			                                                     line (if first-newline
-			                                                            (subs content 0 first-newline)
-			                                                            content)
-			                                                     uuid (get-in r [:block/uuid])
-			                                                     line-without-heading (clojure.string/replace line heading-pattern "")
-			                                                     line-with-glyphs (clojure.string/replace line-without-heading macro-pattern replace-macro)]
-			                                                 {:text line-with-glyphs
-			                                                  :uuid uuid}))
-			                                             result)]
-			                        first-lines))
-			  :view (fn [items]
-			          [:div
-			           (interpose ", "
-			             (for [{:keys [text uuid]} items]
-			               [:a {:class "tag" :href (str "logseq://graph/main?block-id=" uuid)
-			                    :dangerouslySetInnerHTML {:__html text}}]))])
-			  }
-			  ```
-	- Show **last exfoliation date**
-	  *Date of last `:block/marker { #{"DONE"} }` under `:block/parent` with specific ref*
-		- ```clj
-		  {:query
-		   [:find ?name ?day ?routine-element
-		   :keys name day routine-element
-		    :in $ ?routine-name ?routine-element
-		    :where
-		    ;; Block is child of "skin-care routine"
-		    [?bid-scr :block/name ?routine-name]
-		    [?bid-ref-scr :block/refs ?bid-scr]
-		    [?bid-chd-ref-scr :block/parent ?bid-ref-scr]
-		    ;; Block has reference to "exfoliation"
-		    [?bid-exf :block/name ?routine-element]
-		    [?bid-chd-ref-scr :block/refs ?bid-exf]
-		    [?bid-chd-ref-scr :block/marker "DONE"] ; is done
-		  
-		    [?bid-chd-ref-scr :block/page ?result-page]
-		    [?result-page :block/original-name ?name]
-		    [?result-page :block/journal-day ?day]
-		    ]
-		   :inputs ["skin-care routine" "exfoliation"]
-		   :result-transform (fn [result]
-		                       (reverse (sort-by (fn [h] 
-		                                  (get h :day)) result)))
-		  :view (fn [rows]
-		          [:div [:b 
-		                 (str "last " 
-		                      (get (first rows) :routine-element))] 
-		           (str ": " 
-		                (get (first rows) :name))])
-		   }
-		  
-		  ```
-	- Individual **medication dose**
-	  id:: 660c9a6b-a79d-4bd7-bc24-02f8d0fb588a
-	  collapsed:: true
-	  *From dose changes in journal page*\
-		- *Current dose is: 5mg*
-		- ```edn
-		  #+BEGIN_QUERY
-		  {:query
-		   [:find ?date ?day ?dose
-		    :keys date day dose
-		    :in $ ?medication
-		    :where
-		    [?m :block/properties ?props]
-		    [(get ?props :medication) ?mname]
-		    [(get ?props :dose) ?dose]
-		    [(contains? ?mname ?medication)]
-		    ;; ^- :medication contains name of current page
-		    [?m :block/page ?p]
-		    [?p :block/original-name ?day]
-		    [?p :block/journal-day ?date]
-		    ]
-		   :inputs [:current-page]
-		  :result-transform (fn [result]
-		                       (sort-by (fn [h] 
-		                                  (get h :date)) 
-		                                (fn [a b] (compare b a)) 
-		                                result))
-		  
-		   :view (fn [rows]
-		           [:div
-		           
-		            (str "Current dose is ") 
-		                 [:i (get (first rows) :dose)]
-		  
-		            ])}
-		  }
-		  #+END_QUERY
-		  #[[advanced query]]
-		  ```
-	- Find **lost blocks**
-	  id:: 65ff0dba-73e5-4e18-b24d-e3647f09eb31
-	  collapsed:: true
-	  That ended up on other pages
-		- ```datalog
-		  id:: 65fb3d5b-62ff-4797-a485-b9c7b06474f4
-		  #+BEGIN_QUERY
-		  {:query
-		   [:find (pull ?b [*])
-		    :in $ ?current-page ?property-name
-		    :where
-		    [?b :block/properties ?prop]
-		    [(get ?prop ?property-name)]
-		    [?b :block/page ?p]
-		    [?p :block/name ?page-name]
-		    [(not= ?current-page ?page-name)]
-		    ]
-		   ;; Change :template to what ever property you desire to find located
-		   ;; On pages other than the current one.
-		   :inputs [:current-page :template]
-		   }
-		  #+END_QUERY
-		  ```
-	- Current **medication list** and dose
-	  collapsed:: true
-	  {{I ea06}} #IN-PROGRESS
-		- Test
-			- TODO hi
-			- {{button button,button}}
-				- button:
-				  ```js
-				  const medications = logseq.api.datascript_query(` [:find ?mname ?date ?day ?dose
-				   :keys mname date day dose
-				   :where
-				   [?m :block/properties ?props]
-				   [(get ?props :medication) ?mname]
-				   [(get ?props :dose) ?dose]
-				    ;;[(contains? ?mname ?medication)]
-				    ;; ^- :medication contains name of current page
-				   [?m :block/page ?p]
-				   [?p :block/original-name ?day]
-				   [?p :block/journal-day ?date]
-				  ]`)?.flat();
-				  
-				  const medicationDoses = medications.reduce((acc, { mname, dose }) => {
-				    acc[mname[0]] = dose;
-				    return acc;
-				  }, {});
-				        //.flat()[0];
-				  //.at(0);
-				  copy_to_clipboard(JSON.stringify(medicationDoses,null,2));
-				  ```
-			- ```edn
-			  {:query
-			   [:find ?mname ?date ?day ?dose 
-			    :keys mname date day dose
-			    :in $ ?medication
-			    :where
-			    [?m :block/properties ?props]
-			    [(get ?props :medication) ?mname]
-			    [(get ?props :dose) ?dose]
-			    ;;[(contains? ?mname ?medication)]
-			    ;; ^- :medication contains name of current page
-			    [?m :block/page ?p]
-			    [?p :block/original-name ?day]
-			    [?p :block/journal-day ?date]
-			    ]
-			   :inputs ["propranolol"]
-			   :result-transform (fn [results]
-			                       (->> results
-			                            (group-by :mname)
-			                            (map (fn [[med-name group]]
-			                                   (reduce (fn [acc curr]
-			                                             (if (> (get acc :date) (get curr :date))
-			                                               acc
-			                                               curr))
-			                                           group)))
-			                            (sort-by (comp - :date))))
-			    :view (fn [rows] [:table
-			                     [:thead [:tr
-			                              [:th "Medication name"]
-			                              [:th "Dose"]
-			                              [:th "Date"]
-			                              ]] [:tbody (for [r rows] [:tr
-			                                                        [:td (get-in r [:mname])]
-			                                                        [:td (get-in r [:dose])]
-			                                                        [:td (get-in r [:day])]
-			                                                        ]
-			                                              )
-			                                  
-			                                  ]])
-			  
-			   }
-			  ```
-			- #+BEGIN_QUERY
-			  {:query
-			   [:find ?mname ?date ?day ?dose 
-			    :keys mname date day dose
-			    :in $ ?medication
-			    :where
-			    [?m :block/properties ?props]
-			    [(get ?props :medication) ?mname]
-			    [(get ?props :dose) ?dose]
-			    ;;[(contains? ?mname ?medication)]
-			    ;; ^- :medication contains name of current page
-			    [?m :block/page ?p]
-			    [?p :block/original-name ?day]
-			    [?p :block/journal-day ?date]
-			    ]
-			   :inputs ["propranolol"]
-			   :result-transform (fn [result]
-			                       (sort-by (fn [h] (get h :date)) 
-			                                (fn [a b] (compare b a)) 
-			                                result))
-			    :view (fn [rows] [:table
-			                     [:thead [:tr
-			                              [:th "Medication name"]
-			                              [:th "Dose"]
-			                              [:th "Date"]
-			                              ]] [:tbody (for [r rows] [:tr
-			                                                        [:td (get-in r [:mname])]
-			                                                        [:td (get-in r [:dose])]
-			                                                        [:td (get-in r [:day])]
-			                                                        ]
-			                                              )
-			                                  
-			                                  ]])
-			  
-			   }
-			  
-			  #+END_QUERY
-			- #+BEGIN_QUERY
-			  {:query
-			   [:find ?date ?day ?dose
-			    :keys date day dose
-			    :in $ ?medication
-			    :where
-			    [?m :block/properties ?props]
-			    [(get ?props :medication) ?mname]
-			    [(get ?props :dose) ?dose]
-			    ;[(contains? ?mname ?medication)]
-			    ;; ^- :medication contains name of current page
-			    [?m :block/page ?p]
-			    [?p :block/original-name ?day]
-			    [?p :block/journal-day ?date]]
-			  
-			   :inputs [:query-page]
-			   :result-transform (fn [result]
-			                       (sort-by (fn [h] (get h :date))
-			                                (fn [a b] (compare b a))
-			                                result))
-			  
-			   :view (fn [rows] [:div 
-			                     (for [r rows] 
-			                       (get-in r [:mname])
-			                       (str ": current dose is ") 
-			                       [:i (get-in r :dose)])
-			                     ;[:i (get-in r (first rows) :dose)])
-			                                         ;
-			           ])
-			   }
-			   
-			   
-			  
-			  #+END_QUERY
-			- /prompt
-			- Think about this issue at length. Try to make some mistakes that beginners would make, and then offer corrections from the perspective of an expert. Reserve your final contributions until the end of the conversation, and throughout your reply use a process where you propose an idea, test the idea in writing, and then come to some conclusions. For example:
-			  > My goal is to write a javascript hello world. So, I think one possible best way to do this is with a print statement. A print statement would look like `print("Hello world');`. However, now that I think about it, print() is not syntactically correct javascript. So, perhaps using console.log() would work better. Such an approach could look like: `console.log('hello world');`. Now that I've reviewed the two previous methods for writing a hello world statement my conclusion is that the second option (`console.log('hello world');`) is the best approach. So, I will now write a more in-depth hello-world statement using the aformentioned best approach ...
-		- ```datalog
-		  #+BEGIN_QUERY
-		  
-		  {:query 
-		   [:find ?date ?day ?dose ?mname
-		    :keys date day dose mname 
-		    :where
-		    [?m :block/properties ?props]
-		    [(get ?props :medication) str ?mname]
-		    [(get ?props :dose) ?dose]
-		    ;; ^- :medication contains name of current page
-		    [?m :block/page ?p]
-		    [?p :block/original-name ?day]
-		    [?p :block/journal-day ?date]
-		    ] 
-		   :result-transform (fn [result] (sort-by (fn [r] (get-in r [:mname]))
-		                                                result))
-		  :view :pprint
-		  }
-		  #+END_QUERY
-		  ```
-		- ```
-		  #+BEGIN_QUERY
-		  {:query 
-		   [:find ?date ?day ?dose ?mname
-		    :keys date day dose mname 
-		    :where
-		    [?m :block/properties ?props]
-		    [(get ?props :medication) ?mname]
-		    [(get ?props :dose) ?dose]
-		    ;; ^- :medication contains name of current page
-		    [?m :block/page ?p]
-		    [?p :block/original-name ?day]
-		    [?p :block/journal-day ?date]
-		    ] 
-		   :result-transform (fn [result]
-		                       (sort-by 
-		                       (juxt
-		                        (fn [h] (get h :mname))
-		                        ;(fn [h] (get h :date))
-		                        )
-		                        result)
-		                       )
-		  }
-		  #+END_QUERY
-		  ```
-		- ```
-		  #+BEGIN_QUERY
-		  {:query
-		   [:find ?date ?day ?dose ?mname
-		    :keys date day dose mname
-		    
-		    :where
-		    [?m :block/properties ?props]
-		    [(get ?props :medication) ?mname]
-		    [(get ?props :dose) ?dose]
-		   
-		    ;; ^- :medication contains name of current page
-		    [?m :block/page ?p]
-		    [?p :block/original-name ?day]
-		    [?p :block/journal-day ?date]
-		    ]
-		   
-		  :result-transform (fn [result]
-		                       (sort-by (fn [h] 
-		                                  (get h :date)) 
-		                                 
-		                                result))
-		  
-		  
-		  }
-		  #+END_QUERY
-		  ```
-		  #[[advanced query]]
-	- Ordered **clickable task blocks**
-	  collapsed:: true
-	  Makes a Grocery items list
-		- ```datalog
-		   {:query [:find (pull ?b [*])
-		     :where
-		      ; Add the criteria for which ?b you want to find here. I've added all tasks as an example.
-		      [?b :block/marker ?m]
-		      (not [(contains? #{"DONE" "CANCELED"} ?m)] )
-		      [?t :block/name "buy"]
-		      [?b :block/refs ?t]
-		      ;[?b :block/properties ?props]
-		      (property ?b :goods-category "food")
-		   
-		    ]
-		    :result-transform (fn [result] 
-		      (sort-by ; Any sort field here.
-		        (juxt ; sort by multiple fields
-		          (fn [r] (get r :block/scheduled 99999999)) ; sort field 1, if no value use 99999999
-		          (fn [r] (get r :block/priority "X")) ; sort field 2, if no value use X
-		          (fn [r] (get r :block/deadline 99999999)) ; sort field 3, if no value use 99999999
-		          (fn [r] (get r :block/content)) ; sort field 4
-		        )
-		        (map (fn [m] ; make a new map based on the query result
-		          (update m :block/properties ; update the block properties
-		            (fn [u] (assoc u :scheduled (get-in m [:block/scheduled] "-") :deadline (get-in m [:block/deadline] "-") ) ) ; associate the scheduled and deadline attribute values, if no value use -
-		          )
-		        ) result)
-		      )
-		    )
-		    :breadcrumb-show? false
-		   }
-		  ```
-	- Show **unfinished tasks** on `:current-page`
-	  collapsed:: true
-		- ![2024-02-08-23-10-36.jpeg](../assets/2024-02-08-23-10-36.jpeg)
-		- ```clj
-		  #+BEGIN_PINNED
-		  
-		  #+BEGIN_QUERY
-		  {:title [:h2 "Open Tasks ?page"]
-		   :query [
-		           :find (pull ?b [*])
-		           :in $ ?page
-		           :where 
-		           [?b :block/marker ?marker]
-		           (task ?b #{"TODO"})
-		           (page ?b ?page)
-		          ]
-		   :inputs [:current-page]
-		  }
-		  #+END_QUERY 
-		  #+END_PINNED
-		  ```
-	- Results from **dynamic input** text
-	    {{I eb1c}} Find an icon
-	- **query** dynamic input: markers
-	  collapsed:: true
-	  Match markers specified in :inputs
-	  `:inputs [:current-page #{"TODO" "DOING"}]`
-		- ![image.png](../assets/image_1711462196038_0.png)
-		- ```
-		  #+BEGIN_QUERY
-		  {
-		  :inputs [:current-page #{"TODO" "DOING"}]
-		  :query [:find (pull ?b [*])
-		  :in $ ?current-page ?markers
-		  :where
-		  [?p :block/name ?current-page]
-		  [?b :block/page ?p]
-		  [?b :block/marker ?m]
-		  [(contains? ?markers ?m)]
-		  ]
-		  }
-		  #+END_QUERY
-		  ```
+		  `:sort-by-journal-day`
+			- Implements ((663a1f42-6ff8-4a1b-a953-cca70c833e52))
+	- ### {{i f4cb}} `:view` functions
 - ## {{i eb6c}} Query prompts
   collapsed:: true
   *For conversations with Co-pilot*

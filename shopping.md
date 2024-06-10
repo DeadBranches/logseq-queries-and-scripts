@@ -15,7 +15,8 @@ description:: Integrate products into the larger system by indicating `:product-
   :inputs [:current-page]
   }
   #+END_QUERY
-	- #+BEGIN_QUERY
+	- collapsed:: true
+	  #+BEGIN_QUERY
 	  {:query
 	  [:find (pull ?b [*])
 	  :in $ ?current-page
@@ -60,7 +61,8 @@ description:: Integrate products into the larger system by indicating `:product-
 - ## buy
   id:: 662becda-d50f-4dac-9376-05e732cb9430
   *newest first*
-	- #+BEGIN_QUERY
+	- id:: 6644ee82-6e4e-4936-af4f-8a47ece6985d
+	  #+BEGIN_QUERY
 	  {
 	   :query [:find (pull ?b [*])
 	    :where
