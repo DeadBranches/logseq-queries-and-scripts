@@ -1,5 +1,6 @@
 tags:: page
 description:: Project manarement home base
+repository:: DeadBranches/logseq-queries-and-scripts
 
 - ## {{i eb4e}}  [[focus]]
   id:: 66537d2b-5b7e-4077-98a1-e946001b6b1d
