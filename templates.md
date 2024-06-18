@@ -2,11 +2,14 @@ tags:: page
 description:: `/template`s with boilerplate for collector blocks, page tags, daily journal, queries
 
 - ## {{i eb96}} Daily journal
+  id:: 6644f008-299c-43c2-9c36-d9ab220bd4f3
+  collapsed:: true
   *Used automatically*
 	- {{i ec45}} Doing block
 	  template:: Daily journal doing-block
 	  template-including-parent:: false
 		- #### {{i ec45}} **Doing** today
+		  collapsed:: true
 		  {{button do,do,ec45,long}}
 		  
 		  {{button '',fridge,f1fa}}  {{button '',computer,ea89}}  {{button '',wash,ef48}}
@@ -58,6 +61,11 @@ description:: `/template`s with boilerplate for collector blocks, page tags, dai
 		  template:: Event header for daily journal
 		  template-including-parent:: false
 			- ### {{i ec9e}} Journal buddies
+				- [:small "daily reminders"]
+				  collapsed:: true
+					- TODO {{i ef63}} Take medication
+					  id:: 65fdfbf2-818e-404e-9d60-7f941f29bf34
+					  {{schedule-date-today}}
 				- {{button '',doing,ec45}}  {{button '',organization-blocks,eaad}}
 				  collapsed:: true
 					- Code Blocks
@@ -100,6 +108,7 @@ description:: `/template`s with boilerplate for collector blocks, page tags, dai
 					- {{embed ((663f79d8-20d7-4027-9ff5-500ae36ff757))}}
 				- {{button '',expand-groceries,f21c}}  {{button grocery,add-grocery-item,eb0b}}
 				  id:: 6649f26f-70ca-4d46-96a8-555f07ae4524
+				  collapsed:: true
 					- {{nested-code-block}}
 					  collapsed:: true
 						- expand-groceries:
@@ -112,10 +121,6 @@ description:: `/template`s with boilerplate for collector blocks, page tags, dai
 						  journalHelper(this, 'grocery');
 						  ```
 					- {{embed ((663f8303-7fca-406d-83ed-d93002164105))}}
-				- [:small "daily reminders"]
-					- TODO {{i ef63}} Take medication
-					  id:: 65fdfbf2-818e-404e-9d60-7f941f29bf34
-					  {{schedule-date-today}}
 				- #### {{button project focus,expand-projects,f00e,full-width-secret}}
 				  collapsed:: true
 				  {{embed ((664f42a4-40eb-44ba-8e8c-89dba2c17a06))}}
@@ -150,6 +155,24 @@ description:: `/template`s with boilerplate for collector blocks, page tags, dai
 			- tags:: collector
 			  description:: 
 			  collector:: [[]]
+- ## For pages
+	- ### Food items
+	  template:: food item
+	  template-including-parent:: false
+	  id:: 666f76e0-09c0-4695-b66d-42c727c5a003
+		- tags:: food-item
+		- # Nutritional facts
+			- ## Vitamins
+			  *per 100g portion*
+			  {{embed ((666f7733-1891-45d3-8bbb-8f32dd4631e1))}}
+			- ### Minerals
+			  *per 100g portion*
+			  {{embed ((666f7747-d031-4ef7-8a4e-faaadde102c4))}}
+		- # Nutritional data
+			- ## [[Vitamins]]
+				-
+			- ## [[Minerals]]
+				-
 - ---
 - Else
 	- {{embed ((66046249-db4c-4206-b001-691fad2bd2e2))}}

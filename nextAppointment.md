@@ -61,15 +61,6 @@ repository:: DeadBranches/logseq-queries-and-scripts
   } else {
   div.innerHTML = 'No upcoming appointments found.';
   }
-    
-    // Calculate the number of days until the next appointment
-   /* if (minDay) {
-      const daysUntilNextAppointment = daysBetween(String(minDay), today);
-      // Update the macro div to show the number of days until the next appointment
-      div.innerHTML = `Days until next appointment: ${daysUntilNextAppointment}`;
-    } else {
-      div.innerHTML = 'No upcoming appointments found.';
-    }*/
   });
   ```
 - {{tk}}

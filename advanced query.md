@@ -96,6 +96,70 @@ repository:: DeadBranches/logseq-queries-and-scripts
   
   }
   #+END_QUERY
+	- #### Nutritional facts (vitamins)
+	  id:: 666f7716-c32e-40e0-8b10-8f93fc591165
+		- id:: 666f7733-1891-45d3-8bbb-8f32dd4631e1
+		  #+BEGIN_QUERY
+		   {:inputs [:current-page]
+		   :query
+		   [:find ?current-page ?nutrient ?amount ?unit
+		    :keys current-page nutrient amount unit
+		    :in $ ?current-page
+		    :where
+		    [?f :block/name ?current-page]
+		    [?b :block/page ?f]
+		    [?b :block/path-refs [:block/name "vitamins"]]
+		    [?b :block/properties ?props]
+		    [(get ?props :nutrient) ?nutrient]
+		  
+		    [(get ?props :per-100g) ?amount]
+		  [(not= ?amount 0)]
+		    [(get ?props :unit) ?unit]]
+		   :view (fn [query-results]
+		           [:div {:class "mdc-grid-list button-bunny"}
+		            [:md-list  
+		            (map (fn [{:keys [nutrient amount unit]}]
+		                   [:div
+		                    [:md-list-item
+		                    [:div {:slot "headline" :class "list-item"} (str (first nutrient))]
+		                    [:div {:slot "supporting-text" :class "list-item"} (str amount " " unit)]]]
+		                   )
+		                 query-results)]])}
+		  
+		  #+END_QUERY
+		-
+	- #### Nutritional facts (minerals)
+	  id:: 666f7726-4350-45b0-b0fd-4cdd2b75497c
+		- id:: 666f7747-d031-4ef7-8a4e-faaadde102c4
+		  #+BEGIN_QUERY
+		   {:inputs [:current-page]
+		   :query
+		   [:find ?current-page ?nutrient ?amount ?unit
+		    :keys current-page nutrient amount unit
+		    :in $ ?current-page
+		    :where
+		    [?f :block/name ?current-page]
+		    [?b :block/page ?f]
+		    [?b :block/path-refs [:block/name "minerals"]]
+		    [?b :block/properties ?props]
+		    [(get ?props :nutrient) ?nutrient]
+		  
+		    [(get ?props :per-100g) ?amount]
+		  [(not= ?amount 0)]
+		    [(get ?props :unit) ?unit]]
+		   :view (fn [query-results]
+		           [:div {:class "mdc-grid-list button-bunny"}
+		            [:md-list  
+		            (map (fn [{:keys [nutrient amount unit]}]
+		                   [:div
+		                    [:md-list-item
+		                    [:div {:slot "headline" :class "list-item"} (str (first nutrient))]
+		                    [:div {:slot "supporting-text" :class "list-item"} (str amount " " unit)]]]
+		                   )
+		                 query-results)]])}
+		  
+		  #+END_QUERY
+	-
 	- #### Upcoming project quick-view
 	  *see [[logseq project manager]]*
 		- id:: 6654b591-49ea-4d3a-b9d9-1dc4f25bab0c
@@ -283,6 +347,7 @@ repository:: DeadBranches/logseq-queries-and-scripts
 			  #+END_QUERY
 			  ```
 	- #### Project management journal widget
+	  id:: 6666f9ad-7589-4721-a459-d7d18591c09e
 	  *see [[logseq project manager]]*
 		- id:: 664f42a4-40eb-44ba-8e8c-89dba2c17a06
 		  #+BEGIN_QUERY
@@ -335,10 +400,8 @@ repository:: DeadBranches/logseq-queries-and-scripts
 		  #+END_QUERY
 		- History
 		  id:: 6653554c-6a4b-4673-9f08-a7e58a13c5fe
-		  collapsed:: true
-			- version 2.4 improves styling
+			- version 2.4 improves styling (*current*)
 			- version 2.3
-			  collapsed:: true
 			  *introduces project icon for added blocks*
 				- ```
 				  #+BEGIN_QUERY
@@ -806,8 +869,8 @@ repository:: DeadBranches/logseq-queries-and-scripts
 			  ```
 	- #### Current medication list
 	  collapsed:: true
-		- id:: 664cb068-64bb-4dc5-aa7e-b0678b63a6fe
-		  #+BEGIN_QUERY
+		- #+BEGIN_QUERY
+id:: 664cb068-64bb-4dc5-aa7e-b0678b63a6fe
 		  {:query
 		   [:find ?mname ?date ?day ?dose
 		    :keys mname date day dose
@@ -842,6 +905,40 @@ repository:: DeadBranches/logseq-queries-and-scripts
 		                               [:td (get-in r [:dose])]
 		                               [:td (get-in r [:day])]])
 		                     ]])}
+		  #+END_QUERY
+		- #+BEGIN_QUERY
+		  {:query
+		  [:find ?mname ?date ?day ?dose
+		  :keys mname date day dose
+		  :where
+		  [?m :block/properties ?props]
+		  [(get ?props :medication) ?mname]
+		  [(get ?props :dose) ?dose]
+		  - [?m :block/page ?p]
+		  [?p :block/original-name ?day]
+		  [?p :block/journal-day ?date]]
+		  :result-transform (fn [results]
+		                     (->> results
+		                          (group-by :mname)
+		                          (map (fn [[med-name group]]
+		                                 (reduce (fn [acc curr]
+		                                           (if (> (get acc :date) (get curr :date))
+		                                             acc
+		                                             curr))
+		                                         group)))
+		                          (sort-by (comp - :date))))
+		  :view (fn [rows] [:table
+		                  [:thead [:tr
+		                           [:th "Medication name"]
+		                           [:th "Dose"]
+		                           [:th "Date"]]] 
+		                  [:tbody (for [r rows] 
+		                            [:tr
+		                             [:td [:a {:on-click (fn [] (call-api "push_state" "page" {:name (str (get-in r [:mname]))}))} 
+		                                  (get-in r [:mname])]]
+		                             [:td (get-in r [:dose])]
+		                             [:td (get-in r [:day])]])
+		                   ]])}
 		  #+END_QUERY
 	- #### logseq graph news
 	  collapsed:: true
@@ -893,32 +990,35 @@ repository:: DeadBranches/logseq-queries-and-scripts
 		  }
 		  #+END_QUERY
 	- #### Grocery list (journal widget)
+	  id:: 6666f9ad-2b57-4f34-b088-41e5b3e5bd53
 		- id:: 663f8303-7fca-406d-83ed-d93002164105
 		  #+BEGIN_QUERY
-		  {
+		  {:inputs ["grocery"]
 		    :query [:find (pull ?b [*])
+		            :in $ ?macro
 		            :where
-		  		[?b :block/marker ?m]
-		    (not [(contains? #{"DONE" "CANCELED"} ?m)] )
-		    (property ?b :goods-category "food")
-		    ]
-		  :result-transform (fn [result]
-		                      (let [heading-pattern (re-pattern "^(TODO\\s\\{\\{grocery\\}\\}\\s+)")
-		                            macro-pattern (re-pattern "\\{\\{[iI] ([a-fA-F0-9]{4})\\}\\}")
-		                            replace-macro (fn [macro-match]
-		                                            (str "&#x" (second macro-match) ";"))
-		                            first-lines (map (fn [r]
-		                                               (let [content (get-in r [:block/content])
-		                                                     first-newline (str/index-of content "\n")
-		                                                     line (if first-newline
-		                                                            (subs content 0 first-newline)
-		                                                            content)             
-		                                                     line-without-heading (clojure.string/replace line heading-pattern "")
-		                                                     line-with-glyphs (clojure.string/replace line-without-heading macro-pattern replace-macro)]
-		                                                 {:text line-with-glyphs
-		                                                  }))
-		                                             result)]
-		                        first-lines))
+		     [?b :block/marker ?marker]
+		   (not [(contains? #{"DONE"} ?marker)])
+		   [?b :block/macros ?m]
+		   [?m :block/properties ?props]
+		   [(get ?props :logseq.macro-name) ?macros]
+		   [(= ?macros ?macro)]
+		            ]
+		  :result-transform 
+		   (fn [result]
+		     (let 
+		      [heading-pattern (re-pattern "^(TODO\\s\\{\\{grocery\\}\\}\\s+)")
+		       macro-pattern (re-pattern "\\{\\{[iI] ([a-fA-F0-9]{4})\\}\\}")
+		       replace-macro (fn [macro-match] (str "&#x" (second macro-match) ";"))
+		       first-lines (map (fn [r] (let [content (get-in r [:block/content])
+		                                      first-newline (str/index-of content "\n")
+		                                      line (if first-newline 
+		                                             (subs content 0 first-newline) content)             
+		                                      line-without-heading (clojure.string/replace line heading-pattern "")
+		                                      line-with-glyphs (clojure.string/replace line-without-heading macro-pattern replace-macro)]
+		                                  {:text line-with-glyphs }))
+		                        result)]
+		       first-lines))
 		  :view (fn [items]
 		  [:div {:class "journal-quickview"}
 		   [:div {:class "jq-icon-container"}

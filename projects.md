@@ -5,6 +5,7 @@ repository:: DeadBranches/logseq-queries-and-scripts
 - ## {{i eb4e}}  [[focus]]
   id:: 66537d2b-5b7e-4077-98a1-e946001b6b1d
   Let's do it!
+	- [[logseq-events-and-appointments]]
 - ## {{i ef93}}  [[next]]
   id:: 66537d2b-bdba-46d1-a917-217fcd95d5f8
   *More aspirational than anything.*

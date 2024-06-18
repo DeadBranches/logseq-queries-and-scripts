@@ -7,39 +7,51 @@ repository:: DeadBranches/logseq-queries-and-scripts
   id:: 660c8b4b-be82-4019-943b-dfabdb2c7161
 - ## {{i ef0c}} my custom.js functions
   For use in button blocks
-	- ### show( *str* )
+	- ### daysBetween( str, str ) -> *int*
 	  collapsed:: true
+	  `daysBetween(firstDate, SecondDate`
+	  Returns the number of days between two dates formatted as *YYYYMMDDD*
+		- {{embed ((6666f998-c9a0-4940-8720-00350e7049b0))}}
+	- ### show( *str* ) -> *None*
+	  collapsed:: true
+	  `show(inputText)`
+	  Logs the input to the console, formatting it if it's an object.
 		- **Parameters**:
 			- `input`: The data to be logged. Can be any type.
 		- **Returns**: Nothing. Outputs to the console.
-	- `show( str )`
-	  Logs the input to the console, formatting it if it's an object.
-	- `copy_to_clipboard(value)`
+	- ### copy_to_clipboard( *str* ) -> *None*
 	  collapsed:: true
+	  `copy_to_clipboard(value)`
 	  Copies the provided value to the clipboard.
 		- **Parameters**:
 			- `value`: The string to be copied to the clipboard.
 		- **Returns**: Nothing. The value is copied to the user's clipboard.
-	- `getParentUUID(targetUUID)`
-	  Retrieves the UUID of the parent block of the given target block.
+	- ### getParentUUID( *str* ) -> *str*
+	  collapsed:: true
+	  `getParentUUID(targetUUID)`
+	  Retrieves the UUID for the parent block with child having *targetUUID*
 		- **Parameters**:
 			- `targetUUID`: The UUID of the target block.
-		- **Returns**: The UUID of the parent block as a string.
-	- `getPageUuid(this)`
+		- **Returns:** *string*. The UUID of the parent block as a string.
+	- ### getPageUuid( *obj* ) -> *str*
 	  collapsed:: true
-	  Get uuid for current page.
+	  `getPageUuid(this)`
+	  Return the UUID of the current page.
 		- **Parameters**:
 			- `this`: Literal *this*
 		- **Returns**:
 			- The UUID of the page the block is on.
-	- `insertTemplate(templateName, targetUUID, options)`
+	- ### insertTemplate( *str*, *str*, *obj* ) -> *Promise*
+	  collapsed:: true
+	  `insertTemplate(templateName, targetUUID, options)`
 	  Inserts a template as the first child of the target block and optionally moves it based on provided options.
 		- **Parameters**:
 			- `templateName`: The name of the template to insert.
 			- `targetUUID`: The UUID of the target block where the template will be inserted.
 			- `options`: An object with options for moving the block (same as `move_block`).
 		- **Returns**: The UUID of the newly inserted template block if options are not provided. Otherwise, no return value.
-	- `append_block_and_edit(caller, where, what)`
+	- ### append_block_and_edit( obj, str, str )
+	  `append_block_and_edit(caller, where, what)`
 	  Appends a block to a specified location in Logseq.
 		- **Function arguments**
 		  | parameter | description |

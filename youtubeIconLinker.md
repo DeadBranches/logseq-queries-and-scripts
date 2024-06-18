@@ -1,5 +1,3 @@
-kit:: yt
-
 - ```javascript
   logseq.kits.setStatic(function youtubeIconLinker(div){
     // Automatically fetch the title of a youtube video.
