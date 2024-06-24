@@ -5,15 +5,19 @@ repository:: DeadBranches/logseq-queries-and-scripts
 	  {:inputs ["grocery"]
 	   :query
 	   [:find (pull ?b [*])
-	    :in $ ?macro
+	    :in $ ?macro-name %
 	    :where
 	    [?b :block/marker ?marker]
 	    (not [(contains? #{"DONE"} ?marker)])
-	    [?b :block/macros ?m]
-	    [?m :block/properties ?props]
-	    [(get ?props :logseq.macro-name) ?macros]
-	    [(= ?macros ?macro)]
+	    (using-macro ?b ?macro-name)
 	   ]
+	  :rules [
+	          [(using-macro ?b ?macro-name)
+	           [?b :block/macros ?m]
+	           [?m :block/properties ?props]
+	           [(get ?props :logseq.macro-name) ?macros]
+	           [(= ?macros ?macro-name)]]
+	  ]
 	   :result-transform
 	   (fn [result]
 	     (sort-by 
@@ -36,40 +40,38 @@ repository:: DeadBranches/logseq-queries-and-scripts
 	  #+END_QUERY
 - #### {{i f5f8}} in my basket..
 	- #+BEGIN_QUERY
-	  {:query 
-	   [:find (pull ?b [*]) 
-	    :in $ ?end  ?macro
+	  {:inputs [:start-of-today-ms "grocery"]
+	   :query
+	   [:find (pull ?b [*])
+	    :in $ ?start-of-today ?macro-name %
 	    :where
-	    ; Find blocks marked DONE today.
-	    [?b :block/updated-at ?updated]
-	    [(> ?updated ?end)]
-	    [?b :block/marker ?marker]
-	    [(contains? #{"DONE"} ?marker)]
-	  
-	    ; Find blocks using {{grocery}}
-	    [?b :block/macros ?m]
-	    [?m :block/properties ?props]
-	    [(get ?props :logseq.macro-name) ?macros]
-	    [(= ?macros ?macro)]
-	   ]
+	    (marked-done-today ?b ?start-of-today)
+	    (using-macro ?b ?macro-name)]
 	   
-	   :result-transform (fn [result] 
+	   :rules 
+	   [[(marked-done-today ?b ?start-of-today)
+	     [?b :block/marker ?marker]
+	     [(contains? #{"DONE"} ?marker)]
+	     [?b :block/updated-at ?update-time]
+	     [(< ?start-of-today ?update-time)]]
+	  
+	    [(using-macro ?b ?macro-name)
+	     [?b :block/macros ?m]
+	     [?m :block/properties ?props]
+	     [(get ?props :logseq.macro-name) ?macros]
+	     [(= ?macros ?macro-name)]]]
+	  
+	   :result-transform 
+	   (fn [result]
 	     (sort-by
-	       (juxt
-	         (fn [r] (get r :block/scheduled 99999999))
-	         (fn [r] (get r :block/content))
-	         )
-	       (map (fn [m]
-	         (update m :block/properties
-	           (fn [u] (assoc u 
-	           :scheduled (get-in m [:block/scheduled] "-") 
-	           ) )
-	         )
-	       ) result)
-	     )
-	   )
-	   :inputs [:start-of-today-ms "grocery"] 
+	      (juxt
+	       (fn [r] (get r :block/scheduled 99999999))
+	       (fn [r] (get r :block/content)))
+	      (map (fn [m]
+	             (update m :block/properties (fn [u] (assoc u
+	                                    :scheduled (get-in m [:block/scheduled] "-"))))) result)))
+	  
+	   :breadcrumb-show? false}
 	   :breadcrumb-show? false
 	  }
 	  #+END_QUERY
--

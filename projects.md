@@ -1,6 +1,5 @@
 tags:: page
-description:: Project manarement home base
-repository:: DeadBranches/logseq-queries-and-scripts
+description:: Project management home base
 
 - ## {{i eb4e}}  [[focus]]
   id:: 66537d2b-5b7e-4077-98a1-e946001b6b1d
@@ -13,6 +12,10 @@ repository:: DeadBranches/logseq-queries-and-scripts
 	- [[logseq journal news feed]]
 	- [[android-handsfree-note-taker]]
 	- [[2024-denimn-repair]]
+	- [[logseq-queries-and-scripts-repo]]
+	- [[logseq-journal-buddy-improvement-2024-06]]
+	- [[logseq-ms-journal]]
+	- [[logseq-grocery-journal-widget]]
 - ## {{i f258}}  [[unmanaged]]
   *oh mah gawd*
 	- #+BEGIN_QUERY

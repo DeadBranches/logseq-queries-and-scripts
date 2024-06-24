@@ -3,12 +3,12 @@ description:: `/template`s with boilerplate for collector blocks, page tags, dai
 
 - ## {{i eb96}} Daily journal
   id:: 6644f008-299c-43c2-9c36-d9ab220bd4f3
-  collapsed:: true
   *Used automatically*
 	- {{i ec45}} Doing block
 	  template:: Daily journal doing-block
 	  template-including-parent:: false
 		- #### {{i ec45}} **Doing** today
+		  id:: 6666f9b1-219c-4c0c-879f-eb0dd5ea687f
 		  collapsed:: true
 		  {{button do,do,ec45,long}}
 		  
@@ -62,10 +62,10 @@ description:: `/template`s with boilerplate for collector blocks, page tags, dai
 		  template-including-parent:: false
 			- ### {{i ec9e}} Journal buddies
 				- [:small "daily reminders"]
-				  collapsed:: true
+				  id:: 6666f9b1-6202-4537-aa84-b40852fa720a
 					- TODO {{i ef63}} Take medication
 					  id:: 65fdfbf2-818e-404e-9d60-7f941f29bf34
-					  {{schedule-date-today}}
+					  {{scheduleDateToday}}
 				- {{button '',doing,ec45}}  {{button '',organization-blocks,eaad}}
 				  collapsed:: true
 					- Code Blocks
@@ -136,7 +136,8 @@ description:: `/template`s with boilerplate for collector blocks, page tags, dai
 				  {{embed ((664e4055-3b72-4ba1-ac8b-48e34544629c))}}
 					- {{embed ((66415ca6-d397-4fc1-97f1-95f7b516e6d1))}}
 - ## {{I f499}} collector blocks
-  Templatea to get things started
+  collapsed:: true
+  Templates to get things started
 	- #### {{i ef11}} Numbered list
 	  collapsed:: true
 	  *->* `x list`
@@ -156,10 +157,12 @@ description:: `/template`s with boilerplate for collector blocks, page tags, dai
 			  description:: 
 			  collector:: [[]]
 - ## For pages
+  collapsed:: true
 	- ### Food items
 	  template:: food item
 	  template-including-parent:: false
 	  id:: 666f76e0-09c0-4695-b66d-42c727c5a003
+	  collapsed:: true
 		- tags:: food-item
 		- # Nutritional facts
 			- ## Vitamins
@@ -173,8 +176,42 @@ description:: `/template`s with boilerplate for collector blocks, page tags, dai
 				-
 			- ## [[Minerals]]
 				-
+	- ### clojureScript documentation
+	  template:: clojureScript docs
+	  template-including-parent:: false
+		- *function/macro*
+			- [full details >]()
+		-
+		- ### Syntax
+			-
+		- ### Details
+			-
+		- ### Examples
+			- ```clojure
+			  
+			  ```
 - ---
 - Else
+	- llm advanced-query conversation (Originally used [here](((6678932d-b247-4894-af50-3c3161cfbec4))))
+	  template:: llm advanced-query development
+	  template-including-parent:: false
+		- **Result**: 
+		  *
+		  *
+		  
+		  (*sample*):
+			- **Prompt** given to claude
+				- >
+			- **Response**
+				- **Result**
+					- ```edn
+					  
+					  ```
+				- **Advanced query**
+					- ```clojure
+					  
+					  ```
+	-
 	- {{embed ((66046249-db4c-4206-b001-691fad2bd2e2))}}
 - ### {{i ef91}} Project Management
   collapsed:: true
@@ -237,6 +274,7 @@ description:: `/template`s with boilerplate for collector blocks, page tags, dai
 			- ref to: ((65fb267e-8199-4ada-95e3-2232fa2d2190))
 			-
 - ### {{i ea88}} Data templates
+  collapsed:: true
   E.g. tabler icon
 	- {{embed ((65da2d57-3c21-41da-ae79-ebfc60db759f))}}
 - ---

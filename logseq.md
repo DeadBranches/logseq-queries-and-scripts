@@ -247,7 +247,7 @@ repository:: DeadBranches/logseq-queries-and-scripts
 		         :schedule-date-today "<div class='kit' data-kit='expandmacro'>||scheduled today||</div>"
 		           }
 		  ```
-		- {{embed [[expandmacro]] }}
+		- {{embed [[scheduleDateToday]] }}
 	- #### icon links
 	  id:: 6612cf52-7324-492d-9c8f-f78061e1e841
 	  collapsed:: true
@@ -914,7 +914,7 @@ repository:: DeadBranches/logseq-queries-and-scripts
 		  ```
 	- #### Self-replacing macros
 	  collapsed:: true
-	  *implemented at* [[expandmacro]] *via*  `logseq.kits.setStatic(function expandmacro(div)` 
+	  *implemented at* [[scheduleDateToday]] *via*  `logseq.kits.setStatic(function expandmacro(div)` 
 	  {{il eb02,Make custom macros that replace themselves with their value on first run,https://discuss.logseq.com/t/make-custom-macros-that-replace-themselves-with-their-value-on-first-run/20967}}
 		- Create a relatively simple kit like this:
 		  

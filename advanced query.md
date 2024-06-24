@@ -96,6 +96,31 @@ repository:: DeadBranches/logseq-queries-and-scripts
   
   }
   #+END_QUERY
+	- {{runpage exportquery}}
+	- **Related page** linked references
+		- On a given page with the `:related` page property,
+			- Find all blocks with linked references to pages included in `:related`
+		- Linked references to pages in `:related` advanced query:
+		  ```datalog
+		  #+BEGIN_QUERY
+		  {
+		  :inputs [:query-page]
+		  :query
+		  [:find (pull ?b [*])
+		  :in $ ?query-page
+		  :where
+		  [?qp :block/name ?query-page]
+		  [?qp :block/properties ?properties]
+		  [(get ?properties :related) ?related-page]
+		  
+		  [?rp :block/original-name ?page-name]
+		  [(contains? ?related-page ?page-name)]
+		  
+		  [?b :block/refs ?rp]
+		  ]
+		  }
+		  #+END_QUERY
+		  ```
 	- #### Nutritional facts (vitamins)
 	  id:: 666f7716-c32e-40e0-8b10-8f93fc591165
 		- id:: 666f7733-1891-45d3-8bbb-8f32dd4631e1
@@ -162,73 +187,9 @@ repository:: DeadBranches/logseq-queries-and-scripts
 	-
 	- #### Upcoming project quick-view
 	  *see [[logseq project manager]]*
-		- id:: 6654b591-49ea-4d3a-b9d9-1dc4f25bab0c
-		  #+BEGIN_QUERY
-		  {:query
-		   [:find ?current-page-id ?project-name ?manager-name ?project-properties
-		    :keys current-page-id project-name manager-name project-properties
-		    :in $ ?current-page
-		    :where
-		    ;; Step 1: Identify all project pages
-		    (page-tags ?project #{"project"})
-		  
-		      [?refs-project :block/refs ?project]
-		      ;; Ensure there is a parent block
-		  
-		      [?refs-project :block/parent ?ref-parent]
-		      ;; Check if the parent block references a manager
-		  
-		      [?ref-parent :block/refs ?managers]
-		      ;; Ensure the manager is one of the specified categories
-		  
-		      [?managers :block/name ?manager-name]
-		      [(contains? #{"next"} ?manager-name)]
-		    
-		    [?page :block/name ?current-page]
-		    [?page :block/uuid ?current-page-id]
-		    [?project :block/name ?project-name]
-		    [?project :block/properties ?project-properties]
-		  
-		  ]
-		  :result-transform (fn [results]
-		                      (let [sorted-results (sort-by (fn [r] (get r :block/name "none")) results)]
-		                        (map (fn [result]
-		                               (let [icon (get-in result [:block/properties :icon] "ef27")] ; Use fallback icon if none
-		                                 (assoc result :icon icon))) ; Associate the icon with the result
-		                             (if (empty? sorted-results)
-		                               [{:block/name "\uf4a5 none"}]
-		                               sorted-results))))
-		  
-		   :view (fn [results]
-		           [:div {:class "projects-list-container"}
-		            (map (fn [results]
-		                   (let [project-name (:project-name results)
-		                         uuid (str (:current-page-id results))
-		                         icon (:icon results)]
-		                                 ;inside let scope 
-		                      [:span {:class "project-item"}
-		                          [:a {:class "project-quick-add" 
-		                               :on-click (
-		                                          fn [] (call-api "append_block_in_page" uuid (
-		                                                                                       str "{{i " icon "}} #[[" project-name "]]")))
-		                               }
-		                           [:span {:class "project-leading-icon"} "\uf63f "] [:span {:class "project-name"} project-name]
-		                           ] [:a {
-		                                  :class "project-trailing-icon" 
-		                                  :on-click (fn [] (call-api "push_state" "page" {:name project-name}))
-		                                  } "\uea99 "
-		                              ]
-		                          ]
-		                     ))
-		                 results)
-		                                     ])
-		  :inputs [:current-page]
-		  }
-		  #+END_QUERY
-		- version 1.2
-		  collapsed:: true
-		  *introduces project icons & open page icon*
-			- #+BEGIN_QUERY
+		- **Current query**
+			- id:: 6654b591-49ea-4d3a-b9d9-1dc4f25bab0c
+			  #+BEGIN_QUERY
 			  {:query
 			   [:find ?current-page-id ?project-name ?manager-name ?project-properties
 			    :keys current-page-id project-name manager-name project-properties
@@ -265,87 +226,155 @@ repository:: DeadBranches/logseq-queries-and-scripts
 			                               sorted-results))))
 			  
 			   :view (fn [results]
-			           [:div
+			           [:div {:class "projects-list-container"}
 			            (map (fn [results]
 			                   (let [project-name (:project-name results)
 			                         uuid (str (:current-page-id results))
 			                         icon (:icon results)]
 			                                 ;inside let scope 
-			                     [:p [:span
-			                          [:a
-			                           {:class "tag"
-			                            :on-click (fn [] (call-api "append_block_in_page"
-			                                                       uuid
-			                                                       (str "{{i " icon "}} #[[" project-name "]]")))
-			                            }
-			                           [:span {:class "ti"} "\uf63f "] 
-			                           project-name] [:a {:class "ti"
-			                          :on-click (fn [] (call-api "push_state" "page" {:name project-name}))} 
-			                      "  \uea99 "
-			                      ] 
-			                          ]]
+			                      [:span {:class "project-item"}
+			                          [:a {:class "project-quick-add" 
+			                               :on-click (
+			                                          fn [] (call-api "append_block_in_page" uuid (
+			                                                                                       str "{{i " icon "}} #[[" project-name "]]")))
+			                               }
+			                           [:span {:class "project-leading-icon"} "\uf63f "] [:span {:class "project-name"} project-name]
+			                           ] [:a {
+			                                  :class "project-trailing-icon" 
+			                                  :on-click (fn [] (call-api "push_state" "page" {:name project-name}))
+			                                  } "\uea99 "
+			                              ]
+			                          ]
 			                     ))
 			                 results)
 			                                     ])
 			  :inputs [:current-page]
 			  }
 			  #+END_QUERY
-			-
-		- version 1.1
+			  xnusafgo
+		- [:small "(older versions)"]
 		  collapsed:: true
-		  ![image.png](../assets/image_1717608526060_0.png)
-			- ```
-			  #+BEGIN_QUERY
-			  {:query
-			   [:find ?current-page-id ?project-name
-			    :keys current-page-id project-name
-			    :in $ ?current-page
-			    :where
-			    ;; Step 1: Identify all project pages
-			    (page-tags ?project #{"project"})
-			  
-			      [?refs-project :block/refs ?project]
-			      ;; Ensure there is a parent block
-			  
-			      [?refs-project :block/parent ?ref-parent]
-			      ;; Check if the parent block references a manager
-			  
-			      [?ref-parent :block/refs ?managers]
-			      ;; Ensure the manager is one of the specified categories
-			  
-			      [?managers :block/name ?name]
-			      [(contains? #{"next"} ?name)]
-			    
-			    [?page :block/name ?current-page]
-			    [?page :block/uuid ?current-page-id]
-			    [?project :block/name ?project-name]
-			  ]
-			  
-			   :view (fn [results]
-			           [:div
-			            (map (fn [results]
-			                   (let [project-name (:project-name results)
-			                         uuid (str (:current-page-id results))]
-			                                 ;inside let scope 
-			                     [:p [:span
-			                          [:a
-			                           {:class "tag tag-like"
-			                            :on-click (fn [] (call-api "append_block_in_page"
-			                                                       uuid
-			                                                       (str "[[" project-name "]]")))
-			                            }
-			                           [:span {:class "ti"} "\uf63f "] 
-			                           project-name]
-			                          ]]
-			                     ))
-			                 results)
-			                    
-			  
-			                    ])
-			  :inputs [:current-page]
-			  }
-			  #+END_QUERY
-			  ```
+			- version 1.2
+			  collapsed:: true
+			  *introduces project icons & open page icon*
+				- #+BEGIN_QUERY
+				  {:query
+				   [:find ?current-page-id ?project-name ?manager-name ?project-properties
+				    :keys current-page-id project-name manager-name project-properties
+				    :in $ ?current-page
+				    :where
+				    ;; Step 1: Identify all project pages
+				    (page-tags ?project #{"project"})
+				  
+				      [?refs-project :block/refs ?project]
+				      ;; Ensure there is a parent block
+				  
+				      [?refs-project :block/parent ?ref-parent]
+				      ;; Check if the parent block references a manager
+				  
+				      [?ref-parent :block/refs ?managers]
+				      ;; Ensure the manager is one of the specified categories
+				  
+				      [?managers :block/name ?manager-name]
+				      [(contains? #{"next"} ?manager-name)]
+				    
+				    [?page :block/name ?current-page]
+				    [?page :block/uuid ?current-page-id]
+				    [?project :block/name ?project-name]
+				    [?project :block/properties ?project-properties]
+				  
+				  ]
+				  :result-transform (fn [results]
+				                      (let [sorted-results (sort-by (fn [r] (get r :block/name "none")) results)]
+				                        (map (fn [result]
+				                               (let [icon (get-in result [:block/properties :icon] "ef27")] ; Use fallback icon if none
+				                                 (assoc result :icon icon))) ; Associate the icon with the result
+				                             (if (empty? sorted-results)
+				                               [{:block/name "\uf4a5 none"}]
+				                               sorted-results))))
+				  
+				   :view (fn [results]
+				           [:div
+				            (map (fn [results]
+				                   (let [project-name (:project-name results)
+				                         uuid (str (:current-page-id results))
+				                         icon (:icon results)]
+				                                 ;inside let scope 
+				                     [:p [:span
+				                          [:a
+				                           {:class "tag"
+				                            :on-click (fn [] (call-api "append_block_in_page"
+				                                                       uuid
+				                                                       (str "{{i " icon "}} #[[" project-name "]]")))
+				                            }
+				                           [:span {:class "ti"} "\uf63f "] 
+				                           project-name] [:a {:class "ti"
+				                          :on-click (fn [] (call-api "push_state" "page" {:name project-name}))} 
+				                      "  \uea99 "
+				                      ] 
+				                          ]]
+				                     ))
+				                 results)
+				                                     ])
+				  :inputs [:current-page]
+				  }
+				  #+END_QUERY
+				-
+			- version 1.1
+			  collapsed:: true
+			  ![image.png](../assets/image_1717608526060_0.png)
+				- ```
+				  #+BEGIN_QUERY
+				  {:query
+				   [:find ?current-page-id ?project-name
+				    :keys current-page-id project-name
+				    :in $ ?current-page
+				    :where
+				    ;; Step 1: Identify all project pages
+				    (page-tags ?project #{"project"})
+				  
+				      [?refs-project :block/refs ?project]
+				      ;; Ensure there is a parent block
+				  
+				      [?refs-project :block/parent ?ref-parent]
+				      ;; Check if the parent block references a manager
+				  
+				      [?ref-parent :block/refs ?managers]
+				      ;; Ensure the manager is one of the specified categories
+				  
+				      [?managers :block/name ?name]
+				      [(contains? #{"next"} ?name)]
+				    
+				    [?page :block/name ?current-page]
+				    [?page :block/uuid ?current-page-id]
+				    [?project :block/name ?project-name]
+				  ]
+				  
+				   :view (fn [results]
+				           [:div
+				            (map (fn [results]
+				                   (let [project-name (:project-name results)
+				                         uuid (str (:current-page-id results))]
+				                                 ;inside let scope 
+				                     [:p [:span
+				                          [:a
+				                           {:class "tag tag-like"
+				                            :on-click (fn [] (call-api "append_block_in_page"
+				                                                       uuid
+				                                                       (str "[[" project-name "]]")))
+				                            }
+				                           [:span {:class "ti"} "\uf63f "] 
+				                           project-name]
+				                          ]]
+				                     ))
+				                 results)
+				                    
+				  
+				                    ])
+				  :inputs [:current-page]
+				  }
+				  #+END_QUERY
+				  ```
 	- #### Project management journal widget
 	  id:: 6666f9ad-7589-4721-a459-d7d18591c09e
 	  *see [[logseq project manager]]*
@@ -383,7 +412,7 @@ repository:: DeadBranches/logseq-queries-and-scripts
 		                         uuid (str (:current-page-id result))
 		                         icon (:icon result)] ; Define icon here
 		                     [:div {:class "quick-view-container"} 
-		                      [:span {:class "leading-slot"} "focus"]
+		                      [:span {:class "ti"} (read-string (str "\"\\u" icon "\""))]
 		                      [:span {:class "content-slot"}
 		                       [:a {:data-ref project-name :class "link"
 		                            :on-click (fn [] (call-api "append_block_in_page" uuid (str "\n{{i " icon "}} #[[" project-name "]]")))}
@@ -398,10 +427,12 @@ repository:: DeadBranches/logseq-queries-and-scripts
 		   :inputs [:current-page]
 		  }
 		  #+END_QUERY
-		- History
+		- [:small "(older versions)"]
 		  id:: 6653554c-6a4b-4673-9f08-a7e58a13c5fe
+		  collapsed:: true
 			- version 2.4 improves styling (*current*)
 			- version 2.3
+			  collapsed:: true
 			  *introduces project icon for added blocks*
 				- ```
 				  #+BEGIN_QUERY
@@ -614,71 +645,7 @@ repository:: DeadBranches/logseq-queries-and-scripts
 				  ```
 	- ####  Next appointments
 	  id:: 664ceeec-b343-4d67-94d5-4db82220f06f
-		- i want it to look like this:
-		  {{embed ((1d9cd183-464e-44d6-9add-3b2c8e32d106))}}
-		- id:: 6660535c-5420-4cdb-ba03-5e9ab8e66213
-		  #+BEGIN_QUERY
-		  {:query
-		   [:find (min ?day) ?date ?day ?content ?props ?today
-		   :keys min-day date day content properties today
-		    :in $ ?today
-		  
-		    :where
-		    [?e :block/properties ?props]
-		    [(get ?props :event) ?event]
-		    [(get ?props :date) ?date]
-		    [?e :block/refs ?refs]
-		    [?e :block/content ?content]
-		    [?refs :block/journal-day ?day]
-		    [(>= ?day ?today)]
-		  ]
-		  
-		  :view 
-		   (fn [results]
-		     (let
-		      [min-day (get-in (first results) [:min-day])
-		       date-set (get-in (first results) [:date])
-		       date (if (set? date-set)
-		              (first date-set)
-		              date-set)
-		       ;date (get-in (first results) [:date])
-		       today (get-in (first results) [:today])
-		       difference (- min-day today)
-		       events
-		       (map
-		        (fn [result]
-		          (let
-		           [event-day (get-in result [:day])
-		            event-name (get-in result [:properties :event])
-		            person-names (get-in result [:properties :with])]
-		            (when (= event-day min-day) 
-		              (str
-		               (when event-name
-		                 (str event-name))
-		               (when person-names
-		                 (str " with " (clojure.string/join ", " (seq person-names))))))))
-		        results)
-		       filtered-events (filter some? events)
-		       events-but-last (butlast filtered-events)
-		       last-event (last filtered-events)] 
-		       [:div
-		        [:small
-		         (if (= 1 (count filtered-events))
-		           (str (first filtered-events) " on " date)
-		           (str
-		            (clojure.string/join ", " (butlast filtered-events))
-		            ", and "
-		            (last filtered-events)
-		            " on " date))]]))
-		         
-		         
-		  
-		  :result-transform (fn [result]
-		                      (sort-by (fn [r] (get-in r [:day])) (fn [a b] (compare a b)) result))
-		  
-		   :inputs [:today]
-		  }
-		  #+END_QUERY
+		- **Current version**
 			- id:: 664e4055-3b72-4ba1-ac8b-48e34544629c
 			  #+BEGIN_QUERY
 			  {:query
@@ -727,13 +694,14 @@ repository:: DeadBranches/logseq-queries-and-scripts
 			       [:div
 			        [:small
 			         (if (= 1 (count filtered-events))
-			           ;(str (first filtered-events) " on " date)
+			           ;; No longer using date
+			           ;; (str (first filtered-events) " on " date)
 			            (str (first filtered-events))
-			           (str
+			           (str 
 			            (clojure.string/join ", " (butlast filtered-events))
 			            ", and "
 			            (last filtered-events)
-			            ;" on " date)
+			     
 			            )
 			  )]]))
 			         
@@ -745,132 +713,146 @@ repository:: DeadBranches/logseq-queries-and-scripts
 			   :inputs [:today]
 			  }
 			  #+END_QUERY
-		- old versions
+		- i want it to look like this:
+		  {{embed ((1d9cd183-464e-44d6-9add-3b2c8e32d106))}}
+		- *(older versions)*
 		  collapsed:: true
-			- ```
-			  #+BEGIN_QUERYo
-			  {:query
-			   [:find (min ?day) ?date ?day ?content ?props ?today
-			   :keys min-day date day content properties today
-			    :in $ ?today
-			  
-			    :where
-			    [?e :block/properties ?props]
-			    [(get ?props :event) ?event]
-			    [(get ?props :date) ?date]
-			    [?e :block/refs ?refs]
-			    [?e :block/content ?content]
-			    [?refs :block/journal-day ?day]
-			    [(>= ?day ?today)]
-			  ]
-			  
-			  :view 
-			   (fn [results]
-			     (let
-			      [min-day
-			       (get-in (first results) [:min-day])
-			       date (get-in (first results) [:date])
-			       today (get-in (first results) [:today])
-			       difference (- min-day today)
-			       events
-			       (map
-			        (fn [result]
-			          (let
-			           [event-day (get-in result [:day])
-			            event-name (get-in result [:properties :event])
-			            person-names (get-in result [:properties :with])]
-			            (when (= event-day min-day) 
-			              (str
-			               (when event-name
-			                 (str event-name))
-			               (when person-names
-			                 (str " with " (clojure.string/join ", " (seq person-names))))))))
-			        results)
-			       filtered-events (filter some? events)
-			       events-but-last (butlast filtered-events)
-			       last-event (last filtered-events)] 
-			       [:div
-			        [:small
-			         (concat
-			          (interpose
-			           ", " 
-			           (map 
-			            (fn [event] event) 
-			            events-but-last)) 
-			          [", and " 
-			           [:span (str last-event)]]) 
-			         " on " date]]) )
-			  
-			  :result-transform (fn [result]
-			                      (sort-by (fn [r] (get-in r [:day])) (fn [a b] (compare a b)) result))
-			  
-			   :inputs [:today]
-			  }
-			  #+END_QUERY
-			  ```
-			- ```
-			  #+BEGIN_QUERY
-			  {:query
-			   [:find (min ?day) ?date ?day ?content ?props ?today
-			   :keys min-day date day content properties today
-			    :in $ ?today
-			  
-			    :where
-			    [?e :block/properties ?props]
-			    [(get ?props :event) ?event]
-			    [(get ?props :date) ?date]
-			    [?e :block/refs ?refs]
-			    [?e :block/content ?content]
-			    [?refs :block/journal-day ?day]
-			    [(>= ?day ?today)]
-			  ]
-			  
-			  :view 
-			   (fn [results]
-			     (let
-			      [min-day
-			       (get-in (first results) [:min-day])
-			       date (get-in (first results) [:date])
-			       today (get-in (first results) [:today])
-			       difference (- min-day today)
-			       events
-			       (map
-			        (fn [result]
-			          (let
-			           [event-day (get-in result [:day])
-			            event-name (get-in result [:properties :event])
-			            person-names (get-in result [:properties :with])]
-			            (when (= event-day min-day) 
-			              (str
-			               (when event-name
-			                 (str event-name))
-			               (when person-names
-			                 (str " with " (clojure.string/join ", " (seq person-names))))))))
-			        results)
-			       filtered-events (filter some? events)
-			       events-but-last (butlast filtered-events)
-			       last-event (last filtered-events)] 
-			       [:div
-			        [:small
-			         (if (= 1 (count filtered-events))
-			           (str (first filtered-events) " on " date)
-			           (str
-			            (clojure.string/join ", " (butlast filtered-events))
-			            ", and "
-			            (last filtered-events)
-			            " on " date))]]))
-			  
-			  :result-transform (fn [result]
-			                      (sort-by (fn [r] (get-in r [:day])) (fn [a b] (compare a b)) result))
-			  
-			   :inputs [:today]
-			  }
-			  #+END_QUERY
-			  ```
+			- **appointment with** including date
+			  collapsed:: true
+			  ![image.png](../assets/image_1718922194354_0.png)
+				- id:: 6660535c-5420-4cdb-ba03-5e9ab8e66213
+				  ```markdown
+				  #+BEGIN_QUERY
+				  {:query
+				   [:find (min ?day) ?date ?day ?content ?props ?today
+				   :keys min-day date day content properties today
+				    :in $ ?today
+				  
+				    :where
+				    [?e :block/properties ?props]
+				    [(get ?props :event) ?event]
+				    [(get ?props :date) ?date]
+				    [?e :block/refs ?refs]
+				    [?e :block/content ?content]
+				    [?refs :block/journal-day ?day]
+				    [(>= ?day ?today)]
+				  ]
+				  
+				  :view 
+				   (fn [results]
+				     (let
+				      [min-day (get-in (first results) [:min-day])
+				       date-set (get-in (first results) [:date])
+				       date (if (set? date-set)
+				              (first date-set)
+				              date-set)
+				       ;date (get-in (first results) [:date])
+				       today (get-in (first results) [:today])
+				       difference (- min-day today)
+				       events
+				       (map
+				        (fn [result]
+				          (let
+				           [event-day (get-in result [:day])
+				            event-name (get-in result [:properties :event])
+				            person-names (get-in result [:properties :with])]
+				            (when (= event-day min-day) 
+				              (str
+				               (when event-name
+				                 (str event-name))
+				               (when person-names
+				                 (str " with " (clojure.string/join ", " (seq person-names))))))))
+				        results)
+				       filtered-events (filter some? events)
+				       events-but-last (butlast filtered-events)
+				       last-event (last filtered-events)] 
+				       [:div
+				        [:small
+				         (if (= 1 (count filtered-events))
+				           (str (first filtered-events) " on " date)
+				           (str
+				            (clojure.string/join ", " (butlast filtered-events))
+				            ", and "
+				            (last filtered-events)
+				            " on " date))]]))
+				         
+				         
+				  
+				  :result-transform (fn [result]
+				                      (sort-by (fn [r] (get-in r [:day])) (fn [a b] (compare a b)) result))
+				  
+				   :inputs [:today]
+				  }
+				  #+END_QUERY
+				  ```
+			- **broken** version of event, with, and date
+			  collapsed:: true
+			  ![image.png](../assets/image_1718922309388_0.png)
+				- ```datascript
+				  #+BEGIN_QUERY
+				  {:query
+				   [:find (min ?day) ?date ?day ?content ?props ?today
+				   :keys min-day date day content properties today
+				    :in $ ?today
+				  
+				    :where
+				    [?e :block/properties ?props]
+				    [(get ?props :event) ?event]
+				    [(get ?props :date) ?date]
+				    [?e :block/refs ?refs]
+				    [?e :block/content ?content]
+				    [?refs :block/journal-day ?day]
+				    [(>= ?day ?today)]
+				  ]
+				  
+				  :view 
+				   (fn [results]
+				     (let
+				      [min-day
+				       (get-in (first results) [:min-day])
+				       date (get-in (first results) [:date])
+				       today (get-in (first results) [:today])
+				       difference (- min-day today)
+				       events
+				       (map
+				        (fn [result]
+				          (let
+				           [event-day (get-in result [:day])
+				            event-name (get-in result [:properties :event])
+				            person-names (get-in result [:properties :with])]
+				            (when (= event-day min-day) 
+				              (str
+				               (when event-name
+				                 (str event-name))
+				               (when person-names
+				                 (str " with " (clojure.string/join ", " (seq person-names))))))))
+				        results)
+				       filtered-events (filter some? events)
+				       events-but-last (butlast filtered-events)
+				       last-event (last filtered-events)] 
+				       [:div
+				        [:small
+				         (concat
+				          (interpose
+				           ", " 
+				           (map 
+				            (fn [event] event) 
+				            events-but-last)) 
+				          [", and " 
+				           [:span (str last-event)]]) 
+				         " on " date]]) )
+				  
+				  :result-transform (fn [result]
+				                      (sort-by (fn [r] (get-in r [:day])) (fn [a b] (compare a b)) result))
+				  
+				   :inputs [:today]
+				  }
+				  #+END_QUERY
+				  ```
 	- #### Current medication list
-	  collapsed:: true
-		- #+BEGIN_QUERY
-id:: 664cb068-64bb-4dc5-aa7e-b0678b63a6fe
+		- id:: 664cb068-64bb-4dc5-aa7e-b0678b63a6fe
+		  #+BEGIN_QUERY
+		  
 		  {:query
 		   [:find ?mname ?date ?day ?dose
 		    :keys mname date day dose
@@ -878,34 +860,49 @@ id:: 664cb068-64bb-4dc5-aa7e-b0678b63a6fe
 		    [?m :block/properties ?props]
 		    [(get ?props :medication) ?mname]
 		    [(get ?props :dose) ?dose]
+		  [(not= ?dose "0 mg")]
 		  
 		    [?m :block/page ?p]
 		    [?p :block/original-name ?day]
 		    [?p :block/journal-day ?date]]
 		  
-		   :result-transform (fn [results]
-		                       (->> results
-		                            (group-by :mname)
-		                            (map (fn [[med-name group]]
-		                                   (reduce (fn [acc curr]
-		                                             (if (> (get acc :date) (get curr :date))
-		                                               acc
-		                                               curr))
-		                                           group)))
-		                            (sort-by (comp - :date))))
-		  :view (fn [rows] [:table
-		                    [:thead [:tr
-		                             [:th "Medication name"]
-		                             [:th "Dose"]
-		                             [:th "Date"]]] 
-		                    [:tbody (for [r rows] 
-		                              [:tr
-		                               [:td [:a {:on-click (fn [] (call-api "push_state" "page" {:name (str (get-in r [:mname]))}))} 
-		                                    (get-in r [:mname])]]
-		                               [:td (get-in r [:dose])]
-		                               [:td (get-in r [:day])]])
-		                     ]])}
+		   :result-transform
+		   (fn [results]
+		     (->>
+		      results
+		      (group-by :mname)
+		      (map 
+		       (fn [[med-name group]] 
+		         (reduce
+		          (fn [acc curr]
+		            (if (> (get acc :date)
+		                   (get curr :date)) 
+		              acc curr)) 
+		          group))) 
+		      (sort-by (comp - :date))
+		      ))
+		   
+		   :view (fn [rows]
+		           [:table
+		            [:thead
+		             [:tr
+		              [:th "Medication name"]
+		              [:th "Dose"]
+		              [:th "Date"]]]
+		            [:tbody
+		             (for [r rows]
+		               [:tr
+		                [:td
+		                 [:a {:on-click
+		                      (fn [] (call-api "push_state" "page" {:name (str (get-in r [:mname]))}))}
+		                  (get-in r [:mname])]]
+		                [:td (get-in r [:dose])]
+		                [:td (get-in r [:day])]
+		                ]
+		               )]])
+		    }
 		  #+END_QUERY
+			- {{runpage exportquery}}
 		- #+BEGIN_QUERY
 		  {:query
 		  [:find ?mname ?date ?day ?dose
@@ -941,7 +938,6 @@ id:: 664cb068-64bb-4dc5-aa7e-b0678b63a6fe
 		                   ]])}
 		  #+END_QUERY
 	- #### logseq graph news
-	  collapsed:: true
 		- jump to: info  embed, history
 		- id:: 66415d9e-5591-4219-bc68-eb54393bccff
 		  #+BEGIN_QUERY
@@ -970,7 +966,6 @@ id:: 664cb068-64bb-4dc5-aa7e-b0678b63a6fe
 		  #+END_QUERY
 	- #### Future appointments
 	  id:: 66415c9e-ff58-4281-8007-160cb44fb8b3
-	  collapsed:: true
 		- id:: 66415ca6-d397-4fc1-97f1-95f7b516e6d1
 		  #+BEGIN_QUERY
 		  {:query
@@ -1732,92 +1727,112 @@ id:: 664cb068-64bb-4dc5-aa7e-b0678b63a6fe
 		  `(property ?p :type "Player")`
 		- get-children
 		  `(get-children ?parent ?child)`
-	- #### Query predicate functions
-	  collapsed:: true
-	  *(e.g. `not=`)*
+	- #### query predicate functions
+	  id:: 6666f9ad-ef7d-455e-8319-906283ee8dcc
+	  (*for the* `:where` *clause*)
 	  {{il ec1c,datascript/built_ins.cljc:L81,https://https://github.com/tonsky/datascript/blob/9e3ad968ec6b25b53963f3f96c8f6cae6713d918/src/datascript/built_ins.cljc#L81}}
-		- ```clj
-		  (def query-fns {
-		    '= =, 
-		    '== ==,
-		    'not= not=,
-		    '!= not=,
-		    '< less, 
-		    '> greater,
-		    '<= less-equal,
-		    '>= greater-equal,
-		    '+ +,
-		    '- -, 
-		    '* *, 
-		    '/ /,
-		    'quot quot, 
-		    'rem rem,
-		    'mod mod, 
-		    'inc inc,
-		    'dec dec, 
-		    'max max, 
-		    'min min, 
-		    'zero? zero?,
-		    'pos? pos?,
-		    'neg? neg?,
-		    'even? even?,
-		    'odd? odd?,
-		    'compare compare,
-		    'rand rand, 
-		    'rand-int rand-int,
-		    'true? true?, 
-		    'false? false?, 
-		    'nil? nil?, 
-		    'some? some?,
-		    'not not, 
-		    'and and-fn,
-		    'or or-fn,
-		    'complement complement,
-		    'identical? identical?,
-		    'identity identity,
-		    'keyword keyword, 
-		    'meta meta,
-		    'name name, 
-		    'namespace namespace,
-		    'type type,
-		    'vector vector,
-		    'list list, 
-		    'set set,
-		    'hash-map hash-map,
-		    'array-map array-map,
-		    'count count,
-		    'range range, 
-		    'not-empty not-empty,
-		    'empty? empty?, 
-		    'contains? contains?,
-		    'str str,
-		    'subs, subs,
-		    'get get, 
-		    'pr-str pr-str,
-		    'print-str print-str,
-		    'println-str println-str,
-		    'prn-str prn-str,
-		    're-find re-find, 
-		    're-matches re-matches,
-		    're-seq re-seq,
-		    're-pattern re-pattern,
-		    '-differ? -differ?,
-		    'get-else -get-else,
-		    'get-some -get-some,
-		    'missing? -missing?,
-		    'ground identity,
-		    'clojure.string/blank? str/blank?,
-		    'clojure.string/includes? str/includes?,
-		    'clojure.string/starts-with? str/starts-with?,
-		    'clojure.string/ends-with? str/ends-with?
-		    'tuple vector, 
-		    'untuple identity
-		  })
-		  ```
+		- **raw list** of functions
+		  collapsed:: true
+		  *from source*
+			- ```clj
+			  (def query-fns {
+			    '= =, 
+			    '== ==,
+			    'not= not=,
+			    '!= not=,
+			    '< less, 
+			    '> greater,
+			    '<= less-equal,
+			    '>= greater-equal,
+			    '+ +,
+			    '- -, 
+			    '* *, 
+			    '/ /,
+			    'quot quot, 
+			    'rem rem,
+			    'mod mod, 
+			    'inc inc,
+			    'dec dec, 
+			    'max max, 
+			    'min min, 
+			    'zero? zero?,
+			    'pos? pos?,
+			    'neg? neg?,
+			    'even? even?,
+			    'odd? odd?,
+			    'compare compare,
+			    'rand rand, 
+			    'rand-int rand-int,
+			    'true? true?, 
+			    'false? false?, 
+			    'nil? nil?, 
+			    'some? some?,
+			    'not not, 
+			    'and and-fn,
+			    'or or-fn,
+			    'complement complement,
+			    'identical? identical?,
+			    'identity identity,
+			    'keyword keyword, 
+			    'meta meta,
+			    'name name, 
+			    'namespace namespace,
+			    'type type,
+			    'vector vector,
+			    'list list, 
+			    'set set,
+			    'hash-map hash-map,
+			    'array-map array-map,
+			    'count count,
+			    'range range, 
+			    'not-empty not-empty,
+			    'empty? empty?, 
+			    'contains? contains?,
+			    'str str,
+			    'subs, subs,
+			    'get get, 
+			    'pr-str pr-str,
+			    'print-str print-str,
+			    'println-str println-str,
+			    'prn-str prn-str,
+			    're-find re-find, 
+			    're-matches re-matches,
+			    're-seq re-seq,
+			    're-pattern re-pattern,
+			    '-differ? -differ?,
+			    'get-else -get-else,
+			    'get-some -get-some,
+			    'missing? -missing?,
+			    'ground identity,
+			    'clojure.string/blank? str/blank?,
+			    'clojure.string/includes? str/includes?,
+			    'clojure.string/starts-with? str/starts-with?,
+			    'clojure.string/ends-with? str/ends-with?
+			    'tuple vector, 
+			    'untuple identity
+			  })
+			  ```
+		- function **explanation**
+		  collapsed:: true
+		  *as a table*
+			- {{embed ((66785bca-acd2-4401-95e2-32efb961ccb3))}}
+		- Conversational analyses
+		  collapsed:: true
+			- ((66749df3-627b-4ef6-8e5d-88f843e2ccbc))
+			  collapsed:: true
+				- {{embed ((66749df3-627b-4ef6-8e5d-88f843e2ccbc))}}
+	- #### clojure functions
+	  available in `:result-transform` and `:view`
+		- ((66749df3-8843-473e-bfe7-d32bfce93215))
+		  collapsed:: true
+			- {{embed ((66749df3-8843-473e-bfe7-d32bfce93215))}}
 - ## {{i eb6d}}  concept snippets
+  collapsed:: true
   advanced queries labeled by use case
 	- ### :rules
+	  collapsed:: true
 		- query **results only**
+		  collapsed:: true
 			- ```
 			   :breadcrumb-show? false
 			   :children? false
@@ -1836,11 +1851,13 @@ id:: 664cb068-64bb-4dc5-aa7e-b0678b63a6fe
 			  (not (property ?b :goods-category "food"))
 			  ```
 	- block has `:block/property` *:x*
+	  collapsed:: true
 		- ```datalog
 		    [?b :block/properties ?prop]
 		    [(contains? ?prop :goods-category)]
 		  ```
 	- block has `:block/property` *:x* with value *"y"*
+	  collapsed:: true
 		- ```datalog
 		  [?b :block/properties ?props]
 		  [(get ?props :goods-category) ?category]
@@ -2159,7 +2176,6 @@ id:: 664cb068-64bb-4dc5-aa7e-b0678b63a6fe
   collapsed:: true
   for `:result-transform` and `:view` clauses
 	- ### {{i f38e}} `:result-transform` functions
-	  collapsed:: true
 		- #### Sort by journal day
 		  id:: 663a1fa7-6f8c-4790-b8d5-8d7c0ffff815
 		  collapsed:: true
@@ -2341,7 +2357,7 @@ id:: 664cb068-64bb-4dc5-aa7e-b0678b63a6fe
 		  
 		  ```
 		  #+END_QUOTE
-- ### datalog code
+- ### datascript code
   id:: 663a4752-f9b9-4dc2-b4bf-fb7b09d9c283
   collapsed:: true
 	- #### and
