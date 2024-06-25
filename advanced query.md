@@ -966,26 +966,6 @@ repository:: DeadBranches/logseq-queries-and-scripts
 		  #+END_QUERY
 	- #### Future appointments
 	  id:: 66415c9e-ff58-4281-8007-160cb44fb8b3
-		- id:: 66415ca6-d397-4fc1-97f1-95f7b516e6d1
-		  #+BEGIN_QUERY
-		  {:query
-		  [:find (pull ?b [*])
-		  :in $ ?from
-		  :where
-		  [?b :block/properties ?props]
-		  [(get ?props :activity) _]
-		  [?b :block/refs ?refs]
-		  [?refs :block/journal-day ?d]
-		  [(>= ?d ?from)]
-		  ]
-		  :inputs [:tomorrow]
-		   :breadcrumb-show? false
-		   :children? false
-		   :group-by-page? false
-		  }
-		  #+END_QUERY
-	- #### Grocery list (journal widget)
-	  id:: 6666f9ad-2b57-4f34-b088-41e5b3e5bd53
 		- id:: 663f8303-7fca-406d-83ed-d93002164105
 		  #+BEGIN_QUERY
 		  {:inputs ["grocery"]
@@ -1025,6 +1005,26 @@ repository:: DeadBranches/logseq-queries-and-scripts
 		  )
 		  }
 		  #+END_QUERY
+		- id:: 66415ca6-d397-4fc1-97f1-95f7b516e6d1
+		  #+BEGIN_QUERY
+		  {:query
+		  [:find (pull ?b [*])
+		  :in $ ?from
+		  :where
+		  [?b :block/properties ?props]
+		  [(get ?props :activity) _]
+		  [?b :block/refs ?refs]
+		  [?refs :block/journal-day ?d]
+		  [(>= ?d ?from)]
+		  ]
+		  :inputs [:tomorrow]
+		   :breadcrumb-show? false
+		   :children? false
+		   :group-by-page? false
+		  }
+		  #+END_QUERY
+	- #### Grocery list (journal widget)
+	  id:: 6666f9ad-2b57-4f34-b088-41e5b3e5bd53
 	- #### online orders (journal widget)
 	  collapsed:: true
 		- id:: 663f79d8-20d7-4027-9ff5-500ae36ff757

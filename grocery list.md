@@ -1,6 +1,7 @@
 repository:: DeadBranches/logseq-queries-and-scripts
 
 - #### {{i ef40}} items on the list
+  id:: 667992b0-0c2b-4343-9c1a-9c7e5e4ada50
 	- #+BEGIN_QUERY
 	  {:inputs ["grocery"]
 	   :query
@@ -39,6 +40,7 @@ repository:: DeadBranches/logseq-queries-and-scripts
 	  
 	  #+END_QUERY
 - #### {{i f5f8}} in my basket..
+  id:: 667992b0-0de4-46c7-a490-296854304e56
 	- #+BEGIN_QUERY
 	  {:inputs [:start-of-today-ms "grocery"]
 	   :query

@@ -30,11 +30,13 @@ repository:: DeadBranches/logseq-queries-and-scripts
 	  :inputs [:current-page]
 	  }
 	  #+END_QUERY``
-- ## {{i eb25}} order tracking
-  *from online*
-	- ### {{i eaff}} awaiting delivery: {{openOrders words}}
-	  collapsed:: true
-		- #+BEGIN_QUERY
+- ## {{i eb25}} online orders
+  collapsed:: true
+  *awaiting delivery of* {{i eaff}} {{openOrders words}}
+	- ### awaiting delivery {{i eaff}} {{openOrders words}}
+	  id:: 667992b3-d7d8-4f9f-a360-997ea648e980
+		- id:: 667992b3-a3a3-4a1e-9b93-71061bc4896c
+		  #+BEGIN_QUERY
 		  {:query
 		  [:find (pull ?b [*])
 		  :where
@@ -93,7 +95,9 @@ repository:: DeadBranches/logseq-queries-and-scripts
 		  }
 		  #+END_QUERY
 	- #### {{i f5f8}} in my bag...
-		- #+BEGIN_QUERY
+	  id:: 667992b3-de9e-4570-86f5-5beffb1686a0
+		- id:: 667992b3-1d97-4be6-9b4f-1c96137c0bb8
+		  #+BEGIN_QUERY
 		  {:inputs [:start-of-today-ms "buy"]
 		   :query
 		   [:find (pull ?b [*])

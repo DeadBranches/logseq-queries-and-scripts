@@ -92,6 +92,7 @@ description:: `/template`s with boilerplate for collector blocks, page tags, dai
 						  journalHelper(this, 'buy');
 						  ```
 					- {{embed ((6644ee82-6e4e-4936-af4f-8a47ece6985d))}}
+					- {{embed ((667992b3-de9e-4570-86f5-5beffb1686a0))}}
 				- {{button '',expand-online-order,eaff}}  {{button order,add-online-order,eb0b}}
 				  collapsed:: true
 					- {{nested-code-block}}
@@ -106,6 +107,8 @@ description:: `/template`s with boilerplate for collector blocks, page tags, dai
 						  journalHelper(this, 'onlineOrder');
 						  ```
 					- {{embed ((663f79d8-20d7-4027-9ff5-500ae36ff757))}}
+					- #### awaiting delivery of {{i eaff}} {{openOrders words}}
+					- {{embed ((667992b3-a3a3-4a1e-9b93-71061bc4896c))}}
 				- {{button '',expand-groceries,f21c}}  {{button grocery,add-grocery-item,eb0b}}
 				  id:: 6649f26f-70ca-4d46-96a8-555f07ae4524
 				  collapsed:: true
@@ -121,6 +124,8 @@ description:: `/template`s with boilerplate for collector blocks, page tags, dai
 						  journalHelper(this, 'grocery');
 						  ```
 					- {{embed ((663f8303-7fca-406d-83ed-d93002164105))}}
+					- {{embed ((667992b0-0c2b-4343-9c1a-9c7e5e4ada50))}}
+					- {{embed ((667992b0-0de4-46c7-a490-296854304e56))}}
 				- #### {{button project focus,expand-projects,f00e,full-width-secret}}
 				  collapsed:: true
 				  {{embed ((664f42a4-40eb-44ba-8e8c-89dba2c17a06))}}
