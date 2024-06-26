@@ -11,7 +11,35 @@ description:: Runpage kit that exports a parent block as HTML to the clipboard (
     }
     const htmlContent = element.cloneNode(true);
     
-    // We're not modifying image sources, just returning the HTML content as-is
+    // Process all images within the cloned content
+    const images = htmlContent.querySelectorAll('img');
+    for (const img of images) {
+      try {
+        // Create a temporary container for the image
+        const tempContainer = document.createElement('div');
+        tempContainer.appendChild(img.cloneNode());
+        document.body.appendChild(tempContainer);
+        
+        // Use html2canvas to capture the image
+        const canvas = await html2canvas(tempContainer, {
+          logging: false,
+          useCORS: true,
+          backgroundColor: null
+        });
+        
+        // Convert canvas to data URI
+        const dataUri = canvas.toDataURL('image/png');
+        
+        // Replace original src with data URI
+        img.src = dataUri;
+        
+        // Clean up temporary container
+        document.body.removeChild(tempContainer);
+      } catch (error) {
+        console.error('Error processing image:', error);
+      }
+    }
+    
     return htmlContent.outerHTML;
   }
   
@@ -41,6 +69,7 @@ description:: Runpage kit that exports a parent block as HTML to the clipboard (
       console.error('Failed to copy content to clipboard:', error);
     }
   }
+  
   exportquery();
   ```
 	- {{evalparent}}
