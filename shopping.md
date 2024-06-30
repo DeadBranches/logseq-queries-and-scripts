@@ -30,38 +30,35 @@ repository:: DeadBranches/logseq-queries-and-scripts
 	  :inputs [:current-page]
 	  }
 	  #+END_QUERY``
-- ## {{i eb25}} online orders
-  collapsed:: true
+- ## {{i eb25}} in-progress orders
   *awaiting delivery of* {{i eaff}} {{openOrders words}}
-	- ### awaiting delivery {{i eaff}} {{openOrders words}}
-	  id:: 667992b3-d7d8-4f9f-a360-997ea648e980
-		- id:: 667992b3-a3a3-4a1e-9b93-71061bc4896c
-		  #+BEGIN_QUERY
-		  {:query
-		  [:find (pull ?b [*])
-		  :where
-		  [?t :block/name "online order"]
-		  [?b :block/refs ?t]
-		  [?b :block/marker ?marker]
-		  [(contains? #{"TODO"} ?marker)]
-		            (not 
-		             [?b :block/parent ?parent]
-		             [?parent :block/properties ?props]
-		             [(get ?props :template)]
-		             )
-		  ]
-		   :result-transform 
-		    (fn [result]
-		      (sort-by 
-		        (fn [r] 
-		          (let [journal-day (get-in r [:block/page :block/journal-day])
-		                created-at (get r :block/created-at)]
-		            (- (or journal-day created-at))))
-		        result))
-		  :collapsed? false
-		  :breadcrumb-show? false
-		   }
-		  #+END_QUERY
+	- id:: 667992b3-a3a3-4a1e-9b93-71061bc4896c
+	  #+BEGIN_QUERY
+	  {:query
+	  [:find (pull ?b [*])
+	  :where
+	  [?t :block/name "online order"]
+	  [?b :block/refs ?t]
+	  [?b :block/marker ?marker]
+	  [(contains? #{"TODO"} ?marker)]
+	            (not 
+	             [?b :block/parent ?parent]
+	             [?parent :block/properties ?props]
+	             [(get ?props :template)]
+	             )
+	  ]
+	   :result-transform 
+	    (fn [result]
+	      (sort-by 
+	        (fn [r] 
+	          (let [journal-day (get-in r [:block/page :block/journal-day])
+	                created-at (get r :block/created-at)]
+	            (- (or journal-day created-at))))
+	        result))
+	  :collapsed? false
+	  :breadcrumb-show? false
+	   }
+	  #+END_QUERY
 - ## {{i fb52}} purchase list
   id:: 662becda-d50f-4dac-9376-05e732cb9430
   *newest first*
@@ -131,4 +128,3 @@ repository:: DeadBranches/logseq-queries-and-scripts
 		  
 		  
 		  #+END_QUERY
-- Purchased today.

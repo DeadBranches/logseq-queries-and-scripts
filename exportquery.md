@@ -4,12 +4,17 @@ description:: Runpage kit that exports a parent block as HTML to the clipboard (
 - ```javascript
   logseq.kits.exportquery = exportquery;
   
-  async function createHTMLContentWithImages(thisElement) {
+  async function createHTMLContentWithImages(thisElement, keepOriginal = false) {
     const element = thisElement;
     if (!element || !(element instanceof Element)) {
       return null;
     }
     const htmlContent = element.cloneNode(true);
+    
+    if (keepOriginal) {
+      // Return the original HTML without processing images
+      return htmlContent.outerHTML;
+    }
     
     // Process all images within the cloned content
     const images = htmlContent.querySelectorAll('img');
@@ -43,25 +48,43 @@ description:: Runpage kit that exports a parent block as HTML to the clipboard (
     return htmlContent.outerHTML;
   }
   
-  async function exportquery(el) {
+  async function exportquery(el, mode = 'process') {
     const me = event.target.closest('.ls-block');
     const parentBlock = me.parentElement.closest('.ls-block');
     
     try {
-      const htmlContent = await createHTMLContentWithImages(parentBlock);
-      
+      let htmlContent;
+      let clipboardData;
+  
+      switch (mode) {
+        case 'original':
+          htmlContent = await createHTMLContentWithImages(parentBlock, true);
+          clipboardData = {
+            'text/html': new Blob([htmlContent], { type: 'text/html' })
+          };
+          break;
+        case 'plaintext':
+          htmlContent = await createHTMLContentWithImages(parentBlock, true);
+          clipboardData = {
+            'text/plain': new Blob([htmlContent], { type: 'text/plain' })
+          };
+          break;
+        default: // 'process'
+          htmlContent = await createHTMLContentWithImages(parentBlock, false);
+          clipboardData = {
+            'text/html': new Blob([htmlContent], { type: 'text/html' }),
+            'text/plain': new Blob([parentBlock.innerText], { type: 'text/plain' })
+          };
+      }
+  
       // Use Electron's clipboard API if available
       if (window.electron && window.electron.clipboard && window.electron.clipboard.writeHTML) {
         window.electron.clipboard.writeHTML(htmlContent);
         console.log('Content copied to clipboard successfully using Electron API');
       } else {
         // Fallback to web API if Electron API is not available
-        const blob = new Blob([htmlContent], { type: 'text/html' });
         await navigator.clipboard.write([
-          new ClipboardItem({
-            'text/html': blob,
-            'text/plain': new Blob([parentBlock.innerText], { type: 'text/plain' })
-          })
+          new ClipboardItem(clipboardData)
         ]);
         console.log('Content copied to clipboard successfully using Web API');
       }
@@ -69,7 +92,6 @@ description:: Runpage kit that exports a parent block as HTML to the clipboard (
       console.error('Failed to copy content to clipboard:', error);
     }
   }
-  
-  exportquery();
+  exportquery(null, 'plaintext')
   ```
 	- {{evalparent}}

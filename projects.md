@@ -9,13 +9,12 @@ description:: Project management home base
   id:: 66537d2b-bdba-46d1-a917-217fcd95d5f8
   *More aspirational than anything.*
 	- [[Android quick tile manager]]
-	- [[logseq journal news feed]]
 	- [[android-handsfree-note-taker]]
 	- [[2024-denimn-repair]]
 	- [[logseq-queries-and-scripts-repo]]
 	- [[logseq-journal-buddy-improvement-2024-06]]
 	- [[logseq-ms-journal]]
-	- [[logseq-grocery-journal-widget]]
+	- [[logseq-query-exporter]]
 - ## {{i f258}}  [[unmanaged]]
   *oh mah gawd*
 	- #+BEGIN_QUERY
@@ -78,5 +77,7 @@ description:: Project management home base
 - ## {{i f59c}}  [[sometime]]
   collapsed:: true
   *abandoned or otherwise unfeasible.*
+	- [[logseq-grocery-journal-widget]]
+	- [[logseq journal news feed]]
 	- [[cheeto]]
 	- [[android morning helper]]

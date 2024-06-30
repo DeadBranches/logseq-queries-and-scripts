@@ -10,6 +10,7 @@ repository:: DeadBranches/logseq-queries-and-scripts
 	- Set `:block/property :description ?desc` and ?desc becomes the text immediatly following `:page-title`
 	- Add `:block/tags "page-information"` to a block in a page and the block children will be added as children under the page entry on this page!!
 - query:: ((65f61ef5-45b1-4c58-b2b5-bced3827ae44))
+  collapsed:: true
   #+BEGIN_QUERY
   {:inputs [:parent-block #{1 2 3}]
    :query [:find (pull ?children [*])
@@ -234,9 +235,9 @@ repository:: DeadBranches/logseq-queries-and-scripts
 			      );</base>
 			  }
 			  #+END_QUERY
-	- {{i eb6d}} *The philosophy of collections*
-	  collapsed:: true
-		- are-linked-to-in-a-collector's-`page::` property.
+- {{i eb6d}} *The philosophy of collections*
+  collapsed:: true
+	- are-linked-to-in-a-collector's-`page::` property.
 	-
 - # Collectors
   {{I eac5}} *Tag a journal block with a collector to ease finding the information later.*

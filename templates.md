@@ -1,8 +1,11 @@
 tags:: page
 description:: `/template`s with boilerplate for collector blocks, page tags, daily journal, queries
 
+- How to use
+  `:template "template page template"`
 - ## {{i eb96}} Daily journal
   id:: 6644f008-299c-43c2-9c36-d9ab220bd4f3
+  collapsed:: true
   *Used automatically*
 	- {{i ec45}} Doing block
 	  template:: Daily journal doing-block
@@ -140,154 +143,210 @@ description:: `/template`s with boilerplate for collector blocks, page tags, dai
 				  collapsed:: true
 				  {{embed ((664e4055-3b72-4ba1-ac8b-48e34544629c))}}
 					- {{embed ((66415ca6-d397-4fc1-97f1-95f7b516e6d1))}}
-- ## {{I f499}} collector blocks
-  collapsed:: true
-  Templates to get things started
-	- #### {{i ef11}} Numbered list
+- ## {{i fab5}} block templates
+  for repeatable structures that could go anywhere.
+	- ### {{I f499}} collector blocks
 	  collapsed:: true
-	  *->* `x list`
-	  {{i ea9b}}#query-placeholder `:template` *from child block*
-		- *list name*
-		  template:: x list
-		  {{i ef11}} #list
-			- logseq.order-list-type:: number
-- ## {{I f1e5}} :properties sets
-  For pages, collections, etc
-	- #### Collector page boilerplate
+	  layouts *w/* icons & links
+		- #### {{i ef11}} Numbered list
+		  collapsed:: true
+		  */x list*
+			- #### {{i ef11}} Numbered list
+			  *->* `x list`
+			  {{i ea9b}}#query-placeholder `:template` *from child block*
+				- *list name*
+				  template:: x list
+				  {{i ef11}} #list
+					- logseq.order-list-type:: number
+	- {{i-template}} template page **template starter**
 	  collapsed:: true
-	  -> `tags:: collector `
+	  *template & examples headers*
+		- ### {{i-template}} template
+		  template:: template page template
+		  template-including-parent:: false
+			- {{i }} title
+			  **
+				- ### {{i-example}} examples
+				- ### {{i-template}} template
+				  template :: 
+				  template-including-parent :: false
+					-
+	- {{i-conversation}} llm **advanced query** **conversation**
+	  collapsed:: true
+	  *w/ prompt & response*
+		- ### {{i-template}} template
+			- llm advanced-query conversation (Originally used [here](((6678932d-b247-4894-af50-3c3161cfbec4))))
+			  template:: llm advanced-query development
+			  template-including-parent:: false
+				- **Result**: 
+				  *
+				  *
+				  
+				  (*sample*):
+					- **Prompt** given to claude
+						- >
+					- **Response**
+						- **Result**
+							- ```edn
+							  
+							  ```
+						- **Advanced query**
+							- ```clojure
+							  
+							  ```
+	- {{i ef91}} **project** management
+	   *w/ tasks & dynamic goal summary*
+		- ### Coding iteration
+		  id:: 66818163-8a53-447b-a959-0ae93dde245f
+		  collapsed:: true
+		  *w/ feature goal, scope, result, final code*
+		    ![image.png](../assets/image_1719763437098_0.png){:height 115, :width 227}
+			- #### template
+			  template:: project - coding iteration
+			  template-including-parent:: false
+				- ### {{i f6af}} iteration: events with clickable links
+				  logseq.order-list-type:: number
+					- {{i f51a}} feature goal
+					  logseq.order-list-type:: false
+					  collapsed:: true
+						-
+					- {{i efb1}} feature scope
+					  logseq.order-list-type:: false
+					  collapsed:: true
+						-
+					- {{i f35e}} result
+					  logseq.order-list-type:: false
+					  collapsed:: true
+						-
+					- {{i eb45}} final {{i ea77}} code for this iteration
+					  logseq.order-list-type:: false
+					  collapsed:: true
+					    {{code-inside}}
+						- ```
+						  
+						  ```
+		- ##### project management
+		  collapsed:: true
+		  Goals, task management
+			- ### Project goals
+				- TODO One
+				  id:: 65ff0036-59cf-40a6-b461-3d3e5f73f9eb
+				- TODO Two
+				  id:: 65ff003b-d777-4c98-b18c-66a963b8be43
+				- TODO Three
+			- ### Task management
+				- ### Goal ((65ff0036-59cf-40a6-b461-3d3e5f73f9eb))
+					- TODO Task a
+					- TODO Task b
+					- TODO Task c
+				- ### Goal ((65ff003b-d777-4c98-b18c-66a963b8be43))
+					- TODO Task 60% a
+					- TODO Task 60% b
+					- TODO Task 60% c
+		- ##### for pages
+		  collapsed:: true
+		  see implemented example: ((65bcf5d6-660a-4dff-b086-d5cb795540c7))
+			- #### current template
+			  template:: project management - goals and tasks
+			  template-including-parent:: false
+				- ## [[Goals]]
+					- TODO This is a goal
+					  id:: 65fb267e-8199-4ada-95e3-2232fa2d2190
+					  **tip** reference me
+						- #+BEGIN_QUERY
+						  {:query
+						  [:find (pull ?c [*])
+						  ;:keys tasks
+						  :in $ ?current-page
+						  :where
+						  [?e :block/name ?current-page]
+						  [?t :block/name "tasks"]
+						  [?b :block/refs ?t]
+						  [?b :block/page ?e]
+						  (?c :block/parent ?b)
+						  [?c :block/marker ?marker]
+						  [(= "TODO" ?marker)]
+						  [?c :block/content ?tasks]
+						  ]
+						  
+						  :result-transform (fn [r] (map (fn [m] (assoc m :block/collapsed? true)) r))
+						  :breadcrumb-show? false
+						  :inputs [:current-page]
+						  }
+						  #+END_QUERY
+				- ## [[Tasks]]
+					- TODO This is a task
+						- I like mushrooms
+					- TODO This is another task
+					- lol
+					-
+			- #### current template notes
+				- ref to: ((65fb267e-8199-4ada-95e3-2232fa2d2190))
+				-
+	- {{i ebba}} agenda **event card**
+	  collapsed:: true
+	  *for appointments and events*
+		- ### {{i-example}} examples
+		- ### {{i-template}} template
+		  template:: agenda event card - blank
+		  template-including-parent:: false
+			- event :: 
+			  activity :: 
+			  with :: 
+			  date ::
+- ## {{i ed2b}} page templates
+  *w/* common {{i-properties}} property sets & {{i ef94}} block structure
+	- **food item** page
+	  collapsed:: true
+	  *w/ nutritonal fact tool structure*
+		- ### {{i-example}} examples
+			- [[oat]]
+			- {{i ea9b}}#query-placeholder `:block/name` *:where* `[:block/properties [:tags "food item"]]`
+		- ### {{i-template}} template
+		  id:: 666f76e0-09c0-4695-b66d-42c727c5a003
+		  template:: food item
+		  template-including-parent:: false
+		  collapsed:: true
+			- tags:: food-item
+			- # Nutritional facts
+				- ## Vitamins
+				  *per 100g portion*
+				  {{embed ((666f7733-1891-45d3-8bbb-8f32dd4631e1))}}
+				- ### Minerals
+				  *per 100g portion*
+				  {{embed ((666f7747-d031-4ef7-8a4e-faaadde102c4))}}
+			- # Nutritional data
+				- ## [[Vitamins]]
+					-
+				- ## [[Minerals]]
+					-
+	- **clojureScript function** documentation
+	  collapsed:: true
+	  *syntax & examples*
+		- ### {{i-example}} examples
+		- ### {{i-template}} template
+		  template:: clojureScript docs
+		  template-including-parent:: false
+			- *function/macro*
+				- [full details >]()
+			-
+			- ### Syntax
+				-
+			- ### Details
+				-
+			- ### Examples
+				- ```clojure
+				  
+				  ```
+	- logseq **collector** page 
+	  collapsed:: true
+	  *:tags "collector"*
 		- template:: collector page boilerplate
 		  template-including-parent:: false
 			- tags:: collector
 			  description:: 
 			  collector:: [[]]
-- ## For pages
-  collapsed:: true
-	- ### Food items
-	  template:: food item
-	  template-including-parent:: false
-	  id:: 666f76e0-09c0-4695-b66d-42c727c5a003
-	  collapsed:: true
-		- tags:: food-item
-		- # Nutritional facts
-			- ## Vitamins
-			  *per 100g portion*
-			  {{embed ((666f7733-1891-45d3-8bbb-8f32dd4631e1))}}
-			- ### Minerals
-			  *per 100g portion*
-			  {{embed ((666f7747-d031-4ef7-8a4e-faaadde102c4))}}
-		- # Nutritional data
-			- ## [[Vitamins]]
-				-
-			- ## [[Minerals]]
-				-
-	- ### clojureScript documentation
-	  template:: clojureScript docs
-	  template-including-parent:: false
-		- *function/macro*
-			- [full details >]()
-		-
-		- ### Syntax
-			-
-		- ### Details
-			-
-		- ### Examples
-			- ```clojure
-			  
-			  ```
 - ---
-- Else
-	- llm advanced-query conversation (Originally used [here](((6678932d-b247-4894-af50-3c3161cfbec4))))
-	  template:: llm advanced-query development
-	  template-including-parent:: false
-		- **Result**: 
-		  *
-		  *
-		  
-		  (*sample*):
-			- **Prompt** given to claude
-				- >
-			- **Response**
-				- **Result**
-					- ```edn
-					  
-					  ```
-				- **Advanced query**
-					- ```clojure
-					  
-					  ```
-	-
-	- {{embed ((66046249-db4c-4206-b001-691fad2bd2e2))}}
-- ### {{i ef91}} Project Management
-  collapsed:: true
-  Dynamic goals and tasks
-	- ### project management
-	  collapsed:: true
-	  mockup
-		- ### Project goals
-			- TODO One
-			  id:: 65ff0036-59cf-40a6-b461-3d3e5f73f9eb
-			- TODO Two
-			  id:: 65ff003b-d777-4c98-b18c-66a963b8be43
-			- TODO Three
-		- ### Task management
-			- ### Goal ((65ff0036-59cf-40a6-b461-3d3e5f73f9eb))
-				- TODO Task a
-				- TODO Task b
-				- TODO Task c
-			- ### Goal ((65ff003b-d777-4c98-b18c-66a963b8be43))
-				- TODO Task 60% a
-				- TODO Task 60% b
-				- TODO Task 60% c
-	- ### for pages
-	  see implemented example: ((65bcf5d6-660a-4dff-b086-d5cb795540c7))
-		- #### current template
-		  template:: project management - goals and tasks
-		  template-including-parent:: false
-			- ## [[Goals]]
-				- TODO This is a goal
-				  id:: 65fb267e-8199-4ada-95e3-2232fa2d2190
-				  **tip** reference me
-					- #+BEGIN_QUERY
-					  {:query
-					  [:find (pull ?c [*])
-					  ;:keys tasks
-					  :in $ ?current-page
-					  :where
-					  [?e :block/name ?current-page]
-					  [?t :block/name "tasks"]
-					  [?b :block/refs ?t]
-					  [?b :block/page ?e]
-					  (?c :block/parent ?b)
-					  [?c :block/marker ?marker]
-					  [(= "TODO" ?marker)]
-					  [?c :block/content ?tasks]
-					  ]
-					  
-					  :result-transform (fn [r] (map (fn [m] (assoc m :block/collapsed? true)) r))
-					  :breadcrumb-show? false
-					  :inputs [:current-page]
-					  }
-					  #+END_QUERY
-			- ## [[Tasks]]
-				- TODO This is a task
-					- I like mushrooms
-				- TODO This is another task
-				- lol
-				-
-		- #### current template notes
-			- ref to: ((65fb267e-8199-4ada-95e3-2232fa2d2190))
-			-
-- ### {{i ea88}} Data templates
-  collapsed:: true
-  E.g. tabler icon
-	- {{embed ((65da2d57-3c21-41da-ae79-ebfc60db759f))}}
-- ---
-- daily journal template
-  template:: daily-journal
-  template-including-parent:: false
-	- TODO {{i ef63}} Take vitamins
-	  {{schedule-date-today}}
 - ### {{i eb8e}} Lost templates
   query:: ((65ff0dba-73e5-4e18-b24d-e3647f09eb31))
   collapsed:: true
@@ -308,8 +367,9 @@ description:: `/template`s with boilerplate for collector blocks, page tags, dai
 	   :inputs [:current-page :template]
 	   }
 	  #+END_QUERY
-- #### old
+- ### {{i eeb9}} disused templates
   collapsed:: true
+  and template page sections
 	- ## {{I ec8f}} Query templates
 	  collapsed:: true
 	  Query boilerplate
@@ -374,3 +434,5 @@ description:: `/template`s with boilerplate for collector blocks, page tags, dai
 			  resource:: web page
 			  author:: [[']]
 			  url::
+	- ### {{i ea88}} Data templates
+	  E.g. tabler icon

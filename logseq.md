@@ -83,20 +83,20 @@ repository:: DeadBranches/logseq-queries-and-scripts
 			  ```
 	- **copy query data** to clipboard
 	  id:: 660cbb59-8f06-43c6-b600-f4adb08758b5
-	- **block spy** for logseq data
-	  id:: 66046249-db4c-4206-b001-691fad2bd2e2
-		- #### Tool: Logseq block spy
+- **block spy** for logseq data
+  id:: 66046249-db4c-4206-b001-691fad2bd2e2
+	- #### Tool: Logseq block spy
+	  collapsed:: true
+		- {{button spy,spy,''}}
+		  template:: button - block spy
 		  collapsed:: true
-			- {{button spy,spy,''}}
-			  template:: button - block spy
-			  collapsed:: true
-				- blocks
-				  spy:
-				  ```js
-				  let parent = logseq.api.get_block(getParentUUID(this.target_uuid));
-				  copy_to_clipboard(JSON.stringify(parent,null,2));
-				  
-				  ```
+			- blocks
+			  spy:
+			  ```js
+			  let parent = logseq.api.get_block(getParentUUID(this.target_uuid));
+			  copy_to_clipboard(JSON.stringify(parent,null,2));
+			  
+			  ```
 	- **get parent uuid** from button block
 	  collapsed:: true
 		- ```js
