@@ -5,11 +5,15 @@ description:: A replace-macro that when evaluated on a journal page, creates a s
   logseq.kits.setStatic(function scheduleDateToday(div){
     const blockId = div.closest(".ls-block").getAttribute("blockid");
     const block = logseq.api.get_block(blockId);
-  
+    
+    
     // Needed to address the parent block for collapsing feature
     const parentBlockId = block.parent.id;
-    const parentBlockUUID = logseq.api.get_block(parentBlockId.uuid);
-  
+    const parentBlock =  logseq.api.get_block(parentBlockId);
+    const parentBlockUUID = parentBlock.uuid
+    //console.log(JSON.stringify(parentBlock));
+  	//console.log(parentBlockUuid);
+    //return;
     // By evaluating this macro only on journal pages, the macro can 
     // be included in a template elsewhere and included in the daily journal
     // template (from config.edn)
@@ -40,7 +44,7 @@ description:: A replace-macro that when evaluated on a journal page, creates a s
       }
       await logseq.api.set_block_collapsed(parentBlockUUID, "toggle");
     }
-    updateAndCollapsePerhaps({ collapse: (div.dataset.collapse != "$1" ? true:false )})
+    updateAndCollapsePerhaps({ collapse: (div.dataset.collapse != "$1" ? true:false ), parentBlockUUID: parentBlockUUID })
   });
   
   // Usage
