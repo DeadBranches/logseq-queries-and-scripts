@@ -5,8 +5,11 @@ description:: `/template`s with boilerplate for collector blocks, page tags, dai
   `:template "template page template"`
 - ## {{i eb96}} Daily journal
   id:: 6644f008-299c-43c2-9c36-d9ab220bd4f3
-  collapsed:: true
   *Used automatically*
+	- {{i eaad}} Organization blocks
+	  template:: daily journal - organization blocks
+	  template-including-parent:: false
+		-
 	- {{i ec45}} Doing block
 	  template:: Daily journal doing-block
 	  template-including-parent:: false
@@ -68,7 +71,7 @@ description:: `/template`s with boilerplate for collector blocks, page tags, dai
 				  id:: 6666f9b1-6202-4537-aa84-b40852fa720a
 					- TODO {{i ef63}} Take medication
 					  id:: 65fdfbf2-818e-404e-9d60-7f941f29bf34
-					  {{scheduleDateToday}}
+					  {{scheduleDateToday collapse}}
 				- {{button '',doing,ec45}}  {{button '',organization-blocks,eaad}}
 				  collapsed:: true
 					- Code Blocks
@@ -158,6 +161,105 @@ description:: `/template`s with boilerplate for collector blocks, page tags, dai
 				  template:: x list
 				  {{i ef11}} #list
 					- logseq.order-list-type:: number
+	- ### {{i ef91}} project management
+	   *namespace* `/project -`
+		- #### {{i-coding}} coding iteration
+		  id:: 66818163-8a53-447b-a959-0ae93dde245f
+		  *w/ feature goal, scope, result, final code*
+		    ![image.png](../assets/image_1719949398805_0.png){:height 178, :width 216}
+			- ### {{i-template}} template
+			  template:: project - coding iteration
+			  template-including-parent:: false
+				- ### {{i f6af}} iteration: title of work
+					- {{i f51a}} feature goal
+					  collapsed:: true
+						-
+					- {{i efb1}} iteration goal (scope)
+					  collapsed:: true
+						-
+					- {{i ea99}} external resources
+					  collapsed:: true
+						- `{{chat name,url}}`
+					- {{i f082}} workspace
+					  collapsed:: true
+						- *work it!*
+					- {{i f35e}} result
+					  collapsed:: true
+						-
+					- {{i eb45}} final {{i ea77}} code for this iteration
+					  collapsed:: true
+					    {{code-inside}}
+						- ```
+						  
+						  ```
+		- #### {{i f6ef}} depreciate block
+		  collapsed:: true
+		  ![image.png](../assets/image_1719951269675_0.png){:height 76, :width 307}
+			- ### {{i-template}} template
+			  template:: project - depreciate block
+			  template-including-parent:: false
+				- ### {{i f6ef}}  depreciation warning
+					- {{i ea0b}}  This block was [[archived]] on / today
+					- -> See the main project page for all project management activities
+		- *older stuff*
+		  collapsed:: true
+			- ##### project management
+			  collapsed:: true
+			  Goals, task management
+				- ### Project goals
+					- TODO One
+					  id:: 65ff0036-59cf-40a6-b461-3d3e5f73f9eb
+					- TODO Two
+					  id:: 65ff003b-d777-4c98-b18c-66a963b8be43
+					- TODO Three
+				- ### Task management
+					- ### Goal ((65ff0036-59cf-40a6-b461-3d3e5f73f9eb))
+						- TODO Task a
+						- TODO Task b
+						- TODO Task c
+					- ### Goal ((65ff003b-d777-4c98-b18c-66a963b8be43))
+						- TODO Task 60% a
+						- TODO Task 60% b
+						- TODO Task 60% c
+			- ##### for pages
+			  see implemented example: ((65bcf5d6-660a-4dff-b086-d5cb795540c7))
+				- #### current template
+				  template:: project management - goals and tasks
+				  template-including-parent:: false
+					- ## [[Goals]]
+						- TODO This is a goal
+						  id:: 65fb267e-8199-4ada-95e3-2232fa2d2190
+						  **tip** reference me
+							- #+BEGIN_QUERY
+							  {:query
+							  [:find (pull ?c [*])
+							  ;:keys tasks
+							  :in $ ?current-page
+							  :where
+							  [?e :block/name ?current-page]
+							  [?t :block/name "tasks"]
+							  [?b :block/refs ?t]
+							  [?b :block/page ?e]
+							  (?c :block/parent ?b)
+							  [?c :block/marker ?marker]
+							  [(= "TODO" ?marker)]
+							  [?c :block/content ?tasks]
+							  ]
+							  
+							  :result-transform (fn [r] (map (fn [m] (assoc m :block/collapsed? true)) r))
+							  :breadcrumb-show? false
+							  :inputs [:current-page]
+							  }
+							  #+END_QUERY
+					- ## [[Tasks]]
+						- TODO This is a task
+							- I like mushrooms
+						- TODO This is another task
+						- lol
+						-
+				- #### current template notes
+					- ref to: ((65fb267e-8199-4ada-95e3-2232fa2d2190))
+					-
 	- {{i-template}} template page **template starter**
 	  collapsed:: true
 	  *template & examples headers*
@@ -194,95 +296,6 @@ description:: `/template`s with boilerplate for collector blocks, page tags, dai
 							- ```clojure
 							  
 							  ```
-	- {{i ef91}} **project** management
-	   *w/ tasks & dynamic goal summary*
-		- ### Coding iteration
-		  id:: 66818163-8a53-447b-a959-0ae93dde245f
-		  collapsed:: true
-		  *w/ feature goal, scope, result, final code*
-		    ![image.png](../assets/image_1719763437098_0.png){:height 115, :width 227}
-			- #### template
-			  template:: project - coding iteration
-			  template-including-parent:: false
-				- ### {{i f6af}} iteration: events with clickable links
-				  logseq.order-list-type:: number
-					- {{i f51a}} feature goal
-					  logseq.order-list-type:: false
-					  collapsed:: true
-						-
-					- {{i efb1}} feature scope
-					  logseq.order-list-type:: false
-					  collapsed:: true
-						-
-					- {{i f35e}} result
-					  logseq.order-list-type:: false
-					  collapsed:: true
-						-
-					- {{i eb45}} final {{i ea77}} code for this iteration
-					  logseq.order-list-type:: false
-					  collapsed:: true
-					    {{code-inside}}
-						- ```
-						  
-						  ```
-		- ##### project management
-		  collapsed:: true
-		  Goals, task management
-			- ### Project goals
-				- TODO One
-				  id:: 65ff0036-59cf-40a6-b461-3d3e5f73f9eb
-				- TODO Two
-				  id:: 65ff003b-d777-4c98-b18c-66a963b8be43
-				- TODO Three
-			- ### Task management
-				- ### Goal ((65ff0036-59cf-40a6-b461-3d3e5f73f9eb))
-					- TODO Task a
-					- TODO Task b
-					- TODO Task c
-				- ### Goal ((65ff003b-d777-4c98-b18c-66a963b8be43))
-					- TODO Task 60% a
-					- TODO Task 60% b
-					- TODO Task 60% c
-		- ##### for pages
-		  collapsed:: true
-		  see implemented example: ((65bcf5d6-660a-4dff-b086-d5cb795540c7))
-			- #### current template
-			  template:: project management - goals and tasks
-			  template-including-parent:: false
-				- ## [[Goals]]
-					- TODO This is a goal
-					  id:: 65fb267e-8199-4ada-95e3-2232fa2d2190
-					  **tip** reference me
-						- #+BEGIN_QUERY
-						  {:query
-						  [:find (pull ?c [*])
-						  ;:keys tasks
-						  :in $ ?current-page
-						  :where
-						  [?e :block/name ?current-page]
-						  [?t :block/name "tasks"]
-						  [?b :block/refs ?t]
-						  [?b :block/page ?e]
-						  (?c :block/parent ?b)
-						  [?c :block/marker ?marker]
-						  [(= "TODO" ?marker)]
-						  [?c :block/content ?tasks]
-						  ]
-						  
-						  :result-transform (fn [r] (map (fn [m] (assoc m :block/collapsed? true)) r))
-						  :breadcrumb-show? false
-						  :inputs [:current-page]
-						  }
-						  #+END_QUERY
-				- ## [[Tasks]]
-					- TODO This is a task
-						- I like mushrooms
-					- TODO This is another task
-					- lol
-					-
-			- #### current template notes
-				- ref to: ((65fb267e-8199-4ada-95e3-2232fa2d2190))
-				-
 	- {{i ebba}} agenda **event card**
 	  collapsed:: true
 	  *for appointments and events*
