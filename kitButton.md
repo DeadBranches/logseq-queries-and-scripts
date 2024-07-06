@@ -1,117 +1,83 @@
 kit:: kitButton
 
 - ```javascript
+  //next ver
+  
   logseq.kits.setStatic(function kitButton(div) {
+    console.log("kitButton function initiated");
+  
     /**
-     * Sanitizes an attribute value by removing null or empty values.
-     *
-     * @param {string} attributeValue - The attribute value to be sanitized.
-     * @returns {string} The sanitized attribute value, or an empty string if the input
-     * value represents a null or empty value.
-     *
-     * @description
-     * This function converts values indicating null from logseq macros into empty
-     * javascript strings. It is designed to be invoked by a logseq macro on an attribute
-     * value.
-     * 
-     * With logseq macros, if an argument to the macro is null then Logseq renders the 
-     * null value in HTML in one of two ways:
-     * 1. Logseq returns a string like `$n` when an HTML macro argument is null.
-     * 2. Logseq returns `''` when a Hiccup macro argument is null.
-     * The function checks if the input `attributeValue` contains `$` or `''`, which
-     * indicates a null or empty value. If the input value represents a null or empty
-     * value, the function returns an empty string;
-     * 
-     * This function if the input `attributeValue` contains `$` or `''`, which
-     * indicates a null or empty value. If the input value represents a null or empty
-     * value, the function returns an empty string; otherwise, it returns the original
-     * `attributeValue`.
-     *
-     * @example
-     * const validValue = 'example';
-     * const sanitizedValue = sanitizeAttribute(validValue); // Returns 'example'
-     *
-     * const nullValue = '$n';
-     * const sanitizedNullValue = sanitizeAttribute(nullValue); // Returns ''
-     *
-     * const emptyValue = "''";
-     * const sanitizedEmptyValue = sanitizeAttribute(emptyValue); // Returns ''
-     */
+    * With logseq macros, if an argument to the macro is null then Logseq renders the 
+    * null value in HTML in one of two ways:
+    * 1. Logseq returns a string like `$n` when an HTML macro argument is null.
+    * 2. Logseq returns `''` when a Hiccup macro argument is null.
+    * The function checks if the input `attributeValue` contains `$` or `''`, which
+    * indicates a null or empty value. If the input value represents a null or empty
+    * value, the function returns an empty string;
+    */
     function sanitizeAttribute(attributeValue) {
       return attributeValue.includes("$") || attributeValue.includes("''") ? "" : attributeValue;
     };
   
-    /**
-     * Converts a space-separated string of Tabler icon hex codes into a space-separated 
+  
+    /** Convert a space-separated string of Tabler icon hex codes into a space-separated 
      * string of HTML character references.
-     *
      * @param {string} glyphCodes A space-separated string of Tabler icon hex codes.
-     * @returns {string} A space-separated string of HTML character references 
-     *    representing the provided Tabler icon hex codes.
-     *
-     * @example
-     * const iconCodes = "e801 e802 e803";
-     * const charRefs = glyphToCharRef(iconCodes);
-     * console.log(charRefs); // Output: "&#xe801; &#xe802; &#xe803;"
      */
     function glyphToCharRef(glyphCodes) {
+      // Takes zero to multiple tabler icon hex codes seperated by spaces
       if (!glyphCodes) { return ""; }
       let glyphs = glyphCodes.split(" ");
       let tablerIcons = glyphs.map(hexCode => "&#x" + hexCode + ";");
       return tablerIcons.join(" ");
     }
   
-    const kitPage = div.dataset.kitPage;
-    const buttonBaseClass = "button-style";
+  
+    const buttonBaseClass = "kit run inline button-style";
     const iconAttributeName = "data-button-icon";
     const textDataAttributeName = "data-button-text";
-    const buttonExtraClasses = sanitizeAttribute(div.dataset.buttonClass);
-    const buttonText = sanitizeAttribute(div.dataset.buttonLabel);
-    const iconGlyphCode = sanitizeAttribute(div.dataset.buttonIcon);
+    const kitPage = div.dataset.kitPage;
+    const buttonClass = sanitizeAttribute(div.dataset.buttonClass);
+    const buttonLabel = sanitizeAttribute(div.dataset.buttonLabel);
+    const buttonIcon = sanitizeAttribute(div.dataset.buttonIcon);
   
+    console.log(`kitButton data attribute
+      kitPage: ${kitPage}
+      textDataAttributeName: ${textDataAttributeName}
+      iconGlyphCode: ${buttonIcon}
+      buttonExtraClasses: ${buttonClass}`);
   
     /**
      * To support icon-only buttons, use a CSS selector indicating the presence of a text
-     * label. Thus, whitespace can be intelligently included to pad text and icon if and
-     * only if necessicary
+     * label or icon glyph. Thus, whitespace can be intelligently included to pad text and 
+     * icon if and only if necessicary.
      */
-    let buttonTextDataAttribute;
-    if (buttonText) {
-      buttonTextDataAttribute = `${textDataAttributeName}="true"`;
-    } else {
-      buttonTextDataAttribute = "";
-    }
+    const buttonTextDataAttribute = buttonLabel ? `${textDataAttributeName}="true"` : "";
+    const iconDataAttribute = buttonIcon && `${iconAttributeName}="${glyphToCharRef(buttonIcon)}"`
   
-    let iconDataAttribute;
-    switch (iconGlyphCode) {
-      case "":
-        iconDataAttribute = "";
-        break;
-      default:
-        const icons = glyphToCharRef(iconGlyphCode);
-        iconDataAttribute = `${iconAttributeName}="${icons}"`;
-    }
   
-    /** Since the button element has a single default class and optional additional
-     * classes, prevent from including a trailing space when no additional classes are
-     * specified.
-     */
-    let buttonClassValue = buttonExtraClasses
-      ? `${buttonBaseClass} ${buttonExtraClasses}`
+    // button has one class member by default, so add a space if any more are
+    // defined in data-dynablock-buttonclass
+    let buttonClassValue = buttonClass
+      ? `${buttonBaseClass} ${buttonClass}`
       : buttonBaseClass;
     div.innerHTML = `<button class="${buttonClassValue}" data-kit='runpage'
       data-page-name='${kitPage}' ${iconDataAttribute} ${buttonTextDataAttribute}
-      type="button">${buttonText}</button>`;
+      type="button">${buttonLabel}</button>`;
+  
+   console.log("--- End kitButton function execution")
   
   });
-  
   ```
 	- {{evalparent}}
-- {{kitButton test,testkit,f3f3,long}} {{kitButton test,testkit,f3f3,long}}
-- {{button lol,f3f3,f3f3}}
-- {{kitButton purchases list,blockExpander,ef49,full-width-secret}}
-- {{kitButton hi mom,testKit,ef49,full-width-secret}}
--
--
+- Kit button variations
+	- Full width secret. Icon only.
+	  {{kitButton '',blockExpander,ef49,full-width-secret}}
+	- Full width secret. Text only
+	  {{kitButton hi mom,testkit,'',full-width-secret}}
+	- Full width secret. Icon and text
+	  {{kitButton hi mom,testkit,ef49,full-width-secret}}
+	- {{kitButton kitButton long,testkit,f3f3,long}} {{kitButton text-only,testkit}}
+	- icon only, inline. {{kitButton '',testkit,f3f3}}
 -
 -
