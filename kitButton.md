@@ -2,79 +2,50 @@ kit:: kitButton
 
 - ```javascript
   logseq.kits.setStatic(function kitButton(div) {
-    /**
-     * Sanitizes an attribute value by removing null or empty values.
-     *
-     * @param {string} attributeValue - The attribute value to be sanitized.
-     * @returns {string} The sanitized attribute value, or an empty string if the input
-     * value represents a null or empty value.
-     *
-     * @description
-     * This function converts values indicating null from logseq macros into empty
-     * javascript strings. It is designed to be invoked by a logseq macro on an attribute
-     * value.
-     * 
-     * With logseq macros, if an argument to the macro is null then Logseq renders the 
-     * null value in HTML in one of two ways:
-     * 1. Logseq returns a string like `$n` when an HTML macro argument is null.
-     * 2. Logseq returns `''` when a Hiccup macro argument is null.
-     * The function checks if the input `attributeValue` contains `$` or `''`, which
-     * indicates a null or empty value. If the input value represents a null or empty
-     * value, the function returns an empty string;
-     * 
-     * This function if the input `attributeValue` contains `$` or `''`, which
-     * indicates a null or empty value. If the input value represents a null or empty
-     * value, the function returns an empty string; otherwise, it returns the original
-     * `attributeValue`.
-     *
-     * @example
-     * const validValue = 'example';
-     * const sanitizedValue = sanitizeAttribute(validValue); // Returns 'example'
-     *
-     * const nullValue = '$n';
-     * const sanitizedNullValue = sanitizeAttribute(nullValue); // Returns ''
-     *
-     * const emptyValue = "''";
-     * const sanitizedEmptyValue = sanitizeAttribute(emptyValue); // Returns ''
-     */
+    console.log("kitButton function initiated");
+    const blockId = div.closest(".ls-block").getAttribute("blockid");
+    const block = logseq.api.get_block(blockId);
+    const content = block.content;
+  
+    const macroStart = content.indexOf("{{" + div.closest(".macro").dataset.macroName);
+    const macroEnd = content.indexOf("}}", macroStart) + 2;
+  
+    const kitPage = div.dataset.kitPage;
+    const buttonLabel = div.dataset.buttonLabel;
+    const buttonIcon = div.dataset.buttonIcon;
+    const buttonClass = div.dataset.buttonClass;
+    console.log(`kitButton data attribute
+    kitPage: ${kitPage}
+    buttonLabel: ${buttonLabel}
+    buttonIcon: ${buttonIcon}
+    buttonClass: ${buttonClass}`);
+    
+  
     function sanitizeAttribute(attributeValue) {
+      console.log(`sanitizing attribute value: ${attributeValue}`);
+      // Logseq returns a string like "$n" when an HTML macro argument is null.
+      // But it returns `''` when a hiccup macro argument is null
       return attributeValue.includes("$") || attributeValue.includes("''") ? "" : attributeValue;
     };
-  
-    /**
-     * Converts a space-separated string of Tabler icon hex codes into a space-separated 
-     * string of HTML character references.
-     *
-     * @param {string} glyphCodes A space-separated string of Tabler icon hex codes.
-     * @returns {string} A space-separated string of HTML character references 
-     *    representing the provided Tabler icon hex codes.
-     *
-     * @example
-     * const iconCodes = "e801 e802 e803";
-     * const charRefs = glyphToCharRef(iconCodes);
-     * console.log(charRefs); // Output: "&#xe801; &#xe802; &#xe803;"
-     */
+    
     function glyphToCharRef(glyphCodes) {
+      // Takes zero to multiple tabler icon hex codes seperated by spaces
       if (!glyphCodes) { return ""; }
       let glyphs = glyphCodes.split(" ");
       let tablerIcons = glyphs.map(hexCode => "&#x" + hexCode + ";");
       return tablerIcons.join(" ");
     }
   
-    const kitPage = div.dataset.kitPage;
-    const buttonBaseClass = "button-style";
+    const iconPadding = " "; // spacing between icon and text
+    const buttonBaseClass = "kit run inline button-style";
     const iconAttributeName = "data-button-icon";
     const textDataAttributeName = "data-button-text";
-    const buttonExtraClasses = sanitizeAttribute(div.dataset.buttonClass);
-    const buttonText = sanitizeAttribute(div.dataset.buttonLabel);
+    let buttonExtraClasses = sanitizeAttribute(div.dataset.buttonClass);
+    let buttonText = sanitizeAttribute(div.dataset.buttonLabel);
     const iconGlyphCode = sanitizeAttribute(div.dataset.buttonIcon);
   
-  
-    /**
-     * To support icon-only buttons, use a CSS selector indicating the presence of a text
-     * label. Thus, whitespace can be intelligently included to pad text and icon if and
-     * only if necessicary
-     */
+    // Provides something to use a CSS selector on so that we don't add a space
+    // between icon and text if there is no text.
     let buttonTextDataAttribute;
     if (buttonText) {
       buttonTextDataAttribute = `${textDataAttributeName}="true"`;
@@ -92,10 +63,8 @@ kit:: kitButton
         iconDataAttribute = `${iconAttributeName}="${icons}"`;
     }
   
-    /** Since the button element has a single default class and optional additional
-     * classes, prevent from including a trailing space when no additional classes are
-     * specified.
-     */
+    // button has one class member by default, so add a space if any more are
+    // defined in data-dynablock-buttonclass
     let buttonClassValue = buttonExtraClasses
       ? `${buttonBaseClass} ${buttonExtraClasses}`
       : buttonBaseClass;
@@ -103,15 +72,21 @@ kit:: kitButton
       data-page-name='${kitPage}' ${iconDataAttribute} ${buttonTextDataAttribute}
       type="button">${buttonText}</button>`;
   
-  });
+   console.log("--- End kitButton function execution")
+    // console.log(macroStart);
+    // console.log(macroEnd);
   
+    // div.innerHTML = `
+    //   <button class='kit run button-style inline' data-kit='runpage' data-page-name='${kitPage}' data-dynablock-codeblocklabel='$2' data-dynablock-buttonicon='&#x$3'> $2</button>`;
+  
+  });
   ```
 	- {{evalparent}}
 - {{kitButton test,testkit,f3f3,long}} {{kitButton test,testkit,f3f3,long}}
 - {{button lol,f3f3,f3f3}}
 - {{kitButton purchases list,blockExpander,ef49,full-width-secret}}
-- {{kitButton hi mom,testKit,ef49,full-width-secret}}
--
+- {{kitButton hi mom,testkit,ef49,full-width-secret}}
+- {{runpage testkit}}
 -
 -
 -
