@@ -26,43 +26,43 @@ kit:: kitButton
     const iconAttributeName = "data-button-icon";
     const textDataAttributeName = "data-button-text";
     const kitPage = div.dataset.kitPage;
-    const buttonExtraClasses = sanitizeAttribute(div.dataset.buttonClass);
-    const buttonText = sanitizeAttribute(div.dataset.buttonLabel);
-    const iconGlyphCode = sanitizeAttribute(div.dataset.buttonIcon);
+    const buttonClass = sanitizeAttribute(div.dataset.buttonClass);
+    const buttonLabel = sanitizeAttribute(div.dataset.buttonLabel);
+    const buttonIcon = sanitizeAttribute(div.dataset.buttonIcon);
   
     console.log(`kitButton data attribute
       kitPage: ${kitPage}
       textDataAttributeName: ${textDataAttributeName}
-      iconGlyphCode: ${iconGlyphCode}
-      buttonExtraClasses: ${buttonExtraClasses}`);
+      iconGlyphCode: ${buttonIcon}
+      buttonExtraClasses: ${buttonClass}`);
   
     // Provides something to use a CSS selector on so that we don't add a space
     // between icon and text if there is no text.
     let buttonTextDataAttribute;
-    if (buttonText) {
+    if (buttonLabel) {
       buttonTextDataAttribute = `${textDataAttributeName}="true"`;
     } else {
       buttonTextDataAttribute = "";
     }
   
     let iconDataAttribute;
-    switch (iconGlyphCode) {
+    switch (buttonIcon) {
       case "":
         iconDataAttribute = "";
         break;
       default:
-        const icons = glyphToCharRef(iconGlyphCode);
+        const icons = glyphToCharRef(buttonIcon);
         iconDataAttribute = `${iconAttributeName}="${icons}"`;
     }
   
     // button has one class member by default, so add a space if any more are
     // defined in data-dynablock-buttonclass
-    let buttonClassValue = buttonExtraClasses
-      ? `${buttonBaseClass} ${buttonExtraClasses}`
+    let buttonClassValue = buttonClass
+      ? `${buttonBaseClass} ${buttonClass}`
       : buttonBaseClass;
     div.innerHTML = `<button class="${buttonClassValue}" data-kit='runpage'
       data-page-name='${kitPage}' ${iconDataAttribute} ${buttonTextDataAttribute}
-      type="button">${buttonText}</button>`;
+      type="button">${buttonLabel}</button>`;
   
    console.log("--- End kitButton function execution")
   
