@@ -34,7 +34,8 @@ kit:: kitButton
     }
   
     const iconPadding = " "; // spacing between icon and text
-    const buttonBaseClass = "kit run inline button-style";
+    //const buttonBaseClass = "kit run inline button-style";
+    const buttonBaseClass = "button-style";
     const iconAttributeName = "data-button-icon";
     const textDataAttributeName = "data-button-text";
     let buttonExtraClasses = sanitizeAttribute(div.dataset.buttonClass);
@@ -67,7 +68,7 @@ kit:: kitButton
       : buttonBaseClass;
     div.innerHTML = `<button class="${buttonClassValue}" data-kit='runpage'
       data-page-name='${kitPage}' ${iconDataAttribute} ${buttonTextDataAttribute}
-      type="button"></button>`;
+      type="button">${buttonText}</button>`;
   
   
     // console.log(macroStart);
