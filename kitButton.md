@@ -33,7 +33,6 @@ kit:: kitButton
     }
   
   
-    const iconPadding = " "; // spacing between icon and text
     const buttonBaseClass = "kit run inline button-style";
     const iconAttributeName = "data-button-icon";
     const textDataAttributeName = "data-button-text";
