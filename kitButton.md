@@ -6,20 +6,6 @@ kit:: kitButton
   logseq.kits.setStatic(function kitButton(div) {
     console.log("kitButton function initiated");
   
-    /**
-    * With logseq macros, if an argument to the macro is null then Logseq renders the 
-    * null value in HTML in one of two ways:
-    * 1. Logseq returns a string like `$n` when an HTML macro argument is null.
-    * 2. Logseq returns `''` when a Hiccup macro argument is null.
-    * The function checks if the input `attributeValue` contains `$` or `''`, which
-    * indicates a null or empty value. If the input value represents a null or empty
-    * value, the function returns an empty string;
-  
-    function sanitizeAttribute(attributeValue) {
-      return attributeValue.includes("$") || attributeValue.includes("''") ? "" : attributeValue;
-    };
-    */
-  
     /** Convert a space-separated string of Tabler icon hex codes into a space-separated 
      * string of HTML character references.
      * @param {string} glyphCodes A space-separated string of Tabler icon hex codes.
@@ -38,6 +24,7 @@ kit:: kitButton
     const textDataAttributeName = "data-button-text";
     const kitPage = div.dataset.kitPage;
     
+    // Logseq macro arguments if null may return `$1` or "''"
     const sanitizeAttribute = value => value.startsWith("$") || value === "''" ? "" : value;
     const buttonClass = sanitizeAttribute(div.dataset.buttonClass);
     const buttonLabel = sanitizeAttribute(div.dataset.buttonLabel);
