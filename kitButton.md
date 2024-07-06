@@ -6,17 +6,6 @@ kit:: kitButton
   logseq.kits.setStatic(function kitButton(div) {
     console.log("kitButton function initiated");
   
-    const kitPage = div.dataset.kitPage;
-    const buttonLabel = div.dataset.buttonLabel;
-    const buttonIcon = div.dataset.buttonIcon;
-    const buttonClass = div.dataset.buttonClass;
-    console.log(`kitButton data attribute
-    kitPage: ${kitPage}
-    buttonLabel: ${buttonLabel}
-    buttonIcon: ${buttonIcon}
-    buttonClass: ${buttonClass}`);
-    
-  
     function sanitizeAttribute(attributeValue) {
       console.log(`sanitizing attribute value: ${attributeValue}`);
       // Logseq returns a string like "$n" when an HTML macro argument is null.
@@ -36,9 +25,16 @@ kit:: kitButton
     const buttonBaseClass = "kit run inline button-style";
     const iconAttributeName = "data-button-icon";
     const textDataAttributeName = "data-button-text";
-    let buttonExtraClasses = sanitizeAttribute(div.dataset.buttonClass);
-    let buttonText = sanitizeAttribute(div.dataset.buttonLabel);
+    const kitPage = div.dataset.kitPage;
+    const buttonExtraClasses = sanitizeAttribute(div.dataset.buttonClass);
+    const buttonText = sanitizeAttribute(div.dataset.buttonLabel);
     const iconGlyphCode = sanitizeAttribute(div.dataset.buttonIcon);
+  
+    console.log(`kitButton data attribute
+      kitPage: ${kitPage}
+      textDataAttributeName: ${textDataAttributeName}
+      iconGlyphCode: ${iconGlyphCode}
+      buttonExtraClasses: ${buttonExtraClasses}`);
   
     // Provides something to use a CSS selector on so that we don't add a space
     // between icon and text if there is no text.
