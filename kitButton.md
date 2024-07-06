@@ -49,25 +49,12 @@ kit:: kitButton
   
     /**
      * To support icon-only buttons, use a CSS selector indicating the presence of a text
-     * label. Thus, whitespace can be intelligently included to pad text and icon if and
-     * only if necessicary
+     * label or icon glyph. Thus, whitespace can be intelligently included to pad text and 
+     * icon if and only if necessicary.
      */
-    let buttonTextDataAttribute;
-    if (buttonLabel) {
-      buttonTextDataAttribute = `${textDataAttributeName}="true"`;
-    } else {
-      buttonTextDataAttribute = "";
-    }
+    const buttonTextDataAttribute = buttonLabel ? `${textDataAttributeName}="true"` : "";
+    const iconDataAttribute = buttonIcon && `${iconAttributeName}="${glyphToCharRef(buttonIcon)}"`
   
-    let iconDataAttribute;
-    switch (buttonIcon) {
-      case "":
-        iconDataAttribute = "";
-        break;
-      default:
-        const icons = glyphToCharRef(buttonIcon);
-        iconDataAttribute = `${iconAttributeName}="${icons}"`;
-    }
   
     // button has one class member by default, so add a space if any more are
     // defined in data-dynablock-buttonclass
@@ -83,11 +70,14 @@ kit:: kitButton
   });
   ```
 	- {{evalparent}}
-- {{kitButton test,testkit,f3f3,long}} {{kitButton test,testkit,f3f3,long}}
-- {{button lol,f3f3,f3f3}}
-- {{kitButton purchases list,blockExpander,ef49,full-width-secret}}
-- {{kitButton hi mom,testkit,ef49,full-width-secret}}
-- {{runpage testkit}}
--
+- Kit button variations
+	- Full width secret. Icon only.
+	  {{kitButton '',blockExpander,ef49,full-width-secret}}
+	- Full width secret. Text only
+	  {{kitButton hi mom,testkit,'',full-width-secret}}
+	- Full width secret. Icon and text
+	  {{kitButton hi mom,testkit,ef49,full-width-secret}}
+	- {{kitButton kitButton long,testkit,f3f3,long}} {{kitButton text-only,testkit}}
+	- icon only, inline. {{kitButton '',testkit,f3f3}}
 -
 -
