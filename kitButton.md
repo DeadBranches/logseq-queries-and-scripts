@@ -22,7 +22,6 @@ kit:: kitButton
     function sanitizeAttribute(attributeValue) {
       console.log(attributeValue);
       // Logseq returns a string like "$n" when an HTML macro argument is null.
-      //let attributeValue = div.getAttribute(dataAttribute);
       // But it returns `''` when a hiccup macro argument is null
       return attributeValue.includes("$") || attributeValue.includes("''") ? "" : attributeValue;
     };
@@ -36,8 +35,8 @@ kit:: kitButton
   
     const iconPadding = " "; // spacing between icon and text
     const buttonBaseClass = "kit run inline button-style";
-    const iconAttributeName = "data-dynablock-buttonicon";
-    const textDataAttributeName = "data-dynablock-buttontext";
+    const iconAttributeName = "data-button-icon";
+    const textDataAttributeName = "data-button-text";
     let buttonExtraClasses = sanitizeAttribute(div.dataset.buttonClass);
     let buttonText = sanitizeAttribute(div.dataset.buttonLabel);
     const iconGlyphCode = sanitizeAttribute(div.dataset.buttonIcon);
