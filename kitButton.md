@@ -2,11 +2,7 @@ kit:: kitButton
 
 - ```javascript
   logseq.kits.setStatic(function kitButton(div) {
-  
     const kitPage = div.dataset.kitPage;
-    const buttonLabel = div.dataset.buttonLabel;
-    const buttonIcon = div.dataset.buttonIcon;
-    const buttonClass = div.dataset.buttonClass;
   
     /**
      * Sanitizes an attribute value by removing null or empty values.
@@ -69,7 +65,6 @@ kit:: kitButton
     }
   
   
-    const iconPadding = " "; // spacing between icon and text
     const buttonBaseClass = "button-style";
     const iconAttributeName = "data-button-icon";
     const textDataAttributeName = "data-button-text";
