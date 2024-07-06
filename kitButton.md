@@ -2,8 +2,6 @@ kit:: kitButton
 
 - ```javascript
   logseq.kits.setStatic(function kitButton(div) {
-    const kitPage = div.dataset.kitPage;
-  
     /**
      * Sanitizes an attribute value by removing null or empty values.
      *
@@ -39,7 +37,6 @@ kit:: kitButton
      * const emptyValue = "''";
      * const sanitizedEmptyValue = sanitizeAttribute(emptyValue); // Returns ''
      */
-  
     function sanitizeAttribute(attributeValue) {
       return attributeValue.includes("$") || attributeValue.includes("''") ? "" : attributeValue;
     };
@@ -64,12 +61,12 @@ kit:: kitButton
       return tablerIcons.join(" ");
     }
   
-  
+    const kitPage = div.dataset.kitPage;
     const buttonBaseClass = "button-style";
     const iconAttributeName = "data-button-icon";
     const textDataAttributeName = "data-button-text";
-    let buttonExtraClasses = sanitizeAttribute(div.dataset.buttonClass);
-    let buttonText = sanitizeAttribute(div.dataset.buttonLabel);
+    const buttonExtraClasses = sanitizeAttribute(div.dataset.buttonClass);
+    const buttonText = sanitizeAttribute(div.dataset.buttonLabel);
     const iconGlyphCode = sanitizeAttribute(div.dataset.buttonIcon);
   
   
@@ -110,10 +107,10 @@ kit:: kitButton
   
   ```
 	- {{evalparent}}
-- {{kitButton bitchTits,hi mom,f3f3,long}} {{kitButton bitchTits,hi mom,f3f3,long}}
+- {{kitButton test,testkit,f3f3,long}} {{kitButton test,testkit,f3f3,long}}
 - {{button lol,f3f3,f3f3}}
 - {{kitButton purchases list,blockExpander,ef49,full-width-secret}}
-- {{kitButton hi mom,blockExpander,ef49,full-width-secret}}
+- {{kitButton hi mom,testKit,ef49,full-width-secret}}
 -
 -
 -
