@@ -2,9 +2,6 @@ kit:: kitButton
 
 - ```javascript
   logseq.kits.setStatic(function kitButton(div) {
-    const blockId = div.closest(".ls-block").getAttribute("blockid");
-    const block = logseq.api.get_block(blockId);
-    const content = block.content;
   
     const kitPage = div.dataset.kitPage;
     const buttonLabel = div.dataset.buttonLabel;
