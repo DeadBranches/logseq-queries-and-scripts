@@ -14,11 +14,11 @@ kit:: kitButton
     * The function checks if the input `attributeValue` contains `$` or `''`, which
     * indicates a null or empty value. If the input value represents a null or empty
     * value, the function returns an empty string;
-    */
+  
     function sanitizeAttribute(attributeValue) {
       return attributeValue.includes("$") || attributeValue.includes("''") ? "" : attributeValue;
     };
-  
+    */
   
     /** Convert a space-separated string of Tabler icon hex codes into a space-separated 
      * string of HTML character references.
@@ -37,6 +37,8 @@ kit:: kitButton
     const iconAttributeName = "data-button-icon";
     const textDataAttributeName = "data-button-text";
     const kitPage = div.dataset.kitPage;
+    
+    const sanitizeAttribute = value => value.startsWith("$") || value === "''" ? "" : value;
     const buttonClass = sanitizeAttribute(div.dataset.buttonClass);
     const buttonLabel = sanitizeAttribute(div.dataset.buttonLabel);
     const buttonIcon = sanitizeAttribute(div.dataset.buttonIcon);
