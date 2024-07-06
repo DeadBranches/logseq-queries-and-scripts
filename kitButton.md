@@ -8,15 +8,10 @@ kit:: kitButton
   
     const macroStart = content.indexOf("{{" + div.closest(".macro").dataset.macroName);
     const macroEnd = content.indexOf("}}", macroStart) + 2;
-  
     const kitPage = div.dataset.kitPage;
     const buttonLabel = div.dataset.buttonLabel;
     const buttonIcon = div.dataset.buttonIcon;
     const buttonClass = div.dataset.buttonClass;
-    console.log(`Kit Page: ${kitPage}`);
-    console.log(`Button Label: ${buttonLabel}`);
-    console.log(`Button Icon: ${buttonIcon}`);
-    console.log(`Button Class: ${buttonClass}`);
   
     /**
      * Sanitizes an attribute value by removing null or empty values.
@@ -78,6 +73,7 @@ kit:: kitButton
       return tablerIcons.join(" ");
     }
   
+    
     const iconPadding = " "; // spacing between icon and text
     const buttonBaseClass = "button-style";
     const iconAttributeName = "data-button-icon";
@@ -85,6 +81,7 @@ kit:: kitButton
     let buttonExtraClasses = sanitizeAttribute(div.dataset.buttonClass);
     let buttonText = sanitizeAttribute(div.dataset.buttonLabel);
     const iconGlyphCode = sanitizeAttribute(div.dataset.buttonIcon);
+  
   
     /**
      * To support icon-only buttons, use a CSS selector indicating the presence of a text
@@ -127,6 +124,7 @@ kit:: kitButton
 - {{button lol,f3f3,f3f3}}
 - {{kitButton purchases list,blockExpander,ef49,full-width-secret}}
 - {{kitButton hi mom,blockExpander,ef49,full-width-secret}}
+-
 -
 -
 -
