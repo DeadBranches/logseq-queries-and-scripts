@@ -1,20 +1,18 @@
 kit:: kitButton
 
 - ```javascript
-  //next ver
-  
   logseq.kits.setStatic(function kitButton(div) {
-      console.log("kitButton function initiated");
-    
+      //console.log("kitButton function initiated");
       const buttonBaseClass = "kit run inline button-style";
       const iconAttributeName = "data-button-icon";
-      const textDataAttributeName = "data-button-text";
+      const labelAttributeName = "data-button-text";
       const kitPage = div.dataset.kitPage;
       
-      // Logseq macro arguments if null may return `$1` or "''"
+      // Expect null logseq macro arguments to return `$1` or "''", so filter to an empty string
       const sanitizeAttribute = value => value.startsWith("$") || value === "''" ? "" : value;
-      const buttonClass = sanitizeAttribute(div.dataset.buttonClass);
-      const buttonClassValue = [buttonBaseClass, ...(buttonClass ? buttonClass.split(" ") : [])].join(" ");
+      const customClass = sanitizeAttribute(div.dataset.buttonClass);
+      // customClass can be multiple space seperated values.
+      const buttonClassValue = [buttonBaseClass, ...(customClass ? customClass.split(" ") : [])].join(" ");
   
       /**
        * To support icon-only buttons, use a CSS selector indicating the presence of a text
@@ -22,7 +20,7 @@ kit:: kitButton
        * icon if and only if necessicary.
        */
       const buttonLabel = sanitizeAttribute(div.dataset.buttonLabel);
-      const buttonTextDataAttribute = buttonLabel ? `${textDataAttributeName}="true"` : "";
+      const buttonTextDataAttribute = buttonLabel ? `${labelAttributeName}="true"` : "";
   
       const buttonIcon = sanitizeAttribute(div.dataset.buttonIcon);
       const iconGlyphCodes = glyphs => glyphs.split(" ").map(hexCode => `&#x${hexCode};`).join(" ");
