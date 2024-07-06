@@ -1,14 +1,10 @@
 kit:: kitButton
 
 - ```javascript
+  //next ver
+  
   logseq.kits.setStatic(function kitButton(div) {
     console.log("kitButton function initiated");
-    const blockId = div.closest(".ls-block").getAttribute("blockid");
-    const block = logseq.api.get_block(blockId);
-    const content = block.content;
-  
-    const macroStart = content.indexOf("{{" + div.closest(".macro").dataset.macroName);
-    const macroEnd = content.indexOf("}}", macroStart) + 2;
   
     const kitPage = div.dataset.kitPage;
     const buttonLabel = div.dataset.buttonLabel;
@@ -73,11 +69,6 @@ kit:: kitButton
       type="button">${buttonText}</button>`;
   
    console.log("--- End kitButton function execution")
-    // console.log(macroStart);
-    // console.log(macroEnd);
-  
-    // div.innerHTML = `
-    //   <button class='kit run button-style inline' data-kit='runpage' data-page-name='${kitPage}' data-dynablock-codeblocklabel='$2' data-dynablock-buttonicon='&#x$3'> $2</button>`;
   
   });
   ```
