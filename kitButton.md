@@ -12,7 +12,33 @@ kit:: kitButton
       const sanitizeAttribute = value => value.startsWith("$") || value === "''" ? "" : value;
       const customClass = sanitizeAttribute(div.dataset.buttonClass);
       // customClass can be multiple space seperated values.
-      const buttonClassValue = [buttonBaseClass, ...(customClass ? customClass.split(" ") : [])].join(" ");
+      /**
+       * In some instances we may wish to remove classes from the default list of values.
+       * By passing a class name prefixed with a hyphen (e.g. -button-style) to the class
+       * argument ($4) the class is removed.
+       */
+      function filterClasses(defaultClasses = buttonBaseClass, sanatizedKitClasses = customClass) {
+        const defaultClassArray = defaultClasses.split(" ");
+        const instanceClassArray = sanatizedKitClasses.split(" ");
+        const styleClassNames = [];
+        instanceClassArray.forEach(className => {
+          if (className.startsWith("-")) {
+            let filterClassName = className.slice(1);
+            let removeIndex = defaultClassArray.indexOf(filterClassName);
+            let removedItem = defaultClassArray.splice(removeIndex, 1);
+            console.log(`Removed ${removedItem} from baseClassArray`);
+          } else {
+            styleClassNames.push(className);
+          }
+        });
+        return [...defaultClassArray, ...styleClassNames].join(" ");
+      }
+      let buttonClassValue;
+      if (customClass === "") {
+        buttonClassValue = [buttonBaseClass, ...(customClass ? customClass.split(" ") : [])].join(" ");
+      } else {
+        buttonClassValue = filterClasses();
+      }
   
       /**
        * To support icon-only buttons, use a CSS selector indicating the presence of a text
@@ -40,6 +66,8 @@ kit:: kitButton
 	  {{kitButton hi mom,testkit,'',full-width-secret}}
 	- Full width secret. Icon and text
 	  {{kitButton hi mom,testkit,ef49,full-width-secret}}
+	- Full width secret, without buttonstyle class Icon and text
+	  {{kitButton hi mom,testkit,ef49,full-width-secret -run}}
 	- {{kitButton kitButton long,testkit,f3f3,long}} {{kitButton text-only,testkit}}
 	- icon only, inline. {{kitButton '',testkit,f3f3}}
 -
