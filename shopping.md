@@ -31,6 +31,7 @@ repository:: DeadBranches/logseq-queries-and-scripts
 	  }
 	  #+END_QUERY``
 - ## {{i eb25}} in-progress orders
+  collapsed:: true
   *awaiting delivery of* {{i eaff}} {{openOrders words}}
 	- id:: 667992b3-a3a3-4a1e-9b93-71061bc4896c
 	  #+BEGIN_QUERY

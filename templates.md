@@ -165,11 +165,13 @@ description:: `/template`s with boilerplate for collector blocks, page tags, dai
 	   *namespace* `/project -`
 		- #### {{i-coding}} coding iteration
 		  id:: 66818163-8a53-447b-a959-0ae93dde245f
+		  collapsed:: true
 		  *w/ feature goal, scope, result, final code*
 		    ![image.png](../assets/image_1719949398805_0.png){:height 178, :width 216}
 			- ### {{i-template}} template
 			  template:: project - coding iteration
 			  template-including-parent:: false
+			  collapsed:: true
 				- ### {{i f6af}} iteration: title of work
 					- {{i f51a}} feature goal
 					  collapsed:: true
@@ -387,6 +389,7 @@ description:: `/template`s with boilerplate for collector blocks, page tags, dai
 	  collapsed:: true
 	  Query boilerplate
 	- ### Ideation
+	  collapsed:: true
 	  Ideas, thoughs, and more
 		- ### Problem solving
 			- #### Pros and cons
