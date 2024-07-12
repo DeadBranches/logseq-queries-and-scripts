@@ -7,6 +7,7 @@ description:: kitButton [label] <kit-name> [icon] [positive-class | {-inline | -
     const buttonBaseClass = "kit run inline button-style button-shape hover active";
     const iconAttributeName = "data-button-icon";
     const labelAttributeName = "data-button-text";
+    const argumentsAttributeName = 'data-arguments';
     const kitPage = div.dataset.kitPage;
   
     // Expect null logseq macro arguments to return `$1` or "''", so filter to an empty string
@@ -48,13 +49,16 @@ description:: kitButton [label] <kit-name> [icon] [positive-class | {-inline | -
      */
     const buttonLabel = sanitizeAttribute(div.dataset.buttonLabel);
     const buttonTextDataAttribute = buttonLabel ? `${labelAttributeName}="true"` : "";
-  
+    // icon logic
     const buttonIcon = sanitizeAttribute(div.dataset.buttonIcon);
     const iconGlyphCodes = glyphs => glyphs.split(" ").map(hexCode => `&#x${hexCode};`).join(" ");
     const iconDataAttribute = buttonIcon && `${iconAttributeName}="${iconGlyphCodes(buttonIcon)}"`;
+    // anything else
+    const kitArguments = sanitizeAttribute(div.dataset.arguments);
+    const argumentsDataAttribute = kitArguments ? `${argumentsAttributeName}='${kitArguments}'` : "";
   
     div.innerHTML = `<button class="${buttonClassValue}" data-kit='runpage' data-kit-macro="kitButton"
-      data-page-name='${kitPage}' ${iconDataAttribute} ${buttonTextDataAttribute}
+      data-page-name='${kitPage}' ${iconDataAttribute} ${buttonTextDataAttribute} ${argumentsDataAttribute}
       type="button">${buttonLabel}</button>`;
   
   });
@@ -90,4 +94,8 @@ description:: kitButton [label] <kit-name> [icon] [positive-class | {-inline | -
 	- Just text
 	  {{i f3f3}} hi
 -
--
+- Kit and kit arguments tests
+	- parent
+		- self
+		  {{kitButton label,collapseBlock,'','',parent}}
+			- child
