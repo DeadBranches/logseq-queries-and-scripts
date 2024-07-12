@@ -1,9 +1,10 @@
-kit:: kitButton
+kit:: kitButton [label] <kit-name> [icon] [positive-class | {-inline | -button-style | -button-shape | -hover | -active}] | [arguments]
+description:: kitButton [label] <kit-name> [icon] [positive-class | {-inline | -button-style | -button-shape | -hover | -active}] | [arguments]
 
 - ```javascript
   logseq.kits.setStatic(function kitButton(div) {
       //console.log("kitButton function initiated");
-      const buttonBaseClass = "kit run inline button-style";
+      const buttonBaseClass = "kit run inline button-style button-shape hover active";
       const iconAttributeName = "data-button-icon";
       const labelAttributeName = "data-button-text";
       const kitPage = div.dataset.kitPage;
@@ -52,7 +53,7 @@ kit:: kitButton
       const iconGlyphCodes = glyphs => glyphs.split(" ").map(hexCode => `&#x${hexCode};`).join(" ");
       const iconDataAttribute = buttonIcon && `${iconAttributeName}="${iconGlyphCodes(buttonIcon)}"`;
       
-      div.innerHTML = `<button class="${buttonClassValue}" data-kit='runpage'
+      div.innerHTML = `<button class="${buttonClassValue}" data-kit='runpage' data-kit-macro="kitButton"
         data-page-name='${kitPage}' ${iconDataAttribute} ${buttonTextDataAttribute}
         type="button">${buttonLabel}</button>`;
       
@@ -60,16 +61,33 @@ kit:: kitButton
   ```
 	- {{evalparent}}
 - Kit button variations
-	- Full width secret. Icon only.
-	  {{kitButton '',testkit,ef49,full-width-secret}}
-	- Full width secret. Text only
-	  {{kitButton hi mom,testkit,'',full-width-secret}}
-	- Full width secret. Icon and text
-	  {{kitButton hi mom,testkit,ef49,full-width-secret}}
-	- Full width secret, without buttonstyle class Icon and text
-	  {{kitButton hi mom,testkit,ef49,full-width-secret -run}}
-	- {{kitButton kitButton long,testkit,f3f3,long}} {{kitButton text-only,testkit}}
-	- icon only, inline. {{kitButton '',testkit,f3f3}}
--
+	- Icon only, full width.
+	  *-button-style full-width*
+	  {{kitButton '',testkit,ef49,-button-style full-width}}
+	- Text only, full width.
+	  *-button-style full-width*
+	  {{kitButton hi mom,testkit,'',-button-style full-width}}
+	- Icon and text, full width.
+	  {{kitButton hi mom,testkit,ef49,-button-style full-width}}
+	- Long inline buttons
+	  {{kitButton kitButton long,testkit,f3f3,long}} {{kitButton text-only,testkit,'',long}}
+	- icon only button, inline. 
+	  {{kitButton '',testkit,f3f3}}
+	- Text and icon buttons, inline.
+	  {{kitButton hi,testkit,f3f3}} {{kitButton hi,testkit,f3f3}}
+	- Kit button, full-width.
+	  {{kitButton hi,testkit,f3f3,full-width}}
+	- Kit buttons, inline, full width.
+	  {{kitButton hi,testkit,f3f3,full-width}} {{kitButton hi,testkit,f3f3,full-width}}
+	- Text and icon, full-width, flex-grow-1
+	  {{kitButton hi,testkit,f3f3,-button-style full-width flex-grow-1}}
+	- Text and icon, flex-grow-1
+	  {{kitButton hi,testkit,f3f3,-button-style flex-grow-1}}
+	- Inline text and icons, full-width (flex-grow-1 | flex-grow-2)
+	  {{kitButton hi,testkit,f3f3,-button-style full-width flex-grow-1}} {{kitButton hi,testkit,f3f3,-button-style full-width flex-grow-2}}
+	- Kit button, flex-grow-2 | flex-grow-1
+	  {{kitButton hi,testkit,f3f3,-button-style flex-grow-2}} {{kitButton hi,testkit,f3f3,-button-style flex-grow-1}}
+	- Just text
+	  {{i f3f3}} hi
 -
 -
