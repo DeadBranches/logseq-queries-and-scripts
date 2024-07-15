@@ -967,23 +967,43 @@ repository:: DeadBranches/logseq-queries-and-scripts
 					  ```
 		- #### {{i ee20}} future appointments list
 		  id:: 66415c9e-ff58-4281-8007-160cb44fb8b3
-		  collapsed:: true
 			- id:: 66415ca6-d397-4fc1-97f1-95f7b516e6d1
 			  #+BEGIN_QUERY
 			  {:query
-			  [:find (pull ?b [*])
-			  :in $ ?from
+			  [:find (min ?journal-day) ?date ?journal-day ?content ?props ?today ?activity ?event
+			  :keys min-day date journal-day content properties today activity event
+			  :in $ ?today
 			  :where
 			  [?b :block/properties ?props]
-			  [(get ?props :activity) _]
-			  [?b :block/refs ?refs]
-			  [?refs :block/journal-day ?d]
-			  [(>= ?d ?from)]
+			  [(get ?props :activity) ?activity] 
+			  ;[(contains? ?activity "ocrevus infusion")] 
+			  [?e :block/properties ?props]
+			  [(get ?props :event) ?event]
+			  [(get ?props :date) ?date]
+			  [?e :block/refs ?refs]
+			  [?e :block/content ?content]
+			  [?refs :block/journal-day ?journal-day]
+			  [(> ?journal-day ?today)]
 			  ]
-			  :inputs [:tomorrow]
-			   :breadcrumb-show? false
-			   :children? false
-			   :group-by-page? false
+			  
+			  :result-transform  (fn [result] (sort-by (fn [r] (get-in r [:journal-day])) (fn [a b] (compare a b)) result))
+			  
+			  :view (fn [results]
+			  [:div
+			  [:table {:class "future-appointments"}
+			  [:thead
+			  [:tr
+			  [:th "Date"]
+			  [:th "Event"]]]
+			  [:tbody
+			  (for [result results]
+			  [:tr
+			    [:td (get-in result [:date])]
+			    [:td (get-in result [:event])]])]]])
+			  :inputs [:today]
+			  :breadcrumb-show? false
+			  :children? false
+			  :group-by-page? false
 			  }
 			  #+END_QUERY
 		- ####  {{i ec44}} current medication list
@@ -1040,7 +1060,7 @@ repository:: DeadBranches/logseq-queries-and-scripts
 			            (mapcat flatten-result))))
 			   
 			   :view (fn [rows]
-			           [:table
+			           [:table {:class "medication-table"}
 			            [:thead
 			             [:tr
 			              [:th "Medication name"]
@@ -1058,6 +1078,7 @@ repository:: DeadBranches/logseq-queries-and-scripts
 			  }
 			  #+END_QUERY
 				- {{runpage exportquery}}
+				  {{kitButton export,exportquery}}
 			- #+BEGIN_QUERY
 			  {:query
 			  [:find ?mname ?date ?day ?dose
@@ -1250,7 +1271,7 @@ repository:: DeadBranches/logseq-queries-and-scripts
 			  ```
 	- ## Reusable queries
 	  collapsed:: true
-	  *that need to be manually added*
+	  *that need to be manually added to a block*
 	  #+BEGIN_QUERY
 	  {:inputs [:current-block #{1 2 3 4 5}]
 	    :query [:find (pull ?children [*])
@@ -1658,6 +1679,63 @@ repository:: DeadBranches/logseq-queries-and-scripts
 			  }
 			  #+END_QUERY
 			  ```
+	- ## Previous page-queries
+	  *Queries located on a page, but versioned here*
+		- ### Shopping list -> In basket
+			- **version 1.2** {{code-inside}}
+			  id:: 669137d3-3f99-4931-9dff-3c584e43c00d
+			  Shows items crossed off today, or nothing.
+			  from June 12, 2024
+			- **version 1.0** {{code-inside}}
+			  id:: 669136b1-ac6e-4a40-abc3-50c3687cf2dd
+			  collapsed:: true
+			  Shows items crossed off today, or "no results found".
+			  from June 12, 2024
+			  
+			  *state: no items*
+			  ![image.png](../assets/image_1720792834135_0.png){:height 65, :width 165}
+			  
+			  *state: items*
+			  ![image.png](../assets/image_1720792873059_0.png){:height 63, :width 200}
+				- in shopping basket query 
+				  ```datascript
+				  #+BEGIN_QUERY
+				  {:inputs [:start-of-today-ms "grocery"]
+				   :query
+				   [:find (pull ?b [*])
+				    :in $ ?start-of-today ?macro-name %
+				    :where
+				    (marked-done-today ?b ?start-of-today)
+				    (using-macro ?b ?macro-name)]
+				   
+				   :rules 
+				   [[(marked-done-today ?b ?start-of-today)
+				     [?b :block/marker ?marker]
+				     [(contains? #{"DONE"} ?marker)]
+				     [?b :block/updated-at ?update-time]
+				     [(< ?start-of-today ?update-time)]]
+				  
+				    [(using-macro ?b ?macro-name)
+				     [?b :block/macros ?m]
+				     [?m :block/properties ?props]
+				     [(get ?props :logseq.macro-name) ?macros]
+				     [(= ?macros ?macro-name)]]]
+				  
+				   :result-transform 
+				   (fn [result]
+				     (sort-by
+				      (juxt
+				       (fn [r] (get r :block/scheduled 99999999))
+				       (fn [r] (get r :block/content)))
+				      (map (fn [m]
+				             (update m :block/properties (fn [u] (assoc u
+				                                    :scheduled (get-in m [:block/scheduled] "-"))))) result)))
+				  
+				   :breadcrumb-show? false}
+				   :breadcrumb-show? false
+				  }
+				  #+END_QUERY
+				  ```
 - ## {{i efc5}} datalog language reference
   collapsed:: true
   cateloguing advanced query syntax elements
@@ -1875,70 +1953,70 @@ repository:: DeadBranches/logseq-queries-and-scripts
 	  *(e.g. `(page-tags ?p ?t)`)*
 	  {{il ec1c,logseq/rules.cljc:63,https://github.com/logseq/logseq/blob/53257d0919713f6096087fc188b80224742fe502/deps/db/src/logseq/db/rules.cljc#L63}}
 		- For more information see
-		- [(page-property ?p ?key ?val)]
-		  template:: query dsl page-property
+		- (page-property ?p ?key ?val)
+		  collapsed:: true
 			- [(page-property ?p ?key ?val)
 			       [?p :block/name]
 			       [?p :block/properties ?prop]
 			       [(get ?prop ?key) ?v]
 			       (or [(= ?v ?val)] [(contains? ?v ?val)])]
-		- [(has-page-property ?p ?key)]
-		  template:: query dsl has-page-property
+		- (has-page-property ?p ?key)
+		  collapsed:: true
 			- [(has-page-property ?p ?key)
 			       [?p :block/name]
 			       [?p :block/properties ?prop]
 			       [(get ?prop ?key)]]
-		- [(task ?b ?markers)]
-		  template:: query dsl task
+		- (task ?b ?markers)
+		  collapsed:: true
 			- [(task ?b ?markers)
 			     [?b :block/marker ?marker]
 			     [(contains? ?markers ?marker)]]
-		- [(priority ?b ?priorities)]
-		  template:: query dsl priority
+		- (priority ?b ?priorities)
+		  collapsed:: true
 			- [(priority ?b ?priorities)
 			     [?b :block/priority ?priority]
 			     [(contains? ?priorities ?priority)]]
-		- [(page-tags ?p ?tags)]
-		  template:: query dsl page-tags
+		- (page-tags ?p ?tags)
+		  collapsed:: true
 			- [(page-tags ?p ?tags)
 			     [?p :block/tags ?t]
 			     [?t :block/name ?tag]
 			     [(contains? ?tags ?tag)]]
-		- [(all-page-tags ?p)]
-		  template:: query dsl all-page-tags
+		- (all-page-tags ?p)
+		  collapsed:: true
 			- [(all-page-tags ?p)
 			     [_ :block/tags ?p]]
-		- [(between ?b ?start ?end)]
-		  template:: query dsl between
+		- (between ?b ?start ?end)
+		  collapsed:: true
 			- [(between ?b ?start ?end)
 			     [?b :block/page ?p]
 			     [?p :block/journal? true]
 			     [?p :block/journal-day ?d]
 			     [(>= ?d ?start)]
 			     [(<= ?d ?end)]]
-		- [(has-property ?b ?prop)]
-		  template:: query dsl has-property
+		- (has-property ?b ?prop)
+		  collapsed:: true
 			- [(has-property ?b ?prop)
 			     [?b :block/properties ?bp]
 			     [(missing? $ ?b :block/name)]
 			     [(get ?bp ?prop)]]
-		- [(block-content ?b ?query)]
-		  template:: query dsl block-content
+		- (block-content ?b ?query)
+		  collapsed:: true
 			- [(block-content ?b ?query)
 			     [?b :block/content ?content]
 			     [(clojure.string/includes? ?content ?query)]]
-		- [(page ?b ?page-name)]
-		  template:: query dsl page
+		- (page ?b ?page-name)
+		  collapsed:: true
 			- [(page ?b ?page-name)
 			     [?b :block/page ?bp]
 			     [?bp :block/name ?page-name]]
-		- [(namespace ?p ?namespace)]
-		  template:: query dsl namespace
+		- (namespace ?p ?namespace)
+		  collapsed:: true
 			- [(namespace ?p ?namespace)
 			     [?p :block/namespace ?parent]
 			     [?parent :block/name ?namespace]]
-		- [(property ?b ?key ?val)]
-		  template:: query dsl property
+		- (property ?b ?key ?val)
+		  collapsed:: true
 			- [(property ?b ?key ?val)
 			     [?b :block/properties ?prop]
 			     [(missing? $ ?b :block/name)]
@@ -1948,8 +2026,8 @@ repository:: DeadBranches/logseq-queries-and-scripts
 			         [(contains? ?v ?val)]
 			         ;; For integer pages that aren't strings
 			         [(contains? ?v ?str-val)])]
-		- [(page-ref ?b ?page-name)]
-		  template:: query dsl page-ref
+		- (page-ref ?b ?page-name)
+		  collapsed:: true
 			- [(page-ref ?b ?page-name)
 			     [?b :block/path-refs ?br]
 			     [?br :block/name ?page-name]]})
@@ -1961,6 +2039,7 @@ repository:: DeadBranches/logseq-queries-and-scripts
 		  `(get-children ?parent ?child)`
 	- #### query predicate functions
 	  id:: 6666f9ad-ef7d-455e-8319-906283ee8dcc
+	  collapsed:: true
 	  (*for the* `:where` *clause*)
 	  {{il ec1c,datascript/built_ins.cljc:L81,https://https://github.com/tonsky/datascript/blob/9e3ad968ec6b25b53963f3f96c8f6cae6713d918/src/datascript/built_ins.cljc#L81}}
 		- **raw list** of functions
@@ -2049,7 +2128,6 @@ repository:: DeadBranches/logseq-queries-and-scripts
 		  *as a table*
 			- {{embed ((66785bca-acd2-4401-95e2-32efb961ccb3))}}
 		- Conversational analyses
-		  collapsed:: true
 			- ((66749df3-627b-4ef6-8e5d-88f843e2ccbc))
 			  collapsed:: true
 				- {{embed ((66749df3-627b-4ef6-8e5d-88f843e2ccbc))}}
@@ -2059,353 +2137,345 @@ repository:: DeadBranches/logseq-queries-and-scripts
 		  collapsed:: true
 			- {{embed ((66749df3-8843-473e-bfe7-d32bfce93215))}}
 - ## {{i eb6d}}  concept snippets
-  collapsed:: true
   advanced queries labeled by use case
 	- ### :rules
-	  collapsed:: true
-		- query **results only**
+	  *clause expressions*
+		- show query **results only**
 		  collapsed:: true
 			- ```
 			   :breadcrumb-show? false
 			   :children? false
 			   :group-by-page? false
 			  ```
-				- template:: query results only
-				  template-including-parent:: false
-					- :breadcrumb-show? false
-					   :children? false
-					   :group-by-page? false
+				-
 	- ### :where
-		- #### without :properties *value*
-		  collapsed:: true
+	  *clause expressions*
+		- return blocks **without** :properties ***value***
 			- Exclude blocks with property value *x*
 			- ```clj
 			  (not (property ?b :goods-category "food"))
 			  ```
-	- block has `:block/property` *:x*
-	  collapsed:: true
-		- ```datalog
-		    [?b :block/properties ?prop]
-		    [(contains? ?prop :goods-category)]
-		  ```
-	- block has `:block/property` *:x* with value *"y"*
-	  collapsed:: true
-		- ```datalog
-		  [?b :block/properties ?props]
-		  [(get ?props :goods-category) ?category]
-		  [(contains? ?category "mushroom")]
-		  ```
-	- `:block/marker` does not contain *X*
-		- ```datalog
-		  [?b :block/marker ?m]
-		  (not [(contains? #{"DONE" "CANCELED"} ?m)] )
-		  ```
-	- pull blocks with a specific **macro reference**
-	  id:: 6638f4e8-101f-4d66-8aa5-0782d73d32f7
-	  collapsed:: true
-	  {{button copy,copy_second_sibling,ea6f,long squat}}
-		- {{nested-code-block}}
+		- block has `:block/property` *:x*
 		  collapsed:: true
-			- copy_second_sibling:
-			  ```js
-			  const second_child = logseq.api.get_next_sibling_block(this.nestedMacroUuid);
-			  const pattern = new RegExp("```(?:[a-zA-Z\\d_-]*)*\\n(.+?)\\n```", "usgm");
-			  const match = pattern.exec(second_child.content);
-			  const clipboard = `${match[1]}\n\n[source](((${second_child.uuid})))`;
-			  navigator.clipboard.writeText(clipboard);
+			- ```datalog
+			    [?b :block/properties ?prop]
+			    [(contains? ?prop :goods-category)]
 			  ```
-		- collapsed:: true
-		  ```datalog
-		  {:inputs ["grocery"]
-		   :query
-		   [:find (pull ?b [*])
-		    :in $ ?macro
-		    :where
-		    [?m :block/properties ?props]
-		    [(get ?props :logseq.macro-name) ?macros]
-		    [(= ?macros ?macro)]
-		    [?b :block/macros ?m]
-		   ]
-		   }
-		  ```
-		- news!!!
-		  #+BEGIN_QUERY
-		  {:inputs ["news"]
-		   :query 
-		    [:find (pull ?b [*])
-		     :in $ ?macro
-		     :where
-		      [?m :block/properties ?props]
-		      [(get ?props :logseq.macro-name) ?macros]
-		      [(= ?macros ?macro)]
-		      [?b :block/macros ?m]
-		     ]
-		   :results-transform
-		    (fn [result] (sort-by (fn [s] (get s :block/journal-day)) (fn [a b] (compare b a)) result))
-		  
-		    :breadcrumb-show? false
-		    :children? false
-		    :group-by-page? false}
-		  #+END_QUERY
-	- **show first line** of each result
-	  collapsed:: true
-	    `:result-transform` `:view`
-	  {{button copy,copy_second_sibling,ea6f,long squat}}
-		- {{nested-code-block}}
+		- block has `:block/property` *:x* with value *"y"*
 		  collapsed:: true
-			- copy_second_sibling:
-			  ```js
-			  const second_child = logseq.api.get_next_sibling_block(this.nestedMacroUuid);
-			  const pattern = new RegExp("```(?:[a-zA-Z\\d_-]*)*\\n(.+?)\\n```", "usgm");
-			  const match = pattern.exec(second_child.content);
-			  const clipboard = `${match[1]}\n\n[source](((${second_child.uuid})))`;
-			  navigator.clipboard.writeText(clipboard);
+			- ```datalog
+			  [?b :block/properties ?props]
+			  [(get ?props :goods-category) ?category]
+			  [(contains? ?category "mushroom")]
 			  ```
-		- ```
-		  #+BEGIN_QUERY
-		  {:query
-		  [:find ?template ?first-line
-		  :keys template first-line
-		  :in $ ?page-name
-		  :where
-		  ;; Find the page by name
-		  [?page :block/name ?page-name]
-		  ;; Find the parent block that has a reference to the page
-		  [?child :block/refs ?page]
-		  [?child :block/parent ?parent]
-		  ;; Get the properties and content of the parent block
-		  [?parent :block/properties ?props]
-		  [?parent :block/content ?full-content]
-		  ;; Check if the properties contain a template and extract it
-		  [(contains? ?props :template)]
-		  [(get ?props :template) ?template]
-		  ;; Use re-pattern and re-find to extract the first line of content
-		  [(re-pattern "^.*") ?first-line-pattern]
-		  [(re-find ?first-line-pattern ?full-content) ?first-line]
-		  ]
-		  :inputs ["logseq-news"]
-		  :result-transform (fn [result]
-		                     (map (fn [row] 
-		                            {
-		                             :template (get row :template)
-		                             :first-line (get row :first-line)}) result))
-		  :view (fn [rows]
-		         (let [row (first rows)]
-		           [:div (str "New ((" (get row :first-line) ")) using template `" (get row :template) "`\n{{i eafd}} #logseq-news")]))
-		  }
-		  #+END_QUERY
-		  
-		  #+BEGIN_QUERY
-		  {:query
-		   [:find ?template ?first-line
-		    :keys template first-line
-		    :in $ ?page-name
-		    :where
-		    ;; Find the page by name
-		    [?page :block/name ?page-name]
-		    ;; Find the parent block that has a reference to the page
-		    [?child :block/refs ?page]
-		    [?child :block/parent ?parent]
-		    ;; Get the properties and content of the parent block
-		    [?parent :block/properties ?props]
-		    [?parent :block/content ?full-content]
-		    ;; Check if the properties contain a template and extract it
-		    [(contains? ?props :template)]
-		    [(get ?props :template) ?template]
-		    ;; Use re-pattern and re-find to extract the first line of content
-		    [(re-pattern "^.*") ?first-line-pattern]
-		    [(re-find ?first-line-pattern ?full-content) ?first-line]
-		   ]
-		   :inputs ["logseq-news"]
-		   :result-transform (fn [result]
-		                       (map (fn [row] 
-		                              {
-		                               :template (get row :template)
-		                               :first-line (get row :first-line)}) result))
-		   :view (fn [rows]
-		           (let [row (first rows)]
-		             ;; Hiccup syntax to render the content with evaluated markdown and macros
-		             [:div
-		              [:span "New " [:block-ref (get row :first-line)] " using template `"]
-		              [:code (get row :template)]
-		              "`\n"
-		              [:span "{{i eafd}} #logseq-news"]]))
-		  }
-		  
-		  #+END_QUERY
-		  ```
-	- Results as an **unordered list**
-	  collapsed:: true
-	  `:result-transform` `:view`
-	  {{button copy,copy_second_sibling,ea6f,long squat}}
-		- {{nested-code-block}}
+		- `:block/marker` does not contain *X*
+			- ```datalog
+			  [?b :block/marker ?m]
+			  (not [(contains? #{"DONE" "CANCELED"} ?m)] )
+			  ```
+		- pull blocks with a specific **macro reference**
+		  id:: 6638f4e8-101f-4d66-8aa5-0782d73d32f7
+		  {{button copy,copy_second_sibling,ea6f,long squat}}
+			- {{nested-code-block}}
+				- copy_second_sibling:
+				  ```js
+				  const second_child = logseq.api.get_next_sibling_block(this.nestedMacroUuid);
+				  const pattern = new RegExp("```(?:[a-zA-Z\\d_-]*)*\\n(.+?)\\n```", "usgm");
+				  const match = pattern.exec(second_child.content);
+				  const clipboard = `${match[1]}\n\n[source](((${second_child.uuid})))`;
+				  navigator.clipboard.writeText(clipboard);
+				  ```
+			- collapsed:: true
+			  ```datalog
+			  {:inputs ["grocery"]
+			   :query
+			   [:find (pull ?b [*])
+			    :in $ ?macro
+			    :where
+			    [?m :block/properties ?props]
+			    [(get ?props :logseq.macro-name) ?macros]
+			    [(= ?macros ?macro)]
+			    [?b :block/macros ?m]
+			   ]
+			   }
+			  ```
+			- news!!!
+			  #+BEGIN_QUERY
+			  {:inputs ["news"]
+			   :query 
+			    [:find (pull ?b [*])
+			     :in $ ?macro
+			     :where
+			      [?m :block/properties ?props]
+			      [(get ?props :logseq.macro-name) ?macros]
+			      [(= ?macros ?macro)]
+			      [?b :block/macros ?m]
+			     ]
+			   :results-transform
+			    (fn [result] (sort-by (fn [s] (get s :block/journal-day)) (fn [a b] (compare b a)) result))
+			  
+			    :breadcrumb-show? false
+			    :children? false
+			    :group-by-page? false}
+			  #+END_QUERY
+		- **show first line** of each result
 		  collapsed:: true
-			- copy_second_sibling:
-			  ```js
-			  const second_child = logseq.api.get_next_sibling_block(this.nestedMacroUuid);
-			  const pattern = new RegExp("```(?:[a-zA-Z\\d_-]*)*\\n(.+?)\\n```", "usgm");
-			  const match = pattern.exec(second_child.content);
-			  const clipboard = `${match[1]}\n\n[source](((${second_child.uuid})))`;
-			  navigator.clipboard.writeText(clipboard);
+		    `:result-transform` `:view`
+		  {{button copy,copy_second_sibling,ea6f,long squat}}
+			- {{nested-code-block}}
+			  collapsed:: true
+				- copy_second_sibling:
+				  ```js
+				  const second_child = logseq.api.get_next_sibling_block(this.nestedMacroUuid);
+				  const pattern = new RegExp("```(?:[a-zA-Z\\d_-]*)*\\n(.+?)\\n```", "usgm");
+				  const match = pattern.exec(second_child.content);
+				  const clipboard = `${match[1]}\n\n[source](((${second_child.uuid})))`;
+				  navigator.clipboard.writeText(clipboard);
+				  ```
+			- ```
+			  #+BEGIN_QUERY
+			  {:query
+			  [:find ?template ?first-line
+			  :keys template first-line
+			  :in $ ?page-name
+			  :where
+			  ;; Find the page by name
+			  [?page :block/name ?page-name]
+			  ;; Find the parent block that has a reference to the page
+			  [?child :block/refs ?page]
+			  [?child :block/parent ?parent]
+			  ;; Get the properties and content of the parent block
+			  [?parent :block/properties ?props]
+			  [?parent :block/content ?full-content]
+			  ;; Check if the properties contain a template and extract it
+			  [(contains? ?props :template)]
+			  [(get ?props :template) ?template]
+			  ;; Use re-pattern and re-find to extract the first line of content
+			  [(re-pattern "^.*") ?first-line-pattern]
+			  [(re-find ?first-line-pattern ?full-content) ?first-line]
+			  ]
+			  :inputs ["logseq-news"]
+			  :result-transform (fn [result]
+			                     (map (fn [row] 
+			                            {
+			                             :template (get row :template)
+			                             :first-line (get row :first-line)}) result))
+			  :view (fn [rows]
+			         (let [row (first rows)]
+			           [:div (str "New ((" (get row :first-line) ")) using template `" (get row :template) "`\n{{i eafd}} #logseq-news")]))
+			  }
+			  #+END_QUERY
+			  
+			  #+BEGIN_QUERY
+			  {:query
+			   [:find ?template ?first-line
+			    :keys template first-line
+			    :in $ ?page-name
+			    :where
+			    ;; Find the page by name
+			    [?page :block/name ?page-name]
+			    ;; Find the parent block that has a reference to the page
+			    [?child :block/refs ?page]
+			    [?child :block/parent ?parent]
+			    ;; Get the properties and content of the parent block
+			    [?parent :block/properties ?props]
+			    [?parent :block/content ?full-content]
+			    ;; Check if the properties contain a template and extract it
+			    [(contains? ?props :template)]
+			    [(get ?props :template) ?template]
+			    ;; Use re-pattern and re-find to extract the first line of content
+			    [(re-pattern "^.*") ?first-line-pattern]
+			    [(re-find ?first-line-pattern ?full-content) ?first-line]
+			   ]
+			   :inputs ["logseq-news"]
+			   :result-transform (fn [result]
+			                       (map (fn [row] 
+			                              {
+			                               :template (get row :template)
+			                               :first-line (get row :first-line)}) result))
+			   :view (fn [rows]
+			           (let [row (first rows)]
+			             ;; Hiccup syntax to render the content with evaluated markdown and macros
+			             [:div
+			              [:span "New " [:block-ref (get row :first-line)] " using template `"]
+			              [:code (get row :template)]
+			              "`\n"
+			              [:span "{{i eafd}} #logseq-news"]]))
+			  }
+			  
+			  #+END_QUERY
 			  ```
-		- ```clj
-		  #+BEGIN_QUERY
-		  {:query
-		      [:find (pull ?p [*])
-		          :where
-		          (page-tags ?p #{"page"})
-		      ]
-		      :result-transform (fn [result] 
-		          (sort-by 
-		          (fn [r] (get r :block/name))
-		          )
-		      )
-		      :view
-		      (fn [result] ;<base>
-		          [:ul (for [r result]
-		              [:li 
-		              [:b 
-		              [:a {:href (str "#/page/" (get-in r [:block/original-name]))} (str "#" (get r :block/name))]
-		              ]
-		              (str ": " (get-in r [:block/properties :description]))
-		              ]
-		          )]
-		      );</base>
-		  }
-		  #+END_QUERY
-		  ```
-	- **Sort by journal day**
-	  id:: 663a1f42-6ff8-4a1b-a953-cca70c833e52
-	  collapsed:: true
-	    `:result-transform`
-	  {{button copy,copy_second_sibling,ea6f,long squat}}
-		- {{nested-code-block}}
+		- Results as an **unordered list**
 		  collapsed:: true
-			- copy_second_sibling:
-			  ```js
-			  const second_child = logseq.api.get_next_sibling_block(this.nestedMacroUuid);
-			  const pattern = new RegExp("```(?:[a-zA-Z\\d_-]*)*\\n(.+?)\\n```", "usgm");
-			  const match = pattern.exec(second_child.content);
-			  const clipboard = `${match[1]}\n\n[source](((${second_child.uuid})))`;
-			  navigator.clipboard.writeText(clipboard);
+		  `:result-transform` `:view`
+		  {{button copy,copy_second_sibling,ea6f,long squat}}
+			- {{nested-code-block}}
+			  collapsed:: true
+				- copy_second_sibling:
+				  ```js
+				  const second_child = logseq.api.get_next_sibling_block(this.nestedMacroUuid);
+				  const pattern = new RegExp("```(?:[a-zA-Z\\d_-]*)*\\n(.+?)\\n```", "usgm");
+				  const match = pattern.exec(second_child.content);
+				  const clipboard = `${match[1]}\n\n[source](((${second_child.uuid})))`;
+				  navigator.clipboard.writeText(clipboard);
+				  ```
+			- ```clj
+			  #+BEGIN_QUERY
+			  {:query
+			      [:find (pull ?p [*])
+			          :where
+			          (page-tags ?p #{"page"})
+			      ]
+			      :result-transform (fn [result] 
+			          (sort-by 
+			          (fn [r] (get r :block/name))
+			          )
+			      )
+			      :view
+			      (fn [result] ;<base>
+			          [:ul (for [r result]
+			              [:li 
+			              [:b 
+			              [:a {:href (str "#/page/" (get-in r [:block/original-name]))} (str "#" (get r :block/name))]
+			              ]
+			              (str ": " (get-in r [:block/properties :description]))
+			              ]
+			          )]
+			      );</base>
+			  }
+			  #+END_QUERY
 			  ```
-		- ```datalog
-		  :result-transform
-		    (fn [result] 
-		      (sort-by (comp - (fn [r] (get-in r [:block/page :block/journal-day]))) result)
-		      )
-		  ```
-	- **Sort by date created** (or failing that, date last modified)
-	  collapsed:: true
-	    `:result-transform`
-	  {{button copy,copy_second_sibling,ea6f,long squat}}
-		- {{nested-code-block}}
+		- **Sort by journal day**
+		  id:: 663a1f42-6ff8-4a1b-a953-cca70c833e52
 		  collapsed:: true
-			- copy_second_sibling:
-			  ```js
-			  const second_child = logseq.api.get_next_sibling_block(this.nestedMacroUuid);
-			  const pattern = new RegExp("```(?:[a-zA-Z\\d_-]*)*\\n(.+?)\\n```", "usgm");
-			  const match = pattern.exec(second_child.content);
-			  const clipboard = `${match[1]}\n\n[source](((${second_child.uuid})))`;
-			  navigator.clipboard.writeText(clipboard);
+		    `:result-transform`
+		  {{button copy,copy_second_sibling,ea6f,long squat}}
+			- {{nested-code-block}}
+			  collapsed:: true
+				- copy_second_sibling:
+				  ```js
+				  const second_child = logseq.api.get_next_sibling_block(this.nestedMacroUuid);
+				  const pattern = new RegExp("```(?:[a-zA-Z\\d_-]*)*\\n(.+?)\\n```", "usgm");
+				  const match = pattern.exec(second_child.content);
+				  const clipboard = `${match[1]}\n\n[source](((${second_child.uuid})))`;
+				  navigator.clipboard.writeText(clipboard);
+				  ```
+			- ```datalog
+			  :result-transform
+			    (fn [result] 
+			      (sort-by (comp - (fn [r] (get-in r [:block/page :block/journal-day]))) result)
+			      )
 			  ```
-		- ```datalog
-		   :result-transform 
-		    (fn [result]
-		      (sort-by 
-		        (fn [r] 
-		          (let [journal-day (get-in r [:block/page :block/journal-day])
-		                created-at (get r :block/created-at)]
-		            (- (or journal-day created-at))))
-		        result))
-		   :breadcrumb-show? false
-		  ```
-		- {{il eb6c,Bing: sort by date created,https://sl.bing.net/4TV8A6wblI}}
-	- Click to complete TODO blocks via **call-api**
-	  collapsed:: true
-	    `:result-transform` `:view`
-	  {{button copy,copy_second_sibling,ea6f,long squat}}
-		- {{nested-code-block}}
+		- **Sort by date created** (or failing that, date last modified)
 		  collapsed:: true
-			- copy_second_sibling:
-			  ```js
-			  const second_child = logseq.api.get_next_sibling_block(this.nestedMacroUuid);
-			  const pattern = new RegExp("```(?:[a-zA-Z\\d_-]*)*\\n(.+?)\\n```", "usgm");
-			  const match = pattern.exec(second_child.content);
-			  const clipboard = `${match[1]}\n\n[source](((${second_child.uuid})))`;
-			  navigator.clipboard.writeText(clipboard);
+		    `:result-transform`
+		  {{button copy,copy_second_sibling,ea6f,long squat}}
+			- {{nested-code-block}}
+			  collapsed:: true
+				- copy_second_sibling:
+				  ```js
+				  const second_child = logseq.api.get_next_sibling_block(this.nestedMacroUuid);
+				  const pattern = new RegExp("```(?:[a-zA-Z\\d_-]*)*\\n(.+?)\\n```", "usgm");
+				  const match = pattern.exec(second_child.content);
+				  const clipboard = `${match[1]}\n\n[source](((${second_child.uuid})))`;
+				  navigator.clipboard.writeText(clipboard);
+				  ```
+			- ```datalog
+			   :result-transform 
+			    (fn [result]
+			      (sort-by 
+			        (fn [r] 
+			          (let [journal-day (get-in r [:block/page :block/journal-day])
+			                created-at (get r :block/created-at)]
+			            (- (or journal-day created-at))))
+			        result))
+			   :breadcrumb-show? false
 			  ```
-		- ```datalog
-		  {
-		   :query [:find (pull ?b [*])
-		           :in $ ?current
-		           :where
-		           [?p :block/name ?current]
-		           [?b :block/page ?p]
-		           (task ?b #{"TODO" "DONE"})
-		         ]
-		   :inputs [:current-page]
-		   :table-view? true
-		   :view (fn [r] 
-		     [:table 
-		       [:thead 
-		         [:tr [:td "task"] [:td "marker"]]
-		       ]
-		       [:tbody
-		         (map (fn [m] 
-		           (let [marker (get m :block/marker)
-		                   content (clojure.string/replace (get m :block/content) (re-pattern "(TODO|LATER|DONE|DOING)\\s") "")] 
-		            [:tr 
-		              [:td content] 
-		              [:td [:a {:on-click (fn [_] (call-api "update_block" (str (:block/uuid m)) (if (= marker "TODO") (str "DONE" " " content) (str "TODO" " " content))))} marker]]
-		           ])
-		          ) r)
-		       ]
-		     ]
-		   )
-		  }
-		  ```
-		- > it can be done with latest call-api ability (logseq nightly)
-		- source: https://discord.com/channels/725182569297215569/743139225746145311/1047314074930782308
-		- via https://discuss.logseq.com/t/show-todo-toggle-in-query-table-view/12720/5
-	- Clickable **links** using `call-api` and `push_state()`
-	  collapsed:: true
-	    `:result-transform` `:view`
-	  {{button copy,copy_second_sibling,ea6f,long squat}}
-		- {{nested-code-block}}
+			- {{il eb6c,Bing: sort by date created,https://sl.bing.net/4TV8A6wblI}}
+		- Click to complete TODO blocks via **call-api**
 		  collapsed:: true
-			- copy_second_sibling:
-			  ```js
-			  const second_child = logseq.api.get_next_sibling_block(this.nestedMacroUuid);
-			  const pattern = new RegExp("```(?:[a-zA-Z\\d_-]*)*\\n(.+?)\\n```", "usgm");
-			  const match = pattern.exec(second_child.content);
-			  const clipboard = `${match[1]}\n\n[source](((${second_child.uuid})))`;
-			  navigator.clipboard.writeText(clipboard);
+		    `:result-transform` `:view`
+		  {{button copy,copy_second_sibling,ea6f,long squat}}
+			- {{nested-code-block}}
+			  collapsed:: true
+				- copy_second_sibling:
+				  ```js
+				  const second_child = logseq.api.get_next_sibling_block(this.nestedMacroUuid);
+				  const pattern = new RegExp("```(?:[a-zA-Z\\d_-]*)*\\n(.+?)\\n```", "usgm");
+				  const match = pattern.exec(second_child.content);
+				  const clipboard = `${match[1]}\n\n[source](((${second_child.uuid})))`;
+				  navigator.clipboard.writeText(clipboard);
+				  ```
+			- ```datalog
+			  {
+			   :query [:find (pull ?b [*])
+			           :in $ ?current
+			           :where
+			           [?p :block/name ?current]
+			           [?b :block/page ?p]
+			           (task ?b #{"TODO" "DONE"})
+			         ]
+			   :inputs [:current-page]
+			   :table-view? true
+			   :view (fn [r] 
+			     [:table 
+			       [:thead 
+			         [:tr [:td "task"] [:td "marker"]]
+			       ]
+			       [:tbody
+			         (map (fn [m] 
+			           (let [marker (get m :block/marker)
+			                   content (clojure.string/replace (get m :block/content) (re-pattern "(TODO|LATER|DONE|DOING)\\s") "")] 
+			            [:tr 
+			              [:td content] 
+			              [:td [:a {:on-click (fn [_] (call-api "update_block" (str (:block/uuid m)) (if (= marker "TODO") (str "DONE" " " content) (str "TODO" " " content))))} marker]]
+			           ])
+			          ) r)
+			       ]
+			     ]
+			   )
+			  }
 			  ```
-		- ```
-		  {:view (fn
-		           ; the query will return an array with one item, so [[count]] will destructure the number
-		           [[count]]
-		           [:div
-		            {:style {:color "#b1b1b1"}}
-		            "There are "
-		            [:span count]
-		            " notes in the "
-		            [:a {:data-ref "pile"
-		                 :style {:color "#797979"}
-		                 :on-click
-		                 ; call-api is a magical call that allows you to call any API available
-		                 ; in this case, it navigates to the "pile" page if you click the link
-		                 (fn [] (call-api "push_state" "page" {:name "pile"}))} "pile"]
-		            "."])
-		   :query
-		   [:find (count ?b)         ; return a single item - the total count of blocks
-		    :where
-		    [?pb :block/name "pile"] ; where pb is the block for a page named "pile"
-		    [?b :block/refs ?pb]]}   ; and blocks reference it
-		  ```
+			- > it can be done with latest call-api ability (logseq nightly)
+			- source: https://discord.com/channels/725182569297215569/743139225746145311/1047314074930782308
+			- via https://discuss.logseq.com/t/show-todo-toggle-in-query-table-view/12720/5
+		- Clickable **links** using `call-api` and `push_state()`
+		  collapsed:: true
+		    `:result-transform` `:view`
+		  {{button copy,copy_second_sibling,ea6f,long squat}}
+			- {{nested-code-block}}
+			  collapsed:: true
+				- copy_second_sibling:
+				  ```js
+				  const second_child = logseq.api.get_next_sibling_block(this.nestedMacroUuid);
+				  const pattern = new RegExp("```(?:[a-zA-Z\\d_-]*)*\\n(.+?)\\n```", "usgm");
+				  const match = pattern.exec(second_child.content);
+				  const clipboard = `${match[1]}\n\n[source](((${second_child.uuid})))`;
+				  navigator.clipboard.writeText(clipboard);
+				  ```
+			- ```
+			  {:view (fn
+			           ; the query will return an array with one item, so [[count]] will destructure the number
+			           [[count]]
+			           [:div
+			            {:style {:color "#b1b1b1"}}
+			            "There are "
+			            [:span count]
+			            " notes in the "
+			            [:a {:data-ref "pile"
+			                 :style {:color "#797979"}
+			                 :on-click
+			                 ; call-api is a magical call that allows you to call any API available
+			                 ; in this case, it navigates to the "pile" page if you click the link
+			                 (fn [] (call-api "push_state" "page" {:name "pile"}))} "pile"]
+			            "."])
+			   :query
+			   [:find (count ?b)         ; return a single item - the total count of blocks
+			    :where
+			    [?pb :block/name "pile"] ; where pb is the block for a page named "pile"
+			    [?b :block/refs ?pb]]}   ; and blocks reference it
+			  ```
 - ## {{i eb6e}} My functions
-  collapsed:: true
   for `:result-transform` and `:view` clauses
 	- ### {{i f38e}} `:result-transform` functions
 		- #### Sort by journal day
