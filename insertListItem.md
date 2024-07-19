@@ -17,7 +17,11 @@ description:: Inserts either a grocery or shopping list item under the purchase 
     // Values
     const blockTemplates = {
       grocery: "TODO {{grocery}} ",
-      shopping: "TODO {{buy}} "
+      shopping: "TODO {{buy}} ",
+      do: "{{do}} ",
+      doKitchen: "{{do}} {{kitchen}}",
+      doOffice: "{{do}} {{office}} ",
+      doBathroom: "{{do}} {{bathroom}} "
     } 
     const insertOptions = {
       before: true,
