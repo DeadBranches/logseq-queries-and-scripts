@@ -38,6 +38,7 @@ description:: kitButton [label] <kit-name> [icon] [positive-class | {-inline | -
           const [expressionName, argumentValue] = className.slice(1).split(":");
           styleExpressions[expressionName] = argumentValue || false;
           console.log(`Added ${expressionName}: ${styleExpressions[expressionName]} to styleExpressions object`);
+          console.log(JSON.stringify(styleExpressions));
         }
          else {
           styleClassNames.push(className);
@@ -54,15 +55,28 @@ description:: kitButton [label] <kit-name> [icon] [positive-class | {-inline | -
       buttonClassValue = filterClasses();
     }
   
-    const buttonLabel = sanitizeAttribute(div.dataset.buttonLabel);
-    if (styleExpressions.hasOwnProperty('bold-nth-word')) {
-      // The value can be either false or an integer represeting a word position
-      const boldWordIndex = styleExpressions['bold-nth-word'] ? 
-        parseInt(styleExpressions['bold-nth-word'])-1 : 0;
-      const labelWordArray = buttonLabel.split(" ").map((word, index) => {
-        return index === boldWordIndex ? `<span class="bold">${word}</span>` : word
-      })
+    let buttonLabel = sanitizeAttribute(div.dataset.buttonLabel);
+    let labelWordArray;
+    if ('bold-nth-word' in styleExpressions) {
+      const boldWordIndex = styleExpressions['bold-nth-word'] ?
+        parseInt(styleExpressions['bold-nth-word']) - 1 : 0;
+      labelWordArray = buttonLabel.split(" ").map((word, index) => {
+        return index === boldWordIndex ? `<span class="bold">${word}</span>` : word;
+      });
+      console.log(JSON.stringify(labelWordArray));
+      buttonLabel = labelWordArray.join(" ");
     }
+  
+    // if ('bold-nth-word' in styleExpressions) {
+    //   console.log("bold-nth-word found in styleExpressions");
+    //   // The value can be either false or an integer represeting a word position
+    //   const boldWordIndex = styleExpressions['bold-nth-word'] ? 
+    //     parseInt(styleExpressions['bold-nth-word'])-1 : 0;
+    //   const labelWordArray = buttonLabel.split(" ").map((word, index) => {
+    //     return index === boldWordIndex ? `<span class="bold">${word}</span>` : word
+    //   })
+    // }
+    buttonLabel = labelWordArray ? labelWordArray.join(" ") : buttonLabel;
     /**
      * To support icon-only buttons, use a data-attribute indicating the presence of a text
      * label or icon glyph. Thus, whitespace can be intelligently included to pad text and 
@@ -115,9 +129,8 @@ description:: kitButton [label] <kit-name> [icon] [positive-class | {-inline | -
 	  {{i f3f3}} hi
 - Kit style expression test
 	- +bold-nth-word
-	  {{kitButton hi,testkit,f3f3,-button-style full-width bold flex-grow-1 +bold-nth-word}}
-	- +bold-nth-word:2
-	  {{kitButton hi,testkit,f3f3,-button-style full-width bold flex-grow-1 +bold-nth-word:2}}
+	  {{kitButton hi mom,testkit,f3f3,-button-style full-width flex-grow-1 +bold-nth-word:1}}
+	- #### {{kitButton hi mom,testkit,f3f3,-button-style full-width flex-grow-1 +bold-nth-word:2}}
 - Kit and kit arguments tests
 	- parent
 		- self
