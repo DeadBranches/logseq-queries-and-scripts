@@ -1,5 +1,6 @@
 tags:: page
 description:: Cataloguing custom logseq kit functions
+alias:: kits
 
 - # Kits list
   #+BEGIN_QUERY

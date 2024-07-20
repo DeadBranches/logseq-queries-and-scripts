@@ -5,6 +5,7 @@ description:: Project management home base
   id:: 66537d2b-5b7e-4077-98a1-e946001b6b1d
   Let's do it!
 	- [[logseq-events-and-appointments]]
+	- [[logseq-journal-buddy-improvement-2024-06]]
 - ## {{i ef93}}  [[next]]
   id:: 66537d2b-bdba-46d1-a917-217fcd95d5f8
   *More aspirational than anything.*
@@ -12,7 +13,6 @@ description:: Project management home base
 	- [[android-handsfree-note-taker]]
 	- [[2024-denimn-repair]]
 	- [[logseq-queries-and-scripts-repo]]
-	- [[logseq-journal-buddy-improvement-2024-06]]
 	- [[logseq-ms-journal]]
 	- [[logseq-query-exporter]]
 - ## {{i f258}}  [[unmanaged]]

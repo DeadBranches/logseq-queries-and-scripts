@@ -129,3 +129,34 @@ repository:: DeadBranches/logseq-queries-and-scripts
 		  
 		  
 		  #+END_QUERY
+-
+- test query
+	- collapsed:: true
+	  #+BEGIN_QUERY
+	  {:inputs ["buy"]
+	  :query [:find (pull ?b [*])
+	  :keys block
+	  :in $ ?macro-name %
+	  :where
+	   [?b :block/marker ?m]
+	   (not [(contains? #{"DONE" "CANCELED"} ?m)] )
+	   (using-macro ?b ?macro-name)]
+	  :rules [
+	        [(using-macro ?b ?macro-name)
+	         [?b :block/macros ?m]
+	         [?m :block/properties ?props]
+	         [(get ?props :logseq.macro-name) ?macros]
+	         [(= ?macros ?macro-name)]]]
+	  
+	  :result-transform 
+	  (fn [result]
+	    (sort-by 
+	      (fn [r] 
+	        (let [journal-day (get-in r [:block/page :block/journal-day])
+	              created-at (get r :block/created-at)]
+	          (- (or journal-day created-at))))
+	      result))
+	  :breadcrumb-show? false
+	  :collapsed? true
+	  }
+	  #+END_QUERY

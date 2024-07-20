@@ -15,7 +15,9 @@ description:: invoke from a button press to add a new grocery item to the curren
   
     const MACRO_NAME = "grocery-holder";
     const BATCH_BLOCK_CONTENT = [
-      { content: "{{kitButton purchase list,collapseBlock,ef49,full-width-secret}}\n{{kitButton '',insertListItem,eb0b eb25}} {{kitButton '',insertListItem,eb0b f21c}}\n{{grocery-holder}}" }
+      { 
+        content: "{{kitButton purchase list,collapseBlock,ef49,-button-style full-width bold}}\n{{kitButton '',insertListItem,eb0b eb25,squat,grocery}}   {{kitButton '',insertListItem,eb0b f21c,squat,shopping}}\n {{grocery-holder}}"
+  }
     ];
   
       /**
@@ -81,6 +83,8 @@ description:: invoke from a button press to add a new grocery item to the curren
   journalGroceryWidget(null, 'plaintext')
   ```
 	- {{evalparent}}
+- {{kitButton purchase list,collapseBlock,ef49,-button-style full-width bold}}
+  {{kitButton '',insertListItem,eb0b eb25,squat,grocery}}   {{kitButton '',insertListItem,eb0b f21c,squat,shopping}} {{grocery-holder}}
 - {{kitButton purchase list,collapseBlock,ef49,full-width-secret}}
   {{kitButton '',insertListItem,eb0b eb25}} {{kitButton '',insertListItem,eb0b f21c}}
   {grocery-holder}}

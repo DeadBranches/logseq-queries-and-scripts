@@ -1,175 +1,27 @@
 tags:: page
 description:: `/template`s with boilerplate for collector blocks, page tags, daily journal, queries
 
-- How to use
-  `:template "template page template"`
-- ## {{i eb96}} Daily journal
-  id:: 6644f008-299c-43c2-9c36-d9ab220bd4f3
-  *Used automatically*
-	- {{i eaad}} Organization blocks
-	  template:: daily journal - organization blocks
-	  template-including-parent:: false
-		-
-	- {{i ec45}} Doing block
-	  template:: Daily journal doing-block
-	  template-including-parent:: false
-		- #### {{i ec45}} **Doing** today
-		  id:: 6666f9b1-219c-4c0c-879f-eb0dd5ea687f
-		  collapsed:: true
-		  {{button do,do,ec45,long}}
-		  
-		  {{button '',fridge,f1fa}}  {{button '',computer,ea89}}  {{button '',wash,ef48}}
-			- {{nested-code-block}}
-			  collapsed:: true
-				- do:
-				  ```js
-				  (() => {
-				  const content = "";
-				  const options = { sibling:false, before:false, focus:true }
-				  logseq.api.insert_block(this.target_uuid, content, options);
-				  })();
-				  ```
-				  
-				  fridge:
-				  ```js
-				  (() => {
-				  const content = "{{i-fridge}}  ";
-				  const options = { sibling:false, before:false, focus:true }
-				  logseq.api.insert_block(this.target_uuid, content, options);
-				  })();
-				  ```
-				  
-				  computer:
-				  ```js
-				  (() => {
-				  const content = "{{i-computer}} ";
-				  const options = { sibling:false, before:false, focus:true }
-				  logseq.api.insert_block(this.target_uuid, content, options);
-				  })();
-				  ```
-				  
-				  wash:
-				  ```js
-				  (() => {
-				  const content = "{{i-wash}} ";
-				  const options = { sibling:false, before:false, focus:true }
-				  logseq.api.insert_block(this.target_uuid, content, options);
-				  })();
-				  ```
-	- ####  {{I ec9e}} Journal buddies
-	  id:: 662becda-117c-4bed-a4e7-d27b7cd1b6f3
-	  Buttons and skincare-routine
-		- ##### {{i eafd}}  news
-		  collapsed:: true
-			- {{embed ((66415d9e-5591-4219-bc68-eb54393bccff))}}
-		- Event header for daily journal
-		  id:: 65fb3d58-f121-4f03-a702-fbc3e6e5c98c
-		  template:: Event header for daily journal
-		  template-including-parent:: false
-			- ### {{i ec9e}} Journal buddies
-				- [:small "daily reminders"]
-				  id:: 6666f9b1-6202-4537-aa84-b40852fa720a
-					- TODO {{i ef63}} Take medication
-					  id:: 65fdfbf2-818e-404e-9d60-7f941f29bf34
-					  {{scheduleDateToday collapse}}
-				- {{button '',doing,ec45}}  {{button '',organization-blocks,eaad}}
-				  collapsed:: true
-					- Code Blocks
-					  doing:
-					  ```js
-					  journalHelper(this, 'doingBlocks');
-					  ```
-					  
-					  organization-blocks:
-					  ```js
-					  journalHelper(this, 'organizationBlocks');
-					  ```
-				- {{button '',expand-shopping,eb25}}  {{button buy,add-shopping-item,eb0b}}
-				  collapsed:: true
-					- {{nested-code-block}}
-					  collapsed:: true
-						- expand-shopping:
-						  ```js
-						  logseq.api.set_block_collapsed(this.target_uuid, "toggle")
-						  ```
-						  
-						  add-shopping-item:
-						  ```js
-						  journalHelper(this, 'buy');
-						  ```
-					- {{embed ((6644ee82-6e4e-4936-af4f-8a47ece6985d))}}
-					- {{embed ((667992b3-de9e-4570-86f5-5beffb1686a0))}}
-				- {{button '',expand-online-order,eaff}}  {{button order,add-online-order,eb0b}}
-				  collapsed:: true
-					- {{nested-code-block}}
-					  collapsed:: true
-						- expand-online-order:
-						  ```js
-						  logseq.api.set_block_collapsed(this.target_uuid, "toggle")
-						  ```
-						  
-						  add-online-order:
-						  ```js
-						  journalHelper(this, 'onlineOrder');
-						  ```
-					- {{embed ((663f79d8-20d7-4027-9ff5-500ae36ff757))}}
-					- #### awaiting delivery of {{i eaff}} {{openOrders words}}
-					- {{embed ((667992b3-a3a3-4a1e-9b93-71061bc4896c))}}
-				- {{button '',expand-groceries,f21c}}  {{button grocery,add-grocery-item,eb0b}}
-				  id:: 6649f26f-70ca-4d46-96a8-555f07ae4524
-				  collapsed:: true
-					- {{nested-code-block}}
-					  collapsed:: true
-						- expand-groceries:
-						  ```js
-						  logseq.api.set_block_collapsed(this.target_uuid, "toggle")
-						  ```
-						  
-						  add-grocery-item:
-						  ```js
-						  journalHelper(this, 'grocery');
-						  ```
-					- {{embed ((663f8303-7fca-406d-83ed-d93002164105))}}
-					- {{embed ((667992b0-0c2b-4343-9c1a-9c7e5e4ada50))}}
-					- {{embed ((667992b0-0de4-46c7-a490-296854304e56))}}
-				- #### {{button project focus,expand-projects,f00e,full-width-secret}}
-				  collapsed:: true
-				  {{embed ((664f42a4-40eb-44ba-8e8c-89dba2c17a06))}}
-					- {{nested-code-block}}
-					  collapsed:: true
-						- expand-projects:
-						  ```js
-						  logseq.api.set_block_collapsed(this.target_uuid, "toggle")
-						  ```
-					- {{embed ((6654b591-49ea-4d3a-b9d9-1dc4f25bab0c))}}
-				- #### {{i ea53}}  upcoming appointment {{nextAppointment}}
-				  collapsed:: true
-				  {{embed ((664e4055-3b72-4ba1-ac8b-48e34544629c))}}
-					- {{embed ((66415ca6-d397-4fc1-97f1-95f7b516e6d1))}}
 - ## {{i fab5}} block templates
   for repeatable structures that could go anywhere.
-	- ### {{I f499}} collector blocks
+	- #### {{I f499}} collector blocks
 	  collapsed:: true
-	  layouts *w/* icons & links
-		- #### {{i ef11}} Numbered list
-		  collapsed:: true
-		  */x list*
-			- #### {{i ef11}} Numbered list
-			  *->* `x list`
-			  {{i ea9b}}#query-placeholder `:template` *from child block*
+		- {{i ef11}} Numbered list
+			- ### {{i-example}} examples
+			- ### {{i-template}} template
+			  template:: block, numbered list
+			  template-including-parent:: false
 				- *list name*
-				  template:: x list
 				  {{i ef11}} #list
 					- logseq.order-list-type:: number
-	- ### {{i ef91}} project management
-	   *namespace* `/project -`
-		- #### {{i-coding}} coding iteration
+	- #### {{i ef91}} project management
+		- {{i-coding}} coding iteration
 		  id:: 66818163-8a53-447b-a959-0ae93dde245f
 		  collapsed:: true
-		  *w/ feature goal, scope, result, final code*
-		    ![image.png](../assets/image_1719949398805_0.png){:height 178, :width 216}
+			- *w/ feature goal, scope, result, final code*
+			  collapsed:: true
+			    ![image.png](../assets/image_1719949398805_0.png){:height 178, :width 216}
 			- ### {{i-template}} template
-			  template:: project - coding iteration
+			  template:: project, coding iteration
 			  template-including-parent:: false
 			  collapsed:: true
 				- ### {{i f6af}} iteration: title of work
@@ -194,15 +46,16 @@ description:: `/template`s with boilerplate for collector blocks, page tags, dai
 						- ```
 						  
 						  ```
-		- #### {{i f6ef}} depreciate block
+		- {{i f6ef}} depreciate block
 		  collapsed:: true
-		  ![image.png](../assets/image_1719951269675_0.png){:height 76, :width 307}
+			- ![image.png](../assets/image_1719951269675_0.png){:height 76, :width 307}
 			- ### {{i-template}} template
-			  template:: project - depreciate block
+			  template:: project, depreciate block
 			  template-including-parent:: false
 				- ### {{i f6ef}}  depreciation warning
-					- {{i ea0b}}  This block was [[archived]] on / today
-					- -> See the main project page for all project management activities
+				  collapsed:: true
+				      this block is no longer in use
+					- {{i ea0b}} *depreciated on* *<% today %>*
 		- *older stuff*
 		  collapsed:: true
 			- ##### project management
@@ -262,64 +115,167 @@ description:: `/template`s with boilerplate for collector blocks, page tags, dai
 				- #### current template notes
 					- ref to: ((65fb267e-8199-4ada-95e3-2232fa2d2190))
 					-
-	- {{i-template}} template page **template starter**
+	- {{i-conversation}} advanced query conversation
 	  collapsed:: true
-	  *template & examples headers*
+		- **w/ prompt & response**
+		- ### {{i-example}} samples
+			- ((6678932d-b247-4894-af50-3c3161cfbec4))
 		- ### {{i-template}} template
-		  template:: template page template
+		  template:: block, advanced query conversation
 		  template-including-parent:: false
-			- {{i }} title
-			  **
-				- ### {{i-example}} examples
-				- ### {{i-template}} template
-				  template :: 
-				  template-including-parent :: false
-					-
-	- {{i-conversation}} llm **advanced query** **conversation**
-	  collapsed:: true
-	  *w/ prompt & response*
-		- ### {{i-template}} template
-			- llm advanced-query conversation (Originally used [here](((6678932d-b247-4894-af50-3c3161cfbec4))))
-			  template:: llm advanced-query development
-			  template-including-parent:: false
+			- {{chat with,http://}}
 				- **Result**: 
 				  *
 				  *
 				  
 				  (*sample*):
-					- **Prompt** given to claude
-						- >
-					- **Response**
-						- **Result**
-							- ```edn
-							  
-							  ```
-						- **Advanced query**
-							- ```clojure
-							  
-							  ```
-	- {{i ebba}} agenda **event card**
+			- **Prompt** given to claude
+				- >
+			- **Response**
+				- **Result**
+					- ```edn
+					  
+					  ```
+				- **Advanced query**
+					- ```clojure
+					  
+					  ```
+	- {{i ebba}} agenda event card
 	  collapsed:: true
-	  *for appointments and events*
+		- *for appointments and events*
 		- ### {{i-example}} examples
 		- ### {{i-template}} template
-		  template:: agenda event card - blank
+		  template:: block, agenda event card
 		  template-including-parent:: false
 			- event :: 
 			  activity :: 
 			  with :: 
+			  location ::
 			  date ::
+			  time ::
+	- {{i eb25}} online order
+	  collapsed:: true
+		- ### {{i-template}} template
+		  template:: logseq, online order 
+		  template-including-parent:: false
+			- TODO ^_^
+			  {{i eb25}} [[online order]] with **retailer**:
+				- {{i ee20}} Est. delivery:
+				- {{il ebc4,0000,http://}}
+				- {{i eaff}} Date shipped:
+				- {{i eb67}} Order number: [\#]()
+				- {{i eb6b}} Bill of goods:
+				  | Item | Qty |
+				  |---|---|
+				-
+	- {{i-template}} logseq template
+		- *template & examples headers*
+		- ### {{i-template}} template
+		  template:: block, logseq template
+		  template-including-parent:: false
+			- {{i }} title
+				- **
+				- ### {{i-example}} samples
+				- ### {{i-template}} template
+				  collapsed:: true
+				  template :: 
+				  template-including-parent :: false
+					-
 - ## {{i ed2b}} page templates
   *w/* common {{i-properties}} property sets & {{i ef94}} block structure
-	- **food item** page
+	- #### {{i eb96}} Daily journal
+	  id:: 6644f008-299c-43c2-9c36-d9ab220bd4f3
+		- {{i eaad}} Organization blocks
+		  collapsed:: true
+			- ### {{i-example}} samples
+			- ### {{i-template}} template
+			  template:: logseq, organization blocks
+			  template-including-parent:: false
+				-
+		- {{i ec45}} Doing block
+		  collapsed:: true
+			- ### {{i-example}} samples
+			- ### {{i-template}} template
+			  template:: logseq, doing blocks
+			  template-including-parent:: false
+				- #### {{i ec45}} **Doing** today
+				  id:: 6666f9b1-219c-4c0c-879f-eb0dd5ea687f
+				  collapsed:: true
+				  {{button do,do,ec45,long}}
+				  
+				  {{button '',fridge,f1fa}}  {{button '',computer,ea89}}  {{button '',wash,ef48}}
+					- {{nested-code-block}}
+					  collapsed:: true
+						- do:
+						  ```js
+						  (() => {
+						  const content = "";
+						  const options = { sibling:false, before:false, focus:true }
+						  logseq.api.insert_block(this.target_uuid, content, options);
+						  })();
+						  ```
+						  
+						  fridge:
+						  ```js
+						  (() => {
+						  const content = "{{i-fridge}}  ";
+						  const options = { sibling:false, before:false, focus:true }
+						  logseq.api.insert_block(this.target_uuid, content, options);
+						  })();
+						  ```
+						  
+						  computer:
+						  ```js
+						  (() => {
+						  const content = "{{i-computer}} ";
+						  const options = { sibling:false, before:false, focus:true }
+						  logseq.api.insert_block(this.target_uuid, content, options);
+						  })();
+						  ```
+						  
+						  wash:
+						  ```js
+						  (() => {
+						  const content = "{{i-wash}} ";
+						  const options = { sibling:false, before:false, focus:true }
+						  logseq.api.insert_block(this.target_uuid, content, options);
+						  })();
+						  ```
+		- {{i eafd}} news
+		  collapsed:: true
+			- ### {{i-example}} samples
+			- ### {{i-template}} template
+			  template :: 
+			  template-including-parent :: false
+				- ##### {{i eafd}}  news
+				  collapsed:: true
+					- {{embed ((66415d9e-5591-4219-bc68-eb54393bccff))}}
+	- {{i f5a5}} location
 	  collapsed:: true
-	  *w/ nutritonal fact tool structure*
 		- ### {{i-example}} examples
+			- [[.Snowdon Pharmacy]]
+		- ### {{i-template}} template
+		  template:: page, location
+		  template-including-parent:: false
+			- ### {{i ea70}} Business Hours
+				- *Mon-Fri*: am-pm
+				- *Sat*: am-pm
+				- *Sun*: **closed**
+			- ### {{i eb09}} Contact information
+				- *Phone*: () -
+				- *Fax*: () -
+			- ### {{i ebf2}} Contacts
+				- Name, *title*
+	- {{i ef14}} food item
+	  collapsed:: true
+		- *w/ nutritonal fact tool structure*
+		- ### {{i-example}} examples
+		  collapsed:: true
 			- [[oat]]
 			- {{i ea9b}}#query-placeholder `:block/name` *:where* `[:block/properties [:tags "food item"]]`
 		- ### {{i-template}} template
 		  id:: 666f76e0-09c0-4695-b66d-42c727c5a003
-		  template:: food item
+		  template:: page, food item
 		  template-including-parent:: false
 		  collapsed:: true
 			- tags:: food-item
@@ -335,12 +291,12 @@ description:: `/template`s with boilerplate for collector blocks, page tags, dai
 					-
 				- ## [[Minerals]]
 					-
-	- **clojureScript function** documentation
+	- {{i f4e6}} function documentation
 	  collapsed:: true
-	  *syntax & examples*
+		- *syntax & examples*
 		- ### {{i-example}} examples
 		- ### {{i-template}} template
-		  template:: clojureScript docs
+		  template:: page, code function documentation
 		  template-including-parent:: false
 			- *function/macro*
 				- [full details >]()
@@ -353,15 +309,66 @@ description:: `/template`s with boilerplate for collector blocks, page tags, dai
 				- ```clojure
 				  
 				  ```
-	- logseq **collector** page 
+	- {{i ea47}} logseq collector
 	  collapsed:: true
-	  *:tags "collector"*
-		- template:: collector page boilerplate
+		- *:tags "collector"*
+		- template:: page, logseq collector
 		  template-including-parent:: false
 			- tags:: collector
 			  description:: 
 			  collector:: [[]]
 - ---
+- {{I ec9e}} Journal buddies
+  id:: 662becda-117c-4bed-a4e7-d27b7cd1b6f3
+	- ### {{i-template}} template
+	  id:: 65fb3d58-f121-4f03-a702-fbc3e6e5c98c
+	  template:: Event header for daily journal
+	  template-including-parent:: false
+		- ### {{journalBuddy}} Journal buddies
+			- {{kitButton '',doingWidget,ec45}}  {{kitButton '',journalOrganizationBlocks,eaad}}  {{kitButton '',journalGroceryWidget,eb25 f21c}}  {{button '',add-online-order,eaff}}
+				- [:small "daily reminders"]
+				  id:: 6666f9b1-6202-4537-aa84-b40852fa720a
+				- TODO {{i ef63}} Take medication
+				  id:: 65fdfbf2-818e-404e-9d60-7f941f29bf34
+				  {{scheduleDateToday collapse}}
+				- {{button '',expand-online-order,eaff}}  {{button order,add-online-order,eb0b}}
+				  collapsed:: true
+					- {{nested-code-block}}
+					  collapsed:: true
+						- expand-online-order:
+						  ```js
+						  logseq.api.set_block_collapsed(this.target_uuid, "toggle")
+						  ```
+						  
+						  add-online-order:
+						  ```js
+						  journalHelper(this, 'onlineOrder');
+						  ```
+					- {{embed ((663f79d8-20d7-4027-9ff5-500ae36ff757))}}
+					- #### awaiting delivery of {{i eaff}} {{openOrders words}}
+					- {{embed ((667992b3-a3a3-4a1e-9b93-71061bc4896c))}}
+			- {{i eaff}} {{openOrders}} {{i eb25}} (8) {{i f21c}} (3)
+				- {{kitButton grocery list,collapseBlock,f21c,-button-style full-width}}
+				  collapsed:: true
+					- {{embed ((6682d241-16ee-4991-bf3f-85c90add7dbd))}}
+				- {{kitButton shopping list,collapseBlock,eb25,-button-style full-width}}
+				  collapsed:: true
+					- {{embed ((6644ee82-6e4e-4936-af4f-8a47ece6985d))}}
+					- {{embed ((667992b3-de9e-4570-86f5-5beffb1686a0))}}
+			- #### {{button project focus,expand-projects,f00e,full-width-secret}}
+			  collapsed:: true
+			  {{embed ((664f42a4-40eb-44ba-8e8c-89dba2c17a06))}}
+				- {{nested-code-block}}
+				  collapsed:: true
+					- expand-projects:
+					  ```js
+					  logseq.api.set_block_collapsed(this.target_uuid, "toggle")
+					  ```
+				- {{embed ((6654b591-49ea-4d3a-b9d9-1dc4f25bab0c))}}
+			- #### {{i ea53}}  upcoming appointment {{nextAppointment}}
+			  collapsed:: true
+			  {{embed ((664e4055-3b72-4ba1-ac8b-48e34544629c))}}
+				- {{embed ((66415ca6-d397-4fc1-97f1-95f7b516e6d1))}}
 - ### {{i eb8e}} Lost templates
   query:: ((65ff0dba-73e5-4e18-b24d-e3647f09eb31))
   collapsed:: true
@@ -399,7 +406,7 @@ description:: `/template`s with boilerplate for collector blocks, page tags, dai
 				  *
 		- ### Experiments
 		  collapsed:: true
-			-
+			- /
 				- Title
 				  variable::
 				  values::
@@ -427,18 +434,17 @@ description:: `/template`s with boilerplate for collector blocks, page tags, dai
 						- **Subject B**
 							-
 	- ### Saving
-	  collapsed:: true
 	  Resources (bookmarks)
 		- #### Video bookmark
 		  
-		  template-including-parent:: false
+		  template-including-parent\:\: false
 			- {{I ed22}} **
 			  resource:: video
 			  author:: [
 			  url::
 		- #### Repository bookmark
 		  
-		  template-including-parent:: false
+		  template-including-parent\:\: false
 			- **
 			  resource:: repository
 			  author:: author

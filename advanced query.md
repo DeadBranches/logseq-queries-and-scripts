@@ -975,7 +975,8 @@ repository:: DeadBranches/logseq-queries-and-scripts
 			  :in $ ?today
 			  :where
 			  [?b :block/properties ?props]
-			  [(get ?props :activity) ?activity] 
+			  [(get 
+			  ?props :activity) ?activity] 
 			  ;[(contains? ?activity "ocrevus infusion")] 
 			  [?e :block/properties ?props]
 			  [(get ?props :event) ?event]
@@ -2128,6 +2129,7 @@ repository:: DeadBranches/logseq-queries-and-scripts
 		  *as a table*
 			- {{embed ((66785bca-acd2-4401-95e2-32efb961ccb3))}}
 		- Conversational analyses
+		  collapsed:: true
 			- ((66749df3-627b-4ef6-8e5d-88f843e2ccbc))
 			  collapsed:: true
 				- {{embed ((66749df3-627b-4ef6-8e5d-88f843e2ccbc))}}
@@ -2137,6 +2139,7 @@ repository:: DeadBranches/logseq-queries-and-scripts
 		  collapsed:: true
 			- {{embed ((66749df3-8843-473e-bfe7-d32bfce93215))}}
 - ## {{i eb6d}}  concept snippets
+  collapsed:: true
   advanced queries labeled by use case
 	- ### :rules
 	  *clause expressions*
@@ -2175,8 +2178,10 @@ repository:: DeadBranches/logseq-queries-and-scripts
 			  ```
 		- pull blocks with a specific **macro reference**
 		  id:: 6638f4e8-101f-4d66-8aa5-0782d73d32f7
+		  collapsed:: true
 		  {{button copy,copy_second_sibling,ea6f,long squat}}
 			- {{nested-code-block}}
+			  collapsed:: true
 				- copy_second_sibling:
 				  ```js
 				  const second_child = logseq.api.get_next_sibling_block(this.nestedMacroUuid);
@@ -2476,6 +2481,7 @@ repository:: DeadBranches/logseq-queries-and-scripts
 			    [?b :block/refs ?pb]]}   ; and blocks reference it
 			  ```
 - ## {{i eb6e}} My functions
+  collapsed:: true
   for `:result-transform` and `:view` clauses
 	- ### {{i f38e}} `:result-transform` functions
 		- #### Sort by journal day

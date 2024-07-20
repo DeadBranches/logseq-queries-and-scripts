@@ -1,7 +1,8 @@
 kit:: kitButton [label] <kit-name> [icon] [positive-class | {-inline | -button-style | -button-shape | -hover | -active}] | [arguments]
 description:: kitButton [label] <kit-name> [icon] [positive-class | {-inline | -button-style | -button-shape | -hover | -active}] | [arguments]
 
-- ```javascript
+- collapsed:: true
+  ```javascript
   logseq.kits.setStatic(function kitButton(div) {
     //console.log("kitButton function initiated");
     const buttonBaseClass = "kit run inline button-style button-shape hover active";
@@ -127,13 +128,13 @@ description:: kitButton [label] <kit-name> [icon] [positive-class | {-inline | -
 	  {{kitButton hi,testkit,f3f3,-button-style flex-grow-2}} {{kitButton hi,testkit,f3f3,-button-style flex-grow-1}}
 	- Just text
 	  {{i f3f3}} hi
-- Kit style expression test
-	- +bold-nth-word
-	  {{kitButton hi mom,testkit,f3f3,-button-style full-width flex-grow-1 +bold-nth-word:1}}
-	- #### {{kitButton hi mom,testkit,f3f3,-button-style full-width flex-grow-1 +bold-nth-word:2}}
-- Kit and kit arguments tests
-	- parent
-		- self
-		  collapsed:: true
-		  {{kitButton label,collapseBlock,'','',['target': 'parent']}}
-			- child
+	- Kit style expression test
+		- +bold-nth-word
+		  {{kitButton hi mom,testkit,f3f3,-button-style full-width flex-grow-1 +bold-nth-word:1}}
+		- #### {{kitButton hi mom,testkit,f3f3,-button-style full-width flex-grow-1 +bold-nth-word:2}}
+	- Kit and kit arguments tests
+		- parent
+			- self
+			  collapsed:: true
+			  {{kitButton label,collapseBlock,'','',['target': 'parent']}}
+				- child

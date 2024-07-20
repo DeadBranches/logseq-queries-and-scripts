@@ -5,7 +5,11 @@ repository:: DeadBranches/logseq-queries-and-scripts
 
 - #### {{i-inbox}} Logseq inbox
   id:: 660c8b4b-be82-4019-943b-dfabdb2c7161
+- ## Useful things
+	- Logseq config.edn template -> {{i-github}} [logseq/logseq](https://github.com/logseq/logseq/blob/4374741afd9add1716da62b3bf6466cffa5be082/src/resources/templates/config.edn#L4)
+		- My local version last drawn from commit [`26d255d`](https://github.com/logseq/logseq/commit/26d255d0b1a065fa66c135b0fbe4d7270b55e1b5)
 - ## {{i ef0c}} my custom.js functions
+  collapsed:: true
   For use in button blocks
 	- ### daysBetween( str, str ) -> *int*
 	  collapsed:: true
@@ -67,7 +71,7 @@ repository:: DeadBranches/logseq-queries-and-scripts
 	- **copy code fence content** from button's **second child**
 	  collapsed:: true
 		- {{button copy,copy_second_sibling,ea6f,long squat}}
-		  template:: button - copy second sibling code block content
+		  template:: tool, copy second sibling code block content button
 			- {{nested-code-block}}
 			  collapsed:: true
 				- copy_second_sibling:
@@ -88,7 +92,7 @@ repository:: DeadBranches/logseq-queries-and-scripts
 	- #### Tool: Logseq block spy
 	  collapsed:: true
 		- {{button spy,spy,''}}
-		  template:: button - block spy
+		  template:: tool, block spy
 		  collapsed:: true
 			- blocks
 			  spy:
@@ -949,7 +953,6 @@ repository:: DeadBranches/logseq-queries-and-scripts
 		  
 		  Consider posting here your case of using this functionality, to inspire other users.
 	- #### Childless block embeds
-	  collapsed:: true
 	  {{il eb02,Embed blocks without their children,https://discuss.logseq.com/t/embed-blocks-without-their-children/21713}}
 		- Preparation:
 			- Add a macro inside file `config.edn` , inside `macros{}` :
@@ -957,7 +960,7 @@ repository:: DeadBranches/logseq-queries-and-scripts
 			  ```
 			  :childlessembed "<div class='kit embed-block color-level' data-kit='childlessembed' data-uuid='$1'>$1</div>"
 			  ```
-			- The code below requires having [kits  13](https://discuss.logseq.com/t/edit-and-run-javascript-code-inside-logseq-itself/20763)inside file `custom.js` .
+			- The code below requires having [kits](https://discuss.logseq.com/t/edit-and-run-javascript-code-inside-logseq-itself/20763) inside file `custom.js` . #kits
 			- Inside page `ChildlessEmbed` in Logseq, put the following code in a javascript code-block:
 			  
 			  ```
@@ -1428,9 +1431,13 @@ repository:: DeadBranches/logseq-queries-and-scripts
   collapsed:: true
   Used in this page
 	- for ((65f5d381-8e00-4e19-bdbf-95727eb6a07e))
-	  template:: buttoner - new logseq api reference
-	  template-including-parent:: false
 	  collapsed:: true
+	  template\:\: buttoner - new logseq api reference
+	  template-including-parent\:\: false
+		- ### {{i f6ef}}  depreciation warning
+		  collapsed:: true
+		      this block is no longer in use
+			- {{i ea0b}} *depreciated on* *[[Wednesday, Jul 17th, 2024]]*
 		- {{button xxx,implementation_code,ea6f,long}}  `xxx`
 		  collapsed:: true
 			- implementation_code:
