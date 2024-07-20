@@ -1,8 +1,7 @@
 kit:: kitButton [label] <kit-name> [icon] [positive-class | {-inline | -button-style | -button-shape | -hover | -active}] | [arguments]
 description:: kitButton [label] <kit-name> [icon] [positive-class | {-inline | -button-style | -button-shape | -hover | -active}] | [arguments]
 
-- collapsed:: true
-  ```javascript
+- ```javascript
   logseq.kits.setStatic(function kitButton(div) {
     //console.log("kitButton function initiated");
     const buttonBaseClass = "kit run inline button-style button-shape hover active";
@@ -39,9 +38,8 @@ description:: kitButton [label] <kit-name> [icon] [positive-class | {-inline | -
           const [expressionName, argumentValue] = className.slice(1).split(":");
           styleExpressions[expressionName] = argumentValue || false;
           console.log(`Added ${expressionName}: ${styleExpressions[expressionName]} to styleExpressions object`);
-          console.log(JSON.stringify(styleExpressions));
         }
-         else {
+        else {
           styleClassNames.push(className);
         }
       });
@@ -57,6 +55,9 @@ description:: kitButton [label] <kit-name> [icon] [positive-class | {-inline | -
     }
   
     let buttonLabel = sanitizeAttribute(div.dataset.buttonLabel);
+    console.log('styleExpressions:', styleExpressions);
+    console.log('buttonLabel before processing:', buttonLabel);
+    console.log('bold-nth-word in styleExpressions:', 'bold-nth-word' in styleExpressions);
     let labelWordArray;
     if ('bold-nth-word' in styleExpressions) {
       const boldWordIndex = styleExpressions['bold-nth-word'] ?
@@ -68,16 +69,12 @@ description:: kitButton [label] <kit-name> [icon] [positive-class | {-inline | -
       buttonLabel = labelWordArray.join(" ");
     }
   
-    // if ('bold-nth-word' in styleExpressions) {
-    //   console.log("bold-nth-word found in styleExpressions");
-    //   // The value can be either false or an integer represeting a word position
-    //   const boldWordIndex = styleExpressions['bold-nth-word'] ? 
-    //     parseInt(styleExpressions['bold-nth-word'])-1 : 0;
-    //   const labelWordArray = buttonLabel.split(" ").map((word, index) => {
-    //     return index === boldWordIndex ? `<span class="bold">${word}</span>` : word
-    //   })
-    // }
-    buttonLabel = labelWordArray ? labelWordArray.join(" ") : buttonLabel;
+  
+    //buttonLabel = labelWordArray ? labelWordArray.join(" ") : buttonLabel;
+  
+    // Add the code block here
+     console.log('buttonLabel after processing:', JSON.stringify(buttonLabel)); 
+    console.log('labelWordArray:', labelWordArray);
     /**
      * To support icon-only buttons, use a data-attribute indicating the presence of a text
      * label or icon glyph. Thus, whitespace can be intelligently included to pad text and 
@@ -99,6 +96,15 @@ description:: kitButton [label] <kit-name> [icon] [positive-class | {-inline | -
   });
   ```
 	- {{evalparent}}
+-
+	-
+	-
+	- {{evalparent}}
+	- {{}}
+	-
+	- {{kitButton hi,testkit,hi,+bold-nth-word:3,hi}}
+	- {{kitButton hi}}
+	-
 - Kit button variations
 	- Icon only, full width.
 	  *-button-style full-width*
@@ -130,7 +136,10 @@ description:: kitButton [label] <kit-name> [icon] [positive-class | {-inline | -
 	  {{i f3f3}} hi
 	- Kit style expression test
 		- +bold-nth-word
+		- {{kitButton hi mom,testkit,f3f3,-button-style full-width flex-grow-1 +bold-nth-word}}
+		- +bold-nth-word:1
 		  {{kitButton hi mom,testkit,f3f3,-button-style full-width flex-grow-1 +bold-nth-word:1}}
+		- +bold-nth-word:2
 		- #### {{kitButton hi mom,testkit,f3f3,-button-style full-width flex-grow-1 +bold-nth-word:2}}
 	- Kit and kit arguments tests
 		- parent
