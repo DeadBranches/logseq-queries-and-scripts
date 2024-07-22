@@ -328,9 +328,9 @@ description:: `/template`s with boilerplate for collector blocks, page tags, dai
 			- {{kitButton '',doingWidget,ec45}}  {{kitButton '',journalOrganizationBlocks,eaad}}  {{kitButton '',journalGroceryWidget,eb25 f21c}}  {{button '',add-online-order,eaff}}
 				- [:small "daily reminders"]
 				  id:: 6666f9b1-6202-4537-aa84-b40852fa720a
-				- TODO {{i ef63}} Take medication
-				  id:: 65fdfbf2-818e-404e-9d60-7f941f29bf34
-				  {{scheduleDateToday collapse}}
+					- TODO {{i ef63}} Take medication
+					  id:: 65fdfbf2-818e-404e-9d60-7f941f29bf34
+					  {{scheduleDateToday collapse}}
 				- {{button '',expand-online-order,eaff}}  {{button order,add-online-order,eb0b}}
 				  collapsed:: true
 					- {{nested-code-block}}
@@ -347,7 +347,8 @@ description:: `/template`s with boilerplate for collector blocks, page tags, dai
 					- {{embed ((663f79d8-20d7-4027-9ff5-500ae36ff757))}}
 					- #### awaiting delivery of {{i eaff}} {{openOrders words}}
 					- {{embed ((667992b3-a3a3-4a1e-9b93-71061bc4896c))}}
-			- {{i eaff}} {{openOrders}} {{i eb25}} (8) {{i f21c}} (3)
+			- {{i eaff}} {{openOrderCount}}  {{i eb25}} {{groceryItemCount}}  {{i f21c}} {{shoppingItemCount}}
+			  collapsed:: true
 				- {{kitButton grocery list,collapseBlock,f21c,-button-style full-width}}
 				  collapsed:: true
 					- {{embed ((6682d241-16ee-4991-bf3f-85c90add7dbd))}}
@@ -355,17 +356,12 @@ description:: `/template`s with boilerplate for collector blocks, page tags, dai
 				  collapsed:: true
 					- {{embed ((6644ee82-6e4e-4936-af4f-8a47ece6985d))}}
 					- {{embed ((667992b3-de9e-4570-86f5-5beffb1686a0))}}
-			- #### {{button project focus,expand-projects,f00e,full-width-secret}}
+			- #### {{kitButton project focus,collapseBlock,f00e,-button-style full-width}}
 			  collapsed:: true
 			  {{embed ((664f42a4-40eb-44ba-8e8c-89dba2c17a06))}}
-				- {{nested-code-block}}
-				  collapsed:: true
-					- expand-projects:
-					  ```js
-					  logseq.api.set_block_collapsed(this.target_uuid, "toggle")
-					  ```
-				- {{embed ((6654b591-49ea-4d3a-b9d9-1dc4f25bab0c))}}
-			- #### {{i ea53}}  upcoming appointment {{nextAppointment}}
+				- *projects in the wings*
+				  {{embed ((6654b591-49ea-4d3a-b9d9-1dc4f25bab0c))}}
+			- #### {{kitButton upcoming appointment |nextAppointment|,collapseBlock,ea53,-button-style full-width}}
 			  collapsed:: true
 			  {{embed ((664e4055-3b72-4ba1-ac8b-48e34544629c))}}
 				- {{embed ((66415ca6-d397-4fc1-97f1-95f7b516e6d1))}}
