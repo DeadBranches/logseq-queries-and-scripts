@@ -46,16 +46,6 @@ description:: `/template`s with boilerplate for collector blocks, page tags, dai
 						- ```
 						  
 						  ```
-		- {{i f6ef}} depreciate block
-		  collapsed:: true
-			- ![image.png](../assets/image_1719951269675_0.png){:height 76, :width 307}
-			- ### {{i-template}} template
-			  template:: project, depreciate block
-			  template-including-parent:: false
-				- ### {{i f6ef}}  depreciation warning
-				  collapsed:: true
-				      this block is no longer in use
-					- {{i ea0b}} *depreciated on* *<% today %>*
 		- *older stuff*
 		  collapsed:: true
 			- ##### project management
@@ -168,10 +158,20 @@ description:: `/template`s with boilerplate for collector blocks, page tags, dai
 				  | Item | Qty |
 				  |---|---|
 				-
-	- {{i-template}} logseq template
+	- #### Logseq-related
+	- {{i f6ef}} depreciate logseq block
+		- ![image.png](../assets/image_1719951269675_0.png){:height 76, :width 307}
+		- ### {{i-template}} template
+		  template:: logseq, depreciate content
+		  template-including-parent:: false
+			- ### {{i f6ef}}  depreciation warning
+			  collapsed:: true
+			      this block is no longer in use
+				- {{i ea0b}} *depreciated on* *<% today %>*
+	- {{i-template}} logseq *template page* structure
 		- *template & examples headers*
 		- ### {{i-template}} template
-		  template:: block, logseq template
+		  template:: logseq, logseq template template
 		  template-including-parent:: false
 			- {{i }} title
 				- **
@@ -189,14 +189,14 @@ description:: `/template`s with boilerplate for collector blocks, page tags, dai
 		  collapsed:: true
 			- ### {{i-example}} samples
 			- ### {{i-template}} template
-			  template:: logseq, organization blocks
+			  template:: logseq, organization helper
 			  template-including-parent:: false
 				-
 		- {{i ec45}} Doing block
 		  collapsed:: true
 			- ### {{i-example}} samples
 			- ### {{i-template}} template
-			  template:: logseq, doing blocks
+			  template:: logseq, doing helper
 			  template-including-parent:: false
 				- #### {{i ec45}} **Doing** today
 				  id:: 6666f9b1-219c-4c0c-879f-eb0dd5ea687f
@@ -325,7 +325,7 @@ description:: `/template`s with boilerplate for collector blocks, page tags, dai
 	  template:: Event header for daily journal
 	  template-including-parent:: false
 		- ### {{journalBuddy}} Journal buddies
-			- {{kitButton '',doingWidget,ec45}}  {{kitButton '',journalOrganizationBlocks,eaad}}  {{kitButton '',journalGroceryWidget,eb25 f21c}}  {{button '',add-online-order,eaff}}
+			- {{kitButton '',doingWidget,ec45}}  {{kitButton '',journalOrganizationBlocks,eaad}}  {{kitButton '',purchaseHolderComponent,eb25 f21c}}  {{button '',add-online-order,eaff}}
 				- [:small "daily reminders"]
 				  id:: 6666f9b1-6202-4537-aa84-b40852fa720a
 					- TODO {{i ef63}} Take medication
@@ -367,7 +367,6 @@ description:: `/template`s with boilerplate for collector blocks, page tags, dai
 				- {{embed ((66415ca6-d397-4fc1-97f1-95f7b516e6d1))}}
 - ### {{i eb8e}} Lost templates
   query:: ((65ff0dba-73e5-4e18-b24d-e3647f09eb31))
-  collapsed:: true
   Templates located on other pages
 	- #+BEGIN_QUERY
 	  {:query
