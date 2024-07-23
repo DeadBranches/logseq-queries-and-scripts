@@ -1,12 +1,8 @@
-kit:: runpage journalGroceryWidget
-description:: (depreciated). invoke from a button press to add a new grocery item to the current journal page.
+kit:: kitButton purchaseHolderComponent
+description:: (formerly journalGroceryWidget). Add a purchase manager to the current journal page.
 
-- ### {{i f6ef}}  depreciation warning
-  collapsed:: true
-      this block is no longer in use
-	- {{i ea0b}} *depreciated on* *[[Tuesday, Jul 23rd, 2024]]*
 - ```javascript
-  logseq.kits.journalGroceryWidget = journalGroceryWidget;
+  logseq.kits.purchaseHolderComponent = purchaseHolderComponent;
   
   async function get_block_content(uuid) {
     let component_uuid = uuid
@@ -17,7 +13,7 @@ description:: (depreciated). invoke from a button press to add a new grocery ite
     return component
   }
   
-  async function journalGroceryWidget(el, mode = 'process') {
+  async function purchaseHolderComponent(el, mode = 'process') {
     const me = event.target.closest('.ls-block');
     const parentBlockId = me.parentElement.closest('.ls-block').getAttribute("blockId");
   
@@ -86,10 +82,8 @@ description:: (depreciated). invoke from a button press to add a new grocery ite
       }
       //const firstBlockWithMacroUUID = blocksContainingMacro[0].uuid
   
-  
-  
   }
-  journalGroceryWidget(null, 'plaintext')
+  purchaseHolderComponent(null, 'plaintext')
   ```
 	- {{evalparent}}
 - {{kitButton purchase list,collapseBlock,ef49,-button-style full-width bold}}
@@ -98,5 +92,6 @@ description:: (depreciated). invoke from a button press to add a new grocery ite
   {{kitButton '',insertListItem,eb0b eb25}} {{kitButton '',insertListItem,eb0b f21c}}
   {grocery-holder}}
 - # Changes
-- [[Tuesday, Jul 23rd, 2024]] **DEPRECIATION**. This kit is now depreciated in favour of [[purchaseHolderComponent]], which is simply a rename of this macro. This macro still exists to maintain backwards compatability
+- [[Tuesday, Jul 23rd, 2024]] **BREAKING**: Added purchaseHolderComponent and depreciated [[journalGroceryWidget]]
 - [[Tuesday, Jul 23rd, 2024]] **BREAKING**: changed grocery-holder macro to purchase-holder.
+-
