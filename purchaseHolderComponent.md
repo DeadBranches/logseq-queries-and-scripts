@@ -6,7 +6,7 @@ description:: (formerly journalGroceryWidget). Add a purchase manager to the cur
   
   async function get_block_content(uuid) {
     let component_uuid = uuid
-    let component_block = logseq.api.get_block(component_uuid).content;
+    let component_block = await logseq.api.get_block(component_uuid).content;
     // Logseq blocks include an id property if the block has been referenced.
     const regexPattern = /\nid::\s(?:[\d\w]{4,8}-){4}[\d\w]{12}/gm;
     const component = component_block.replace(regexPattern, '');
@@ -18,10 +18,10 @@ description:: (formerly journalGroceryWidget). Add a purchase manager to the cur
     const parentBlockId = me.parentElement.closest('.ls-block').getAttribute("blockId");
   
     const MACRO_NAME = "purchase-holder";
-    const COMPONENT_UUID = "66913332-10d5-4554-a4ea-70380475cd0d";
+    const COMPONENT_UUID = "668d8204-6acc-4734-8754-d2da142826c0";
     const BATCH_BLOCK_CONTENT = [
       { 
-        content: "{{kitButton purchase list,collapseBlock,ef49,-button-style full-width bold}}\n{{kitButton '',insertListItem,eb0b eb25,squat,grocery}}   {{kitButton '',insertListItem,eb0b f21c,squat,shopping}}\n {{purchase-holder}}"
+        content: `${await get_block_content(COMPONENT_UUID)}`
   }
     ];
   
@@ -86,11 +86,19 @@ description:: (formerly journalGroceryWidget). Add a purchase manager to the cur
   purchaseHolderComponent(null, 'plaintext')
   ```
 	- {{evalparent}}
-- {{kitButton purchase list,collapseBlock,ef49,-button-style full-width bold}}
-  {{kitButton '',insertListItem,eb0b eb25,squat,grocery}}   {{kitButton '',insertListItem,eb0b f21c,squat,shopping}} {{grocery-holder}}
+- #### {{kitButton purchase list,collapseBlock,ef49,-button-style full-width +bold-nth-word}}
+  {{kitButton '',insertListItem,eb0b eb25,squat,grocery}}   {{kitButton '',insertListItem,eb0b f21c,squat,shopping}}
+    {{grocery-holder}}
+-
 - {{kitButton purchase list,collapseBlock,ef49,full-width-secret}}
   {{kitButton '',insertListItem,eb0b eb25}} {{kitButton '',insertListItem,eb0b f21c}}
   {grocery-holder}}
+- # Components
+- Purchase holder UI component
+  *location: logseq-journal-buddy/uicomponents/* ((668bfa16-f000-4381-80b7-155ed5ebe7f1))
+	- {{embed ((668d8204-6acc-4734-8754-d2da142826c0))}}
+- (related: comonent buttons that call purchase holder)
+	- {{embed ((66913332-10d5-4554-a4ea-70380475cd0d))}}
 - # Changes
 - [[Tuesday, Jul 23rd, 2024]] **BREAKING**: Added purchaseHolderComponent and depreciated [[journalGroceryWidget]]
 - [[Tuesday, Jul 23rd, 2024]] **BREAKING**: changed grocery-holder macro to purchase-holder.
