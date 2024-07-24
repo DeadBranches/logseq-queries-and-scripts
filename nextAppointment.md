@@ -4,14 +4,17 @@ description:: Replace-macro that returns the number of days until the next appoi
 
 - ```javascript
   logseq.kits.setStatic(function nextAppointment(div) {
-    const blockId = div.closest(".ls-block").getAttribute("blockid");
-    const block = logseq.api.get_block(blockId);
-    const content = block.content;
+    /**
+     * @returns {number} 
+     * -1 if there is no future appointments, 
+     * 0 if the next appointment is today, 
+     * int the number of days until the next appointment if it's in the future
+     */
   
-    const macroStart = content.indexOf("{{" + div.closest(".macro").dataset.macroName);
-    const macroEnd = content.indexOf("}}", macroStart) + 2;
   
-    /* Helper functions */
+    /**
+     * Helper functions
+     */
     function debugMsg(items, dataAttribute = div.dataset.debug) {
       // An empty first argument to a logseq macro is passed as "$1"
       if (dataAttribute == "$1") {
@@ -22,7 +25,6 @@ description:: Replace-macro that returns the number of days until the next appoi
       }
     }
   
-  
     function toLogseqJournalDate(date) {
       // Logseq's :block/journal-date format is YYYYMMDD
       const d = new Date(date),
@@ -32,8 +34,11 @@ description:: Replace-macro that returns the number of days until the next appoi
       return [year, month.padStart(2, '0'), day.padStart(2, '0')].join('');
     }
   
+    /**
+     * Query for appointments using logseq api
+     */
     const todaysJournalDate = toLogseqJournalDate(new Date());
-    const futureAppointments = logseq.api.datascript_query(`
+    const futureAppointmentArray = logseq.api.datascript_query(`
       [:find (min ?day) ?date ?day ?content ?props
       :keys min-day date day content properties
       :where
@@ -45,13 +50,24 @@ description:: Replace-macro that returns the number of days until the next appoi
         [?refs :block/journal-day ?day]
         [(>= ?day ${todaysJournalDate})]
       ]
-      `)?.flat();
+      `);
+    const flatFutureAppointmentArray = futureAppointmentArray.map(appointment => ({
+      ...appointment,
+      date: appointment.date[0]
+    }));
+    //console.table(flatFutureAppointmentArray);
+    const futureAppointments = futureAppointmentArray?.flat();
+    //console.table(futureAppointments);
   
   
-    // Guard clause
+    // Return early if there are no appointments
     if (futureAppointments.length === 0) {
-      div.innerHTML = 'No upcoming appointments found.';
-      return;
+      let appointmentResultType = -1;
+      if (div) {
+        // if div is set, the kit is being evaluated from the {{nextAppointment}} macro
+        div.innerHTML = 'No upcoming appointments found.';
+      }
+      return appointmentResultType;
     }
   
   
@@ -129,18 +145,37 @@ description:: Replace-macro that returns the number of days until the next appoi
     const daysUntilNextAppointment = daysBetweenJournalDates(dateOfNextAppointment, todaysJournalDate);
   
     console.log(`
-      todaysJournalDate (${typeof(todaysJournalDate)}): ${todaysJournalDate}\n
-      dateofNextAppointment (${typeof(dateOfNextAppointment)}): ${dateOfNextAppointment}
-      daysUntilNextAppointment (${typeof(daysUntilNextAppointment)}): ${daysUntilNextAppointment}`);
+      todaysJournalDate (${typeof (todaysJournalDate)}): ${todaysJournalDate}\n
+      dateofNextAppointment (${typeof (dateOfNextAppointment)}): ${dateOfNextAppointment}
+      daysUntilNextAppointment (${typeof (daysUntilNextAppointment)}): ${daysUntilNextAppointment}`);
   
   
-    div.innerHTML = `in ${daysUntilNextAppointment} days`;
+    if (div) {
+      // Set the macro text
+      div.innerHTML = `in ${daysUntilNextAppointment} days`;
+    }
   
+    return daysUntilNextAppointment;
   });
+  
+  //return "hi";
+  //console.log("outside nextAppointment kit function");
   ```
 	- {{evalparent}}
 	  id:: 66662ffd-b21a-49d1-a203-db8437a639d8
 - {{nextAppointment debug}}`
+	- > ```javascript
+	  function getNextAppointment() {
+	    const nextValue = logseq.kits.nextAppointment();
+	    return nextValue;
+	  }
+	  const returnValue = getNextAppointment();
+	  console.log(returnValue);
+	  return returnValue;
+	  ```
+		- {{evalparent}}
+-
+-
 -
 -
 -
