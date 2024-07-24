@@ -4,59 +4,64 @@ description:: kitButton [label] <kit-name> [icon] [positive-class | {-inline | -
 - ```javascript
   logseq.kits.setStatic(function kitButton(div) {
     //console.log("kitButton function initiated");
-    const buttonBaseClass = "kit run inline button-style button-shape hover active";
-    const iconAttributeName = "data-button-icon";
-    const labelAttributeName = "data-button-text";
-    const argumentsAttributeName = 'data-arguments';
+    const DEFAULT_CLASSES = "kit run inline button-style button-shape hover active";
+    const ICON_DATA_ATTRIBUTE = "data-button-icon";
+    const LABEL_DATA_ATTRIBUTE = "data-button-text";
+    const ARGUMENTS_DATA_ATTRIBUTE = 'data-arguments';
     const kitPage = div.dataset.kitPage;
   
     // Expect null logseq macro arguments to return `$1` or "''", so filter to an empty string
     const sanitizeAttribute = value => value.startsWith("$") || value === "''" ? "" : value;
+  
+    const classModifiers = sanitizeAttribute(div.dataset.buttonClass);
+    let buttonText = sanitizeAttribute(div.dataset.buttonLabel);
+  
     /**
      * In some instances we may wish to remove classes from the default list of values.
      * By passing a class name prefixed with a hyphen (e.g. -button-style) to the class
      * argument ($4) the class is removed.
      * 
-     * In other situations we may wish to styles the button in a way only possible to
-     * implement using javascript. By passing a class name prefixed with a plus sign,
-     * (e.g. +bold-first-word) any predefined style features with that name will be 
-     * invoked before rendering the button.
+     * Built-in Style Filters
+     * ----------------------
+     * Style filters apply a javascript expression to the button label to style it in
+     * specific ways. A style filter is enabled by passing the filter name and arguments
+     * in as one of the kitButton class arguments ($4)
+     * 
+     * Available filters:
+     *  +bold-nth-word:n - Bold a single word (n)
      */
-    let styleExpressions = {}; // Object to store style expressions
-    function filterClasses(defaultClasses = buttonBaseClass, sanatizedKitClasses = customClass) {
-      const filteredBaseClasses = defaultClasses.split(" ");
-      const instanceClassArray = sanatizedKitClasses.split(" ");
-      const styleClassNames = [];
+    let appliedStyleFilters = {}; // Object to store style expressions
+    function applyStyleFilter(defaultClasses = DEFAULT_CLASSES, customClasses = classModifiers) {
+      const classArray = defaultClasses.split(" ");
+      const customClassArray = customClasses.split(" ");
+      const additionalClasses = [];
   
-      instanceClassArray.forEach(className => {
+      customClassArray.forEach(className => {
         if (className.startsWith("-")) {
-          let filterClassName = className.slice(1);
-          let removeIndex = filteredBaseClasses.indexOf(filterClassName);
-          let removedItem = filteredBaseClasses.splice(removeIndex, 1);
-          console.log(`Removed ${removedItem} from baseClassArray`);
+          let classToRemove = className.slice(1);
+          let removeIndex = classArray.indexOf(classToRemove);
+          classArray.splice(removeIndex, 1);
         }
         else if (className.startsWith("+")) {
           const [expressionName, argumentValue] = className.slice(1).split(":");
-          styleExpressions[expressionName] = argumentValue || false;
-          console.log(`Added ${expressionName}: ${styleExpressions[expressionName]} to styleExpressions object`);
+          appliedStyleFilters[expressionName] = argumentValue || false;
+          console.log(`Added ${expressionName}: ${appliedStyleFilters[expressionName]} to styleExpressions object`);
         }
         else {
-          styleClassNames.push(className);
+          additionalClasses.push(className);
         }
       });
-      return [...filteredBaseClasses, ...styleClassNames].join(" ");
+      return [...classArray, ...additionalClasses].join(" ");
     }
   
     // customClass can be multiple space seperated values.
-    const customClass = sanitizeAttribute(div.dataset.buttonClass);
     let buttonClassValue;
-    if (customClass === "") {
-      buttonClassValue = [buttonBaseClass, ...(customClass ? customClass.split(" ") : [])].join(" ");
+    if (classModifiers === "") {
+      buttonClassValue = [DEFAULT_CLASSES, ...(classModifiers ? classModifiers.split(" ") : [])].join(" ");
     } else {
-      buttonClassValue = filterClasses();
+      buttonClassValue = applyStyleFilter();
     }
   
-    let buttonLabel = sanitizeAttribute(div.dataset.buttonLabel);
     /** Process button label text
      * For each word, we might:
      *  bold it (if bold-nth-word is set)
@@ -73,40 +78,40 @@ description:: kitButton [label] <kit-name> [icon] [positive-class | {-inline | -
       });
       return processedWords.join(" ");
     };
-    buttonLabel = processKitsInLabel(buttonLabel);
+    buttonText = processKitsInLabel(buttonText);
   
     /* old way of filtering the word label */
-    if ('bold-nth-word' in styleExpressions) {
-      const boldWordIndex = styleExpressions['bold-nth-word'] ?
-        parseInt(styleExpressions['bold-nth-word']) - 1 : 0;
-      labelWordArray = buttonLabel.split(" ").map((word, index) => {
+    if ('bold-nth-word' in appliedStyleFilters) {
+      const boldWordIndex = appliedStyleFilters['bold-nth-word'] ?
+        parseInt(appliedStyleFilters['bold-nth-word']) - 1 : 0;
+      labelWordArray = buttonText.split(" ").map((word, index) => {
         return index === boldWordIndex ? `<span class="bold">${word}</span>` : word;
       });
       console.log(JSON.stringify(labelWordArray));
-      buttonLabel = labelWordArray.join(" ");
+      buttonText = labelWordArray.join(" ");
     }
    
   
     // Add the code block here
-    console.log('buttonLabel after processing:', JSON.stringify(buttonLabel));
+    console.log('buttonLabel after processing:', JSON.stringify(buttonText));
     console.log('labelWordArray:', labelWordArray);
     /**
      * To support icon-only buttons, use a data-attribute indicating the presence of a text
      * label or icon glyph. Thus, whitespace can be intelligently included to pad text and 
      * icon if and only if necessicary.
      */
-    const buttonTextDataAttribute = buttonLabel ? `${labelAttributeName}="true"` : "";
+    const buttonTextDataAttribute = buttonText ? `${LABEL_DATA_ATTRIBUTE}="true"` : "";
     // icon logic
     const buttonIcon = sanitizeAttribute(div.dataset.buttonIcon);
     const iconGlyphCodes = glyphs => glyphs.split(" ").map(hexCode => `&#x${hexCode};`).join(" ");
-    const iconDataAttribute = buttonIcon && `${iconAttributeName}="${iconGlyphCodes(buttonIcon)}"`; // && = first falsy or last truthy if all true
+    const iconDataAttribute = buttonIcon && `${ICON_DATA_ATTRIBUTE}="${iconGlyphCodes(buttonIcon)}"`; // && = first falsy or last truthy if all true
     // anything else
     const kitArguments = sanitizeAttribute(div.dataset.arguments);
-    const argumentsDataAttribute = kitArguments ? `${argumentsAttributeName}="${kitArguments}"` : "";
+    const argumentsDataAttribute = kitArguments ? `${ARGUMENTS_DATA_ATTRIBUTE}="${kitArguments}"` : "";
   
     div.innerHTML = `<button class="${buttonClassValue}" data-kit='runpage' data-kit-macro="kitButton"
       data-page-name='${kitPage}' ${iconDataAttribute} ${buttonTextDataAttribute} ${argumentsDataAttribute}
-      type="button">${buttonLabel}</button>`;
+      type="button">${buttonText}</button>`;
   
   });
   ```
