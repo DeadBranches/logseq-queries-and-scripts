@@ -2,20 +2,20 @@ kit:: kitButton [label] <kit-name> [icon] [positive-class | {-inline | -button-s
 description:: kitButton [label] <kit-name> [icon] [positive-class | {-inline | -button-style | -button-shape | -hover | -active}] | [arguments]
 
 - ```javascript
-  
   //logseq.kits.kitButton = kitButton;
   
   logseq.kits.setStatic(async function kitButton(div) {
-  //async function kitButton(div) {
-  //console.log("kitButton function initiated");
+    //async function kitButton(div) {
+    //console.log("kitButton function initiated");
     const DEFAULT_CLASSES = "kit run inline button-style button-shape hover active";
     const ICON_DATA_ATTRIBUTE = "data-button-icon";
     const LABEL_DATA_ATTRIBUTE = "data-button-text";
-    const ARGUMENTS_DATA_ATTRIBUTE = 'data-arguments';
+    const ARGUMENTS_DATA_ATTRIBUTE = "data-arguments";
     const kitPage = div.dataset.kitPage;
   
     // Expect null logseq macro arguments to return `$1` or "''", so filter to an empty string
-    const sanitizeAttribute = value => value.startsWith("$") || value === "''" ? "" : value;
+    const sanitizeAttribute = (value) =>
+      value.startsWith("$") || value === "''" ? "" : value;
   
     const classModifiers = sanitizeAttribute(div.dataset.buttonClass);
     let buttonText = sanitizeAttribute(div.dataset.buttonLabel);
@@ -24,34 +24,46 @@ description:: kitButton [label] <kit-name> [icon] [positive-class | {-inline | -
      * In some instances we may wish to remove classes from the default list of values.
      * By passing a class name prefixed with a hyphen (e.g. -button-style) to the class
      * argument ($4) the class is removed.
-     * 
+     *
      * Built-in Style Filters
      * ----------------------
      * Style filters apply a javascript expression to the button label to style it in
      * specific ways. A style filter is enabled by passing the filter name and arguments
      * in as one of the kitButton class arguments ($4)
-     * 
+     *
      * Available filters:
      *  +bold-nth-word:n - Bold a single word (n)
      */
     let appliedStyleFilters = {}; // Object to store style expressions
-    function applyStyleFilter(defaultClasses = DEFAULT_CLASSES, customClasses = classModifiers) {
+    function applyStyleFilter(defaultClasses, customClasses) {
       const classArray = defaultClasses.split(" ");
       const customClassArray = customClasses.split(" ");
       const additionalClasses = [];
   
-      customClassArray.forEach(className => {
+      // const additionalClasses = customClassArray.filter((cls) => cls.match(/^\w/));
+      // customClassArray.forEach((className) => {
+      //   switch (className[0]) {
+      //     case ("-"): // Remove class
+      //       classArray.splice(
+      //         classArray.indexOf(
+      //           className.slice(1)
+      //         ), 1
+      //       );
+      //       break;
+      //     case ("+"):
+      //       break;
+      //     default:
+      //       break;
+      //   }
+      customClassArray.forEach((className) => {
         if (className.startsWith("-")) {
           let classToRemove = className.slice(1);
           let removeIndex = classArray.indexOf(classToRemove);
           classArray.splice(removeIndex, 1);
-        }
-        else if (className.startsWith("+")) {
+        } else if (className.startsWith("+")) {
           const [expressionName, argumentValue] = className.slice(1).split(":");
           appliedStyleFilters[expressionName] = argumentValue || false;
-          console.log(`Added ${expressionName}: ${appliedStyleFilters[expressionName]} to styleExpressions object`);
-        }
-        else {
+        } else {
           additionalClasses.push(className);
         }
       });
@@ -59,12 +71,16 @@ description:: kitButton [label] <kit-name> [icon] [positive-class | {-inline | -
     }
   
     // customClass can be multiple space seperated values.
-    let buttonClassValue;
-    if (classModifiers === "") {
-      buttonClassValue = DEFAULT_CLASSES;
-    } else {
-      buttonClassValue = applyStyleFilter();
-    }
+    // let buttonClassValue;
+    // if (classModifiers === "") {
+    //   buttonClassValue = DEFAULT_CLASSES;
+    // } else {
+    //   buttonClassValue = applyStyleFilter();
+    // }
+    const buttonClassValue =
+      classModifiers === ""
+        ? DEFAULT_CLASSES
+        : applyStyleFilter(DEFAULT_CLASSES, classModifiers);
   
     /** Process button label text
      * For each word, we might:
@@ -73,56 +89,91 @@ description:: kitButton [label] <kit-name> [icon] [positive-class | {-inline | -
      */
     const processKitsInLabel = async (label) => {
       const words = label.split(" ");
-      const processedWords = await Promise.all(words.map(async (word) => {
-        if (!word.startsWith("|") && !word.endsWith("|")) {
-          return word;
-        }
-        let kitName = word.slice(1, -1);
-        const result = await logseq.kits[kitName]();
-        return result.toString();
-      }));
+      const processedWords = await Promise.all(
+        words.map(async (word) => {
+          if (!word.startsWith("|") && !word.endsWith("|")) {
+            return word;
+          }
+          let kitName = word.slice(1, -1);
+          const result = await logseq.kits[kitName]();
+          return result.toString();
+        })
+      );
       return processedWords.join(" ");
     };
     buttonText = await processKitsInLabel(buttonText);
   
     /* old way of filtering the word label */
-    if ('bold-nth-word' in appliedStyleFilters) {
-      const boldWordIndex = appliedStyleFilters['bold-nth-word'] ?
-        parseInt(appliedStyleFilters['bold-nth-word']) - 1 : 0;
+    if ("bold-nth-word" in appliedStyleFilters) {
+      const boldWordIndex = appliedStyleFilters["bold-nth-word"]
+        ? parseInt(appliedStyleFilters["bold-nth-word"]) - 1
+        : 0;
+  
       labelWordArray = buttonText.split(" ").map((word, index) => {
         return index === boldWordIndex ? `<span class="bold">${word}</span>` : word;
       });
       console.log(JSON.stringify(labelWordArray));
       buttonText = labelWordArray.join(" ");
     }
-   
   
     // Add the code block here
-    console.log('buttonLabel after processing:', JSON.stringify(buttonText));
-    console.log('labelWordArray:', labelWordArray);
+    console.log("buttonLabel after processing:", JSON.stringify(buttonText));
+    console.log("labelWordArray:", labelWordArray);
+  
     /**
      * To support icon-only buttons, use a data-attribute indicating the presence of a text
-     * label or icon glyph. Thus, whitespace can be intelligently included to pad text and 
+     * label or icon glyph. Thus, whitespace can be intelligently included to pad text and
      * icon if and only if necessicary.
      */
     const buttonTextDataAttribute = buttonText ? `${LABEL_DATA_ATTRIBUTE}="true"` : "";
-    // icon logic
     const buttonIcon = sanitizeAttribute(div.dataset.buttonIcon);
-    const iconGlyphCodes = glyphs => glyphs.split(" ").map(hexCode => `&#x${hexCode};`).join(" ");
-    const iconDataAttribute = buttonIcon && `${ICON_DATA_ATTRIBUTE}="${iconGlyphCodes(buttonIcon)}"`; // && = first falsy or last truthy if all true
-    // anything else
+    const iconGlyphCodes = (glyphs) =>
+      glyphs
+        .split(" ")
+        .map((hexCode) => `&#x${hexCode};`)
+        .join(" ");
+  
+    const iconDataAttribute =
+      buttonIcon && `${ICON_DATA_ATTRIBUTE}="${iconGlyphCodes(buttonIcon)}"`; // && = first falsy or last truthy if all true
+  
+    const processDataAttributes = (input) => {
+      if (!input) return "";
+      return input
+        .split(' ')
+        .filter(pair => pair.includes('='))
+        .map(pair => {
+          const [key, ...valueParts] = pair.split('=');
+          const value = valueParts.join('=').slice(1, -1); // Remove surrounding quotes
+          return `data-${key}="${value}"`;
+        })
+        .join(' ');
+    };
     const kitArguments = sanitizeAttribute(div.dataset.arguments);
-    const argumentsDataAttribute = kitArguments ? `${ARGUMENTS_DATA_ATTRIBUTE}="${kitArguments}"` : "";
+    const dataAttributes = processDataAttributes(kitArguments);
+    div.innerHTML = `<button class="${buttonClassValue}" data-kit='runpage' data-kit-macro="kitButton" data-page-name='${kitPage}' ${iconDataAttribute} ${buttonTextDataAttribute} ${dataAttributes} type="button">${buttonText}</button>`;
+  //    div.innerHTML = `<button class="${buttonClassValue}" data-kit='${kitButton}' data-kit-macro="kitButton" data-page-name='${kitPage}' ${iconDataAttribute} ${buttonTextDataAttribute} ${dataAttributes} type="button">${buttonText}</button>`;
   
-    div.innerHTML = `<button class="${buttonClassValue}" data-kit='runpage' data-kit-macro="kitButton"
-      data-page-name='${kitPage}' ${iconDataAttribute} ${buttonTextDataAttribute} ${argumentsDataAttribute}
-      type="button">${buttonText}</button>`;
+    // const argumentsDataAttribute = kitArguments
+    //   ? `${ARGUMENTS_DATA_ATTRIBUTE}="${kitArguments}"`
+    //   : "";
   
-  //};
+    // div.innerHTML = `<button class="${buttonClassValue}" data-kit='runpage' data-kit-macro="kitButton"
+    //   data-page-name='${kitPage}' ${iconDataAttribute} ${buttonTextDataAttribute} ${argumentsDataAttribute}
+    //   type="button">${buttonText}</button>`;
+  
+  
+    //};
   });
+  
   ```
 	- {{evalparent}}
--
+- # Changes
+	- [[Thursday, Jul 25th, 2024]] Modified kitbutton to accept arguments as $5, but this time instead of just setting them all to data-arguments data attribute, it actually manually sets the data attributes when it is in the format attribute-name='value'.
+		- So, to get the same behaviour as before now I need to do $5 = argument='something'
+		- But, now I can pass multiple attributes all at once
+		-
+	-
+	-
 	-
 	-
 	- {{evalparent}}
