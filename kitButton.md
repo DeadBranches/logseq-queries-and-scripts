@@ -2,8 +2,12 @@ kit:: kitButton [label] <kit-name> [icon] [positive-class | {-inline | -button-s
 description:: kitButton [label] <kit-name> [icon] [positive-class | {-inline | -button-style | -button-shape | -hover | -active}] | [arguments]
 
 - ```javascript
-  logseq.kits.setStatic(function kitButton(div) {
-    //console.log("kitButton function initiated");
+  
+  //logseq.kits.kitButton = kitButton;
+  
+  logseq.kits.setStatic(async function kitButton(div) {
+  //async function kitButton(div) {
+  //console.log("kitButton function initiated");
     const DEFAULT_CLASSES = "kit run inline button-style button-shape hover active";
     const ICON_DATA_ATTRIBUTE = "data-button-icon";
     const LABEL_DATA_ATTRIBUTE = "data-button-text";
@@ -57,7 +61,7 @@ description:: kitButton [label] <kit-name> [icon] [positive-class | {-inline | -
     // customClass can be multiple space seperated values.
     let buttonClassValue;
     if (classModifiers === "") {
-      buttonClassValue = [DEFAULT_CLASSES, ...(classModifiers ? classModifiers.split(" ") : [])].join(" ");
+      buttonClassValue = DEFAULT_CLASSES;
     } else {
       buttonClassValue = applyStyleFilter();
     }
@@ -67,18 +71,19 @@ description:: kitButton [label] <kit-name> [icon] [positive-class | {-inline | -
      *  bold it (if bold-nth-word is set)
      *  transform it (if the label text contains /|\w+|/)
      */
-    const processKitsInLabel = (label) => {
+    const processKitsInLabel = async (label) => {
       const words = label.split(" ");
-      const processedWords = words.map((word) => {
+      const processedWords = await Promise.all(words.map(async (word) => {
         if (!word.startsWith("|") && !word.endsWith("|")) {
           return word;
         }
         let kitName = word.slice(1, -1);
-        return logseq.kits[kitName]();
-      });
+        const result = await logseq.kits[kitName]();
+        return result.toString();
+      }));
       return processedWords.join(" ");
     };
-    buttonText = processKitsInLabel(buttonText);
+    buttonText = await processKitsInLabel(buttonText);
   
     /* old way of filtering the word label */
     if ('bold-nth-word' in appliedStyleFilters) {
@@ -113,6 +118,7 @@ description:: kitButton [label] <kit-name> [icon] [positive-class | {-inline | -
       data-page-name='${kitPage}' ${iconDataAttribute} ${buttonTextDataAttribute} ${argumentsDataAttribute}
       type="button">${buttonText}</button>`;
   
+  //};
   });
   ```
 	- {{evalparent}}
