@@ -3,8 +3,11 @@ repository:: DeadBranches/logseq-queries-and-scripts
 description:: Replace-macro that returns the number of days until the next appointment.
 
 - ```javascript
-  logseq.kits.setStatic(function nextAppointment(div) {
-    /**
+  logseq.kits.nextAppointment = nextAppointment;
+  
+  //logseq.kits.setStatic(function nextAppointment(div) {
+  async function nextAppointment(div) {
+  /**
      * @returns {number} 
      * -1 if there is no future appointments, 
      * 0 if the next appointment is today, 
@@ -38,7 +41,7 @@ description:: Replace-macro that returns the number of days until the next appoi
      * Query for appointments using logseq api
      */
     const todaysJournalDate = toLogseqJournalDate(new Date());
-    const futureAppointmentArray = logseq.api.datascript_query(`
+    const futureAppointmentArray = await logseq.api.datascript_query(`
       [:find (min ?day) ?date ?day ?content ?props
       :keys min-day date day content properties
       :where
@@ -156,7 +159,7 @@ description:: Replace-macro that returns the number of days until the next appoi
     }
   
     return daysUntilNextAppointment;
-  });
+  };
   
   //return "hi";
   //console.log("outside nextAppointment kit function");
