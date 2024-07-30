@@ -142,10 +142,15 @@ repository:: DeadBranches/logseq-queries-and-scripts
 	          )
 	      )
 	      :view 
-	      (fn [result] ;<base>
-	  
-	          [:table (for [r result]
-	                 [:tr [:td {:class "wrap-at-spaces" :min-width "40%"}
+	      (fn [result]
+	              [:table {:class "future-appointments"}
+	               [:thead
+	                [:tr
+	                 [:th {:width "120px" :class "wrap-at-spaces"} "Page"]
+	                 [:th "Description"]]]
+	               [:tbody
+	          (for [r result]
+	                 [:tr {:class "wrap-at-spaces" :max-width "50%"} [:td
 	                  [:a 
 	                   {:class "tag" :href (str "#/page/" (get-in r [:block/original-name]))}
 	                   (str "#" (get r :block/name))
@@ -154,8 +159,8 @@ repository:: DeadBranches/logseq-queries-and-scripts
 	                  (str " " (get-in r [:block/properties :description]))
 	                  ]]
 	                 )
-	           ]
-	      );</base>
+	           ]]
+	      )
 	  :collapsed? false
 	      :breadcrumb-show? false
 	      :group-by-page? false

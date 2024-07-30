@@ -10,7 +10,6 @@ description:: Inserts either a grocery or shopping list item under the purchase 
     
     // Defaults
     const DEFAULT_BLOCK = "grocery";
-    
     // Inputs
     const dataArguments = buttonElement.dataset.arguments;
     
@@ -25,13 +24,18 @@ description:: Inserts either a grocery or shopping list item under the purchase 
     } 
     const insertOptions = {
       before: true,
+      focus: true,
       sibling: false
     }
   
     // main
-    let blockToInsert = dataArguments || DEFAULT_BLOCK;
     const containerId = containerDiv.getAttribute('blockid');
+    let blockToInsert = dataArguments || DEFAULT_BLOCK;
+  
     try {
+      // A collapsed logseq block doesn't automatically
+      // un-collapse when a new child block is added.
+      await logseq.api.set_block_collapsed(containerId, false);
       const newBlock = await logseq.api.insert_block(
         containerId,
         blockTemplates[blockToInsert],
@@ -47,5 +51,9 @@ description:: Inserts either a grocery or shopping list item under the purchase 
   
   ```
 	- {{evalparent}}
+		- id:: 66a010f7-5328-4b3b-8660-f77e50a58dba
+		- s
 - # Test
 	- {{kitButton grocery,insertListItem,'','',grocery}} {{kitButton shopping,insertListItem,'','',shopping}}
+- # Change log
+	- ((66a00f2b-ac1b-4b4d-81c5-d2403cca2463))

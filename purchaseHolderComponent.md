@@ -86,13 +86,7 @@ description:: (formerly journalGroceryWidget). Add a purchase manager to the cur
   purchaseHolderComponent(null, 'plaintext')
   ```
 	- {{evalparent}}
-- #### {{kitButton purchase list,collapseBlock,ef49,-button-style full-width +bold-nth-word}}
-  {{kitButton '',insertListItem,eb0b eb25,squat,grocery}}   {{kitButton '',insertListItem,eb0b f21c,squat,shopping}}
-    {{grocery-holder}}
 -
-- {{kitButton purchase list,collapseBlock,ef49,full-width-secret}}
-  {{kitButton '',insertListItem,eb0b eb25}} {{kitButton '',insertListItem,eb0b f21c}}
-  {grocery-holder}}
 - # Components
 - Purchase holder UI component
   *location: logseq-journal-buddy/uicomponents/* ((668bfa16-f000-4381-80b7-155ed5ebe7f1))
@@ -100,6 +94,8 @@ description:: (formerly journalGroceryWidget). Add a purchase manager to the cur
 - (related: comonent buttons that call purchase holder)
 	- {{embed ((66913332-10d5-4554-a4ea-70380475cd0d))}}
 - # Changes
+- [[Tuesday, Jul 23rd, 2024]] feat: Use block content from project page. {{i-commit}}[e349a15](https://github.com/DeadBranches/logseq-queries-and-scripts/commits/main/)
+	- Added get_block_content(uuid) function to dynamically fetch the block content to insert from a given block uuid.
 - [[Tuesday, Jul 23rd, 2024]] **BREAKING**: Added purchaseHolderComponent and depreciated [[journalGroceryWidget]]
 - [[Tuesday, Jul 23rd, 2024]] **BREAKING**: changed grocery-holder macro to purchase-holder.
 -

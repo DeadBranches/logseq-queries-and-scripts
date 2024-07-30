@@ -6,6 +6,7 @@ description:: Project management home base
   Let's do it!
 	- [[logseq-events-and-appointments]]
 	- [[logseq-journal-buddy-improvement-2024-06]]
+	- [[autism assessment]]
 - ## {{i ef93}}  [[next]]
   id:: 66537d2b-bdba-46d1-a917-217fcd95d5f8
   *More aspirational than anything.*

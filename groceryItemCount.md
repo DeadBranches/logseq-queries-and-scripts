@@ -33,5 +33,5 @@ kit:: groceryItemCount [prefix] [suffix]
 	- Prefix and suffix: {{groceryItemCount (,)}}
 	- inline counts {{groceryItemCount (,)}} {{groceryItemCount (,)}}
 	- (25)
-- TODO {{grocery}} hi
+- T
 -

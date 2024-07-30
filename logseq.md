@@ -8,9 +8,22 @@ repository:: DeadBranches/logseq-queries-and-scripts
 - ## Useful things
 	- Logseq config.edn template -> {{i-github}} [logseq/logseq](https://github.com/logseq/logseq/blob/4374741afd9add1716da62b3bf6466cffa5be082/src/resources/templates/config.edn#L4)
 		- My local version last drawn from commit [`26d255d`](https://github.com/logseq/logseq/commit/26d255d0b1a065fa66c135b0fbe4d7270b55e1b5)
-- ## {{i ef0c}} my custom.js functions
-  collapsed:: true
-  For use in button blocks
+- ## {{i ef0c}} JavaScript functions
+  For logseq
+	- ### toLogseqJournalDate( date ) -> int
+		- ```javascript
+		  function toLogseqJournalDate(date) {
+		    // Logseq's :block/journal-date format is YYYYMMDD
+		    const d = new Date(date),
+		          month = '' + (d.getMonth() + 1),
+		          day = '' + d.getDate(),
+		          year = d.getFullYear();
+		    return [year, month.padStart(2, '0'), day.padStart(2, '0')].join('');
+		  }
+		  // Example usage
+		  const todaysJournalDate = toLogseqJournalDate(new Date());
+		  console.log(todaysJournalDate);
+		  ```
 	- ### daysBetween( str, str ) -> *int*
 	  collapsed:: true
 	  `daysBetween(firstDate, SecondDate`
@@ -71,7 +84,11 @@ repository:: DeadBranches/logseq-queries-and-scripts
 	- **copy code fence content** from button's **second child**
 	  collapsed:: true
 		- {{button copy,copy_second_sibling,ea6f,long squat}}
-		  template:: tool, copy second sibling code block content button
+		  template:\: tool, copy second sibling code block content button
+			- ### {{i f6ef}}  depreciation warning
+			  collapsed:: true
+			      this block is no longer in use
+				- {{i ea0b}} *depreciated on* *[[Monday, Jul 22nd, 2024]]*
 			- {{nested-code-block}}
 			  collapsed:: true
 				- copy_second_sibling:
@@ -92,7 +109,7 @@ repository:: DeadBranches/logseq-queries-and-scripts
 	- #### Tool: Logseq block spy
 	  collapsed:: true
 		- {{button spy,spy,''}}
-		  template:: tool, block spy
+		  template:: tool, return element data as JSON
 		  collapsed:: true
 			- blocks
 			  spy:
@@ -159,7 +176,6 @@ repository:: DeadBranches/logseq-queries-and-scripts
   id:: 65f5d381-8e00-4e19-bdbf-95727eb6a07e
   Logseq JavaScript API functions
 	- {{button add ref,insert_template,ea69}}
-	  collapsed:: true
 		- insert_template:
 		  ```js
 		  let templateName = "buttoner - new logseq api reference";
@@ -196,6 +212,11 @@ repository:: DeadBranches/logseq-queries-and-scripts
 		  ```
 -
 - ## Things I built
+	- #### {{issue}} issue tracker
+		- Original workspace:
+			- ((66a015d2-1f08-4b33-bcba-84207b76eeda))
+		- Related
+			- Advanced query concept snippet: ((66a05e34-42c8-4cf7-8b0b-27cb0943d9ac))
 	- #### {{i-rocket}} Dynamic do icon color
 	  id:: 66437a69-136d-4497-939e-417a30549cd0
 	  Colors a rocket icon in different ways depending on the marker block status
@@ -953,6 +974,7 @@ repository:: DeadBranches/logseq-queries-and-scripts
 		  
 		  Consider posting here your case of using this functionality, to inspire other users.
 	- #### Childless block embeds
+	  collapsed:: true
 	  {{il eb02,Embed blocks without their children,https://discuss.logseq.com/t/embed-blocks-without-their-children/21713}}
 		- Preparation:
 			- Add a macro inside file `config.edn` , inside `macros{}` :
@@ -1402,6 +1424,10 @@ repository:: DeadBranches/logseq-queries-and-scripts
 		              noVal = (val === "")
 		  ```
 		  #+END_QUOTE
+	- #### Gallery view for images on current page
+	  {{il eb02,Gallery view for query results,https://discuss.logseq.com/t/gallery-view-for-query-results/13432}}
+		- Also see my tests with this feature here: ((66a02337-cdd7-4894-a427-f5fd766ec3fd))
+	-
 - ### Logseq [[Issues]]
   collapsed:: true
   Things that bug me about logseq
@@ -1428,10 +1454,8 @@ repository:: DeadBranches/logseq-queries-and-scripts
 		  But, how do I organize and sort for display the information when it's all as linked references?
 		- And, if I start to use a page as a place to store sorted information, how do I deal with all the linked references?
 - ### {{i eb39}} templates
-  collapsed:: true
   Used in this page
 	- for ((65f5d381-8e00-4e19-bdbf-95727eb6a07e))
-	  collapsed:: true
 	  template\:\: buttoner - new logseq api reference
 	  template-including-parent\:\: false
 		- ### {{i f6ef}}  depreciation warning

@@ -167,7 +167,7 @@ description:: Replace-macro that returns the number of days until the next appoi
 	- {{evalparent}}
 	  id:: 66662ffd-b21a-49d1-a203-db8437a639d8
 - {{nextAppointment debug}}`
-	- > ```javascript
+	- > ```
 	  function getNextAppointment() {
 	    const nextValue = logseq.kits.nextAppointment();
 	    return nextValue;

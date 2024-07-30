@@ -65,6 +65,7 @@ repository:: DeadBranches/logseq-queries-and-scripts
   *newest first*
 	- #### {{i ef40}} items on the list
 	  id:: 6644ee82-6e4e-4936-af4f-8a47ece6985d
+	  collapsed:: true
 		- #+BEGIN_QUERY
 		  {:inputs ["buy"]
 		   :query [:find (pull ?b [*])

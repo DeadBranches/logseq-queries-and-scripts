@@ -5,6 +5,8 @@ description:: kitButton [label] <kit-name> [icon] [positive-class | {-inline | -
   //logseq.kits.kitButton = kitButton;
   
   logseq.kits.setStatic(async function kitButton(div) {
+     //await ensureKitsLoaded();
+    
     //async function kitButton(div) {
     //console.log("kitButton function initiated");
     const DEFAULT_CLASSES = "kit run inline button-style button-shape hover active";
@@ -87,20 +89,33 @@ description:: kitButton [label] <kit-name> [icon] [positive-class | {-inline | -
      *  bold it (if bold-nth-word is set)
      *  transform it (if the label text contains /|\w+|/)
      */
-    const processKitsInLabel = async (label) => {
-      const words = label.split(" ");
-      const processedWords = await Promise.all(
-        words.map(async (word) => {
-          if (!word.startsWith("|") && !word.endsWith("|")) {
+  const processKitsInLabel = async (label) => {
+    const words = label.split(" ");
+    const processedWords = await Promise.all(
+      words.map(async (word) => {
+        if (!word.startsWith("|") && !word.endsWith("|")) {
+          return word;
+        }
+        let kitName = word.slice(1, -1);
+        try {
+          const kitFunction = logseq.kits[kitName];
+          if (typeof kitFunction !== 'function') {
+            console.error(`Kit function ${kitName} not found`);
             return word;
           }
-          let kitName = word.slice(1, -1);
-          const result = await logseq.kits[kitName]();
+          const result = await Promise.race([
+            kitFunction(),
+            new Promise((_, reject) => setTimeout(() => reject(new Error('Timeout')), 5000))
+          ]);
           return result.toString();
-        })
-      );
-      return processedWords.join(" ");
-    };
+        } catch (error) {
+          console.error(`Error processing kit ${kitName}:`, error);
+          return word;
+        }
+      })
+    );
+    return processedWords.join(" ");
+  };
     buttonText = await processKitsInLabel(buttonText);
   
     /* old way of filtering the word label */

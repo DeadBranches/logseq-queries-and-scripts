@@ -59,6 +59,7 @@ repository:: DeadBranches/logseq-queries-and-scripts
   #+END_QUERY
 - ## {{i eff2}} Query library
   query:: ((65f7767a-9fe3-4b51-a564-c36be58ce5fa))
+  collapsed:: true
   *Advanced queries I reuse*
   #+BEGIN_QUERY
   {:inputs [:current-block #{1 2 3 4 5}]
@@ -114,6 +115,7 @@ repository:: DeadBranches/logseq-queries-and-scripts
   
   #+END_QUERY
 	- ## Embedding queries
+	  collapsed:: true
 	  *for `{{embedding}}`*
 		- **Related page** linked references
 		  collapsed:: true
@@ -970,46 +972,63 @@ repository:: DeadBranches/logseq-queries-and-scripts
 			- id:: 66415ca6-d397-4fc1-97f1-95f7b516e6d1
 			  #+BEGIN_QUERY
 			  {:query
-			  [:find (min ?journal-day) ?date ?journal-day ?content ?props ?today ?activity ?event
-			  :keys min-day date journal-day content properties today activity event
-			  :in $ ?today
-			  :where
-			  [?b :block/properties ?props]
-			  [(get 
-			  ?props :activity) ?activity] 
+			   [:find (min ?journal-day) ?date ?journal-day ?content ?props ?today ?activity ?event ?uuid ?current-page
+			    :keys min-day date journal-day content properties today activity event uuid current-page
+			    :in $ ?today ?current-page
+			    :where
+			    [?b :block/properties ?props]
+			    [(get
+			      ?props :activity) ?activity]
 			  ;[(contains? ?activity "ocrevus infusion")] 
-			  [?e :block/properties ?props]
-			  [(get ?props :event) ?event]
-			  [(get ?props :date) ?date]
-			  [?e :block/refs ?refs]
-			  [?e :block/content ?content]
-			  [?refs :block/journal-day ?journal-day]
-			  [(> ?journal-day ?today)]
-			  ]
+			    [?e :block/properties ?props]
+			    [(get ?props :event) ?event]
+			    [(get ?props :date) ?date]
+			    [?e :block/refs ?refs]
+			    [?e :block/content ?content]
+			    [?refs :block/journal-day ?journal-day]
+			    [(> ?journal-day ?today)]
 			  
-			  :result-transform  (fn [result] (sort-by (fn [r] (get-in r [:journal-day])) (fn [a b] (compare a b)) result))
+			   [?e :block/uuid ?uuid] 
+			    ]
 			  
-			  :view (fn [results]
-			  [:div
-			  [:table {:class "future-appointments"}
-			  [:thead
-			  [:tr
-			  [:th "Date"]
-			  [:th "Event"]]]
-			  [:tbody
-			  (for [result results]
-			  [:tr
-			    [:td (get-in result [:date])]
-			    [:td (get-in result [:event])]])]]])
-			  :inputs [:today]
-			  :breadcrumb-show? false
-			  :children? false
-			  :group-by-page? false
-			  }
+			   :result-transform  (fn [result] (sort-by (fn [r] (get-in r [:journal-day])) (fn [a b] (compare a b)) result))
+			  
+			   :view (letfn [(make-append-link [page block-content link-text]
+			                                   [:a {:on-click
+			                                        (fn [] (call-api "append_block_in_page"
+			                                                         page
+			                                                         block-content))}
+			                                    link-text])
+			                 (make-link [text destination]
+			                   [:a {:on-click
+			                        (fn []
+			                          (call-api "push_state" "page" {:name destination}))} text])]
+			           (fn [results]
+			             [:div
+			              [:table {:class "future-appointments"}
+			               [:thead
+			                [:tr
+			                 [:th {:width "120px"} "Date"]
+			                 [:th "Event"]]]
+			               [:tbody
+			                (for [result results]
+			                  [:tr
+			                   [:td (get-in result [:date])]
+			                   [:td (make-append-link
+			                         (get-in result [:current-page])
+			                          (str "{{i-note}} text \n{{i-event}} [" (get-in result [:event]) "](" (get-in result [:uuid])")")
+			                          (get-in result [:event]))        
+			                   ]])]]])
+			   )
+			  
+			          
+			   :inputs [:today :current-page]
+			   :breadcrumb-show? false
+			   :children? false
+			   :group-by-page? false}
 			  #+END_QUERY
 		- ####  {{i ec44}} current medication list
 		  id:: 667a53af-9c93-4a1d-a01b-7e8b8fd22b53
-		  collapsed:: true
 		      ![image.png](../assets/image_1719766132026_0.png){:height 107, :width 337}
 			- id:: 664cb068-64bb-4dc5-aa7e-b0678b63a6fe
 			  #+BEGIN_QUERY
@@ -1119,7 +1138,6 @@ repository:: DeadBranches/logseq-queries-and-scripts
 		  collapsed:: true
 		      ![image.png](../assets/image_1719765985169_0.png){:height 30, :width 214}
 		- #### {{i eaff}} online orders (journal widget)
-		  collapsed:: true
 		      ![image.png](../assets/image_1719766180275_0.png){:height 31, :width 135}
 			- id:: 663f79d8-20d7-4027-9ff5-500ae36ff757
 			  #+BEGIN_QUERY
@@ -1271,7 +1289,6 @@ repository:: DeadBranches/logseq-queries-and-scripts
 			  #[[advanced query]]
 			  ```
 	- ## Reusable queries
-	  collapsed:: true
 	  *that need to be manually added to a block*
 	  #+BEGIN_QUERY
 	  {:inputs [:current-block #{1 2 3 4 5}]
@@ -1304,6 +1321,285 @@ repository:: DeadBranches/logseq-queries-and-scripts
 	               [:span [:a {:href (str "logseq://graph/main?block-id=" uuid)} text] ", "]))])
 	  }
 	  #+END_QUERY
+		- #### Macro-based tracker (for blocks)
+		     ![image.png](../assets/image_1721831716907_0.png){:height 111, :width 243}
+			- ### Description
+				- Shows `TODO {{macro}}` blocks that reference the grandparent block.
+			- ### Query code
+			  {{code-inside}}
+				- ```clj
+				  #+BEGIN_QUERY
+				  {:inputs [:parent-block "issue"]
+				   :query
+				   [:find (pull ?r [*]) ?uuid ?content ?first-line ?marker
+				    :keys issue uuid content first-line state
+				    :in $ ?parent-block ?macro-name
+				    :where
+				    [?parent-block :block/left ?component-block]
+				  [?component-block :block/refs ?kit-page] ;; kit page
+				    [?r :block/refs ?kit-page]
+				  
+				    [?r :block/marker ?marker]
+				    ;(not [(contains? #{"DONE"} ?marker)])
+				  
+				    [?r :block/macros ?m]
+				    [?m :block/properties ?props]
+				    [(get ?props :logseq.macro-name) ?macros]
+				    [(= ?macros ?macro-name)]
+				  
+				    ;; info we want, now that we have a match
+				    [?r :block/uuid ?uuid]
+				  
+				    [?r :block/content ?content]
+				    [(re-pattern "(?<=^(?:TODO|DONE) {{issue}} ).*") ?first-line-pattern]
+				    [(re-find ?first-line-pattern ?content) ?first-line]
+				  
+				    ;[?r :block/page ?p]
+				    ;[?p :block/journal-day ?date]
+				  ]
+				  
+				   :view (letfn [(make-link [text destination]
+				                            [:a {:on-click 
+				                                 (fn [] 
+				                                   (call-api "push_state" "page" {:name destination}))
+				                                 } text])
+				                 (make-marker-box [uuid marker content]
+				                                  [:input
+				                                   {:type "checkbox"
+				                                    ;; checked attribute takes a boolean value
+				                                    :checked (= marker "DONE")
+				                                    :on-click
+				                                    (fn []
+				                                      (call-api "update_block" uuid
+				                                                (str
+				                                                 (if (= marker "DONE")
+				                                                   "TODO"
+				                                                   "DONE")
+				                                                 " "
+				                                                 (clojure.string/replace
+				                                                  content
+				                                                  (re-pattern "(TODO|DONE)\\s")
+				                                                  ""))))}])
+				                 ]
+				          
+				          (fn [results]
+				           [:div
+				            [:table {:class "future-appointments"}
+				             [:thead
+				              [:tr
+				               [:th {:width "80"} "Status"]
+				               [:th "Issue"]]]
+				             [:tbody
+				              (for [result results]
+				                [:tr
+				                 [:td
+				                  (make-marker-box 
+				                   (get-in result [:uuid]) 
+				                   (get-in result [:state]) 
+				                   (get-in result [:content])) 
+				                  ]
+				                 [:td 
+				                  (make-link 
+				                   (get-in result [:first-line]) 
+				                   (get-in result [:uuid]))
+				                  ]
+				                 
+				  
+				                 ])]]]
+				            )
+				           
+				           
+				           )
+				   }
+				  #+END_QUERY
+				  ```
+		- #### Macro-based tracker (for pages)
+		  collapsed:: true
+		     ![image.png](../assets/image_1721831424254_0.png){:height 62, :width 197}
+			- ### Boilerplate blocks
+				- **1. On the tracking page**
+				  collapsed:: true
+					- `[[page-name]] component
+						- *any text*
+							- **REMOVE THE CODE FENCE**
+							  ```
+							  #+BEGIN_QUERY
+							  {:inputs [:parent-block "issue"]
+							   :query
+							   [:find (pull ?r [*]) ?uuid ?content ?first-line ?marker
+							    :keys issue uuid content first-line state
+							    :in $ ?parent-block ?macro-name
+							    :where
+							    [?parent-block :block/left ?component-block]
+							  [?component-block :block/refs ?kit-page] ;; kit page
+							    [?r :block/refs ?kit-page]
+							  
+							    [?r :block/marker ?marker]
+							    ;(not [(contains? #{"DONE"} ?marker)])
+							  
+							    [?r :block/macros ?m]
+							    [?m :block/properties ?props]
+							    [(get ?props :logseq.macro-name) ?macros]
+							    [(= ?macros ?macro-name)]
+							  
+							    ;; info we want, now that we have a match
+							    [?r :block/uuid ?uuid]
+							  
+							    [?r :block/content ?content]
+							    [(re-pattern "(?<=^(?:TODO|DONE) {{issue}} ).*") ?first-line-pattern]
+							    [(re-find ?first-line-pattern ?content) ?first-line]
+							  
+							    ;[?r :block/page ?p]
+							    ;[?p :block/journal-day ?date]
+							  ]
+							  
+							   :view (letfn [(make-link [text destination]
+							                            [:a {:on-click 
+							                                 (fn [] 
+							                                   (call-api "push_state" "page" {:name destination}))
+							                                 } text])
+							                 (make-marker-box [uuid marker content]
+							                                  [:input
+							                                   {:type "checkbox"
+							                                    ;; checked attribute takes a boolean value
+							                                    :checked (= marker "DONE")
+							                                    :on-click
+							                                    (fn []
+							                                      (call-api "update_block" uuid
+							                                                (str
+							                                                 (if (= marker "DONE")
+							                                                   "TODO"
+							                                                   "DONE")
+							                                                 " "
+							                                                 (clojure.string/replace
+							                                                  content
+							                                                  (re-pattern "(TODO|DONE)\\s")
+							                                                  ""))))}])
+							                 ]
+							          
+							          (fn [results]
+							           [:div
+							            [:table {:class "future-appointments"}
+							             [:thead
+							              [:tr
+							               [:th {:width "80"} "Status"]
+							               [:th "Issue"]]]
+							             [:tbody
+							              (for [result results]
+							                [:tr
+							                 [:td
+							                  (make-marker-box 
+							                   (get-in result [:uuid]) 
+							                   (get-in result [:state]) 
+							                   (get-in result [:content])) 
+							                  ]
+							                 [:td 
+							                  (make-link 
+							                   (get-in result [:first-line]) 
+							                   (get-in result [:uuid]))
+							                  ]
+							                 
+							  
+							                 ])]]]
+							            )
+							           
+							           
+							           )
+							   }
+							  #+END_QUERY
+							  ```
+				- **2. On a journal page**
+					- `TODO {{issue}} trackedPage is a bitch.
+					  #[[trackedPage]]
+			- ### [[Advanced query]]
+			  {{code-inside}}
+				- Advanced query
+				  ```clojure
+				  #+BEGIN_QUERY
+				  {:inputs [:parent-block "issue"]
+				   :query
+				   [:find (pull ?r [*]) ?uuid ?content ?first-line ?marker
+				    :keys issue uuid content first-line state
+				    :in $ ?parent-block ?macro-name
+				    :where
+				    [?parent-block :block/left ?component-block]
+				  [?component-block :block/refs ?kit-page] ;; kit page
+				    [?r :block/refs ?kit-page]
+				  
+				    [?r :block/marker ?marker]
+				    ;(not [(contains? #{"DONE"} ?marker)])
+				  
+				    [?r :block/macros ?m]
+				    [?m :block/properties ?props]
+				    [(get ?props :logseq.macro-name) ?macros]
+				    [(= ?macros ?macro-name)]
+				  
+				    ;; info we want, now that we have a match
+				    [?r :block/uuid ?uuid]
+				  
+				    [?r :block/content ?content]
+				    [(re-pattern "(?<=^(?:TODO|DONE) {{issue}} ).*") ?first-line-pattern]
+				    [(re-find ?first-line-pattern ?content) ?first-line]
+				  
+				    ;[?r :block/page ?p]
+				    ;[?p :block/journal-day ?date]
+				  ]
+				  
+				   :view (letfn [(make-link [text destination]
+				                            [:a {:on-click 
+				                                 (fn [] 
+				                                   (call-api "push_state" "page" {:name destination}))
+				                                 } text])
+				                 (make-marker-box [uuid marker content]
+				                                  [:input
+				                                   {:type "checkbox"
+				                                    ;; checked attribute takes a boolean value
+				                                    :checked (= marker "DONE")
+				                                    :on-click
+				                                    (fn []
+				                                      (call-api "update_block" uuid
+				                                                (str
+				                                                 (if (= marker "DONE")
+				                                                   "TODO"
+				                                                   "DONE")
+				                                                 " "
+				                                                 (clojure.string/replace
+				                                                  content
+				                                                  (re-pattern "(TODO|DONE)\\s")
+				                                                  ""))))}])
+				                 ]
+				          
+				          (fn [results]
+				           [:div
+				            [:table {:class "future-appointments"}
+				             [:thead
+				              [:tr
+				               [:th {:width "80"} "Status"]
+				               [:th "Issue"]]]
+				             [:tbody
+				              (for [result results]
+				                [:tr
+				                 [:td
+				                  (make-marker-box 
+				                   (get-in result [:uuid]) 
+				                   (get-in result [:state]) 
+				                   (get-in result [:content])) 
+				                  ]
+				                 [:td 
+				                  (make-link 
+				                   (get-in result [:first-line]) 
+				                   (get-in result [:uuid]))
+				                  ]
+				                 
+				  
+				                 ])]]]
+				            )
+				           
+				           
+				           )
+				   }
+				  #+END_QUERY
+				  ```
 		- #### Section contents (with icons)
 		  collapsed:: true
 		    ![image.png](../assets/image_1719767371213_0.png){:height 83, :width 213}
@@ -1738,7 +2034,6 @@ repository:: DeadBranches/logseq-queries-and-scripts
 				  #+END_QUERY
 				  ```
 - ## {{i efc5}} datalog language reference
-  collapsed:: true
   cateloguing advanced query syntax elements
   #+BEGIN_QUERY
   {
@@ -2125,8 +2420,34 @@ repository:: DeadBranches/logseq-queries-and-scripts
 			  })
 			  ```
 		- function **explanation**
-		  collapsed:: true
 		  *as a table*
+			- *note: use the `/page, code function documentation` template when adding new info*
+			- silly query attempt at automation
+			  id:: 66a2b92f-68a8-48fe-b9fa-921a4518ef4b
+			  collapsed:: true
+				- ```
+				  #+BEGIN_QUERY
+				  {:query
+				  [:find ?doc-page ?details ?header ?b
+				  :keys doc-page details header b
+				  :where
+				  [?p :block/properties ?properties]
+				  [(get ?properties :datascript) ?datascript]
+				  [(= ?datascript "query predicate function")]
+				  [?p :block/page ?doc-page]
+				  
+				  
+				  [?d :block/name "details"]
+				  [?b :block/path-refs ?d]
+				  [?b :block/page ?doc-page]
+				  [?b :block/content ?details]
+				  
+				  [?header :block/refs ?d]
+				  ]
+				  :view :pprint
+				  }
+				  #+END_QUERY
+				  ```
 			- {{embed ((66785bca-acd2-4401-95e2-32efb961ccb3))}}
 		- Conversational analyses
 		  collapsed:: true
@@ -2139,7 +2460,6 @@ repository:: DeadBranches/logseq-queries-and-scripts
 		  collapsed:: true
 			- {{embed ((66749df3-8843-473e-bfe7-d32bfce93215))}}
 - ## {{i eb6d}}  concept snippets
-  collapsed:: true
   advanced queries labeled by use case
 	- ### :rules
 	  *clause expressions*
@@ -2153,43 +2473,33 @@ repository:: DeadBranches/logseq-queries-and-scripts
 				-
 	- ### :where
 	  *clause expressions*
-		- return blocks **without** :properties ***value***
+		- blocks **without property** *:property-name*
+		  collapsed:: true
 			- Exclude blocks with property value *x*
 			- ```clj
 			  (not (property ?b :goods-category "food"))
 			  ```
-		- block has `:block/property` *:x*
+		- blocks **with property** *:property-name*
 		  collapsed:: true
 			- ```datalog
 			    [?b :block/properties ?prop]
 			    [(contains? ?prop :goods-category)]
 			  ```
-		- block has `:block/property` *:x* with value *"y"*
+		- blocks **with :property value** *"value"*
 		  collapsed:: true
 			- ```datalog
 			  [?b :block/properties ?props]
 			  [(get ?props :goods-category) ?category]
 			  [(contains? ?category "mushroom")]
 			  ```
-		- `:block/marker` does not contain *X*
+		- blocks where **marker isn't #{"DONE" "CANCELED"}**
+		  collapsed:: true
 			- ```datalog
 			  [?b :block/marker ?m]
 			  (not [(contains? #{"DONE" "CANCELED"} ?m)] )
 			  ```
-		- pull blocks with a specific **macro reference**
+		- blocks **with a given \{\{macro}}**
 		  id:: 6638f4e8-101f-4d66-8aa5-0782d73d32f7
-		  collapsed:: true
-		  {{button copy,copy_second_sibling,ea6f,long squat}}
-			- {{nested-code-block}}
-			  collapsed:: true
-				- copy_second_sibling:
-				  ```js
-				  const second_child = logseq.api.get_next_sibling_block(this.nestedMacroUuid);
-				  const pattern = new RegExp("```(?:[a-zA-Z\\d_-]*)*\\n(.+?)\\n```", "usgm");
-				  const match = pattern.exec(second_child.content);
-				  const clipboard = `${match[1]}\n\n[source](((${second_child.uuid})))`;
-				  navigator.clipboard.writeText(clipboard);
-				  ```
 			- collapsed:: true
 			  ```datalog
 			  {:inputs ["grocery"]
@@ -2205,6 +2515,7 @@ repository:: DeadBranches/logseq-queries-and-scripts
 			   }
 			  ```
 			- news!!!
+			  collapsed:: true
 			  #+BEGIN_QUERY
 			  {:inputs ["news"]
 			   :query 
@@ -2223,10 +2534,47 @@ repository:: DeadBranches/logseq-queries-and-scripts
 			    :children? false
 			    :group-by-page? false}
 			  #+END_QUERY
-		- **show first line** of each result
+	- ### :view
+		- construct an **unordered list**
 		  collapsed:: true
-		    `:result-transform` `:view`
-		  {{button copy,copy_second_sibling,ea6f,long squat}}
+			- {{nested-code-block}}
+			  collapsed:: true
+				- copy_second_sibling:
+				  ```js
+				  const second_child = logseq.api.get_next_sibling_block(this.nestedMacroUuid);
+				  const pattern = new RegExp("```(?:[a-zA-Z\\d_-]*)*\\n(.+?)\\n```", "usgm");
+				  const match = pattern.exec(second_child.content);
+				  const clipboard = `${match[1]}\n\n[source](((${second_child.uuid})))`;
+				  navigator.clipboard.writeText(clipboard);
+				  ```
+			- ```clj
+			  #+BEGIN_QUERY
+			  {:query
+			      [:find (pull ?p [*])
+			          :where
+			          (page-tags ?p #{"page"})
+			      ]
+			      :result-transform (fn [result] 
+			          (sort-by 
+			          (fn [r] (get r :block/name))
+			          )
+			      )
+			      :view
+			      (fn [result] ;<base>
+			          [:ul (for [r result]
+			              [:li 
+			              [:b 
+			              [:a {:href (str "#/page/" (get-in r [:block/original-name]))} (str "#" (get r :block/name))]
+			              ]
+			              (str ": " (get-in r [:block/properties :description]))
+			              ]
+			          )]
+			      );</base>
+			  }
+			  #+END_QUERY
+			  ```
+		- get **first line** of block content
+		  collapsed:: true
 			- {{nested-code-block}}
 			  collapsed:: true
 				- copy_second_sibling:
@@ -2310,61 +2658,146 @@ repository:: DeadBranches/logseq-queries-and-scripts
 			  
 			  #+END_QUERY
 			  ```
-		- Results as an **unordered list**
-		  collapsed:: true
-		  `:result-transform` `:view`
-		  {{button copy,copy_second_sibling,ea6f,long squat}}
-			- {{nested-code-block}}
-			  collapsed:: true
-				- copy_second_sibling:
-				  ```js
-				  const second_child = logseq.api.get_next_sibling_block(this.nestedMacroUuid);
-				  const pattern = new RegExp("```(?:[a-zA-Z\\d_-]*)*\\n(.+?)\\n```", "usgm");
-				  const match = pattern.exec(second_child.content);
-				  const clipboard = `${match[1]}\n\n[source](((${second_child.uuid})))`;
-				  navigator.clipboard.writeText(clipboard);
+		- make a dd clickable :block/marker box
+		  id:: 66a05e34-42c8-4cf7-8b0b-27cb0943d9ac
+		  to `:view` function
+			- :view function excerpt
+				- ```
+				  :view (letfn [(make-marker-box [uuid marker content]
+				                      [:input
+				                       {:type "checkbox"
+				                                    ;; checked attribute takes a boolean value
+				                        :checked (= marker "DONE")
+				                        :on-click
+				                        (fn []
+				                          (call-api "update_block" uuid
+				                                    (str
+				                                     (if (= marker "DONE")
+				                                       "TODO"
+				                                       "DONE")
+				                                     " "
+				                                     (clojure.string/replace
+				                                      content
+				                                      (re-pattern "(TODO|DONE)\\s")
+				                                      ""))))}])]
+				              (fn [results])
+				              [:div
+				               [:table {:class "future-appointments"}
+				                [:thead
+				                 [:tr
+				                  [:th "Status"]
+				                  [:th "Issue"]]]
+				                [:tbody
+				                 (for [result results]
+				                   [:tr
+				                    [:td
+				                     (make-marker-box
+				                      (get-in result [:uuid])
+				                      (get-in result [:state])
+				                      (get-in result [:content]))]
+				                    [:td
+				                     (get-in result [:content])]])]]])
 				  ```
-			- ```clj
-			  #+BEGIN_QUERY
-			  {:query
-			      [:find (pull ?p [*])
-			          :where
-			          (page-tags ?p #{"page"})
-			      ]
-			      :result-transform (fn [result] 
-			          (sort-by 
-			          (fn [r] (get r :block/name))
-			          )
-			      )
-			      :view
-			      (fn [result] ;<base>
-			          [:ul (for [r result]
-			              [:li 
-			              [:b 
-			              [:a {:href (str "#/page/" (get-in r [:block/original-name]))} (str "#" (get r :block/name))]
-			              ]
-			              (str ": " (get-in r [:block/properties :description]))
-			              ]
-			          )]
-			      );</base>
-			  }
-			  #+END_QUERY
-			  ```
-		- **Sort by journal day**
+			- Full query example
+			  collapsed:: true
+				- **Mock journal page**
+					- TODO {{issue}} ah shit
+					  ((66a05f8b-929c-4c83-beb9-61b01849f890))
+					- TODO {{issue}} Belly buttons have fluff in them
+					  ((66a05f8b-929c-4c83-beb9-61b01849f890))
+				- **Mock project page**
+					- {{component}} Belly buttons
+					  id:: 66a05f8b-929c-4c83-beb9-61b01849f890
+						- *Component issue tracker*
+							- id:: 66a05fe3-c2a0-4867-8339-2cfa9060003d
+							  #+BEGIN_QUERY
+							  {:inputs [:parent-block "issue"]
+							   :query
+							   [:find (pull ?r [*]) ?uuid ?content ?first-line ?marker
+							    :keys issue uuid content first-line state
+							    :in $ ?parent-block ?macro-name
+							    :where
+							    [?parent-block :block/left ?component-block]
+							    [?r :block/refs ?component-block]
+							  
+							    [?r :block/marker ?marker]
+							    ;(not [(contains? #{"DONE"} ?marker)])
+							  
+							    [?r :block/macros ?m]
+							    [?m :block/properties ?props]
+							    [(get ?props :logseq.macro-name) ?macros]
+							    [(= ?macros ?macro-name)]
+							  
+							    ;; info we want, now that we have a match
+							    [?r :block/uuid ?uuid]
+							  
+							    [?r :block/content ?content]
+							    [(re-pattern "(?<=^(?:TODO|DONE) {{issue}} ).*") ?first-line-pattern]
+							    [(re-find ?first-line-pattern ?content) ?first-line]
+							  
+							    ;[?r :block/page ?p]
+							    ;[?p :block/journal-day ?date]
+							  ]
+							  
+							   :view (letfn [(make-link [text destination]
+							                            [:a {:on-click 
+							                                 (fn [] 
+							                                   (call-api "push_state" "page" {:name destination}))
+							                                 } text])
+							                 (make-marker-box [uuid marker content]
+							                                  [:input
+							                                   {:type "checkbox"
+							                                    ;; checked attribute takes a boolean value
+							                                    :checked (= marker "DONE")
+							                                    :on-click
+							                                    (fn []
+							                                      (call-api "update_block" uuid
+							                                                (str
+							                                                 (if (= marker "DONE")
+							                                                   "TODO"
+							                                                   "DONE")
+							                                                 " "
+							                                                 (clojure.string/replace
+							                                                  content
+							                                                  (re-pattern "(TODO|DONE)\\s")
+							                                                  ""))))}])
+							                 ]
+							          
+							          (fn [results]
+							           [:div
+							            [:table {:class "future-appointments"}
+							             [:thead
+							              [:tr
+							               [:th {:width "80"} "Status"]
+							               [:th "Issue"]]]
+							             [:tbody
+							              (for [result results]
+							                [:tr
+							                 [:td
+							                  (make-marker-box 
+							                   (get-in result [:uuid]) 
+							                   (get-in result [:state]) 
+							                   (get-in result [:content])) 
+							                  ]
+							                 [:td 
+							                  (make-link 
+							                   (get-in result [:first-line]) 
+							                   (get-in result [:uuid]))
+							                  ]
+							                 
+							  
+							                 ])]]]
+							            )
+							           
+							           
+							           )
+							   }
+							  #+END_QUERY
+						- *UI/UX* designs
+							- Here's some stuff I'm working on
+	- ### :result-transform
+		- Sort by result [:block/page **:journal-day**]
 		  id:: 663a1f42-6ff8-4a1b-a953-cca70c833e52
-		  collapsed:: true
-		    `:result-transform`
-		  {{button copy,copy_second_sibling,ea6f,long squat}}
-			- {{nested-code-block}}
-			  collapsed:: true
-				- copy_second_sibling:
-				  ```js
-				  const second_child = logseq.api.get_next_sibling_block(this.nestedMacroUuid);
-				  const pattern = new RegExp("```(?:[a-zA-Z\\d_-]*)*\\n(.+?)\\n```", "usgm");
-				  const match = pattern.exec(second_child.content);
-				  const clipboard = `${match[1]}\n\n[source](((${second_child.uuid})))`;
-				  navigator.clipboard.writeText(clipboard);
-				  ```
 			- ```datalog
 			  :result-transform
 			    (fn [result] 
@@ -2373,8 +2806,6 @@ repository:: DeadBranches/logseq-queries-and-scripts
 			  ```
 		- **Sort by date created** (or failing that, date last modified)
 		  collapsed:: true
-		    `:result-transform`
-		  {{button copy,copy_second_sibling,ea6f,long squat}}
 			- {{nested-code-block}}
 			  collapsed:: true
 				- copy_second_sibling:
@@ -2445,7 +2876,6 @@ repository:: DeadBranches/logseq-queries-and-scripts
 			- source: https://discord.com/channels/725182569297215569/743139225746145311/1047314074930782308
 			- via https://discuss.logseq.com/t/show-todo-toggle-in-query-table-view/12720/5
 		- Clickable **links** using `call-api` and `push_state()`
-		  collapsed:: true
 		    `:result-transform` `:view`
 		  {{button copy,copy_second_sibling,ea6f,long squat}}
 			- {{nested-code-block}}
@@ -2458,6 +2888,20 @@ repository:: DeadBranches/logseq-queries-and-scripts
 				  const clipboard = `${match[1]}\n\n[source](((${second_child.uuid})))`;
 				  navigator.clipboard.writeText(clipboard);
 				  ```
+			- ### new way
+			- ```
+			  :view (letfn [(make-link [text destination]
+			                  [:a {:on-click
+			                       (fn []
+			                         (call-api "push_state" "page" {:name destination}))} text])]
+			  
+			          (fn [results]
+			            (make-link
+			             (get-in result [:first-line])
+			             (get-in result [:uuid]))))
+			  
+			  ```
+			- #### Old way
 			- ```
 			  {:view (fn
 			           ; the query will return an array with one item, so [[count]] will destructure the number
@@ -2667,7 +3111,6 @@ repository:: DeadBranches/logseq-queries-and-scripts
 		  #+END_QUOTE
 - ### datascript code
   id:: 663a4752-f9b9-4dc2-b4bf-fb7b09d9c283
-  collapsed:: true
 	- #### and
 	  id:: 663a4799-cf84-4fa4-9a1b-88452254f1cf
 	  collapsed:: true
@@ -2889,6 +3332,5 @@ repository:: DeadBranches/logseq-queries-and-scripts
 		  ;; custom-aggregate = [ 'aggregate' variable fn-arg+ ]
 		  ```
 - ### {{I eade}} resources
-  collapsed:: true
 	- https://charleschiugit.github.io/page/logseq/queries/
 	- https://www.reddit.com/r/logseq/comments/15yib2v/advanced_query_bootstrap_please_check_and_comment/
