@@ -17,6 +17,7 @@
 !insertListItem.md
 !nextAppointment.md
 !journalGroceryWidget.md
+!purchaseHolderComponent.md
 !exportquery.md
 !kitButton.md
 !openOrders.md
@@ -24,3 +25,9 @@
 !doingWidget.md
 !openOrderCount.md
 !groceryItemCount.md
+!openOrderCount.md
+!doingWidget.md
+!md-button.md
+!newKitButton.md
+!daysUntilNextAppointment.md
+!infoBox.md
