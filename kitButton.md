@@ -153,16 +153,32 @@ description:: kitButton [label] <kit-name> [icon] [positive-class | {-inline | -
   
     const processDataAttributes = (input) => {
       if (!input) return "";
+      // Allow the user to pass a single attribute, e.g. "mushrooms"
+      if (!input.includes("=")) {
+        console.log("no input");
+        return `data-argument="${input}"`;
+      }
+      // Expect multiple data attributes to be 1) single quoted, and 2) space-separated. 
+      // e.g. mushroom='hi' bunny='no', so splitting on "' " results in key-value pairs
+      if (!input.includes("' ")) {
+        console.log(`Error in kitButton processDataAttributes() input:\nData attribute 
+          argument Expects multiple data attributes to be 1) single quoted, and 
+          2) space-separated.\ne.g. mushroom='hi' bunny='no', so splitting on "' " 
+          results in key-value pairs`);
+          return "";
+      }
+  
       return input
-        .split(' ')
-        .filter(pair => pair.includes('='))
+        .split("' ")
         .map(pair => {
-          const [key, ...valueParts] = pair.split('=');
-          const value = valueParts.join('=').slice(1, -1); // Remove surrounding quotes
-          return `data-${key}="${value}"`;
+          const [key, value] = pair.split("=");
+          const processedValue = value.replaceAll("'", "")
+          return `data-${key}="${processedValue}"`;
         })
         .join(' ');
     };
+  
+  
     const kitArguments = sanitizeAttribute(div.dataset.arguments);
     const dataAttributes = processDataAttributes(kitArguments);
     div.innerHTML = `<button class="${buttonClassValue}" data-kit='runpage' data-kit-macro="kitButton" data-page-name='${kitPage}' ${iconDataAttribute} ${buttonTextDataAttribute} ${dataAttributes} type="button">${buttonText}</button>`;
@@ -184,6 +200,7 @@ description:: kitButton [label] <kit-name> [icon] [positive-class | {-inline | -
 	- {{evalparent}}
 - # Changes
 	- [[Thursday, Jul 25th, 2024]] Modified kitbutton to accept arguments as $5, but this time instead of just setting them all to data-arguments data attribute, it actually manually sets the data attributes when it is in the format attribute-name='value'.
+	  id:: 66a31038-3455-4ded-8d20-89e5e790dc76
 		- So, to get the same behaviour as before now I need to do $5 = argument='something'
 		- But, now I can pass multiple attributes all at once
 		-
