@@ -1,41 +1,139 @@
 kit:: insertSomeBlocks
-description:: Insert a logseq block and it's children as a target blocks' children [default] or sibling. Example: `{{kitButton blocks,insertSomeBlocks,ea69,'',source='66a2ecd4-644b-47b5-a9b7-cfc4b50f1376' target='66a2f05f-9991-4030-abc1-11d5b3b603c2'}}`
+description:: Insert a logseq block and it's children as a target blocks' children [default] or sibling. Example: `{{kitButton blocks,insertSomeBlocks,ea69,'',source='66a2ecd4-644b-47b5-a9b7-cfc4b50f1376' target='66a2f05f-9991-4030-abc1-11d5b3b603c2' options='before: true; sibling: true'}}`
 
 - ```javascript
-  //fix
-  
-  // Usage:
-  // {{kitButton blocks,insertSomeBlocks,ea69,'',source='66a2ecd4-644b-47b5-a9b7-cfc4b50f1376' target='66a2f05f-9991-4030-abc1-11d5b3b603c2'}}
-  //fix
-  
   // Usage:
   // {{kitButton blocks,insertSomeBlocks,ea69,'',source='66a2ecd4-644b-47b5-a9b7-cfc4b50f1376' target='66a2f05f-9991-4030-abc1-11d5b3b603c2'}}
   
   logseq.kits.insertSomeBlocks = insertSomeBlocks;
   
-  function insertSomeBlocks() {
-      const element = event.target.closest("button[data-kit]");
+  /**
+   * Function to insert a block and all children into a page with various options.
+   * Includes:
+   *  - Options: Specifiy if target should be child, sibling, come before, or after
+   *  - Source: Specify block UUID to fetch that block's data
+   *  - UnlessMacro: Only insert the block if a specific macro is absent from the page
+   * @param source {string} The UUID of the source block.
+   * @param target {string} The UUID of the target block.
+   * @param options {string} The options string.
+   * @param unless {string} The unless macro.
+   *
+   */
+  function insertSomeBlocks(source, target, options, unless) {
+      // console.group('insertSomeBlocks entry');
+      // console.log(`insertSomeBlocks argument values`);
+      // console.log(`source: ${source}\ntarget ${target}\noptions ${options}\nunless: ${unless}`);
+      const buttonElement = event.target.closest("button[data-kit]");
+      // console.log(buttonElement);
+      // console.groupEnd();
   
-      const batchInsertPromise = (async (div = element) => {
-          //** Argument processing */
-          // The user can omit the `target` argument to use the button block as the target.
-          const targetUuid = div.dataset.target ? div.dataset.target
-              : div
-                  .closest(".ls-block")
-                  .getAttribute("blockid");
-          const sourceUuid = div.dataset.source;
-          const optionsString = div.dataset.options
+      const argumentObject = ((sourceArg = source, targetArg = target, optionsArg = options, unlessArg = unless, element = buttonElement) => {
+          // console.group("Inside argumentObject()");
+          const triggeringBlockUuid = element.closest(".ls-block").getAttribute("blockid");
+          if (triggeringBlockUuid) return {
+              // The kit has been invoked from a button block & arguments are
+              // passed as data atributes
+              sourceUuid: element.dataset.source,
+              // The user may omit the target argument to use the invoking block as the target
+              targetUuid: element.dataset.target ? element.dataset.target 
+              : element.closest(".ls-block").getAttribute("blockid"),
+              triggeringBlockUuid: element.closest(".ls-block").getAttribute("blockid"),
+              optionsString: element.dataset.options ? element.dataset.options : undefined,
+              unlessMacro: element.dataset.unlessMacro ? element.dataset.unlessMacro : undefined
+          }
   
+          // This kit can be invoked from another kit along with arguments
+          return {
+              sourceUuid: sourceArg,
+              targetUuid: targetArg,
+              triggeringBlockUuid: undefined,
+              optionsString: optionsArg ? optionsArg : undefined,
+              unlessMacro: unlessArg ? unlessArg : undefined
+          }
+      })();
+      // console.log(`argumentObject:\n${JSON.stringify(argumentObject, null, 2)}`);
+      // console.groupEnd();
   
-          const blockAndChildren = await (async (blockId = sourceUuid) => {
+      /**
+       * The main function that inserts the blocks.
+       * @param {Object} argument - The argument object containing the source UUID, target UUID, options, and unless macro.
+       * @returns {Promise} A promise that resolves when the blocks are inserted.
+       */
+      const batchInsertPromise = (async (argument = argumentObject) => {
+  
+          /**
+           * Get the block data for the source UUID and all its children.
+           * @throws {Error} If the source UUID is not provided.
+           */
+          const blockAndChildren = await (async (blockId = argument.sourceUuid) => {
+              if (!blockId) {
+                  throw new Error('Source UUID is required');
+              }
               const blockData = await logseq.api.get_block(blockId, { includeChildren: true });
               return blockData;
           })();
+          // console.log(`blockAndChildren:\n ${JSON.stringify(blockAndChildren,null,2)}`);
   
   
+          /**
+           * Check if a block with the same macro already exists on the page.
+           * @returns {Promise<boolean>} A promise that resolves to true if the macro exists, false otherwise.
+           */
+          const macroExists = await (async (macroName = argument.unlessMacro, eventSourceId = argument.triggeringBlockUuid) => {
+              console.group('MacroExists');
+              if (macroName === undefined) return false;
+              if (eventSourceId === undefined) {
+                  console.warn("There is no eventSourceId (triggeringBlockUuid).");
+                  console.table(argument);
+                  throw new Error('eventSourceId is required');
+              }
+  
+              const eventSourceBlockData = await logseq.api.get_block(eventSourceId);
+              const eventSourcePageId = eventSourceBlockData.page.id;
+              const eventSourcePageData = await logseq.api.get_page(eventSourcePageId);
+              const macroExistsQuery = `
+                  [:find (pull ?b [*])
+                  :where
+                  [?p :block/name "${eventSourcePageData.name}"]
+                  [?b :block/page ?p]
+                  
+                  [?b :block/macros ?m]
+                  [?m :block/properties ?props]
+                  [(get ?props :logseq.macro-name) ?macros]
+                  [(= ?macros "${macroName}")]
+                  ]
+              `;
+              // console.log(`Event source id:\n${eventSourceId}`);
+              //console.table(eventSourceBlockData);
+  
+              return new Promise(async (resolve) => {
+                  const macroBlocks = await logseq.api.datascript_query(macroExistsQuery)?.flat();
+                
+                  const result = () => {
+                    console.table(macroBlocks);
+                      if (!macroBlocks[0]) {
+                          console.log(`Searched for blocks containing the macro {{${macroName}}} but none were found.`);
+                          return false;
+                      }
+                      return true;
+                  };
+                   resolve(result());
+              });
+  
+          })();
+          if (macroExists) {
+              console.warn("A block with that macro already exists on the page. Not adding any more.");
+              return;
+          }
+          console.groupEnd();
+  
+  
+          /**
+           * Structure the block data for use with the logseq.api.insert_batch_block 
+           * function by running a recrusive function on the data tree.
+           * @param {Object} blockData - The block data object to be formatted.
+           */
           const structuredBlockData = ((blockData = blockAndChildren) => {
-              // Structure the block data for use with the logseq.api.insert_batch_block function
-              // by running a recrusive function on the data tree.
               const formatBlockData = (block) => {
                   const formattedBlock = {
                       content: block.content
@@ -48,12 +146,16 @@ description:: Insert a logseq block and it's children as a target blocks' childr
               };
               return formatBlockData(blockData);
           })();
+          // console.log(`structuredBlockData:\n${JSON.stringify(structuredBlockData,null,1)}`);
+          
   
-          // const insertFormattedBlocks = await (async (sourceBlocks = formattedBlockData, destination = ))
-          /** Options for the insert_batch_block() function are passed to this script as an
+          /**
+           * Process the options string into an object.
+           * Options for the insert_batch_block() function are passed to this script as an
            * object-like string. Convert the string to an actual object.
+           * @returns {Object} The processed options object.
            */
-          const processedBatchOptions = ((options = optionsString) => {
+          const processedBatchOptions = ((options = argument.optionsString) => {
               if (!options) return { sibling: false, before: false };
               const result = {};
               const keyValuePairs = options.split(';');
@@ -86,7 +188,10 @@ description:: Insert a logseq block and it's children as a target blocks' childr
               return result;
           })();
   
-          return insertOperation = (async (source = [structuredBlockData], target = targetUuid, options = processedBatchOptions) => {
+          return insertOperation = (async (source = [structuredBlockData], target = argument.targetUuid, options = processedBatchOptions) => {
+              if (!target) {
+                  throw new Error('Target UUID is required');
+              }
               await logseq.api.insert_batch_block(
                   target,
                   source,
@@ -101,7 +206,7 @@ description:: Insert a logseq block and it's children as a target blocks' childr
           resolve(await batchInsertPromise);
       });
   };
-  await insertSomeBlocks();
+  //await insertSomeBlocks();
   ```
 	- {{evalparent}}
 - ```javascript
@@ -117,7 +222,23 @@ description:: Insert a logseq block and it's children as a target blocks' childr
 	- (before sibling)
 	- I am a a target block
 	  id:: 66aa4a91-9538-4cc3-9352-7fa54d27cd8a
+		- I am a source block
+			- AM A CHILD!@
 		- (first child)
 		- (second child)
 	- (first sibling)
 	- (second sib)
+- {{kitButton unless-macro,insertSomeBlocks,ea69,'',source='66aab047-cf56-49b4-98e4-43b408d2ce52' target='66aab050-8c4e-48a9-bf18-84f6a5b50b99' options='sibling: false; before: false' unless-macro='doing-holder'}}
+	- -source-block-
+	  id:: 66aab047-cf56-49b4-98e4-43b408d2ce52
+	- target-block {{doing-holder}}
+	  id:: 66aab050-8c4e-48a9-bf18-84f6a5b50b99
+		- -source-block-
+		- -source-block-
+		- -source-block-
+		- -source-block-
+- ```javascript
+  await logseq.kits.insertSomeBlocks('66aab047-cf56-49b4-98e4-43b408d2ce52','66aab050-8c4e-48a9-bf18-84f6a5b50b99', {}, "mushroom");
+  ```
+	- {{evalparent}}
+-
