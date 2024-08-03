@@ -2,64 +2,121 @@ kit:: insertSomeBlocks
 description:: Insert a logseq block and it's children as a target blocks' children [default] or sibling. Example: `{{kitButton blocks,insertSomeBlocks,ea69,'',source='66a2ecd4-644b-47b5-a9b7-cfc4b50f1376' target='66a2f05f-9991-4030-abc1-11d5b3b603c2' options='before: true; sibling: true'}}`
 
 - ```javascript
+  /// Insert block backup
   // Usage:
   // {{kitButton blocks,insertSomeBlocks,ea69,'',source='66a2ecd4-644b-47b5-a9b7-cfc4b50f1376' target='66a2f05f-9991-4030-abc1-11d5b3b603c2'}}
   
   logseq.kits.insertSomeBlocks = insertSomeBlocks;
   
-  /**
-   * Function to insert a block and all children into a page with various options.
-   * Includes:
-   *  - Options: Specifiy if target should be child, sibling, come before, or after
-   *  - Source: Specify block UUID to fetch that block's data
-   *  - UnlessMacro: Only insert the block if a specific macro is absent from the page
-   * @param source {string} The UUID of the source block.
-   * @param target {string} The UUID of the target block.
-   * @param options {string} The options string.
-   * @param unless {string} The unless macro.
-   *
-   */
+  
   function insertSomeBlocks(source, target, options, unless) {
-      // console.group('insertSomeBlocks entry');
-      // console.log(`insertSomeBlocks argument values`);
-      // console.log(`source: ${source}\ntarget ${target}\noptions ${options}\nunless: ${unless}`);
+  
       const buttonElement = event.target.closest("button[data-kit]");
       // console.log(buttonElement);
       // console.groupEnd();
   
+  
+      /**
+       * Search for the first block with the given macro name on the same page as destimationId
+        */
+      async function blockWithMacro(macroName, destinationId) {
+          if (macroName === undefined) return false;
+          if (destinationId === undefined) {
+              console.warn("There is no destinationId");
+              throw new Error('destinationId is required');
+          }
+  
+          const eventSourceBlockData = await logseq.api.get_block(destinationId);
+          const eventSourcePageId = eventSourceBlockData.page.id;
+          const eventSourcePageData = await logseq.api.get_page(eventSourcePageId);
+          const macroExistsQuery = `
+                          [:find (pull ?b [*])
+                          :where
+                          [?p :block/name "${eventSourcePageData.name}"]
+                          [?b :block/page ?p]
+                          
+                          [?b :block/macros ?m]
+                          [?m :block/properties ?props]
+                          [(get ?props :logseq.macro-name) ?macros]
+                          [(= ?macros "${macroName}")]
+                          ]`;
+          return new Promise(async (resolve) => {
+              const blockData = await logseq.api.datascript_query(macroExistsQuery)?.flat();
+              const result = () => {
+                  if (!blockData[0]) {
+                      console.log(`Searched for blocks containing the macro {{${macroName}}} but none were found.`);
+                      return false;
+                  }
+                  return blockData[0].uuid;
+              };
+              resolve(result());
+          });
+      };
+  
+      console.group("Argument Object");
       const argumentObject = ((sourceArg = source, targetArg = target, optionsArg = options, unlessArg = unless, element = buttonElement) => {
           // console.group("Inside argumentObject()");
           const triggeringBlockUuid = element.closest(".ls-block").getAttribute("blockid");
-          if (triggeringBlockUuid) return {
-              // The kit has been invoked from a button block & arguments are
-              // passed as data atributes
-              sourceUuid: element.dataset.source,
-              // The user may omit the target argument to use the invoking block as the target
-              targetUuid: element.dataset.target ? element.dataset.target 
-              : element.closest(".ls-block").getAttribute("blockid"),
+  
+          const processedTargetUUID = ((el = element, fromArg = targetArg) => {
+            if (el.dataset.target) {
+                  // Use the user-defined data-attribute based UUID
+                  console.log(`el.dataset.target: ${el.dataset.target}`);
+                  return el.dataset.target;
+              }
+              if (fromArg != undefined) {
+                  // Use the UUID passed to the kit as an argument
+                  console.log(`fromArg not undefined: ${fromArg}`);
+                  return fromArg;
+              }
+  
+              console.log("Using UUID from closest element")
+              return el.closest(".ls-block").getAttribute("blockid")
+          })();
+  
+          return {
+              sourceUuid: sourceArg ? sourceArg : element.dataset.source,
+              targetUuid: processedTargetUUID,
               triggeringBlockUuid: element.closest(".ls-block").getAttribute("blockid"),
               optionsString: element.dataset.options ? element.dataset.options : undefined,
               unlessMacro: element.dataset.unlessMacro ? element.dataset.unlessMacro : undefined
           }
-  
-          // This kit can be invoked from another kit along with arguments
-          return {
-              sourceUuid: sourceArg,
-              targetUuid: targetArg,
-              triggeringBlockUuid: undefined,
-              optionsString: optionsArg ? optionsArg : undefined,
-              unlessMacro: unlessArg ? unlessArg : undefined
-          }
       })();
+      console.table(argumentObject);
       // console.log(`argumentObject:\n${JSON.stringify(argumentObject, null, 2)}`);
-      // console.groupEnd();
+      console.groupEnd();
+  
+      console.group("Processed Argument Object");
+      //     The user can pass a macro name enclosed in single-quotes to use the first
+      // block containing that macro as the target
+      const processedArgumentObject = async (processedData = argumentObject, triggerElement = buttonElement) => {
+          console.table(processedData)
+          target = processedData.targetUuid;
+          if (target.includes("parent")) {
+              const newTarget = triggerElement.parentElement.closest('.ls-block').getAttribute("blockId");
+              processedData.targetUuid = newTarget;
+              return processedData
+          }
+          if (target.includes(":")) {
+              warn("HEY! THIS TARGET INCLUDES A FUNNY WORD!")
+              const macroName = target.replaceAll(":", "");
+              const blockWithMacroId = await blockWithMacro(macroName, triggerElement.parentElement.closest('.ls-block').getAttribute("blockId"))
+              processedData.targetUuid = blockWithMacroId;
+              return processedData;
+          }
+          return processedData;
+      });
+      console.log(`processed arg ${await processedArgumentObject}`);
+      console.groupEnd();
+      return JSON.stringify(processedArgumentObject);
+  
   
       /**
        * The main function that inserts the blocks.
        * @param {Object} argument - The argument object containing the source UUID, target UUID, options, and unless macro.
        * @returns {Promise} A promise that resolves when the blocks are inserted.
        */
-      const batchInsertPromise = (async (argument = argumentObject) => {
+      const batchInsertPromise = (async (argument = argumentObject, element = buttonElement) => {
   
           /**
            * Get the block data for the source UUID and all its children.
@@ -79,53 +136,12 @@ description:: Insert a logseq block and it's children as a target blocks' childr
            * Check if a block with the same macro already exists on the page.
            * @returns {Promise<boolean>} A promise that resolves to true if the macro exists, false otherwise.
            */
-          const macroExists = await (async (macroName = argument.unlessMacro, eventSourceId = argument.triggeringBlockUuid) => {
-              console.group('MacroExists');
-              if (macroName === undefined) return false;
-              if (eventSourceId === undefined) {
-                  console.warn("There is no eventSourceId (triggeringBlockUuid).");
-                  console.table(argument);
-                  throw new Error('eventSourceId is required');
-              }
   
-              const eventSourceBlockData = await logseq.api.get_block(eventSourceId);
-              const eventSourcePageId = eventSourceBlockData.page.id;
-              const eventSourcePageData = await logseq.api.get_page(eventSourcePageId);
-              const macroExistsQuery = `
-                  [:find (pull ?b [*])
-                  :where
-                  [?p :block/name "${eventSourcePageData.name}"]
-                  [?b :block/page ?p]
-                  
-                  [?b :block/macros ?m]
-                  [?m :block/properties ?props]
-                  [(get ?props :logseq.macro-name) ?macros]
-                  [(= ?macros "${macroName}")]
-                  ]
-              `;
-              // console.log(`Event source id:\n${eventSourceId}`);
-              //console.table(eventSourceBlockData);
-  
-              return new Promise(async (resolve) => {
-                  const macroBlocks = await logseq.api.datascript_query(macroExistsQuery)?.flat();
-                
-                  const result = () => {
-                    console.table(macroBlocks);
-                      if (!macroBlocks[0]) {
-                          console.log(`Searched for blocks containing the macro {{${macroName}}} but none were found.`);
-                          return false;
-                      }
-                      return true;
-                  };
-                   resolve(result());
-              });
-  
-          })();
+          const macroExists = await blockWithMacro(argument.unlessMacro, argument.targetUuid);
           if (macroExists) {
-              console.warn("A block with that macro already exists on the page. Not adding any more.");
+              console.warn(`A block with that macro already exists on the page. Not adding any more. ${macroExists}`);
               return;
           }
-          console.groupEnd();
   
   
           /**
@@ -147,7 +163,7 @@ description:: Insert a logseq block and it's children as a target blocks' childr
               return formatBlockData(blockData);
           })();
           // console.log(`structuredBlockData:\n${JSON.stringify(structuredBlockData,null,1)}`);
-          
+  
   
           /**
            * Process the options string into an object.
@@ -188,7 +204,8 @@ description:: Insert a logseq block and it's children as a target blocks' childr
               return result;
           })();
   
-          return insertOperation = (async (source = [structuredBlockData], target = argument.targetUuid, options = processedBatchOptions) => {
+          const processedTargetId = argument.targetUuid;
+          return insertOperation = (async (source = [structuredBlockData], target = processedTargetId, options = processedBatchOptions) => {
               if (!target) {
                   throw new Error('Target UUID is required');
               }
@@ -211,7 +228,6 @@ description:: Insert a logseq block and it's children as a target blocks' childr
 	- {{evalparent}}
 - ```javascript
   ```
-	- {{evalparent}}
 - {{kitButton as child,insertSomeBlocks,ea69,'',source='66aa4a5f-1a02-4da2-b52f-5f7d6b25cacb' target='66aa4a91-9538-4cc3-9352-7fa54d27cd8a' options='sibling: false; before: false'}} {{kitButton as sibling,insertSomeBlocks,ea69,'',source='66aa4a5f-1a02-4da2-b52f-5f7d6b25cacb' target='66aa4a91-9538-4cc3-9352-7fa54d27cd8a' options='sibling: true; before: false'}}
   {{kitButton child & before,insertSomeBlocks,ea69,'',source='66aa4a5f-1a02-4da2-b52f-5f7d6b25cacb' target='66aa4a91-9538-4cc3-9352-7fa54d27cd8a' options='sibling: false; before: true'}} {{kitButton sibling & before,insertSomeBlocks,ea69,'',source='66aa4a5f-1a02-4da2-b52f-5f7d6b25cacb' target='66aa4a91-9538-4cc3-9352-7fa54d27cd8a' options='sibling: true; before: true'}}
 - I am a source block
@@ -220,6 +236,14 @@ description:: Insert a logseq block and it's children as a target blocks' childr
 	- AM A CHILD!@
 - parent
 	- (before sibling)
+	- I am a source block
+		- AM A CHILD!@
+	- I am a source block
+		- AM A CHILD!@
+	- I am a source block
+		- AM A CHILD!@
+	- I am a source block
+		- AM A CHILD!@
 	- I am a a target block
 	  id:: 66aa4a91-9538-4cc3-9352-7fa54d27cd8a
 		- I am a source block
@@ -228,11 +252,18 @@ description:: Insert a logseq block and it's children as a target blocks' childr
 		- (second child)
 	- (first sibling)
 	- (second sib)
-- {{kitButton unless-macro,insertSomeBlocks,ea69,'',source='66aab047-cf56-49b4-98e4-43b408d2ce52' target='66aab050-8c4e-48a9-bf18-84f6a5b50b99' options='sibling: false; before: false' unless-macro='doing-holder'}}
+- {{kitButton unless doing-holder,insertSomeBlocks,ea69,'',source='66aab047-cf56-49b4-98e4-43b408d2ce52' target='66aab050-8c4e-48a9-bf18-84f6a5b50b99' options='sibling: false; before: false' unless-macro='doing-holder'}}
+	- {{kitButton unless doing-holder target:journalBuddy,insertSomeBlocks,ea69,'',source='66aab047-cf56-49b4-98e4-43b408d2ce52' target='parent' options='sibling: false; before: false' unless-macro='doing-holder'}}
 	- -source-block-
 	  id:: 66aab047-cf56-49b4-98e4-43b408d2ce52
-	- target-block {{doing-holder}}
+	- target: journalBuddy {{journalBuddy}}
+		- child
+	- -source-block-
+	- target-block
 	  id:: 66aab050-8c4e-48a9-bf18-84f6a5b50b99
+		- -source-block-
+		- -source-block-
+		- -source-block-
 		- -source-block-
 		- -source-block-
 		- -source-block-
