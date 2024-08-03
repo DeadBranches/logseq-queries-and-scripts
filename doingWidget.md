@@ -4,20 +4,26 @@ description:: Adds a doing block set to the page if one doesn't already exist
 - ```javascript
   logseq.kits.doingWidget = doingWidget;
   
-  async function someFunctionality(positionalArg, defaultArgument = false) {
-    const returnValue = ! keywordArgument;
-    return returnValue;
+  async function get_block_content(uuid) {
+    let component_uuid = uuid
+    let component_block = await logseq.api.get_block(component_uuid).content;
+    // Logseq blocks include an id property if the block has been referenced.
+    const regexPattern = /\nid::\s(?:[\d\w]{4,8}-){4}[\d\w]{12}/gm;
+    const component = component_block.replace(regexPattern, '');
+    return component
   }
   
   async function doingWidget(el, mode = 'process') {
     const me = event.target.closest('.ls-block');
     const parentBlockId = me.parentElement.closest('.ls-block').getAttribute("blockId");
   
+    // Location in graph of doing container
+    const COMPONENT_UUID = "66aaac57-179b-457a-8b06-3814ddbaa12b";
     const MACRO_NAME = "doing-holder";
     const BATCH_BLOCK_CONTENT = [
       { 
-        content: "#### {{i ec45}} **Doing** today\n{{kitButton do,insertListItem,ec45,long,do}}\n\n{{kitButton '',insertListItem,f1fa,'',doKitchen}}  {{kitButton '',insertListItem,ea89,'',doOffice}}  {{kitButton '',insertListItem,ef48,'',doBathroom}}\n{{doing-holder}}"
-  }
+        content: `${await get_block_content(COMPONENT_UUID)}`
+  	}
   
     ];
   
