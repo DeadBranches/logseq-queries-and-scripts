@@ -1,7 +1,7 @@
 logseq.kits.insertSomeBlocks = insertSomeBlocks;
 
 
-function insertSomeBlocks(source, target, options, unless) {
+function insertSomeBlocks(source, target, options) {
 
     const buttonElement = event.target.closest("button[data-kit]");
 
@@ -9,14 +9,12 @@ function insertSomeBlocks(source, target, options, unless) {
         source: buttonElement.dataset.source,
         target: buttonElement.dataset.target,
         options: buttonElement.dataset.options,
-        unlessMacro: buttonElement.dataset.unlessMacro,
         element: buttonElement
     };
     const functionArguments = {
         source: source,
         target: target,
         options: options,
-        unless: unless,
         element: buttonElement
     };
 
@@ -25,7 +23,6 @@ function insertSomeBlocks(source, target, options, unless) {
         sourceArg = source,
         targetArg = target,
         optionsArg = options,
-        unlessArg = unless,
         element = buttonElement) => {
 
         const triggeringBlockUuid = element.closest(".ls-block").getAttribute("blockid");
@@ -49,8 +46,7 @@ function insertSomeBlocks(source, target, options, unless) {
             sourceUuid: sourceArg ? sourceArg : element.dataset.source,
             targetUuid: processedTargetUUID,
             triggeringBlockUuid: element.closest(".ls-block").getAttribute("blockid"),
-            optionsString: element.dataset.options ? element.dataset.options : undefined,
-            unlessMacro: element.dataset.unlessMacro ? element.dataset.unlessMacro : undefined
+            optionsString: element.dataset.options ? element.dataset.options : undefined
         }
     })();
     console.table(argumentObject);
@@ -61,7 +57,7 @@ function insertSomeBlocks(source, target, options, unless) {
 
     /**
      * The main function that inserts the blocks.
-     * @param {Object} argument - The argument object containing the source UUID, target UUID, options, and unless macro.
+     * @param {Object} argument - The argument object containing the source UUID, target UUID, and options
      * @returns {Promise} A promise that resolves when the blocks are inserted.
      */
     const batchInsertPromise = (async (argument = argumentObject, element = buttonElement) => {
