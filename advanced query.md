@@ -1029,6 +1029,7 @@ repository:: DeadBranches/logseq-queries-and-scripts
 			  #+END_QUERY
 		- ####  {{i ec44}} current medication list
 		  id:: 667a53af-9c93-4a1d-a01b-7e8b8fd22b53
+		  collapsed:: true
 		      ![image.png](../assets/image_1719766132026_0.png){:height 107, :width 337}
 			- id:: 664cb068-64bb-4dc5-aa7e-b0678b63a6fe
 			  #+BEGIN_QUERY
@@ -1138,6 +1139,7 @@ repository:: DeadBranches/logseq-queries-and-scripts
 		  collapsed:: true
 		      ![image.png](../assets/image_1719765985169_0.png){:height 30, :width 214}
 		- #### {{i eaff}} online orders (journal widget)
+		  collapsed:: true
 		      ![image.png](../assets/image_1719766180275_0.png){:height 31, :width 135}
 			- id:: 663f79d8-20d7-4027-9ff5-500ae36ff757
 			  #+BEGIN_QUERY
@@ -1289,6 +1291,7 @@ repository:: DeadBranches/logseq-queries-and-scripts
 			  #[[advanced query]]
 			  ```
 	- ## Reusable queries
+	  collapsed:: true
 	  *that need to be manually added to a block*
 	  #+BEGIN_QUERY
 	  {:inputs [:current-block #{1 2 3 4 5}]
@@ -1977,6 +1980,7 @@ repository:: DeadBranches/logseq-queries-and-scripts
 			  #+END_QUERY
 			  ```
 	- ## Previous page-queries
+	  collapsed:: true
 	  *Queries located on a page, but versioned here*
 		- ### Shopping list -> In basket
 			- **version 1.2** {{code-inside}}
@@ -2034,6 +2038,7 @@ repository:: DeadBranches/logseq-queries-and-scripts
 				  #+END_QUERY
 				  ```
 - ## {{i efc5}} datalog language reference
+  collapsed:: true
   cateloguing advanced query syntax elements
   #+BEGIN_QUERY
   {
@@ -2420,6 +2425,7 @@ repository:: DeadBranches/logseq-queries-and-scripts
 			  })
 			  ```
 		- function **explanation**
+		  collapsed:: true
 		  *as a table*
 			- *note: use the `/page, code function documentation` template when adding new info*
 			- silly query attempt at automation
@@ -2500,6 +2506,7 @@ repository:: DeadBranches/logseq-queries-and-scripts
 			  ```
 		- blocks **with a given \{\{macro}}**
 		  id:: 6638f4e8-101f-4d66-8aa5-0782d73d32f7
+		  collapsed:: true
 			- collapsed:: true
 			  ```datalog
 			  {:inputs ["grocery"]
@@ -2574,6 +2581,7 @@ repository:: DeadBranches/logseq-queries-and-scripts
 			  #+END_QUERY
 			  ```
 		- get **first line** of block content
+		  id:: 663a1f42-6ff8-4a1b-a953-cca70c833e52
 		  collapsed:: true
 			- {{nested-code-block}}
 			  collapsed:: true
@@ -2660,6 +2668,7 @@ repository:: DeadBranches/logseq-queries-and-scripts
 			  ```
 		- make a dd clickable :block/marker box
 		  id:: 66a05e34-42c8-4cf7-8b0b-27cb0943d9ac
+		  collapsed:: true
 		  to `:view` function
 			- :view function excerpt
 				- ```
@@ -2797,7 +2806,6 @@ repository:: DeadBranches/logseq-queries-and-scripts
 							- Here's some stuff I'm working on
 	- ### :result-transform
 		- Sort by result [:block/page **:journal-day**]
-		  id:: 663a1f42-6ff8-4a1b-a953-cca70c833e52
 			- ```datalog
 			  :result-transform
 			    (fn [result] 
@@ -2876,6 +2884,7 @@ repository:: DeadBranches/logseq-queries-and-scripts
 			- source: https://discord.com/channels/725182569297215569/743139225746145311/1047314074930782308
 			- via https://discuss.logseq.com/t/show-todo-toggle-in-query-table-view/12720/5
 		- Clickable **links** using `call-api` and `push_state()`
+		  collapsed:: true
 		    `:result-transform` `:view`
 		  {{button copy,copy_second_sibling,ea6f,long squat}}
 			- {{nested-code-block}}
@@ -3111,6 +3120,7 @@ repository:: DeadBranches/logseq-queries-and-scripts
 		  #+END_QUOTE
 - ### datascript code
   id:: 663a4752-f9b9-4dc2-b4bf-fb7b09d9c283
+  collapsed:: true
 	- #### and
 	  id:: 663a4799-cf84-4fa4-9a1b-88452254f1cf
 	  collapsed:: true
@@ -3332,5 +3342,6 @@ repository:: DeadBranches/logseq-queries-and-scripts
 		  ;; custom-aggregate = [ 'aggregate' variable fn-arg+ ]
 		  ```
 - ### {{I eade}} resources
+  collapsed:: true
 	- https://charleschiugit.github.io/page/logseq/queries/
 	- https://www.reddit.com/r/logseq/comments/15yib2v/advanced_query_bootstrap_please_check_and_comment/
