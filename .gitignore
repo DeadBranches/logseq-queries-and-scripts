@@ -1,5 +1,6 @@
 *
 !.gitignore
+!.gitattributes
 !advanced query.md
 !grocery list.md
 !shopping.md
