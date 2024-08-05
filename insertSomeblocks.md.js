@@ -17,8 +17,14 @@ function insertSomeBlocks(source, target, options) {
         options: options,
         element: buttonElement
     };
+    console.group("Dataset Argument Object");
+    console.table(datasetArguments);
+    console.groupEnd();
+    console.group("Function Argument Object");
+    console.table(functionArguments);
+    console.groupEnd();
+    return
 
-    console.group("Argument Object");
     const argumentObject = ((
         sourceArg = source,
         targetArg = target,
