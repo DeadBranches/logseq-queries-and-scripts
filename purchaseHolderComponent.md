@@ -18,12 +18,10 @@ description:: (formerly journalGroceryWidget). Add a purchase manager to the cur
     const parentBlockId = me.parentElement.closest('.ls-block').getAttribute("blockId");
   
     const MACRO_NAME = "purchase-holder";
-    const COMPONENT_UUID = "668d8204-6acc-4734-8754-d2da142826c0";
-    const BATCH_BLOCK_CONTENT = [
-      { 
+    const COMPONENT_UUID = "66b0edf9-37ba-4756-8421-c60cbd44b334";
+    const BATCH_BLOCK_CONTENT = [ { 
         content: `${await get_block_content(COMPONENT_UUID)}`
-  }
-    ];
+    } ];
   
       /**
        * Return the UUID of:
@@ -87,15 +85,12 @@ description:: (formerly journalGroceryWidget). Add a purchase manager to the cur
   ```
 	- {{evalparent}}
 -
-- # Components
-- Purchase holder UI component
-  *location: logseq-journal-buddy/uicomponents/* ((668bfa16-f000-4381-80b7-155ed5ebe7f1))
-	- {{embed ((668d8204-6acc-4734-8754-d2da142826c0))}}
-- (related: comonent buttons that call purchase holder)
-	- {{embed ((66913332-10d5-4554-a4ea-70380475cd0d))}}
+- # UI Elements
+  {{i ec9e}} *[[logseq-journal-buddy-improvement-2024.6]]* *(live embed)*
+	- {{embed ((668bfa16-f000-4381-80b7-155ed5ebe7f1))}}
 - # Changes
-- [[Tuesday, Jul 23rd, 2024]] feat: Use block content from project page. {{i-commit}}[e349a15](https://github.com/DeadBranches/logseq-queries-and-scripts/commits/main/)
-	- Added get_block_content(uuid) function to dynamically fetch the block content to insert from a given block uuid.
-- [[Tuesday, Jul 23rd, 2024]] **BREAKING**: Added purchaseHolderComponent and depreciated [[journalGroceryWidget]]
-- [[Tuesday, Jul 23rd, 2024]] **BREAKING**: changed grocery-holder macro to purchase-holder.
--
+	- [[Tuesday, Jul 23rd, 2024]] feat: Use block content from project page. {{i-commit}}[e349a15](https://github.com/DeadBranches/logseq-queries-and-scripts/commits/main/)
+		- Added get_block_content(uuid) function to dynamically fetch the block content to insert from a given block uuid.
+	- [[Tuesday, Jul 23rd, 2024]] **BREAKING**: Added purchaseHolderComponent and depreciated [[journalGroceryWidget]]
+	- [[Tuesday, Jul 23rd, 2024]] **BREAKING**: changed grocery-holder macro to purchase-holder.
+	-

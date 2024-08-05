@@ -59,7 +59,6 @@ repository:: DeadBranches/logseq-queries-and-scripts
   #+END_QUERY
 - ## {{i eff2}} Query library
   query:: ((65f7767a-9fe3-4b51-a564-c36be58ce5fa))
-  collapsed:: true
   *Advanced queries I reuse*
   #+BEGIN_QUERY
   {:inputs [:current-block #{1 2 3 4 5}]
@@ -118,7 +117,6 @@ repository:: DeadBranches/logseq-queries-and-scripts
 	  collapsed:: true
 	  *for `{{embedding}}`*
 		- **Related page** linked references
-		  collapsed:: true
 			- On a given page with the `:related` page property,
 				- Find all blocks with linked references to pages included in `:related`
 			- Linked references to pages in `:related` advanced query:
@@ -208,9 +206,8 @@ repository:: DeadBranches/logseq-queries-and-scripts
 			  
 			  #+END_QUERY
 		- #### {{i ef91}} Upcoming project quick-view
-		  collapsed:: true
 		        ![image.png](../assets/image_1719764401764_0.png){:height 38, :width 143}
-			- *see [[logseq project manager]]*
+			- *see [[logseq-project-manager-2024.5]]*
 			- **Current query**
 				- id:: 6654b591-49ea-4d3a-b9d9-1dc4f25bab0c
 				  #+BEGIN_QUERY
@@ -403,7 +400,7 @@ repository:: DeadBranches/logseq-queries-and-scripts
 		  collapsed:: true
 		      ![image.png](../assets/image_1719764465551_0.png){:height 30, :width 183}
 			- ###  {{i f635}} information
-				- for related {{i ef91}} project see [[logseq project manager]]
+				- for related {{i ef91}} project see [[logseq-project-manager-2024.5]]
 			- ### {{i eb89}} current query
 			  *for use in embedding*
 				- id:: 664f42a4-40eb-44ba-8e8c-89dba2c17a06
@@ -969,7 +966,8 @@ repository:: DeadBranches/logseq-queries-and-scripts
 					  ```
 		- #### {{i ee20}} future appointments list
 		  id:: 66415c9e-ff58-4281-8007-160cb44fb8b3
-			- id:: 66415ca6-d397-4fc1-97f1-95f7b516e6d1
+			- [:small "upcoming appointments"]
+			  id:: 66415ca6-d397-4fc1-97f1-95f7b516e6d1
 			  #+BEGIN_QUERY
 			  {:query
 			   [:find (min ?journal-day) ?date ?journal-day ?content ?props ?today ?activity ?event ?uuid ?current-page
@@ -1989,7 +1987,6 @@ repository:: DeadBranches/logseq-queries-and-scripts
 			  from June 12, 2024
 			- **version 1.0** {{code-inside}}
 			  id:: 669136b1-ac6e-4a40-abc3-50c3687cf2dd
-			  collapsed:: true
 			  Shows items crossed off today, or "no results found".
 			  from June 12, 2024
 			  
@@ -2467,6 +2464,9 @@ repository:: DeadBranches/logseq-queries-and-scripts
 			- {{embed ((66749df3-8843-473e-bfe7-d32bfce93215))}}
 - ## {{i eb6d}}  concept snippets
   advanced queries labeled by use case
+	- ### {{i eead}} query concept inbox
+	  id:: 66ae786c-0e7c-4d19-a94a-a1ae04fa3f19
+	  *check here for unsorted saved queries*
 	- ### :rules
 	  *clause expressions*
 		- show query **results only**
@@ -2486,13 +2486,11 @@ repository:: DeadBranches/logseq-queries-and-scripts
 			  (not (property ?b :goods-category "food"))
 			  ```
 		- blocks **with property** *:property-name*
-		  collapsed:: true
 			- ```datalog
 			    [?b :block/properties ?prop]
 			    [(contains? ?prop :goods-category)]
 			  ```
 		- blocks **with :property value** *"value"*
-		  collapsed:: true
 			- ```datalog
 			  [?b :block/properties ?props]
 			  [(get ?props :goods-category) ?category]
@@ -2582,7 +2580,6 @@ repository:: DeadBranches/logseq-queries-and-scripts
 			  ```
 		- get **first line** of block content
 		  id:: 663a1f42-6ff8-4a1b-a953-cca70c833e52
-		  collapsed:: true
 			- {{nested-code-block}}
 			  collapsed:: true
 				- copy_second_sibling:
@@ -2813,7 +2810,6 @@ repository:: DeadBranches/logseq-queries-and-scripts
 			      )
 			  ```
 		- **Sort by date created** (or failing that, date last modified)
-		  collapsed:: true
 			- {{nested-code-block}}
 			  collapsed:: true
 				- copy_second_sibling:

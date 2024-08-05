@@ -8,7 +8,9 @@ repository:: DeadBranches/logseq-queries-and-scripts
 - ## Useful things
 	- Logseq config.edn template -> {{i-github}} [logseq/logseq](https://github.com/logseq/logseq/blob/4374741afd9add1716da62b3bf6466cffa5be082/src/resources/templates/config.edn#L4)
 		- My local version last drawn from commit [`26d255d`](https://github.com/logseq/logseq/commit/26d255d0b1a065fa66c135b0fbe4d7270b55e1b5)
+	- [[logseq-source]]
 - ## {{i ef0c}} JavaScript functions
+  collapsed:: true
   For logseq
 	- ### toLogseqJournalDate( date ) -> int
 		- ```javascript
@@ -176,6 +178,7 @@ repository:: DeadBranches/logseq-queries-and-scripts
   id:: 65f5d381-8e00-4e19-bdbf-95727eb6a07e
   Logseq JavaScript API functions
 	- {{button add ref,insert_template,ea69}}
+	  collapsed:: true
 		- insert_template:
 		  ```js
 		  let templateName = "buttoner - new logseq api reference";
@@ -212,6 +215,9 @@ repository:: DeadBranches/logseq-queries-and-scripts
 		  ```
 -
 - ## Things I built
+	- {{i-icon}} Logseq tabler icons
+	  id:: 66acd8ef-ed7b-4ad2-9b62-491833497415
+		-
 	- #### {{issue}} issue tracker
 		- Original workspace:
 			- ((66a015d2-1f08-4b33-bcba-84207b76eeda))
@@ -1454,8 +1460,10 @@ repository:: DeadBranches/logseq-queries-and-scripts
 		  But, how do I organize and sort for display the information when it's all as linked references?
 		- And, if I start to use a page as a place to store sorted information, how do I deal with all the linked references?
 - ### {{i eb39}} templates
+  collapsed:: true
   Used in this page
 	- for ((65f5d381-8e00-4e19-bdbf-95727eb6a07e))
+	  collapsed:: true
 	  template\:\: buttoner - new logseq api reference
 	  template-including-parent\:\: false
 		- ### {{i f6ef}}  depreciation warning

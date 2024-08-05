@@ -16,6 +16,7 @@ description:: `/template`s with boilerplate for collector blocks, page tags, dai
 	- #### {{i ef91}} project management
 		- {{i-coding}} coding iteration
 		  id:: 66818163-8a53-447b-a959-0ae93dde245f
+		  collapsed:: true
 			- *w/ feature goal, scope, result, final code*
 			  collapsed:: true
 			    ![image.png](../assets/image_1719949398805_0.png){:height 178, :width 216}
@@ -46,6 +47,7 @@ description:: `/template`s with boilerplate for collector blocks, page tags, dai
 						  
 						  ```
 		- {{i-expecting}} expecting queries
+		  collapsed:: true
 			- {{i }} title
 				- **
 				- ### {{i-example}} samples
@@ -237,6 +239,7 @@ description:: `/template`s with boilerplate for collector blocks, page tags, dai
 				-
 	- #### Logseq-related
 	- {{i f6ef}} depreciate logseq block
+	  collapsed:: true
 		- ![image.png](../assets/image_1719951269675_0.png){:height 76, :width 307}
 		- ### {{i-template}} template
 		  template:: logseq, depreciate content
@@ -246,6 +249,7 @@ description:: `/template`s with boilerplate for collector blocks, page tags, dai
 			      this block is no longer in use
 				- {{i ea0b}} *depreciated on* *<% today %>*
 	- {{i-template}} logseq *template page* structure
+	  collapsed:: true
 		- *template & examples headers*
 		- ### {{i-template}} template
 		  template:: logseq, logseq template template
@@ -260,75 +264,9 @@ description:: `/template`s with boilerplate for collector blocks, page tags, dai
 					-
 - ## {{i ed2b}} page templates
   *w/* common {{i-properties}} property sets & {{i ef94}} block structure
-	- #### {{i eb96}} Daily journal
-	  id:: 6644f008-299c-43c2-9c36-d9ab220bd4f3
-		- {{i eaad}} Organization blocks
-		  collapsed:: true
-			- ### {{i-example}} samples
-			- ### {{i-template}} template
-			  template:: logseq, organization helper
-			  template-including-parent:: false
-				-
-		- {{i ec45}} Doing block
-		  collapsed:: true
-			- ### {{i-example}} samples
-			- ### {{i-template}} template
-			  template:: logseq, doing helper
-			  template-including-parent:: false
-				- #### {{i ec45}} **Doing** today
-				  id:: 6666f9b1-219c-4c0c-879f-eb0dd5ea687f
-				  collapsed:: true
-				  {{button do,do,ec45,long}}
-				  
-				  {{button '',fridge,f1fa}}  {{button '',computer,ea89}}  {{button '',wash,ef48}}
-					- {{nested-code-block}}
-					  collapsed:: true
-						- do:
-						  ```js
-						  (() => {
-						  const content = "";
-						  const options = { sibling:false, before:false, focus:true }
-						  logseq.api.insert_block(this.target_uuid, content, options);
-						  })();
-						  ```
-						  
-						  fridge:
-						  ```js
-						  (() => {
-						  const content = "{{i-fridge}}  ";
-						  const options = { sibling:false, before:false, focus:true }
-						  logseq.api.insert_block(this.target_uuid, content, options);
-						  })();
-						  ```
-						  
-						  computer:
-						  ```js
-						  (() => {
-						  const content = "{{i-computer}} ";
-						  const options = { sibling:false, before:false, focus:true }
-						  logseq.api.insert_block(this.target_uuid, content, options);
-						  })();
-						  ```
-						  
-						  wash:
-						  ```js
-						  (() => {
-						  const content = "{{i-wash}} ";
-						  const options = { sibling:false, before:false, focus:true }
-						  logseq.api.insert_block(this.target_uuid, content, options);
-						  })();
-						  ```
-		- {{i eafd}} news
-		  collapsed:: true
-			- ### {{i-example}} samples
-			- ### {{i-template}} template
-			  template :: 
-			  template-including-parent :: false
-				- ##### {{i eafd}}  news
-				  collapsed:: true
-					- {{embed ((66415d9e-5591-4219-bc68-eb54393bccff))}}
 	- {{i ef91}} project page
 	  id:: 0698280a-d53c-457e-81a1-03b231ac6d11
+	  collapsed:: true
 		- stuff
 		  id:: 66a318c6-0bcc-4420-96c1-433bc497d1e8
 			- ### Objective
@@ -966,56 +904,90 @@ description:: `/template`s with boilerplate for collector blocks, page tags, dai
 			  description:: 
 			  collector:: [[]]
 - ---
-- {{I ec9e}} Journal buddies
-  id:: 662becda-117c-4bed-a4e7-d27b7cd1b6f3
-  collapsed:: true
-	- ### {{i-template}} template
-	  id:: 65fb3d58-f121-4f03-a702-fbc3e6e5c98c
-	  template:: Event header for daily journal
-	  template-including-parent:: false
+- # {{i eb96}} Daily journal
+  id:: 6644f008-299c-43c2-9c36-d9ab220bd4f3
+  *components and templates*
+	- {{i ec45}} doing container
+	  id:: 66994976-991f-4e60-9c59-52c7fc8f4241
+		- ### {{i eac9}} component
+		  id:: 66b0ead7-2d9d-4e05-a21e-da5d98e1d9b8
+			- #### {{kitButton Doing today,testkit,ec45,-button-style full-width flex-grow-1 +bold-nth-word:1}}
+			  id:: 66aaac57-179b-457a-8b06-3814ddbaa12b
+			  {{kitButton do,insertListItem,ec45,long,template='do'}}
+			  
+			  {{kitButton '',insertListItem,f1fa,'',template='doKitchen'}}  {{kitButton '',insertListItem,ea89,'',template='doOffice'}}  {{kitButton '',insertListItem,ef48,'',template='doBathroom'}}
+			  {{doing-holder}}
+	- {{i eaad}} organization blocks
+		- ### {{i eac9}} component
+		  id:: 66b0ead7-67ee-44fd-a324-bd5dd7602f39
+			-
+	- {{i eb25}}{{i f21c}} {{i ef49}}  purchase holder
+		- ### {{i eac9}} component
+		  id:: 66b0ed6f-714f-4e1f-9d4c-85cf15341259
+			- #### {{kitButton purchase list,collapseBlock,ef49,-button-style full-width +bold-nth-word}}
+			  id:: 66b0edf9-37ba-4756-8421-c60cbd44b334
+			  {{kitButton '',insertListItem,eb0b eb25,squat,grocery}}   {{kitButton '',insertListItem,eb0b f21c,squat,shopping}}
+			    {{purchase-holder}}
+	- {{i eafd}} news
 	  collapsed:: true
-		- ### {{journalBuddy}} Journal buddies
-		  collapsed:: true
-			- {{kitButton '',doingWidget,ec45}}  {{kitButton '',journalOrganizationBlocks,eaad}}  {{kitButton '',purchaseHolderComponent,eb25 f21c}}  {{button '',add-online-order,eaff}}
-				- [:small "daily reminders"]
-				  id:: 6666f9b1-6202-4537-aa84-b40852fa720a
-					- TODO {{i ef63}} Take medication
-					  id:: 65fdfbf2-818e-404e-9d60-7f941f29bf34
-					  {{scheduleDateToday collapse}}
-				- {{button '',expand-online-order,eaff}}  {{button order,add-online-order,eb0b}}
+		- ### {{i-example}} samples
+		- ### {{i-template}} template
+		  template :: 
+		  template-including-parent :: false
+			- ##### {{i eafd}}  news
+			  collapsed:: true
+				- {{embed ((66415d9e-5591-4219-bc68-eb54393bccff))}}
+	- ## {{i ec9e}} Journal buddies component
+	  id:: 662becda-117c-4bed-a4e7-d27b7cd1b6f3
+	  {{i ea06}} *this block must remain open.*
+		- ### {{i-template}} template
+		  id:: 65fb3d58-f121-4f03-a702-fbc3e6e5c98c
+		  template:: Event header for daily journal
+		  template-including-parent:: false
+			- ### {{journalBuddy}} Journal buddies
+			  id:: 669bc80f-ccbb-4be3-8144-ad79decd7ee9
+				- {{kitButton '',doingWidget,ec45}}  {{kitButton '',journalOrganizationBlocks,eaad}}  {{kitButton '',purchaseHolderComponent,eb25 f21c}}
+				  id:: 669bc80f-624e-4027-86e9-f87c4002b885
+					- [:small "daily reminders"]
+					  id:: 6666f9b1-6202-4537-aa84-b40852fa720a
+						- TODO {{i ef63}} Take medication
+						  id:: 65fdfbf2-818e-404e-9d60-7f941f29bf34
+						  {{scheduleDateToday collapse}}
+				- {{i eaff}} {{openOrderCount}}  {{i eb25}}  {{shoppingItemCount}} {{i f21c}} {{groceryItemCount}}
 				  collapsed:: true
-					- {{nested-code-block}}
+					- {{kitButton grocery list,collapseBlock,f21c,-button-style full-width}}
+						- {{embed ((6682d241-16ee-4991-bf3f-85c90add7dbd))}}
+					- {{kitButton shopping list,collapseBlock,eb25,-button-style full-width}}
 					  collapsed:: true
-						- expand-online-order:
-						  ```js
-						  logseq.api.set_block_collapsed(this.target_uuid, "toggle")
-						  ```
-						  
-						  add-online-order:
-						  ```js
-						  journalHelper(this, 'onlineOrder');
-						  ```
-					- {{embed ((663f79d8-20d7-4027-9ff5-500ae36ff757))}}
-					- #### awaiting delivery of {{i eaff}} {{openOrders words}}
-					- {{embed ((667992b3-a3a3-4a1e-9b93-71061bc4896c))}}
-			- {{i eaff}} {{openOrderCount}}  {{i eb25}}  {{shoppingItemCount}} {{i f21c}} {{groceryItemCount}}
-			  collapsed:: true
-				- {{kitButton grocery list,collapseBlock,f21c,-button-style full-width}}
+						- {{embed ((6644ee82-6e4e-4936-af4f-8a47ece6985d))}}
+						- {{embed ((667992b3-de9e-4570-86f5-5beffb1686a0))}}
+				- #### {{kitButton project focus,collapseBlock,f00e,-button-style full-width}}
 				  collapsed:: true
-					- {{embed ((6682d241-16ee-4991-bf3f-85c90add7dbd))}}
-				- {{kitButton shopping list,collapseBlock,eb25,-button-style full-width}}
+				  {{embed ((664f42a4-40eb-44ba-8e8c-89dba2c17a06))}}
+					- *projects in the wings*
+					  {{embed ((6654b591-49ea-4d3a-b9d9-1dc4f25bab0c))}}
+				- #### {{kitButton upcoming appointment in |nextAppointment| day,collapseBlock,ea53,-button-style full-width}}
 				  collapsed:: true
-					- {{embed ((6644ee82-6e4e-4936-af4f-8a47ece6985d))}}
-					- {{embed ((667992b3-de9e-4570-86f5-5beffb1686a0))}}
-			- #### {{kitButton project focus,collapseBlock,f00e,-button-style full-width}}
+				  {{embed ((664e4055-3b72-4ba1-ac8b-48e34544629c))}}
+					- {{embed ((66415ca6-d397-4fc1-97f1-95f7b516e6d1))}}
+		- Templates temporarily excluded
+		  collapsed:: true
+			- #### awaiting delivery of {{i eaff}} {{openOrders words}}
+			- {{button '',expand-online-order,eaff}}  {{button order,add-online-order,eb0b}}
+			- {{nested-code-block}}
 			  collapsed:: true
-			  {{embed ((664f42a4-40eb-44ba-8e8c-89dba2c17a06))}}
-				- *projects in the wings*
-				  {{embed ((6654b591-49ea-4d3a-b9d9-1dc4f25bab0c))}}
-			- #### {{kitButton upcoming appointment in |nextAppointment| day,collapseBlock,ea53,-button-style full-width}}
-			  collapsed:: true
-			  {{embed ((664e4055-3b72-4ba1-ac8b-48e34544629c))}}
-				- {{embed ((66415ca6-d397-4fc1-97f1-95f7b516e6d1))}}
+				- expand-online-order:
+				  ```js
+				  logseq.api.set_block_collapsed(this.target_uuid, "toggle")
+				  ```
+				  
+				  add-online-order:
+				  ```js
+				  journalHelper(this, 'onlineOrder');
+				  ```
+			- {{embed ((663f79d8-20d7-4027-9ff5-500ae36ff757))}}
+			- {{embed ((667992b3-a3a3-4a1e-9b93-71061bc4896c))}}
+- ---
 - ### {{i eb8e}} Lost templates
   query:: ((65ff0dba-73e5-4e18-b24d-e3647f09eb31))
   collapsed:: true

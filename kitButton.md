@@ -161,11 +161,11 @@ description:: kitButton [label] <kit-name> [icon] [positive-class | {-inline | -
       // Expect multiple data attributes to be 1) single quoted, and 2) space-separated. 
       // e.g. mushroom='hi' bunny='no', so splitting on "' " results in key-value pairs
       if (!input.includes("' ")) {
-        console.log(`Error in kitButton processDataAttributes() input:\nData attribute 
-          argument Expects multiple data attributes to be 1) single quoted, and 
-          2) space-separated.\ne.g. mushroom='hi' bunny='no', so splitting on "' " 
-          results in key-value pairs`);
-          return "";
+        console.log(`Input is set, contains an =, does not contain "' ", therefore
+        				this is a single argument. Don't split on "' "`);
+        	const [key, value] = input.split("=");
+          const processedValue = value.replaceAll("'", "")
+          return `data-${key}="${processedValue}"`;
       }
   
       return input

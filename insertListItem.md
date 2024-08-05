@@ -11,7 +11,7 @@ description:: Inserts either a grocery or shopping list item under the purchase 
     // Defaults
     const DEFAULT_BLOCK = "grocery";
     // Inputs
-    const dataArguments = buttonElement.dataset.arguments;
+    const dataArguments = buttonElement.dataset.template;
     
     // Values
     const blockTemplates = {
@@ -51,8 +51,6 @@ description:: Inserts either a grocery or shopping list item under the purchase 
   
   ```
 	- {{evalparent}}
-		- id:: 66a010f7-5328-4b3b-8660-f77e50a58dba
-		- s
 - # Test
 	- {{kitButton grocery,insertListItem,'','',grocery}} {{kitButton shopping,insertListItem,'','',shopping}}
 - # Change log

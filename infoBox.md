@@ -6,10 +6,11 @@ description:: kitButton hi,infoBox,'','',content='<template name>'
   
     const button = event.target.closest("button[data-kit]");
     let infoBox = document.body.querySelector('.info-box-container');
-  
+   
     if (button.dataset.reset) {
       try {
         infoBox.remove();
+       console.log("hi");
       }
       catch {
         console.log("There is no box.");
@@ -19,21 +20,23 @@ description:: kitButton hi,infoBox,'','',content='<template name>'
     //console.log(button.dataset.content);
     const use_template = button.dataset.content;
     
-      Alpine.store('infobox', {
-        objectives: 'objecs',
-        goal: 'a goal',
-      });
-    
+  
     if (!infoBox) {
+          Alpine.store('objectives',
+      {
+          objective: 'This is some objectives',
+          goal: 'this is some objective.'
   
-  
+      });
+      
     const html = String.raw;
     const infoBoxElement = html`
+  
         <md-dialog class="info-box-container" x-data>
           <div slot="headline">
             Dialog title
           </div>
-          <form slot="content" id="form-id" method="dialog" x-text="$store.infoBox.goal">
+          <form slot="content" id="form-id" method="dialog" x-text="$store.objectives.goal">
             A simple dialog with free-form content.
           </form>
           <div slot="actions">
@@ -52,6 +55,10 @@ description:: kitButton hi,infoBox,'','',content='<template name>'
   
   logseq.kits.infoBox();
   ```
-- {{kitButton hi,infoBox,'','',content='objective'}} {{kitButton reset,infoBox,'','',reset='true'}}
+	- {{evalparent}}
+- {{kitButton hi,infoBox,'','',content='objective'}} {{kitButton reset,infoBox,'','',reset='true' buttons='false'}}
+-
 - hi qwhy sa
 	-
+-
+-

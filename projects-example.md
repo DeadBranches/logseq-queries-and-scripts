@@ -8,8 +8,8 @@ repository:: DeadBranches/logseq-queries-and-scripts
   *More aspirational than anything.*
 	- [[Android quick tile manager]]
 	- [[logseq journal news feed]]
-	- [[android-handsfree-note-taker]]
-	- [[2024-denimn-repair]]
+	- [[android handsfree note-taker]]
+	- [[denim repair 2024]]
 	- [[logseq-queries-and-scripts-repo]]
 - ## {{i f258}}  [[unmanaged]]
   *oh mah gawd*
@@ -54,7 +54,7 @@ repository:: DeadBranches/logseq-queries-and-scripts
   *Hall of Glorious achievements*
 	- [[semantic-icon-search-tool]]
 	- [[home automation core 2024.5 update]]
-	- [[logseq project manager]]
+	- [[logseq-project-manager-2024.5]]
 	- 2023 income tax filing
 	  collapsed:: true
 		- {{i-inbox}} 2023 income tax filing inbox

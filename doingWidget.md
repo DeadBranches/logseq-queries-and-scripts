@@ -13,13 +13,12 @@ description:: Adds a doing block set to the page if one doesn't already exist
     const me = event.target.closest('.ls-block');
     const parentBlockId = me.parentElement.closest('.ls-block').getAttribute("blockId");
   
+    // Location in graph of doing container
     const MACRO_NAME = "doing-holder";
-    const BATCH_BLOCK_CONTENT = [
-      { 
-        content: "#### {{i ec45}} **Doing** today\n{{kitButton do,insertListItem,ec45,long,do}}\n\n{{kitButton '',insertListItem,f1fa,'',doKitchen}}  {{kitButton '',insertListItem,ea89,'',doOffice}}  {{kitButton '',insertListItem,ef48,'',doBathroom}}\n{{doing-holder}}"
-  }
-  
-    ];
+    const COMPONENT_UUID = "66aaac57-179b-457a-8b06-3814ddbaa12b";
+    const BATCH_BLOCK_CONTENT = [ { 
+        content: `${await get_block_content(COMPONENT_UUID)}`
+    } ];
   
       /**
        * Return the UUID of:
@@ -83,3 +82,6 @@ description:: Adds a doing block set to the page if one doesn't already exist
   }
   doingWidget(null, 'plaintext')
   ```
+- # UI Elements
+  {{i ec9e}} *[[logseq-journal-buddy-improvement-2024.6]]* *(live embed)*
+	- {{embed ((668d8204-e490-4d23-8d14-1c8f167c9edb))}}
