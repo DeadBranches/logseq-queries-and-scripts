@@ -174,6 +174,7 @@ repository:: DeadBranches/logseq-queries-and-scripts
 		  * The name of pages
 		  * Where I might have put blocks on a given topic.
 - # {{i eb45}} Collections
+  collapsed:: true
   {{I eac5}} *Information presented in a pretty format*
 	- query-sort-by:: collector
 	  query-sort-desc:: false
