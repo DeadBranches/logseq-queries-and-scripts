@@ -309,6 +309,5 @@ description:: kitButton [label] <kit-name> [icon] [positive-class | {-inline | -
 	- Kit and kit arguments tests
 		- parent
 			- self
-			  collapsed:: true
 			  {{kitButton label,collapseBlock,'','',['target': 'parent']}}
 				- child

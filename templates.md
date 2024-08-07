@@ -4,7 +4,6 @@ description:: `/template`s with boilerplate for collector blocks, page tags, dai
 - ## {{i fab5}} block templates
   for repeatable structures that could go anywhere.
 	- #### {{I f499}} collector blocks
-	  collapsed:: true
 		- {{i ef11}} Numbered list
 			- ### {{i-example}} examples
 			- ### {{i-template}} template
@@ -16,38 +15,28 @@ description:: `/template`s with boilerplate for collector blocks, page tags, dai
 	- #### {{i ef91}} project management
 		- {{i-coding}} coding iteration
 		  id:: 66818163-8a53-447b-a959-0ae93dde245f
-		  collapsed:: true
 			- *w/ feature goal, scope, result, final code*
-			  collapsed:: true
 			    ![image.png](../assets/image_1719949398805_0.png){:height 178, :width 216}
 			- ### {{i-template}} template
 			  template:: project, coding iteration
 			  template-including-parent:: false
-			  collapsed:: true
 				- ### {{i f6af}} iteration: title of work
 					- {{i f51a}} feature goal
-					  collapsed:: true
 						-
 					- {{i efb1}} iteration goal (scope)
-					  collapsed:: true
 						-
 					- {{i ea99}} external resources
-					  collapsed:: true
 						- `{{chat name,url}}`
 					- {{i f082}} workspace
-					  collapsed:: true
 						- *work it!*
 					- {{i f35e}} result
-					  collapsed:: true
 						-
 					- {{i eb45}} final {{i ea77}} code for this iteration
-					  collapsed:: true
 					    {{code-inside}}
 						- ```
 						  
 						  ```
 		- {{i-expecting}} expecting queries
-		  collapsed:: true
 			- {{i }} title
 				- **
 				- ### {{i-example}} samples
@@ -126,9 +115,7 @@ description:: `/template`s with boilerplate for collector blocks, page tags, dai
 						- *example usage*
 							- TODO **[[EXPECT]]** some things \/schedule
 		- *older stuff*
-		  collapsed:: true
 			- ##### project management
-			  collapsed:: true
 			  Goals, task management
 				- ### Project goals
 					- TODO One
@@ -185,7 +172,6 @@ description:: `/template`s with boilerplate for collector blocks, page tags, dai
 					- ref to: ((65fb267e-8199-4ada-95e3-2232fa2d2190))
 					-
 	- {{i-conversation}} advanced query conversation
-	  collapsed:: true
 		- **w/ prompt & response**
 		- ### {{i-example}} samples
 			- ((6678932d-b247-4894-af50-3c3161cfbec4))
@@ -210,7 +196,6 @@ description:: `/template`s with boilerplate for collector blocks, page tags, dai
 					  
 					  ```
 	- {{i ebba}} agenda event card
-	  collapsed:: true
 		- *for appointments and events*
 		- ### {{i-example}} examples
 		- ### {{i-template}} template
@@ -223,7 +208,6 @@ description:: `/template`s with boilerplate for collector blocks, page tags, dai
 			  date ::
 			  time ::
 	- {{i eb25}} online order
-	  collapsed:: true
 		- ### {{i-template}} template
 		  template:: logseq, online order 
 		  template-including-parent:: false
@@ -239,17 +223,14 @@ description:: `/template`s with boilerplate for collector blocks, page tags, dai
 				-
 	- #### Logseq-related
 	- {{i f6ef}} depreciate logseq block
-	  collapsed:: true
 		- ![image.png](../assets/image_1719951269675_0.png){:height 76, :width 307}
 		- ### {{i-template}} template
 		  template:: logseq, depreciate content
 		  template-including-parent:: false
 			- ### {{i f6ef}}  depreciation warning
-			  collapsed:: true
 			      this block is no longer in use
 				- {{i ea0b}} *depreciated on* *<% today %>*
 	- {{i-template}} logseq *template page* structure
-	  collapsed:: true
 		- *template & examples headers*
 		- ### {{i-template}} template
 		  template:: logseq, logseq template template
@@ -258,7 +239,6 @@ description:: `/template`s with boilerplate for collector blocks, page tags, dai
 				- **
 				- ### {{i-example}} samples
 				- ### {{i-template}} template
-				  collapsed:: true
 				  template :: 
 				  template-including-parent :: false
 					-
@@ -266,13 +246,11 @@ description:: `/template`s with boilerplate for collector blocks, page tags, dai
   *w/* common {{i-properties}} property sets & {{i ef94}} block structure
 	- {{i ef91}} project page
 	  id:: 0698280a-d53c-457e-81a1-03b231ac6d11
-	  collapsed:: true
 		- stuff
 		  id:: 66a318c6-0bcc-4420-96c1-433bc497d1e8
 			- ### Objective
 			  id:: 66a318cd-614c-4660-86f6-52df9cc218b6
 				- {{kitButton idea helper,collapseBlock,ea76,-button-style full-width small-caps}}
-				  collapsed:: true
 					- #+BEGIN_QUERY
 					  {:inputs [:parent-block "idea"]
 					   :query
@@ -833,7 +811,6 @@ description:: `/template`s with boilerplate for collector blocks, page tags, dai
 								  #+END_QUERY
 					- ### {{i f4e1}} advanced queries
 	- {{i f5a5}} location
-	  collapsed:: true
 		- ### {{i-example}} examples
 			- [[.Snowdon Pharmacy]]
 		- ### {{i-template}} template
@@ -853,17 +830,14 @@ description:: `/template`s with boilerplate for collector blocks, page tags, dai
 			- ### {{i ebf2}} Contacts
 				- Name, *title*
 	- {{i ef14}} food item
-	  collapsed:: true
 		- *w/ nutritonal fact tool structure*
 		- ### {{i-example}} examples
-		  collapsed:: true
 			- [[oat]]
 			- {{i ea9b}}#query-placeholder `:block/name` *:where* `[:block/properties [:tags "food item"]]`
 		- ### {{i-template}} template
 		  id:: 666f76e0-09c0-4695-b66d-42c727c5a003
 		  template:: page, food item
 		  template-including-parent:: false
-		  collapsed:: true
 			- tags:: food-item
 			- # Nutritional facts
 				- ## Vitamins
@@ -878,7 +852,6 @@ description:: `/template`s with boilerplate for collector blocks, page tags, dai
 				- ## [[Minerals]]
 					-
 	- {{i f4e6}} function documentation
-	  collapsed:: true
 		- *syntax & examples*
 		- ### {{i-example}} examples
 		- ### {{i-template}} template
@@ -896,7 +869,6 @@ description:: `/template`s with boilerplate for collector blocks, page tags, dai
 			- ### See Also
 				-
 	- {{i ea47}} logseq collector
-	  collapsed:: true
 		- *:tags "collector"*
 		- template:: page, logseq collector
 		  template-including-parent:: false
@@ -909,7 +881,6 @@ description:: `/template`s with boilerplate for collector blocks, page tags, dai
   *components and templates*
 	- {{i ec45}} doing container
 	  id:: 66994976-991f-4e60-9c59-52c7fc8f4241
-	  collapsed:: true
 		- ### {{i eac9}} component
 		  id:: 66b0ead7-2d9d-4e05-a21e-da5d98e1d9b8
 			- #### {{kitButton Doing today,testkit,ec45,-button-style full-width flex-grow-1 +bold-nth-word:1}}
@@ -930,13 +901,11 @@ description:: `/template`s with boilerplate for collector blocks, page tags, dai
 			  {{kitButton '',insertListItem,eb0b eb25,squat,grocery}}   {{kitButton '',insertListItem,eb0b f21c,squat,shopping}}
 			    {{purchase-holder}}
 	- {{i eafd}} news
-	  collapsed:: true
 		- ### {{i-example}} samples
 		- ### {{i-template}} template
 		  template :: 
 		  template-including-parent :: false
 			- ##### {{i eafd}}  news
-			  collapsed:: true
 				- {{embed ((66415d9e-5591-4219-bc68-eb54393bccff))}}
 	- ## {{i ec9e}} Journal buddies component
 	  id:: 662becda-117c-4bed-a4e7-d27b7cd1b6f3
@@ -955,30 +924,23 @@ description:: `/template`s with boilerplate for collector blocks, page tags, dai
 						  id:: 65fdfbf2-818e-404e-9d60-7f941f29bf34
 						  {{scheduleDateToday collapse}}
 				- {{i eaff}} {{openOrderCount}}  {{i eb25}}  {{shoppingItemCount}} {{i f21c}} {{groceryItemCount}}
-				  collapsed:: true
 					- {{kitButton grocery list,collapseBlock,f21c,-button-style full-width}}
-					  collapsed:: true
 						- {{embed ((6682d241-16ee-4991-bf3f-85c90add7dbd))}}
 					- {{kitButton shopping list,collapseBlock,eb25,-button-style full-width}}
-					  collapsed:: true
 						- {{embed ((6644ee82-6e4e-4936-af4f-8a47ece6985d))}}
 						- {{embed ((667992b3-de9e-4570-86f5-5beffb1686a0))}}
 				- #### {{kitButton project focus,collapseBlock,f00e,-button-style full-width}}
-				  collapsed:: true
 				  {{embed ((664f42a4-40eb-44ba-8e8c-89dba2c17a06))}}
 					- *projects in the wings*
 					  {{embed ((6654b591-49ea-4d3a-b9d9-1dc4f25bab0c))}}
 				- #### {{kitButton upcoming appointment in |nextAppointment| day,collapseBlock,ea53,-button-style full-width}}
 				  {{embed ((664e4055-3b72-4ba1-ac8b-48e34544629c))}}
 					- {{futureAppointmentTable}}
-					  collapsed:: true
 						- {{embed ((66415ca6-d397-4fc1-97f1-95f7b516e6d1))}}
 		- Templates temporarily excluded
-		  collapsed:: true
 			- #### awaiting delivery of {{i eaff}} {{openOrders words}}
 			- {{button '',expand-online-order,eaff}}  {{button order,add-online-order,eb0b}}
 			- {{nested-code-block}}
-			  collapsed:: true
 				- expand-online-order:
 				  ```js
 				  logseq.api.set_block_collapsed(this.target_uuid, "toggle")
@@ -993,7 +955,6 @@ description:: `/template`s with boilerplate for collector blocks, page tags, dai
 - ---
 - ### {{i eb8e}} Lost templates
   query:: ((65ff0dba-73e5-4e18-b24d-e3647f09eb31))
-  collapsed:: true
   Templates located on other pages
 	- #+BEGIN_QUERY
 	  {:query
@@ -1012,13 +973,10 @@ description:: `/template`s with boilerplate for collector blocks, page tags, dai
 	   }
 	  #+END_QUERY
 - ### {{i eeb9}} disused templates
-  collapsed:: true
   and template page sections
 	- ## {{I ec8f}} Query templates
-	  collapsed:: true
 	  Query boilerplate
 	- ### Ideation
-	  collapsed:: true
 	  Ideas, thoughs, and more
 		- ### Problem solving
 			- #### Pros and cons
@@ -1027,7 +985,6 @@ description:: `/template`s with boilerplate for collector blocks, page tags, dai
 				- ##### Cons
 				  *
 		- ### Experiments
-		  collapsed:: true
 			- /
 				- Title
 				  variable::

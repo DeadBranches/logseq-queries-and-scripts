@@ -59,7 +59,6 @@ repository:: DeadBranches/logseq-queries-and-scripts
   #+END_QUERY
 - ## {{i eff2}} Query library
   query:: ((65f7767a-9fe3-4b51-a564-c36be58ce5fa))
-  collapsed:: true
   *Advanced queries I reuse*
   #+BEGIN_QUERY
   {:inputs [:current-block #{1 2 3 4 5}]
@@ -115,10 +114,8 @@ repository:: DeadBranches/logseq-queries-and-scripts
   
   #+END_QUERY
 	- ## Embedding queries
-	  collapsed:: true
 	  *for `{{embedding}}`*
 		- **Related page** linked references
-		  collapsed:: true
 			- On a given page with the `:related` page property,
 				- Find all blocks with linked references to pages included in `:related`
 			- Linked references to pages in `:related` advanced query:
@@ -144,7 +141,6 @@ repository:: DeadBranches/logseq-queries-and-scripts
 			  ```
 		- #### Nutritional facts (vitamins)
 		  id:: 666f7716-c32e-40e0-8b10-8f93fc591165
-		  collapsed:: true
 			- id:: 666f7733-1891-45d3-8bbb-8f32dd4631e1
 			  #+BEGIN_QUERY
 			   {:inputs [:current-page]
@@ -177,7 +173,6 @@ repository:: DeadBranches/logseq-queries-and-scripts
 			-
 		- #### Nutritional facts (minerals)
 		  id:: 666f7726-4350-45b0-b0fd-4cdd2b75497c
-		  collapsed:: true
 			- id:: 666f7747-d031-4ef7-8a4e-faaadde102c4
 			  #+BEGIN_QUERY
 			   {:inputs [:current-page]
@@ -208,7 +203,6 @@ repository:: DeadBranches/logseq-queries-and-scripts
 			  
 			  #+END_QUERY
 		- #### {{i ef91}} Upcoming project quick-view
-		  collapsed:: true
 		        ![image.png](../assets/image_1719764401764_0.png){:height 38, :width 143}
 			- *see [[logseq-project-manager-2024.5]]*
 			- **Current query**
@@ -276,9 +270,7 @@ repository:: DeadBranches/logseq-queries-and-scripts
 				  }
 				  #+END_QUERY
 			- [:small "(older versions)"]
-			  collapsed:: true
 				- version 1.2
-				  collapsed:: true
 				  *introduces project icons & open page icon*
 					- #+BEGIN_QUERY
 					  {:query
@@ -344,7 +336,6 @@ repository:: DeadBranches/logseq-queries-and-scripts
 					  #+END_QUERY
 					-
 				- version 1.1
-				  collapsed:: true
 				  ![image.png](../assets/image_1717608526060_0.png)
 					- ```
 					  #+BEGIN_QUERY
@@ -400,7 +391,6 @@ repository:: DeadBranches/logseq-queries-and-scripts
 					  ```
 		- #### {{i ef91}} project management journal widget
 		  id:: 6666f9ad-7589-4721-a459-d7d18591c09e
-		  collapsed:: true
 		      ![image.png](../assets/image_1719764465551_0.png){:height 30, :width 183}
 			- ###  {{i f635}} information
 				- for related {{i ef91}} project see [[logseq-project-manager-2024.5]]
@@ -457,11 +447,9 @@ repository:: DeadBranches/logseq-queries-and-scripts
 				  #+END_QUERY
 			- ### {{i ea0b}} *version archive*
 			  id:: 6653554c-6a4b-4673-9f08-a7e58a13c5fe
-			  collapsed:: true
 			  *older stuff*
 				- version 2.4 improves styling (*current*)
 				- version 2.3
-				  collapsed:: true
 				  *introduces project icon for added blocks*
 					- ```
 					  #+BEGIN_QUERY
@@ -510,7 +498,6 @@ repository:: DeadBranches/logseq-queries-and-scripts
 					  #+END_QUERY
 					  ```
 				- version 2.2
-				  collapsed:: true
 				  *introduces open project icon*
 					- ```
 					  #+BEGIN_QUERY
@@ -555,7 +542,6 @@ repository:: DeadBranches/logseq-queries-and-scripts
 					  #+END_QUERY
 					  ```
 				- version 2.1
-				  collapsed:: true
 					- ```
 					  #+BEGIN_QUERY
 					  
@@ -597,7 +583,6 @@ repository:: DeadBranches/logseq-queries-and-scripts
 					  #+END_QUERY
 					  ```
 				- version 2.0
-				  collapsed:: true
 					- ```
 					  #+BEGIN_QUERY
 					  {:query
@@ -638,7 +623,6 @@ repository:: DeadBranches/logseq-queries-and-scripts
 					  #+END_QUERY
 					  ```
 				- version 1.0
-				  collapsed:: true
 					- ```
 					  #+BEGIN_QUERY
 					  
@@ -674,7 +658,6 @@ repository:: DeadBranches/logseq-queries-and-scripts
 					  ```
 		- ####  {{i ee21}} next appointment journal widget
 		  id:: 664ceeec-b343-4d67-94d5-4db82220f06f
-		  collapsed:: true
 		      ![image.png](../assets/image_1719765578558_0.png){:height 28, :width 229}
 			- ###  {{i f635}} information
 				- for related {{i ef91}} project see [[logseq-events-and-appointments]]
@@ -756,14 +739,12 @@ repository:: DeadBranches/logseq-queries-and-scripts
 				   
 				  #+END_QUERY
 			- ### {{i ea0b}} *version archive*
-			  collapsed:: true
 			  *older stuff*
 				- v2.0 upcoming event and activities information **with quick-reference links**
 				  *date retired*: **(current version)**
 				  ![image.png](../assets/image_1719765578558_0.png){:height 31, :width 246}
 					- {{i eac5}} Developed on [[Sunday, Jun 30th, 2024]] during {{i ea77}} [this iteration session](((66817d91-9f86-4ab3-9c45-face6802e356)))
 				- v1.8 **simplified** event information
-				  collapsed:: true
 				  *date retired:* [[Sunday, Jun 30th, 2024]]
 				    ![image.png](../assets/image_1719765241005_0.png){:height 24, :width 246}
 					- simplified next appointment journal widget advanced query
@@ -836,7 +817,6 @@ repository:: DeadBranches/logseq-queries-and-scripts
 					  #+END_QUERY
 					  ```
 				- v1.6 **appointment with** including date
-				  collapsed:: true
 				      ![image.png](../assets/image_1718922194354_0.png){:height 27, :width 327}
 					- id:: 6660535c-5420-4cdb-ba03-5e9ab8e66213
 					  ```markdown
@@ -904,7 +884,6 @@ repository:: DeadBranches/logseq-queries-and-scripts
 					  #+END_QUERY
 					  ```
 				- v1.5 **broken** version of event, with, and date
-				  collapsed:: true
 				      ![image.png](../assets/image_1718922309388_0.png){:height 39, :width 352}
 					- ```datascript
 					  #+BEGIN_QUERY
@@ -1030,7 +1009,6 @@ repository:: DeadBranches/logseq-queries-and-scripts
 				  #+END_QUERY
 		- ####  {{i ec44}} current medication list
 		  id:: 667a53af-9c93-4a1d-a01b-7e8b8fd22b53
-		  collapsed:: true
 		      ![image.png](../assets/image_1719766132026_0.png){:height 107, :width 337}
 			- id:: 664cb068-64bb-4dc5-aa7e-b0678b63a6fe
 			  #+BEGIN_QUERY
@@ -1137,10 +1115,8 @@ repository:: DeadBranches/logseq-queries-and-scripts
 			  #+END_QUERY
 		- #### {{i f21c}} grocery list quick-ref (journal widget)
 		  id:: 6666f9ad-2b57-4f34-b088-41e5b3e5bd53
-		  collapsed:: true
 		      ![image.png](../assets/image_1719765985169_0.png){:height 30, :width 214}
 		- #### {{i eaff}} online orders (journal widget)
-		  collapsed:: true
 		      ![image.png](../assets/image_1719766180275_0.png){:height 31, :width 135}
 			- id:: 663f79d8-20d7-4027-9ff5-500ae36ff757
 			  #+BEGIN_QUERY
@@ -1225,7 +1201,6 @@ repository:: DeadBranches/logseq-queries-and-scripts
 			  }
 			  #+END_QUERY
 		- #### {{i eafd}} logseq graph news
-		  collapsed:: true
 			- jump to: info  embed, history
 			- id:: 66415d9e-5591-4219-bc68-eb54393bccff
 			  #+BEGIN_QUERY
@@ -1254,7 +1229,6 @@ repository:: DeadBranches/logseq-queries-and-scripts
 			  #+END_QUERY
 		- {{i ef66}} Individual **medication dose**
 		  id:: 660c9a6b-a79d-4bd7-bc24-02f8d0fb588a
-		  collapsed:: true
 		  *From dose changes in journal page*\
 			- *Current dose is: 5mg*
 			- ```edn
@@ -1292,7 +1266,6 @@ repository:: DeadBranches/logseq-queries-and-scripts
 			  #[[advanced query]]
 			  ```
 	- ## Reusable queries
-	  collapsed:: true
 	  *that need to be manually added to a block*
 	  #+BEGIN_QUERY
 	  {:inputs [:current-block #{1 2 3 4 5}]
@@ -1418,11 +1391,9 @@ repository:: DeadBranches/logseq-queries-and-scripts
 				  #+END_QUERY
 				  ```
 		- #### Macro-based tracker (for pages)
-		  collapsed:: true
 		     ![image.png](../assets/image_1721831424254_0.png){:height 62, :width 197}
 			- ### Boilerplate blocks
 				- **1. On the tracking page**
-				  collapsed:: true
 					- `[[page-name]] component
 						- *any text*
 							- **REMOVE THE CODE FENCE**
@@ -1605,7 +1576,6 @@ repository:: DeadBranches/logseq-queries-and-scripts
 				  #+END_QUERY
 				  ```
 		- #### Section contents (with icons)
-		  collapsed:: true
 		    ![image.png](../assets/image_1719767371213_0.png){:height 83, :width 213}
 			- ```code
 			  #+BEGIN_QUERY
@@ -1664,7 +1634,6 @@ repository:: DeadBranches/logseq-queries-and-scripts
 			  ```
 		- #### Section contents (no icons)
 		  id:: 65f7767a-9fe3-4b51-a564-c36be58ce5fa
-		  collapsed:: true
 		    ![image.png](../assets/image_1719767073419_0.png){:height 35, :width 169}
 			- Linked list of children w/ headers (dynamically specified)
 			- ```datalog
@@ -1703,14 +1672,12 @@ repository:: DeadBranches/logseq-queries-and-scripts
 			  ```
 		- #### Page table of contents
 		  id:: 65f61ef5-45b1-4c58-b2b5-bced3827ae44
-		  collapsed:: true
 		  ![image.png](../assets/image_1713994770190_0.png){:height 59, :width 241}
 			- [[Wednesday, Apr 24th, 2024]]: Created an improved and updated **page table of contents**.
 			  Improvement: fixes text being rendered in `.ti` font.
 			  (see ((662becd7-fa05-45af-b368-bfe0144befc9)) )
 			- #### improved table of content
 			  id:: 662becd7-fa05-45af-b368-bfe0144befc9
-			  collapsed:: true
 				- ```md
 				  #+BEGIN_QUERY
 				  
@@ -1767,7 +1734,6 @@ repository:: DeadBranches/logseq-queries-and-scripts
 				  #+END_QUERY
 				  ```
 			- 2024-03-10 (code block)
-			  collapsed:: true
 				- ```datalog
 				  #+BEGIN_QUERY
 				  {
@@ -1808,7 +1774,6 @@ repository:: DeadBranches/logseq-queries-and-scripts
 				  #+END_QUERY
 				  ```
 			- 2024-03-05 (code block)
-			  collapsed:: true
 				- ```datalog
 				  {
 				    :inputs [:parent-block #{1 2 3}]
@@ -1847,7 +1812,6 @@ repository:: DeadBranches/logseq-queries-and-scripts
 				  }
 				  ```
 		- Show **last exfoliation date**
-		  collapsed:: true
 		  *Date of last `:block/marker { #{"DONE"} }` under `:block/parent` with specific ref*
 			- ```clj
 			  {:query
@@ -1883,7 +1847,6 @@ repository:: DeadBranches/logseq-queries-and-scripts
 			  ```
 		- Find **lost blocks**
 		  id:: 65ff0dba-73e5-4e18-b24d-e3647f09eb31
-		  collapsed:: true
 		  That ended up on other pages
 			- ```datalog
 			  id:: 65fb3d5b-62ff-4797-a485-b9c7b06474f4
@@ -1905,7 +1868,6 @@ repository:: DeadBranches/logseq-queries-and-scripts
 			  #+END_QUERY
 			  ```
 		- Ordered **clickable task blocks**
-		  collapsed:: true
 		  Makes a Grocery items list
 			- ```datalog
 			   {:query [:find (pull ?b [*])
@@ -1938,7 +1900,6 @@ repository:: DeadBranches/logseq-queries-and-scripts
 			   }
 			  ```
 		- Show **unfinished tasks** on `:current-page`
-		  collapsed:: true
 			- ![2024-02-08-23-10-36.jpeg](../assets/2024-02-08-23-10-36.jpeg)
 			- ```clj
 			  #+BEGIN_PINNED
@@ -1961,7 +1922,6 @@ repository:: DeadBranches/logseq-queries-and-scripts
 		- Results from **dynamic input** text
 		    {{I eb1c}} Find an icon
 		- **query** dynamic input: markers
-		  collapsed:: true
 		  Match markers specified in :inputs
 		  `:inputs [:current-page #{"TODO" "DOING"}]`
 			- ![image.png](../assets/image_1711462196038_0.png)
@@ -1981,7 +1941,6 @@ repository:: DeadBranches/logseq-queries-and-scripts
 			  #+END_QUERY
 			  ```
 	- ## Previous page-queries
-	  collapsed:: true
 	  *Queries located on a page, but versioned here*
 		- ### Shopping list -> In basket
 			- **version 1.2** {{code-inside}}
@@ -1990,7 +1949,6 @@ repository:: DeadBranches/logseq-queries-and-scripts
 			  from June 12, 2024
 			- **version 1.0** {{code-inside}}
 			  id:: 669136b1-ac6e-4a40-abc3-50c3687cf2dd
-			  collapsed:: true
 			  Shows items crossed off today, or "no results found".
 			  from June 12, 2024
 			  
@@ -2039,7 +1997,6 @@ repository:: DeadBranches/logseq-queries-and-scripts
 				  #+END_QUERY
 				  ```
 - ## {{i efc5}} datalog language reference
-  collapsed:: true
   cateloguing advanced query syntax elements
   #+BEGIN_QUERY
   {
@@ -2075,7 +2032,6 @@ repository:: DeadBranches/logseq-queries-and-scripts
   #+END_QUERY
 	- #### {{i f3f3}} Database utility functions
 	  id:: 65c59bb1-08f0-4e2f-bf0f-a7d9e5a4bb79
-	  collapsed:: true
 	  Keywords for `:inputs`
 	  *(e.g. `:current-page`, `:query-page`, etc*)
 	  {{Il ec1c,logseq db.cljs:L77,https://github.com/logseq/logseq/blob/c3df737390d4728edc865136c07ee74860bce39a/deps/graph-parser/src/logseq/graph_parser/util/db.cljs#L77}}
@@ -2250,46 +2206,38 @@ repository:: DeadBranches/logseq-queries-and-scripts
 		            ])}
 		  #+END_QUERY
 	- #### DSL rule reference
-	  collapsed:: true
 	  `:where` clause helpers
 	  *(e.g. `(page-tags ?p ?t)`)*
 	  {{il ec1c,logseq/rules.cljc:63,https://github.com/logseq/logseq/blob/53257d0919713f6096087fc188b80224742fe502/deps/db/src/logseq/db/rules.cljc#L63}}
 		- For more information see
 		- (page-property ?p ?key ?val)
-		  collapsed:: true
 			- [(page-property ?p ?key ?val)
 			       [?p :block/name]
 			       [?p :block/properties ?prop]
 			       [(get ?prop ?key) ?v]
 			       (or [(= ?v ?val)] [(contains? ?v ?val)])]
 		- (has-page-property ?p ?key)
-		  collapsed:: true
 			- [(has-page-property ?p ?key)
 			       [?p :block/name]
 			       [?p :block/properties ?prop]
 			       [(get ?prop ?key)]]
 		- (task ?b ?markers)
-		  collapsed:: true
 			- [(task ?b ?markers)
 			     [?b :block/marker ?marker]
 			     [(contains? ?markers ?marker)]]
 		- (priority ?b ?priorities)
-		  collapsed:: true
 			- [(priority ?b ?priorities)
 			     [?b :block/priority ?priority]
 			     [(contains? ?priorities ?priority)]]
 		- (page-tags ?p ?tags)
-		  collapsed:: true
 			- [(page-tags ?p ?tags)
 			     [?p :block/tags ?t]
 			     [?t :block/name ?tag]
 			     [(contains? ?tags ?tag)]]
 		- (all-page-tags ?p)
-		  collapsed:: true
 			- [(all-page-tags ?p)
 			     [_ :block/tags ?p]]
 		- (between ?b ?start ?end)
-		  collapsed:: true
 			- [(between ?b ?start ?end)
 			     [?b :block/page ?p]
 			     [?p :block/journal? true]
@@ -2297,28 +2245,23 @@ repository:: DeadBranches/logseq-queries-and-scripts
 			     [(>= ?d ?start)]
 			     [(<= ?d ?end)]]
 		- (has-property ?b ?prop)
-		  collapsed:: true
 			- [(has-property ?b ?prop)
 			     [?b :block/properties ?bp]
 			     [(missing? $ ?b :block/name)]
 			     [(get ?bp ?prop)]]
 		- (block-content ?b ?query)
-		  collapsed:: true
 			- [(block-content ?b ?query)
 			     [?b :block/content ?content]
 			     [(clojure.string/includes? ?content ?query)]]
 		- (page ?b ?page-name)
-		  collapsed:: true
 			- [(page ?b ?page-name)
 			     [?b :block/page ?bp]
 			     [?bp :block/name ?page-name]]
 		- (namespace ?p ?namespace)
-		  collapsed:: true
 			- [(namespace ?p ?namespace)
 			     [?p :block/namespace ?parent]
 			     [?parent :block/name ?namespace]]
 		- (property ?b ?key ?val)
-		  collapsed:: true
 			- [(property ?b ?key ?val)
 			     [?b :block/properties ?prop]
 			     [(missing? $ ?b :block/name)]
@@ -2329,7 +2272,6 @@ repository:: DeadBranches/logseq-queries-and-scripts
 			         ;; For integer pages that aren't strings
 			         [(contains? ?v ?str-val)])]
 		- (page-ref ?b ?page-name)
-		  collapsed:: true
 			- [(page-ref ?b ?page-name)
 			     [?b :block/path-refs ?br]
 			     [?br :block/name ?page-name]]})
@@ -2341,11 +2283,9 @@ repository:: DeadBranches/logseq-queries-and-scripts
 		  `(get-children ?parent ?child)`
 	- #### query predicate functions
 	  id:: 6666f9ad-ef7d-455e-8319-906283ee8dcc
-	  collapsed:: true
 	  (*for the* `:where` *clause*)
 	  {{il ec1c,datascript/built_ins.cljc:L81,https://https://github.com/tonsky/datascript/blob/9e3ad968ec6b25b53963f3f96c8f6cae6713d918/src/datascript/built_ins.cljc#L81}}
 		- **raw list** of functions
-		  collapsed:: true
 		  *from source*
 			- ```clj
 			  (def query-fns {
@@ -2426,12 +2366,10 @@ repository:: DeadBranches/logseq-queries-and-scripts
 			  })
 			  ```
 		- function **explanation**
-		  collapsed:: true
 		  *as a table*
 			- *note: use the `/page, code function documentation` template when adding new info*
 			- silly query attempt at automation
 			  id:: 66a2b92f-68a8-48fe-b9fa-921a4518ef4b
-			  collapsed:: true
 				- ```
 				  #+BEGIN_QUERY
 				  {:query
@@ -2457,14 +2395,11 @@ repository:: DeadBranches/logseq-queries-and-scripts
 				  ```
 			- {{embed ((66785bca-acd2-4401-95e2-32efb961ccb3))}}
 		- Conversational analyses
-		  collapsed:: true
 			- ((66749df3-627b-4ef6-8e5d-88f843e2ccbc))
-			  collapsed:: true
 				- {{embed ((66749df3-627b-4ef6-8e5d-88f843e2ccbc))}}
 	- #### clojure functions
 	  available in `:result-transform` and `:view`
 		- ((66749df3-8843-473e-bfe7-d32bfce93215))
-		  collapsed:: true
 			- {{embed ((66749df3-8843-473e-bfe7-d32bfce93215))}}
 - ## {{i eb6d}}  concept snippets
   advanced queries labeled by use case
@@ -2474,7 +2409,6 @@ repository:: DeadBranches/logseq-queries-and-scripts
 	- ### :rules
 	  *clause expressions*
 		- show query **results only**
-		  collapsed:: true
 			- ```
 			   :breadcrumb-show? false
 			   :children? false
@@ -2484,34 +2418,28 @@ repository:: DeadBranches/logseq-queries-and-scripts
 	- ### :where
 	  *clause expressions*
 		- blocks **without property** *:property-name*
-		  collapsed:: true
 			- Exclude blocks with property value *x*
 			- ```clj
 			  (not (property ?b :goods-category "food"))
 			  ```
 		- blocks **with property** *:property-name*
-		  collapsed:: true
 			- ```datalog
 			    [?b :block/properties ?prop]
 			    [(contains? ?prop :goods-category)]
 			  ```
 		- blocks **with :property value** *"value"*
-		  collapsed:: true
 			- ```datalog
 			  [?b :block/properties ?props]
 			  [(get ?props :goods-category) ?category]
 			  [(contains? ?category "mushroom")]
 			  ```
 		- blocks where **marker isn't #{"DONE" "CANCELED"}**
-		  collapsed:: true
 			- ```datalog
 			  [?b :block/marker ?m]
 			  (not [(contains? #{"DONE" "CANCELED"} ?m)] )
 			  ```
 		- blocks **with a given \{\{macro}}**
 		  id:: 6638f4e8-101f-4d66-8aa5-0782d73d32f7
-		  collapsed:: true
-			- collapsed:: true
 			  ```datalog
 			  {:inputs ["grocery"]
 			   :query
@@ -2526,7 +2454,6 @@ repository:: DeadBranches/logseq-queries-and-scripts
 			   }
 			  ```
 			- news!!!
-			  collapsed:: true
 			  #+BEGIN_QUERY
 			  {:inputs ["news"]
 			   :query 
@@ -2547,9 +2474,7 @@ repository:: DeadBranches/logseq-queries-and-scripts
 			  #+END_QUERY
 	- ### :view
 		- construct an **unordered list**
-		  collapsed:: true
 			- {{nested-code-block}}
-			  collapsed:: true
 				- copy_second_sibling:
 				  ```js
 				  const second_child = logseq.api.get_next_sibling_block(this.nestedMacroUuid);
@@ -2586,9 +2511,7 @@ repository:: DeadBranches/logseq-queries-and-scripts
 			  ```
 		- get **first line** of block content
 		  id:: 663a1f42-6ff8-4a1b-a953-cca70c833e52
-		  collapsed:: true
 			- {{nested-code-block}}
-			  collapsed:: true
 				- copy_second_sibling:
 				  ```js
 				  const second_child = logseq.api.get_next_sibling_block(this.nestedMacroUuid);
@@ -2672,7 +2595,6 @@ repository:: DeadBranches/logseq-queries-and-scripts
 			  ```
 		- make a dd clickable :block/marker box
 		  id:: 66a05e34-42c8-4cf7-8b0b-27cb0943d9ac
-		  collapsed:: true
 		  to `:view` function
 			- :view function excerpt
 				- ```
@@ -2712,7 +2634,6 @@ repository:: DeadBranches/logseq-queries-and-scripts
 				                     (get-in result [:content])]])]]])
 				  ```
 			- Full query example
-			  collapsed:: true
 				- **Mock journal page**
 					- TODO {{issue}} ah shit
 					  ((66a05f8b-929c-4c83-beb9-61b01849f890))
@@ -2817,9 +2738,7 @@ repository:: DeadBranches/logseq-queries-and-scripts
 			      )
 			  ```
 		- **Sort by date created** (or failing that, date last modified)
-		  collapsed:: true
 			- {{nested-code-block}}
-			  collapsed:: true
 				- copy_second_sibling:
 				  ```js
 				  const second_child = logseq.api.get_next_sibling_block(this.nestedMacroUuid);
@@ -2841,11 +2760,9 @@ repository:: DeadBranches/logseq-queries-and-scripts
 			  ```
 			- {{il eb6c,Bing: sort by date created,https://sl.bing.net/4TV8A6wblI}}
 		- Click to complete TODO blocks via **call-api**
-		  collapsed:: true
 		    `:result-transform` `:view`
 		  {{button copy,copy_second_sibling,ea6f,long squat}}
 			- {{nested-code-block}}
-			  collapsed:: true
 				- copy_second_sibling:
 				  ```js
 				  const second_child = logseq.api.get_next_sibling_block(this.nestedMacroUuid);
@@ -2888,11 +2805,9 @@ repository:: DeadBranches/logseq-queries-and-scripts
 			- source: https://discord.com/channels/725182569297215569/743139225746145311/1047314074930782308
 			- via https://discuss.logseq.com/t/show-todo-toggle-in-query-table-view/12720/5
 		- Clickable **links** using `call-api` and `push_state()`
-		  collapsed:: true
 		    `:result-transform` `:view`
 		  {{button copy,copy_second_sibling,ea6f,long squat}}
 			- {{nested-code-block}}
-			  collapsed:: true
 				- copy_second_sibling:
 				  ```js
 				  const second_child = logseq.api.get_next_sibling_block(this.nestedMacroUuid);
@@ -2938,20 +2853,16 @@ repository:: DeadBranches/logseq-queries-and-scripts
 			    [?b :block/refs ?pb]]}   ; and blocks reference it
 			  ```
 - ## {{i eb6e}} My functions
-  collapsed:: true
   for `:result-transform` and `:view` clauses
 	- ### {{i f38e}} `:result-transform` functions
 		- #### Sort by journal day
 		  id:: 663a1fa7-6f8c-4790-b8d5-8d7c0ffff815
-		  collapsed:: true
 		  `:sort-by-journal-day`
 			- Implements ((663a1f42-6ff8-4a1b-a953-cca70c833e52))
 	- ### {{i f4cb}} `:view` functions
 - ## {{i eb6c}} Query prompts
-  collapsed:: true
   *For conversations with Co-pilot*
 	- ### Query predicate functions
-	  collapsed:: true
 		- #+BEGIN_QUOTE
 		  Please read the following clojure source code for that defines the query predicate functions available for use in Logseq advanced queries as I am going to ask you some questions about it aferwards.
 		  
@@ -2980,7 +2891,6 @@ repository:: DeadBranches/logseq-queries-and-scripts
 		  ```
 		  #+END_QUOTE
 	- ### :result-transform
-	  collapsed:: true
 		- #+BEGIN_QUOTE
 		  Please carefully read the following Clojure code relating to proper use of :result-transform in logseq advanced queries. I am going to ask you some questions about it afterwards.
 		  ```clj
@@ -3030,7 +2940,6 @@ repository:: DeadBranches/logseq-queries-and-scripts
 		  ```
 		  #+END_QUOTE
 	- ### DSL rules
-	  collapsed:: true
 		- #+BEGIN_QUOTE
 		  File `deps/db/src/logseq/db/rules.cljc` in the logseq github repository:
 		  ```clj
@@ -3124,13 +3033,10 @@ repository:: DeadBranches/logseq-queries-and-scripts
 		  #+END_QUOTE
 - ### datascript code
   id:: 663a4752-f9b9-4dc2-b4bf-fb7b09d9c283
-  collapsed:: true
 	- #### and
 	  id:: 663a4799-cf84-4fa4-9a1b-88452254f1cf
-	  collapsed:: true
 	  {{i-github}} [datascript/parser.clj:L548](https://github.com/tonsky/datascript/blob/61edb9e76d92fad2106f9c01bc80e659a4292ea8/src/datascript/parser.cljc#L548)   {{button copy,copy_second_sibling,ea6f,long squat}}
 		- {{nested-code-block}}
-		  collapsed:: true
 			- copy_second_sibling:
 			  ```js
 			  const second_child = logseq.api.get_next_sibling_block(this.nestedMacroUuid);
@@ -3150,10 +3056,8 @@ repository:: DeadBranches/logseq-queries-and-scripts
 		                 {:error :parser/where, :form form})))))
 		  ```
 	- #### or
-	  collapsed:: true
 	  {{i-github}} [datascript/parser.clj:L557](https://github.com/tonsky/datascript/blob/61edb9e76d92fad2106f9c01bc80e659a4292ea8/src/datascript/parser.cljc#L557)  {{button copy,copy_second_sibling,ea6f,long squat}}
 		- {{nested-code-block}}
-		  collapsed:: true
 			- copy_second_sibling:
 			  ```js
 			  const second_child = logseq.api.get_next_sibling_block(this.nestedMacroUuid);
@@ -3175,10 +3079,8 @@ repository:: DeadBranches/logseq-queries-and-scripts
 		                   {:error :parser/where, :form form}))))))
 		  ```
 	- #### or-join
-	  collapsed:: true
 	  {{i-github}} [datascript/parser.clj:L568](https://github.com/tonsky/datascript/blob/61edb9e76d92fad2106f9c01bc80e659a4292ea8/src/datascript/parser.cljc#L568)  {{button copy,copy_second_sibling,ea6f,long squat}}
 		- {{nested-code-block}}
-		  collapsed:: true
 			- copy_second_sibling:
 			  ```js
 			  const second_child = logseq.api.get_next_sibling_block(this.nestedMacroUuid);
@@ -3202,10 +3104,8 @@ repository:: DeadBranches/logseq-queries-and-scripts
 		                     {:error :parser/where, :form form})))))))
 		  ```
 	- #### parsing...
-	  collapsed:: true
 	  {{i-github}} [datascript/parser.clj:L43](https://github.com/tonsky/datascript/blob/61edb9e76d92fad2106f9c01bc80e659a4292ea8/src/datascript/parser.cljc#L43)   {{button copy,copy_second_sibling,ea6f,long squat}}
 		- {{nested-code-block}}
-		  collapsed:: true
 			- copy_second_sibling:
 			  ```js
 			  const second_child = logseq.api.get_next_sibling_block(this.nestedMacroUuid);
@@ -3244,7 +3144,6 @@ repository:: DeadBranches/logseq-queries-and-scripts
 		               {:error :parser/where, :form form} )))
 		  ```
 	- #### parse spec
-	  collapsed:: true
 	  {{i-github}} [datascript/parser.clj:L407](https://github.com/tonsky/datascript/blob/61edb9e76d92fad2106f9c01bc80e659a4292ea8/src/datascript/parser.cljc#L407)
 		- ```datalog
 		  ;; clause          = (data-pattern | pred-expr | fn-expr | rule-expr | not-clause | not-join-clause | or-clause | or-join-clause)
@@ -3330,7 +3229,6 @@ repository:: DeadBranches/logseq-queries-and-scripts
 		            )))))
 		  ```
 	- #### parse spec
-	  collapsed:: true
 	  {{i-github}} [datascript/parser.clj:L229](https://github.com/tonsky/datascript/blob/61edb9e76d92fad2106f9c01bc80e659a4292ea8/src/datascript/parser.cljc#L229)
 		- ```datalog
 		  ;; find-spec        = ':find' (find-rel | find-coll | find-tuple | find-scalar)
@@ -3346,6 +3244,5 @@ repository:: DeadBranches/logseq-queries-and-scripts
 		  ;; custom-aggregate = [ 'aggregate' variable fn-arg+ ]
 		  ```
 - ### {{I eade}} resources
-  collapsed:: true
 	- https://charleschiugit.github.io/page/logseq/queries/
 	- https://www.reddit.com/r/logseq/comments/15yib2v/advanced_query_bootstrap_please_check_and_comment/

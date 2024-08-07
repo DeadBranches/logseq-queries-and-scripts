@@ -10,7 +10,6 @@ repository:: DeadBranches/logseq-queries-and-scripts
 		- My local version last drawn from commit [`26d255d`](https://github.com/logseq/logseq/commit/26d255d0b1a065fa66c135b0fbe4d7270b55e1b5)
 	- [[logseq-source]]
 - ## {{i ef0c}} JavaScript functions
-  collapsed:: true
   For logseq
 	- ### toLogseqJournalDate( date ) -> int
 		- ```javascript
@@ -27,33 +26,28 @@ repository:: DeadBranches/logseq-queries-and-scripts
 		  console.log(todaysJournalDate);
 		  ```
 	- ### daysBetween( str, str ) -> *int*
-	  collapsed:: true
 	  `daysBetween(firstDate, SecondDate`
 	  Returns the number of days between two dates formatted as *YYYYMMDDD*
 		- {{embed ((6666f998-c9a0-4940-8720-00350e7049b0))}}
 	- ### show( *str* ) -> *None*
-	  collapsed:: true
 	  `show(inputText)`
 	  Logs the input to the console, formatting it if it's an object.
 		- **Parameters**:
 			- `input`: The data to be logged. Can be any type.
 		- **Returns**: Nothing. Outputs to the console.
 	- ### copy_to_clipboard( *str* ) -> *None*
-	  collapsed:: true
 	  `copy_to_clipboard(value)`
 	  Copies the provided value to the clipboard.
 		- **Parameters**:
 			- `value`: The string to be copied to the clipboard.
 		- **Returns**: Nothing. The value is copied to the user's clipboard.
 	- ### getParentUUID( *str* ) -> *str*
-	  collapsed:: true
 	  `getParentUUID(targetUUID)`
 	  Retrieves the UUID for the parent block with child having *targetUUID*
 		- **Parameters**:
 			- `targetUUID`: The UUID of the target block.
 		- **Returns:** *string*. The UUID of the parent block as a string.
 	- ### getPageUuid( *obj* ) -> *str*
-	  collapsed:: true
 	  `getPageUuid(this)`
 	  Return the UUID of the current page.
 		- **Parameters**:
@@ -61,7 +55,6 @@ repository:: DeadBranches/logseq-queries-and-scripts
 		- **Returns**:
 			- The UUID of the page the block is on.
 	- ### insertTemplate( *str*, *str*, *obj* ) -> *Promise*
-	  collapsed:: true
 	  `insertTemplate(templateName, targetUUID, options)`
 	  Inserts a template as the first child of the target block and optionally moves it based on provided options.
 		- **Parameters**:
@@ -81,18 +74,14 @@ repository:: DeadBranches/logseq-queries-and-scripts
 		- **Returns**
 		  Nothing. This function performs an action without returning a value.
 - ## {{i ed37}} Button block library
-  collapsed:: true
   Javascript code implementing button features
 	- **copy code fence content** from button's **second child**
-	  collapsed:: true
 		- {{button copy,copy_second_sibling,ea6f,long squat}}
 		  template:\: tool, copy second sibling code block content button
 			- ### {{i f6ef}}  depreciation warning
-			  collapsed:: true
 			      this block is no longer in use
 				- {{i ea0b}} *depreciated on* *[[Monday, Jul 22nd, 2024]]*
 			- {{nested-code-block}}
-			  collapsed:: true
 				- copy_second_sibling:
 				  ```js
 				  const second_child = logseq.api.get_next_sibling_block(this.nestedMacroUuid);
@@ -111,7 +100,6 @@ repository:: DeadBranches/logseq-queries-and-scripts
 	- #### Tool: Logseq block spy
 		- {{button spy,spy,''}}
 		  template:: tool, return element data as JSON
-		  collapsed:: true
 			- blocks
 			  spy:
 			  ```js
@@ -120,7 +108,6 @@ repository:: DeadBranches/logseq-queries-and-scripts
 			  
 			  ```
 	- **get parent uuid** from button block
-	  collapsed:: true
 		- ```js
 		  let button_block = logseq.api.get_block(this.target_uuid);
 		  let parent_block_id = button_block.parent.id;
@@ -130,7 +117,6 @@ repository:: DeadBranches/logseq-queries-and-scripts
 		  console.log(`Parent block uuid: ${parent_block_uuid}`);
 		  ```
 	- **insert block** as *sibling below* button
-	  collapsed:: true
 		- ```js
 		  const block_content = ``;
 		  
@@ -138,7 +124,6 @@ repository:: DeadBranches/logseq-queries-and-scripts
 		  logseq.api.insert_block(this.target_uuid, block_content, options);
 		  ```
 	- **append** block to **end of page**
-	  collapsed:: true
 		- ```js
 		  const buttonBlock = logseq.api.get_block(this.target_uuid);
 		  const pageId = buttonBlock.page.id;
@@ -147,7 +132,6 @@ repository:: DeadBranches/logseq-queries-and-scripts
 		  logseq.api.insert_block(page.name, "hi");
 		  ```
 	- **insert template** as *sibling below* button
-	  collapsed:: true
 		- ```js
 		  let template_name = "buttoner - new logseq api reference";
 		  
@@ -177,7 +161,6 @@ repository:: DeadBranches/logseq-queries-and-scripts
   id:: 65f5d381-8e00-4e19-bdbf-95727eb6a07e
   Logseq JavaScript API functions
 	- {{button add ref,insert_template,ea69}}
-	  collapsed:: true
 		- insert_template:
 		  ```js
 		  let templateName = "buttoner - new logseq api reference";
@@ -187,7 +170,6 @@ repository:: DeadBranches/logseq-queries-and-scripts
 		  insertTemplate(templateName, this.target_uuid, options);
 		  ```
 	- {{button insert block,implementation_code,eb92,long}}  `insert_block(this.uuid, block_content)`
-	  collapsed:: true
 		- implementation_code:
 		  ```js
 		  let api_implementation = `
@@ -200,7 +182,6 @@ repository:: DeadBranches/logseq-queries-and-scripts
 		  copy_to_clipboard(api_implementation.trim());
 		  ```
 	- {{button insert template,implementation_code,eb39,long}}  `insert_template(target_uuid, template_name)`
-	  collapsed:: true
 		- implementation_code:
 		  ```js
 		  let api_implementation = `
@@ -232,12 +213,10 @@ repository:: DeadBranches/logseq-queries-and-scripts
 	  Hide a code block in a code button's *first child's first child* by using the `{{nested-code-block}}` macro
 	- ### {{i ebcc}} code-inside macro
 	  id:: 6633bac5-c14b-42f9-addb-301f036b3a14
-	  collapsed:: true
 	  ![image.png](../assets/image_1714666556422_0.png)
 		- `{{code-inside}}`
 	- #### {{i ebcd}} inline span for hiccups
 	  id:: 6633ba16-d333-4dc6-b5c9-90fa2edd278d
-	  collapsed:: true
 	  Add `{:class "inline"}`to any hiccup to make inline
 		- Made to enable icons beside a span with different font styles in the `{{code-inside}}` macro
 		- Original css:
@@ -257,16 +236,13 @@ repository:: DeadBranches/logseq-queries-and-scripts
 		- Uses kits: [[youtubeIconLinker]]
 	- #### {{i ebcc}} appointment header macro
 	  id:: 6617fa76-02fe-4af6-9291-e2c531e0ea9e
-	  collapsed:: true
 	  `{{h-appointment}}` *adds appointment header*
 		- {{embed ((6617fa07-211b-4e83-a0da-92fc7a052062))}}
 	- #### {{i f4f9}} appointment command
-	  collapsed:: true
 	  `/appointment` *inserts an appointment header and properties*
 		- {{embed ((6617fb78-4812-437e-a756-0f141ba062fd))}}
 	- #### {{i f61a}} schedule-date-today replacement macro
 	  id:: 6612c8d2-e36d-472e-a510-de50978ae6a3
-	  collapsed:: true
 	  Today's date in `SCHEDULED:` format
 		- Uses ((6612c2d3-809e-46f8-836c-ad132a528707))
 		- Implementation:
@@ -280,7 +256,6 @@ repository:: DeadBranches/logseq-queries-and-scripts
 		- {{embed [[scheduleDateToday]] }}
 	- #### icon links
 	  id:: 6612cf52-7324-492d-9c8f-f78061e1e841
-	  collapsed:: true
 		- ```css
 		  div[data-macro-name="il" i] {
 		    display: inline;
@@ -298,7 +273,6 @@ repository:: DeadBranches/logseq-queries-and-scripts
 		  ```
 	- #### hidden properties
 	  id:: 6612cfab-c66a-4e7f-a04b-0c08e002a9d7
-	  collapsed:: true
 		- `custom.css`
 		  ```css
 		  /**   Hidden properties              */
@@ -308,7 +282,6 @@ repository:: DeadBranches/logseq-queries-and-scripts
 		  ```
 - ### Things from other users
 	- #### Labels macro
-	  collapsed:: true
 	  {{il eb02,status labels macro,https://discuss.logseq.com/t/macros-and-commands-lets-share/9565/4?u=deadbranch}}
 		- > I am brand new to macro and commands. But I really wanted status labels and this post helped me achieve that.
 		  > ```
@@ -376,7 +349,6 @@ repository:: DeadBranches/logseq-queries-and-scripts
 		  > **Note:** The last rule for `span.inline div` is because Logseq will wrap the macros in divs that are blocks, otherwise forcing each label onto a new line.
 	- #### Logseq kits
 	  id:: 6612c2d3-809e-46f8-836c-ad132a528707
-	  collapsed:: true
 	  {{il eb02,Edit and run javascript code inside Logseq itself,https://discuss.logseq.com/t/edit-and-run-javascript-code-inside-logseq-itself/20763}}
 		- #+BEGIN_QUOTE
 		   The theoretical background and discussion is [here](https://discuss.logseq.com/t/logseq-for-code-management/20743).
@@ -770,7 +742,6 @@ repository:: DeadBranches/logseq-queries-and-scripts
 		  #+END_QUOTE
 	- #### Logseq code buttons
 	  id:: 6612c529-4236-427f-8021-772cd7757bed
-	  collapsed:: true
 	  {{il eb02,Code buttons - simple way to execute JavaScript inside Markdown codeblock,https://discuss.logseq.com/t/code-buttons-simple-way-to-execute-javascript-inside-markdown-codeblock/21035}}
 		- #+BEGIN_QUOTE
 		  The topic about interactive programming  and mini apps inside Logseq seems super exciting nowadays.
@@ -943,7 +914,6 @@ repository:: DeadBranches/logseq-queries-and-scripts
 		  customElements.define("code-button", CodeButton, { extends: "div" });
 		  ```
 	- #### Self-replacing macros
-	  collapsed:: true
 	  *implemented at* [[scheduleDateToday]] *via*  `logseq.kits.setStatic(function expandmacro(div)` 
 	  {{il eb02,Make custom macros that replace themselves with their value on first run,https://discuss.logseq.com/t/make-custom-macros-that-replace-themselves-with-their-value-on-first-run/20967}}
 		- Create a relatively simple kit like this:
@@ -979,7 +949,6 @@ repository:: DeadBranches/logseq-queries-and-scripts
 		  
 		  Consider posting here your case of using this functionality, to inspire other users.
 	- #### Childless block embeds
-	  collapsed:: true
 	  {{il eb02,Embed blocks without their children,https://discuss.logseq.com/t/embed-blocks-without-their-children/21713}}
 		- Preparation:
 			- Add a macro inside file `config.edn` , inside `macros{}` :
@@ -1018,7 +987,6 @@ repository:: DeadBranches/logseq-queries-and-scripts
 					- This should simply **hide** the children.
 	- #### Properties that generate explicit hierarchies
 	  id:: 662ba9dc-01e8-4db6-a469-1171e82f912e
-	  collapsed:: true
 	  {{il eb02,Generate explicit hierarchy out of properties,https://discuss.logseq.com/t/generate-explicit-hierarchy-out-of-properties/}}
 		- ## Introduction
 			- **Hierarchies** in Logseq have been a hot topic (e.g. [here 47](https://discuss.logseq.com/t/would-a-rich-commitment-to-hierarchies-and-classification-be-an-anathema-to-logseq-culture/8327)).
@@ -1030,7 +998,6 @@ repository:: DeadBranches/logseq-queries-and-scripts
 				- It follows some **conventions** that may differ from your approach.
 				- **Feedback** is welcome.
 		- ## Random example
-		  collapsed:: true
 			- Consider a graph under construction that models human relationships (one page per human), by using two **complimentary properties** `parent` and `children`:
 			- ```md
 			  boy1.md
@@ -1067,7 +1034,6 @@ repository:: DeadBranches/logseq-queries-and-scripts
 			- The result looks like this:
 				- ![image.png](../assets/image_1714137830898_0.png)
 		- ## Science Articles example
-		  collapsed:: true
 			- This is based on [@gax](https://discuss.logseq.com/u/gax)’s illustration [here 15](https://discuss.logseq.com/t/create-multiple-levels-of-hierarchy-with-property-chains-similar-to-breadcrumbs-in-obsidian/12264/15).
 			- ```md
 			  FEM.md
@@ -1097,7 +1063,6 @@ repository:: DeadBranches/logseq-queries-and-scripts
 				- The combination `is, refs` receives special treatment, as instead of a property’s values it looks for **references**.
 			- ![image.png](../assets/image_1714137963895_0.png)
 		- ## Current Features
-		  collapsed:: true
 			- Siblings are sorted **alphabetically**.
 			- Click to **open** the respective page.
 				- These are **custom links**, not like Logseq’s.
@@ -1373,7 +1338,6 @@ repository:: DeadBranches/logseq-queries-and-scripts
 		- The provided button is not needed to be pressed, unless changes are made to the code.
 		- This full page could be distributed or reused by other graphs as a single `PageTree.md` file (currently one copy per graph).1
 	- #### In-block variables from properties
-	  collapsed:: true
 	  {{il eb02,Inline properties and reuse of property values, basic implementation,https://discuss.logseq.com/t/inline-properties-and-reuse-of-property-values-basic-implementation/23363/1}}
 		- #+BEGIN_QUOTE
 		  * **Inspiration**
@@ -1434,7 +1398,6 @@ repository:: DeadBranches/logseq-queries-and-scripts
 		- Also see my tests with this feature here: ((66a02337-cdd7-4894-a427-f5fd766ec3fd))
 	-
 - ### Logseq [[Issues]]
-  collapsed:: true
   Things that bug me about logseq
 	- ### [[Android]] UX
 		- #### Navigation
@@ -1445,7 +1408,6 @@ repository:: DeadBranches/logseq-queries-and-scripts
 				  content:: resolution
 		- #### Keyboard
 			- Keyboard will not open when at the bottom of a page. #bug
-			  collapsed:: true
 				- Steps to reproduce
 				- 1. Enter a page with enough text to scroll the screen once.
 				- 2. With key board closed, scroll to the bottom of the page
@@ -1459,18 +1421,14 @@ repository:: DeadBranches/logseq-queries-and-scripts
 		  But, how do I organize and sort for display the information when it's all as linked references?
 		- And, if I start to use a page as a place to store sorted information, how do I deal with all the linked references?
 - ### {{i eb39}} templates
-  collapsed:: true
   Used in this page
 	- for ((65f5d381-8e00-4e19-bdbf-95727eb6a07e))
-	  collapsed:: true
 	  template\:\: buttoner - new logseq api reference
 	  template-including-parent\:\: false
 		- ### {{i f6ef}}  depreciation warning
-		  collapsed:: true
 		      this block is no longer in use
 			- {{i ea0b}} *depreciated on* *[[Wednesday, Jul 17th, 2024]]*
 		- {{button xxx,implementation_code,ea6f,long}}  `xxx`
-		  collapsed:: true
 			- implementation_code:
 			  ```js
 			  let api_implementation = `

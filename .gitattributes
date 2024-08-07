@@ -7,4 +7,4 @@
 
 # Define the diff driver
 [diff "ignore-collapsed-changes"]
-    command = grep -vE '^[[:space:]-]*collapsed::[[:space:]]*(true|false)$'
+    command = grep -vE '^[[:space:]-]*collapsed::[[:space:]]*true$'

@@ -4,13 +4,11 @@ repository:: DeadBranches/logseq-queries-and-scripts
 
 - *detailed page description*
   tags:: page-information
-  collapsed:: true
 	- Customize how a page appears on this list by using page properties!
 	- Set `:block/property :page-title ?title` and `?title` replaces the bolded page name with another string
 	- Set `:block/property :description ?desc` and ?desc becomes the text immediatly following `:page-title`
 	- Add `:block/tags "page-information"` to a block in a page and the block children will be added as children under the page entry on this page!!
 - query:: ((65f61ef5-45b1-4c58-b2b5-bced3827ae44))
-  collapsed:: true
   #+BEGIN_QUERY
   {:inputs [:parent-block #{1 2 3}]
    :query [:find (pull ?children [*])
@@ -64,7 +62,6 @@ repository:: DeadBranches/logseq-queries-and-scripts
   
   #+END_QUERY
 	- #[[advanced query]] test for scroll to block
-	  collapsed:: true
 		- ```
 		  #+BEGIN_QUERY
 		  {:inputs [:parent-block #{1 2 3}]
@@ -167,14 +164,12 @@ repository:: DeadBranches/logseq-queries-and-scripts
 	  }
 	  #+END_QUERY
 	- {{i eb6d}} *The philosophy of Pages*
-	  collapsed:: true
 		- Create a page: `tags:: page`
 		- Pages help me remember...
 		  * My system for structuring my logseq graph
 		  * The name of pages
 		  * Where I might have put blocks on a given topic.
 - # {{i eb45}} Collections
-  collapsed:: true
   {{I eac5}} *Information presented in a pretty format*
 	- query-sort-by:: collector
 	  query-sort-desc:: false
@@ -210,7 +205,6 @@ repository:: DeadBranches/logseq-queries-and-scripts
 	  
 	  #+END_QUERY
 		- *(Backup copy of query)*
-		  collapsed:: true
 			- ### Collection list
 			  #+BEGIN_QUERY
 			  {:query
@@ -242,13 +236,11 @@ repository:: DeadBranches/logseq-queries-and-scripts
 			  }
 			  #+END_QUERY
 - {{i eb6d}} *The philosophy of collections*
-  collapsed:: true
 	- are-linked-to-in-a-collector's-`page::` property.
 	-
 - # Collectors
   {{I eac5}} *Tag a journal block with a collector to ease finding the information later.*
 	- The philosophy of collectors
-	  collapsed:: true
 		- **Collectors are** a category of tags with fewer and broader options.
 		- **Using** them is first and easiest step in organizing information in my graph.
 		- Easily **create a new collector** using the `tags:: #collector` property.

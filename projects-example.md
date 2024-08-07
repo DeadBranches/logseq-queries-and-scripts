@@ -56,7 +56,6 @@ repository:: DeadBranches/logseq-queries-and-scripts
 	- [[home automation core 2024.5 update]]
 	- [[logseq-project-manager-2024.5]]
 	- 2023 income tax filing
-	  collapsed:: true
 		- {{i-inbox}} 2023 income tax filing inbox
 		-
 		- DONE Grab any documents from CRA
@@ -65,7 +64,6 @@ repository:: DeadBranches/logseq-queries-and-scripts
 		  SCHEDULED: <2024-04-15 Mon>
 		  [[Monday, Apr 15th, 2024]]
 		- ### Tax Slips
-		  collapsed:: true
 			- **T5** *Statement of Investment Income*
 			  Alterna Savings
 - ## {{i f59c}}  [[sometime]]

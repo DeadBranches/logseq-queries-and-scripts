@@ -216,7 +216,6 @@ description:: Insert a logseq block and it's children as a target blocks' childr
   {{kitButton child & before,insertSomeBlocks,ea69,'',source='66aa4a5f-1a02-4da2-b52f-5f7d6b25cacb' target='66aa4a91-9538-4cc3-9352-7fa54d27cd8a' options='sibling: false; before: true'}} {{kitButton sibling & before,insertSomeBlocks,ea69,'',source='66aa4a5f-1a02-4da2-b52f-5f7d6b25cacb' target='66aa4a91-9538-4cc3-9352-7fa54d27cd8a' options='sibling: true; before: true'}}
 - I am a source block
   id:: 66aa4a5f-1a02-4da2-b52f-5f7d6b25cacb
-  collapsed:: true
 	- AM A CHILD!@
 - parent
 	- (before sibling)
