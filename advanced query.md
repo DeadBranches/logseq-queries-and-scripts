@@ -59,6 +59,7 @@ repository:: DeadBranches/logseq-queries-and-scripts
   #+END_QUERY
 - ## {{i eff2}} Query library
   query:: ((65f7767a-9fe3-4b51-a564-c36be58ce5fa))
+  collapsed:: true
   *Advanced queries I reuse*
   #+BEGIN_QUERY
   {:inputs [:current-block #{1 2 3 4 5}]
@@ -117,6 +118,7 @@ repository:: DeadBranches/logseq-queries-and-scripts
 	  collapsed:: true
 	  *for `{{embedding}}`*
 		- **Related page** linked references
+		  collapsed:: true
 			- On a given page with the `:related` page property,
 				- Find all blocks with linked references to pages included in `:related`
 			- Linked references to pages in `:related` advanced query:
@@ -206,6 +208,7 @@ repository:: DeadBranches/logseq-queries-and-scripts
 			  
 			  #+END_QUERY
 		- #### {{i ef91}} Upcoming project quick-view
+		  collapsed:: true
 		        ![image.png](../assets/image_1719764401764_0.png){:height 38, :width 143}
 			- *see [[logseq-project-manager-2024.5]]*
 			- **Current query**
@@ -968,63 +971,63 @@ repository:: DeadBranches/logseq-queries-and-scripts
 		  id:: 66415c9e-ff58-4281-8007-160cb44fb8b3
 			- [:small "upcoming appointments"]
 			  id:: 66415ca6-d397-4fc1-97f1-95f7b516e6d1
-			  #+BEGIN_QUERY
-			  {:query
-			   [:find (min ?journal-day) ?date ?journal-day ?content ?props ?today ?activity ?event ?uuid ?current-page
-			    :keys min-day date journal-day content properties today activity event uuid current-page
-			    :in $ ?today ?current-page
-			    :where
-			    [?b :block/properties ?props]
-			    [(get
-			      ?props :activity) ?activity]
-			  ;[(contains? ?activity "ocrevus infusion")] 
-			    [?e :block/properties ?props]
-			    [(get ?props :event) ?event]
-			    [(get ?props :date) ?date]
-			    [?e :block/refs ?refs]
-			    [?e :block/content ?content]
-			    [?refs :block/journal-day ?journal-day]
-			    [(> ?journal-day ?today)]
-			  
-			   [?e :block/uuid ?uuid] 
-			    ]
-			  
-			   :result-transform  (fn [result] (sort-by (fn [r] (get-in r [:journal-day])) (fn [a b] (compare a b)) result))
-			  
-			   :view (letfn [(make-append-link [page block-content link-text]
-			                                   [:a {:on-click
-			                                        (fn [] (call-api "append_block_in_page"
-			                                                         page
-			                                                         block-content))}
-			                                    link-text])
-			                 (make-link [text destination]
-			                   [:a {:on-click
-			                        (fn []
-			                          (call-api "push_state" "page" {:name destination}))} text])]
-			           (fn [results]
-			             [:div
-			              [:table {:class "future-appointments"}
-			               [:thead
-			                [:tr
-			                 [:th {:width "120px"} "Date"]
-			                 [:th "Event"]]]
-			               [:tbody
-			                (for [result results]
-			                  [:tr
-			                   [:td (get-in result [:date])]
-			                   [:td (make-append-link
-			                         (get-in result [:current-page])
-			                          (str "{{i-note}} text \n{{i-event}} [" (get-in result [:event]) "](" (get-in result [:uuid])")")
-			                          (get-in result [:event]))        
-			                   ]])]]])
-			   )
-			  
-			          
-			   :inputs [:today :current-page]
-			   :breadcrumb-show? false
-			   :children? false
-			   :group-by-page? false}
-			  #+END_QUERY
+				- #+BEGIN_QUERY
+				  {:query
+				   [:find (min ?journal-day) ?date ?journal-day ?content ?props ?today ?activity ?event ?uuid ?current-page
+				    :keys min-day date journal-day content properties today activity event uuid current-page
+				    :in $ ?today ?current-page
+				    :where
+				    [?b :block/properties ?props]
+				    [(get
+				      ?props :activity) ?activity]
+				  ;[(contains? ?activity "ocrevus infusion")] 
+				    [?e :block/properties ?props]
+				    [(get ?props :event) ?event]
+				    [(get ?props :date) ?date]
+				    [?e :block/refs ?refs]
+				    [?e :block/content ?content]
+				    [?refs :block/journal-day ?journal-day]
+				    [(> ?journal-day ?today)]
+				  
+				   [?e :block/uuid ?uuid] 
+				    ]
+				  
+				   :result-transform  (fn [result] (sort-by (fn [r] (get-in r [:journal-day])) (fn [a b] (compare a b)) result))
+				  
+				   :view (letfn [(make-append-link [page block-content link-text]
+				                                   [:a {:on-click
+				                                        (fn [] (call-api "append_block_in_page"
+				                                                         page
+				                                                         block-content))}
+				                                    link-text])
+				                 (make-link [text destination]
+				                   [:a {:on-click
+				                        (fn []
+				                          (call-api "push_state" "page" {:name destination}))} text])]
+				           (fn [results]
+				             [:div
+				              [:table {:class "future-appointments"}
+				               [:thead
+				                [:tr
+				                 [:th {:width "120px"} "Date"]
+				                 [:th "Event"]]]
+				               [:tbody
+				                (for [result results]
+				                  [:tr
+				                   [:td (get-in result [:date])]
+				                   [:td (make-append-link
+				                         (get-in result [:current-page])
+				                          (str "{{i-note}} text \n{{i-event}} [" (get-in result [:event]) "](" (get-in result [:uuid])")")
+				                          (get-in result [:event]))        
+				                   ]])]]])
+				   )
+				  
+				          
+				   :inputs [:today :current-page]
+				   :breadcrumb-show? false
+				   :children? false
+				   :group-by-page? false}
+				  #+END_QUERY
 		- ####  {{i ec44}} current medication list
 		  id:: 667a53af-9c93-4a1d-a01b-7e8b8fd22b53
 		  collapsed:: true
@@ -1987,6 +1990,7 @@ repository:: DeadBranches/logseq-queries-and-scripts
 			  from June 12, 2024
 			- **version 1.0** {{code-inside}}
 			  id:: 669136b1-ac6e-4a40-abc3-50c3687cf2dd
+			  collapsed:: true
 			  Shows items crossed off today, or "no results found".
 			  from June 12, 2024
 			  
@@ -2486,11 +2490,13 @@ repository:: DeadBranches/logseq-queries-and-scripts
 			  (not (property ?b :goods-category "food"))
 			  ```
 		- blocks **with property** *:property-name*
+		  collapsed:: true
 			- ```datalog
 			    [?b :block/properties ?prop]
 			    [(contains? ?prop :goods-category)]
 			  ```
 		- blocks **with :property value** *"value"*
+		  collapsed:: true
 			- ```datalog
 			  [?b :block/properties ?props]
 			  [(get ?props :goods-category) ?category]
@@ -2580,6 +2586,7 @@ repository:: DeadBranches/logseq-queries-and-scripts
 			  ```
 		- get **first line** of block content
 		  id:: 663a1f42-6ff8-4a1b-a953-cca70c833e52
+		  collapsed:: true
 			- {{nested-code-block}}
 			  collapsed:: true
 				- copy_second_sibling:
@@ -2810,6 +2817,7 @@ repository:: DeadBranches/logseq-queries-and-scripts
 			      )
 			  ```
 		- **Sort by date created** (or failing that, date last modified)
+		  collapsed:: true
 			- {{nested-code-block}}
 			  collapsed:: true
 				- copy_second_sibling:

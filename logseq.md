@@ -109,7 +109,6 @@ repository:: DeadBranches/logseq-queries-and-scripts
 - **block spy** for logseq data
   id:: 66046249-db4c-4206-b001-691fad2bd2e2
 	- #### Tool: Logseq block spy
-	  collapsed:: true
 		- {{button spy,spy,''}}
 		  template:: tool, return element data as JSON
 		  collapsed:: true

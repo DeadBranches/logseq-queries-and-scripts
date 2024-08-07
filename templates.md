@@ -909,6 +909,7 @@ description:: `/template`s with boilerplate for collector blocks, page tags, dai
   *components and templates*
 	- {{i ec45}} doing container
 	  id:: 66994976-991f-4e60-9c59-52c7fc8f4241
+	  collapsed:: true
 		- ### {{i eac9}} component
 		  id:: 66b0ead7-2d9d-4e05-a21e-da5d98e1d9b8
 			- #### {{kitButton Doing today,testkit,ec45,-button-style full-width flex-grow-1 +bold-nth-word:1}}
@@ -956,6 +957,7 @@ description:: `/template`s with boilerplate for collector blocks, page tags, dai
 				- {{i eaff}} {{openOrderCount}}  {{i eb25}}  {{shoppingItemCount}} {{i f21c}} {{groceryItemCount}}
 				  collapsed:: true
 					- {{kitButton grocery list,collapseBlock,f21c,-button-style full-width}}
+					  collapsed:: true
 						- {{embed ((6682d241-16ee-4991-bf3f-85c90add7dbd))}}
 					- {{kitButton shopping list,collapseBlock,eb25,-button-style full-width}}
 					  collapsed:: true
@@ -967,9 +969,10 @@ description:: `/template`s with boilerplate for collector blocks, page tags, dai
 					- *projects in the wings*
 					  {{embed ((6654b591-49ea-4d3a-b9d9-1dc4f25bab0c))}}
 				- #### {{kitButton upcoming appointment in |nextAppointment| day,collapseBlock,ea53,-button-style full-width}}
-				  collapsed:: true
 				  {{embed ((664e4055-3b72-4ba1-ac8b-48e34544629c))}}
-					- {{embed ((66415ca6-d397-4fc1-97f1-95f7b516e6d1))}}
+					- {{futureAppointmentTable}}
+					  collapsed:: true
+						- {{embed ((66415ca6-d397-4fc1-97f1-95f7b516e6d1))}}
 		- Templates temporarily excluded
 		  collapsed:: true
 			- #### awaiting delivery of {{i eaff}} {{openOrders words}}
