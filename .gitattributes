@@ -1,1 +1,3 @@
-*.md filter=ignore-collapsed
+# Ignore changes to 'collapsed::' 
+# properties
+*.md filter=ignore-collapsed-changes
