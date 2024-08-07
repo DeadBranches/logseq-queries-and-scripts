@@ -1,3 +1,7 @@
-# Ignore changes to 'collapsed::' 
-# properties
-*.md filter=ignore-collapsed-changes
+# Ignore changes to 'collapsed::' properties
+*.md diff=ignore-collapsed-changes
+
+# Define the diff driver
+[diff "ignore-collapsed-changes"]
+    command = grep -vE '^[[:space:]-]*collapsed::[[:space:]]*(true|false)$'
+
