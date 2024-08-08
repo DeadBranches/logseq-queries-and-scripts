@@ -3,3 +3,11 @@
 
 # Also set up a diff driver for viewing diffs
 *.md diff=ignore-collapsed-changes
+
+### Git filter config
+# Use the above with these git filters:
+# (which can be added using `git config --local <filter-name> "<filter-value>"`)
+#
+# filter.ignore-collapsed-changes.clean=grep -vE '^[[:space:]-]*collapsed::[[:space:]]*true$'
+# filter.ignore-collapsed-changes.smudge=cat
+# diff.ignore-collapsed-changes.command=grep -vE '^[[:space:]-]*collapsed::[[:space:]]*true$' 
