@@ -2,7 +2,8 @@ kit:: runpage journalGroceryWidget
 description:: (depreciated). invoke from a button press to add a new grocery item to the current journal page.
 
 - ### {{i f6ef}}  depreciation warning
-      this block is no longer in use
+      this block is no longer in use.
+      -> see [[purchaseHolderComponent]]
 	- {{i ea0b}} *depreciated on* *[[Tuesday, Jul 23rd, 2024]]*
 - ```javascript
   logseq.kits.journalGroceryWidget = journalGroceryWidget;

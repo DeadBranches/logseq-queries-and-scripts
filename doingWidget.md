@@ -4,10 +4,15 @@ description:: Adds a doing block set to the page if one doesn't already exist
 - ```javascript
   logseq.kits.doingWidget = doingWidget;
   
-  async function someFunctionality(positionalArg, defaultArgument = false) {
-    const returnValue = ! keywordArgument;
-    return returnValue;
+  async function get_block_content(uuid) {
+    let component_uuid = uuid
+    let component_block = await logseq.api.get_block(component_uuid).content;
+    // Logseq blocks include an id property if the block has been referenced.
+    const regexPattern = /\nid::\s(?:[\d\w]{4,8}-){4}[\d\w]{12}/gm;
+    const component = component_block.replace(regexPattern, '');
+    return component
   }
+  
   
   async function doingWidget(el, mode = 'process') {
     const me = event.target.closest('.ls-block');
@@ -82,6 +87,7 @@ description:: Adds a doing block set to the page if one doesn't already exist
   }
   doingWidget(null, 'plaintext')
   ```
+	- {{evalparent}}
 - # UI Elements
   {{i ec9e}} *[[logseq-journal-buddy-improvement-2024.6]]* *(live embed)*
 	- {{embed ((668d8204-e490-4d23-8d14-1c8f167c9edb))}}
