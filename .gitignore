@@ -1,6 +1,8 @@
 *
 !.gitattributes
 !.gitignore
+!LICENSE
+!README.md
 
 # logseq kits
 !daysUntilNextAppointment.md
