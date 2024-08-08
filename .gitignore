@@ -1,34 +1,44 @@
 *
 !.gitattributes
 !.gitignore
-!advanced query.md
-!collapseBlock.md
+
+# logseq kits
 !daysUntilNextAppointment.md
 !doingWidget.md
 !exportquery.md
 !futureAppointmentTable.md
-!grocery list.md
+!futureEventsTable.md
 !groceryItemCount.md
 !infoBox.md
 !insertListItem.md
-!insertListItem.md
+!insertSomeBlocks.md
 !journalGroceryWidget.md
 !journalOrganizationBlocks.md
-!kit.md
 !kitButton.md
-!logseq.md
 !md-button.md
 !newKitButton.md
 !nextAppointment.md
 !openOrderCount.md
-!openOrderCount.md
 !openOrders.md
+!purchaseHolderComponent.md
+!scheduleDateToday.md
+!youtubeIconLinker.md
+
+
+# pages
+!advanced query.md
+!collapseBlock.md
+!grocery list.md
+!kit.md
+!logseq.md
 !organization.md
 !pages.md
 !people.md
 !projects-example.md
-!purchaseHolderComponent.md
-!scheduleDateToday.md
 !shopping.md
 !templates.md
-!youtubeIconLinker.md
+
+
+# projects
+!logseq-journal-buddy-improvement-2024.6.md
+!logseq-events-and-appointments.md
