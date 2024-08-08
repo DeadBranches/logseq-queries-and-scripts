@@ -23,8 +23,9 @@
 <br />
 <div align="center">
   <a href="https://github.com/DeadBranches/logseq-queries-and-scripts">
-    <img src="images/logo.png" alt="Logo" width="80" height="80">
+    <img src="https://github.com/user-attachments/assets/83b391c4-a6f0-450b-b75f-7bd26bc80a5d" alt="Logo" width="80" height="80">
   </a>
+
 
 <h3 align="center">Logseq advanced queries and JavaScript</h3>
 
@@ -59,7 +60,7 @@
 <!-- ABOUT THE PROJECT -->
 ## About The Project
 
-[![Product Name Screen Shot][product-screenshot]](https://example.com)
+![queries and scripts screenshot](https://github.com/user-attachments/assets/835ca0b1-931f-447c-aaa3-3f7744430616)
 
 These pages from my Logseq graph include advanced queries written in <a href="https://github.com/tonsky/datascript">datascript</a> and JavaScript. I question how useful they'll be to anyone but me given the lack of documentation. But, here they are!
 
