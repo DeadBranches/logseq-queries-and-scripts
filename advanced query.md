@@ -985,7 +985,7 @@ repository:: DeadBranches/logseq-queries-and-scripts
 				                          (call-api "push_state" "page" {:name destination}))} text])]
 				           (fn [results]
 				             [:div
-				              [:table {:class "future-appointments"}
+				              [:table {:class "future-appointments stop-click"}
 				               [:thead
 				                [:tr
 				                 [:th {:width "120px"} "Date"]
