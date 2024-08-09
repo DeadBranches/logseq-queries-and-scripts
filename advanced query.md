@@ -1077,42 +1077,46 @@ repository:: DeadBranches/logseq-queries-and-scripts
 			                [:td (get-in r [:day])]])]])
 			  }
 			  #+END_QUERY
-				- {{runpage exportquery}}
-				  {{kitButton export,exportquery}}
-			- #+BEGIN_QUERY
-			  {:query
-			  [:find ?mname ?date ?day ?dose
-			  :keys mname date day dose
-			  :where
-			  [?m :block/properties ?props]
-			  [(get ?props :medication) ?mname]
-			  [(get ?props :dose) ?dose]
-			  - [?m :block/page ?p]
-			  [?p :block/original-name ?day]
-			  [?p :block/journal-day ?date]]
-			  :result-transform (fn [results]
-			                     (->> results
-			                          (group-by :mname)
-			                          (map (fn [[med-name group]]
-			                                 (reduce (fn [acc curr]
-			                                           (if (> (get acc :date) (get curr :date))
-			                                             acc
-			                                             curr))
-			                                         group)))
-			                          (sort-by (comp - :date))))
-			  :view (fn [rows] [:table
-			                  [:thead [:tr
-			                           [:th "Medication name"]
-			                           [:th "Dose"]
-			                           [:th "Date"]]] 
-			                  [:tbody (for [r rows] 
-			                            [:tr
-			                             [:td [:a {:on-click (fn [] (call-api "push_state" "page" {:name (str (get-in r [:mname]))}))} 
-			                                  (get-in r [:mname])]]
-			                             [:td (get-in r [:dose])]
-			                             [:td (get-in r [:day])]])
-			                   ]])}
-			  #+END_QUERY
+				- {{kitButton export,exportquery}}
+				  {{runpage exportquery}}
+			- {{runpage exportquery}}
+			- idk what this is, but it's broke:
+				- ```
+				  #+BEGIN_QUERY
+				  {:query
+				  [:find ?mname ?date ?day ?dose
+				  :keys mname date day dose
+				  :where
+				  [?m :block/properties ?props]
+				  [(get ?props :medication) ?mname]
+				  [(get ?props :dose) ?dose]
+				  - [?m :block/page ?p]
+				  [?p :block/original-name ?day]
+				  [?p :block/journal-day ?date]]
+				  :result-transform (fn [results]
+				                     (->> results
+				                          (group-by :mname)
+				                          (map (fn [[med-name group]]
+				                                 (reduce (fn [acc curr]
+				                                           (if (> (get acc :date) (get curr :date))
+				                                             acc
+				                                             curr))
+				                                         group)))
+				                          (sort-by (comp - :date))))
+				  :view (fn [rows] [:table
+				                  [:thead [:tr
+				                           [:th "Medication name"]
+				                           [:th "Dose"]
+				                           [:th "Date"]]] 
+				                  [:tbody (for [r rows] 
+				                            [:tr
+				                             [:td [:a {:on-click (fn [] (call-api "push_state" "page" {:name (str (get-in r [:mname]))}))} 
+				                                  (get-in r [:mname])]]
+				                             [:td (get-in r [:dose])]
+				                             [:td (get-in r [:day])]])
+				                   ]])}
+				  #+END_QUERY
+				  ```
 		- #### {{i f21c}} grocery list quick-ref (journal widget)
 		  id:: 6666f9ad-2b57-4f34-b088-41e5b3e5bd53
 		      ![image.png](../assets/image_1719765985169_0.png){:height 30, :width 214}

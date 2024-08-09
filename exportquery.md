@@ -92,6 +92,6 @@ description:: Runpage kit that exports a parent block as HTML to the clipboard (
       console.error('Failed to copy content to clipboard:', error);
     }
   }
-  exportquery(null, 'original')
+  exportquery(null)
   ```
 	- {{evalparent}}

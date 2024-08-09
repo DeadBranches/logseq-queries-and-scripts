@@ -368,6 +368,7 @@ description:: Converting code-button blocks to logseq kits `{{evalpage}}` button
 				           )
 				   }
 				  #+END_QUERY
+					- {{kitButton export content,exportquery}}
 			- *documentation*
 				- in-graph location & address
 					- {{i-file}} *templates* / {{I eb96}} *Daily Journal* / {{i ef49}} *Purchase holder component* / {{i eac9}} *[component](((66b0ed6f-714f-4e1f-9d4c-85cf15341259)))*
