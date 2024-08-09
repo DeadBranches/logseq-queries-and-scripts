@@ -92,32 +92,28 @@ kit:: futureEventsTable
     table.className = "compact future-event-table";
     table.innerHTML = `<thead>
           <tr>
-              <th class="days-until">Days<br>Until</th>
+              <th class="days-until">In<br><small>(days)</small></th>
               <th>Event</th>
           </tr>
       </thead>
       <tbody>
           ${result
-          .map(
+            .map(
               (event, index) => `
               <tr>
                   <td rowspan="2" class="days-until"
                       >${event.daysUntil}</td>
                   <td class="clickable"
-                      ><!-- <a href="logseq://graph/main?block-id=${event.uuid}">${event.properties.event}</a></td> --><a onclick="document.getElementById('event-info-${event.uuid}').classList.toggle('show');"
+                      ><a onclick="document.getElementById('event-info-${event.uuid}').classList.toggle('closed');"
                           >${event.properties.event}</a></td>
               </tr>
               <tr>
-                  <td class="event-info" id="event-info-${event.uuid}"
-                      >${event.date} ${event.time} ${event.with}</td>
+                  <td class="event-info closed" id="event-info-${event.uuid}"
+                      >${event.date} with ${event.properties.with} at ${event.properties.time}</td>
               </tr>`
-          ).join("")}
+            )
+            .join("")}
       </tbody>`;
-  
-    // result.forEach((event, index) => {
-    //   const summaryTr = document.createElement("tr");
-    //   const summarr
-    // };
   
     table.addEventListener("mousedown", function cancel(e) {
       e.stopPropagation();
@@ -126,18 +122,17 @@ kit:: futureEventsTable
     div.appendChild(table);
   });
   
-  // other things to try
-  // event.preventDefault();
-  // event.stopPropagation();
-  // result.forEach((event, index) => {
-  //   const summaryTr = document.createElement("tr");
-  //   const summarr
-  // };
-  
   ```
 	- {{evalparent}}
--
+- /data
+- event:: Something fun
+  activity:: [[something]] 
+  with:: [[@Someone]] 
+  location:: [[.some place]]
+  date:: [[Saturday, Aug 10th, 2024]] 
+  time:: 1200
 - {{futureEventsTable}}
+	-
 - ```shell
   const targetNode = document.getElementById("event-table-0");
   const config = { attributes: true, childList: true, subtree: true };
