@@ -250,64 +250,81 @@ description:: kitButton [label] <kit-name> [icon] [positive-class | {-inline | -
     
   ```
 	- {{evalparent}}
+- # Ideas
+	- ```
+	  - INPUT
+	      - KIT CONFIGURATION
+	          - List of data attribute names to include with rendered html
+	              - data-button-icon
+	              - data-button-text
+	          - List of default classes to include with any button's html
+	          - Name of the data attribute on the parent `div` element in which I can find the value provided to the various `{{kitButton}}` positional arguments.
+	              - DATA ATTRIBUTES
+	                  - | positional argument | data attribute |
+	                    | $1 | div.dataset.buttonLabel? |
+	                    | $2 | div.dataset.kitPage |
+	                    | $3 | div.dataset.buttonIcon |
+	                    | $4 | div.dataset.buttonClass [:br] rename to classes? |
+	                    | $5 | arguments
+	  
+	      - data attribute sanitization
+	  
+	      - INPUT PROCESSING
+	          - class flags
+	              - remove individual classes prefixed with `-` from the default list of class names 
+	      - label text
+	  ```
 - # Changes
 	- [[Thursday, Jul 25th, 2024]] Modified kitbutton to accept arguments as $5, but this time instead of just setting them all to data-arguments data attribute, it actually manually sets the data attributes when it is in the format attribute-name='value'.
 	  id:: 66a31038-3455-4ded-8d20-89e5e790dc76
 		- So, to get the same behaviour as before now I need to do $5 = argument='something'
 		- But, now I can pass multiple attributes all at once
-		-
-	-
-	-
-	-
-	-
-	- {{evalparent}}
-	- {{}}
-	-
+- # Tests
 	- {{kitButton hi,testkit,hi,+bold-nth-word:3,hi}}
 	- {{kitButton hi}}
 	-
-- Kit button variations
-	- Icon only, full width.
-	  *-button-style full-width*
-	  {{kitButton '',testkit,ef49,-button-style full-width}}
-	- Text only, full width.
-	  *-button-style full-width*
-	  {{kitButton hi mom,testkit,'',-button-style full-width}}
-	- Icon and text, full width.
-	  {{kitButton hi mom,testkit,ef49,-button-style full-width}}
-	- Long inline buttons
-	  {{kitButton kitButton long,testkit,f3f3,long}} {{kitButton text-only,testkit,'',long}}
-	- icon only button, inline. 
-	  {{kitButton '',testkit,f3f3}}
-	- Text and icon buttons, inline.
-	  {{kitButton hi,testkit,f3f3}} {{kitButton hi,testkit,f3f3}}
-	- Kit button, full-width.
-	  {{kitButton hi,testkit,f3f3,full-width}}
-	- Kit buttons, inline, full width.
-	  {{kitButton hi,testkit,f3f3,full-width}} {{kitButton hi,testkit,f3f3,full-width}}
-	- Text and icon, full-width, flex-grow-1
-	  {{kitButton hi,testkit,f3f3,-button-style full-width flex-grow-1}}
-	- Text and icon, flex-grow-1
-	  {{kitButton hi,testkit,f3f3,-button-style flex-grow-1}}
-	- Inline text and icons, full-width (flex-grow-1 | flex-grow-2)
-	  {{kitButton hi,testkit,f3f3,-button-style full-width flex-grow-1}} {{kitButton hi,testkit,f3f3,-button-style full-width flex-grow-2}}
-	- Kit button, flex-grow-2 | flex-grow-1
-	  {{kitButton hi,testkit,f3f3,-button-style flex-grow-2}} {{kitButton hi,testkit,f3f3,-button-style flex-grow-1}}
-	- Just text
-	  {{i f3f3}} hi
-	- Kit style expression test
-		- +bold-nth-word
-		- {{kitButton hi mom,testkit,f3f3,-button-style full-width flex-grow-1 +bold-nth-word}}
-		- +bold-nth-word:1
-		  {{kitButton hi mom,testkit,f3f3,-button-style full-width flex-grow-1 +bold-nth-word:1}}
-		- +bold-nth-word:2
-		- #### {{kitButton hi mom,testkit,f3f3,-button-style full-width flex-grow-1 +bold-nth-word:2}}
-	- kit label evaluation test
-		- {{kitButton Next appointment in |nextAppointment| days,collapseBlock}}
-	- kit label + style expression filtering test
-		- #### {{kitButton Next appointment in |nextAppointment| days,testkit,f3f3,-button-style full-width flex-grow-1 +bold-nth-word:2}}
-	- Kit and kit arguments tests
-		- parent
-			- self
-			  {{kitButton label,collapseBlock,'','',['target': 'parent']}}
-				- child
+	- Kit button variations
+		- Icon only, full width.
+		  *-button-style full-width*
+		  {{kitButton '',testkit,ef49,-button-style full-width}}
+		- Text only, full width.
+		  *-button-style full-width*
+		  {{kitButton hi mom,testkit,'',-button-style full-width}}
+		- Icon and text, full width.
+		  {{kitButton hi mom,testkit,ef49,-button-style full-width}}
+		- Long inline buttons
+		  {{kitButton kitButton long,testkit,f3f3,long}} {{kitButton text-only,testkit,'',long}}
+		- icon only button, inline. 
+		  {{kitButton '',testkit,f3f3}}
+		- Text and icon buttons, inline.
+		  {{kitButton hi,testkit,f3f3}} {{kitButton hi,testkit,f3f3}}
+		- Kit button, full-width.
+		  {{kitButton hi,testkit,f3f3,full-width}}
+		- Kit buttons, inline, full width.
+		  {{kitButton hi,testkit,f3f3,full-width}} {{kitButton hi,testkit,f3f3,full-width}}
+		- Text and icon, full-width, flex-grow-1
+		  {{kitButton hi,testkit,f3f3,-button-style full-width flex-grow-1}}
+		- Text and icon, flex-grow-1
+		  {{kitButton hi,testkit,f3f3,-button-style flex-grow-1}}
+		- Inline text and icons, full-width (flex-grow-1 | flex-grow-2)
+		  {{kitButton hi,testkit,f3f3,-button-style full-width flex-grow-1}} {{kitButton hi,testkit,f3f3,-button-style full-width flex-grow-2}}
+		- Kit button, flex-grow-2 | flex-grow-1
+		  {{kitButton hi,testkit,f3f3,-button-style flex-grow-2}} {{kitButton hi,testkit,f3f3,-button-style flex-grow-1}}
+		- Just text
+		  {{i f3f3}} hi
+		- Kit style expression test
+			- +bold-nth-word
+			- {{kitButton hi mom,testkit,f3f3,-button-style full-width flex-grow-1 +bold-nth-word}}
+			- +bold-nth-word:1
+			  {{kitButton hi mom,testkit,f3f3,-button-style full-width flex-grow-1 +bold-nth-word:1}}
+			- +bold-nth-word:2
+			- #### {{kitButton hi mom,testkit,f3f3,-button-style full-width flex-grow-1 +bold-nth-word:2}}
+		- kit label evaluation test
+			- {{kitButton Next appointment in |nextAppointment| days,collapseBlock}}
+		- kit label + style expression filtering test
+			- #### {{kitButton Next appointment in |nextAppointment| days,testkit,f3f3,-button-style full-width flex-grow-1 +bold-nth-word:2}}
+		- Kit and kit arguments tests
+			- parent
+				- self
+				  {{kitButton label,collapseBlock,'','',['target': 'parent']}}
+					- child

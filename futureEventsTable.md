@@ -19,22 +19,22 @@ kit:: futureEventsTable
           console.log(
             17,
             `function futureEventsArray: Expected startDate
-                        to be a string, but it was not.`
+                          to be a string, but it was not.`
           );
         }
         const advancedQuery = `
-                    [:find ?date ?day ?content ?props ?uuid
-                    :keys date day content properties uuid
-                    :where
-                    [?e :block/properties ?props]
-                    [(get ?props :event) ?event]
-                    [(get ?props :date) ?date] 
-                    [?e :block/refs ?refs]
-                    [?e :block/content ?content]
-                    [?e :block/uuid ?uuid]
-                    [?refs :block/journal-day ?day]
-                    [(>= ?day ${startDate})]
-                    ]`;
+                      [:find ?date ?day ?content ?props ?uuid
+                      :keys date day content properties uuid
+                      :where
+                      [?e :block/properties ?props]
+                      [(get ?props :event) ?event]
+                      [(get ?props :date) ?date] 
+                      [?e :block/refs ?refs]
+                      [?e :block/content ?content]
+                      [?e :block/uuid ?uuid]
+                      [?refs :block/journal-day ?day]
+                      [(>= ?day ${startDate})]
+                      ]`;
   
         const queryResults = await logseq.api.datascript_query(advancedQuery);
         //const flatQueryResults = queryResults?.flat();
@@ -52,7 +52,7 @@ kit:: futureEventsTable
           console.log(
             46,
             `function chronologicalEvents: Expected futureEventsArray
-                        to be an object, but it was not.`
+                          to be an object, but it was not.`
           );
           return [];
         }
@@ -90,68 +90,49 @@ kit:: futureEventsTable
   
     const table = document.createElement("table");
     table.className = "compact future-event-table";
-    table.innerHTML = `
-       <thead>
-         <tr>
-           <th class="days-until">Days<br>Until</th>
-           <th>Event</th>
-         </tr>
-       </thead>
-       <tbody>
-         ${result
-           .map(
-             (event, index) => `
-         <tr>
-           <td rowspan="2" class="days-until">${event.daysUntil}</td>
-           <td class="clickable"><a href="logseq://graph/main?block-id=${event.uuid}">${event.properties.event}</a></td>
-         </tr>
-         <tr>
-           <td class="event-info">${event.date} ${event.time} ${event.with}<br></td>
-         </tr>`
-           )
-           .join("")}
-       </tbody>`;
-     table.addEventListener("mousedown", function cancel(e) {
-              e.stopPropagation();
-            });
-    
-    const parentNode = div.closest(".block-main-container");
-    const futureEventsCallback = (mutationList, observer, target = table) => {
-      mutationList.forEach((mutation) => {
-        if (mutation.type !== "childList") return;
+    table.innerHTML = `<thead>
+          <tr>
+              <th class="days-until">Days<br>Until</th>
+              <th>Event</th>
+          </tr>
+      </thead>
+      <tbody>
+          ${result
+          .map(
+              (event, index) => `
+              <tr>
+                  <td rowspan="2" class="days-until"
+                      >${event.daysUntil}</td>
+                  <td class="clickable"
+                      ><!-- <a href="logseq://graph/main?block-id=${event.uuid}">${event.properties.event}</a></td> --><a onclick="document.getElementById('event-info-${event.uuid}').classList.toggle('show');"
+                          >${event.properties.event}</a></td>
+              </tr>
+              <tr>
+                  <td class="event-info" id="event-info-${event.uuid}"
+                      >${event.date} ${event.time} ${event.with}</td>
+              </tr>`
+          ).join("")}
+      </tbody>`;
   
-        mutation.addedNodes.forEach((node) => {
-          if (!node.className) return;
+    // result.forEach((event, index) => {
+    //   const summaryTr = document.createElement("tr");
+    //   const summarr
+    // };
   
-          if (node.className.includes("future-event-table")) {
-            console.log(node, target);
-            
-            //   const cowElement = document.querySelector(".mooo");
-            //   cowElement.addEventListener("click", function onClicked(e) {
-            //     e.preventDefault();
-            //     e.stopPropagation();
-            //     console.log("STOPPOPOP.");
-            //   });
-          }
-        });
-      });
-    };
-  
-    if (!window.eventTableObserver) {
-      window.eventTableObserver = new MutationObserver(futureEventsCallback);
-      if (!parentNode) return; // guard
-  
-      eventTableObserver.observe(parentNode, {
-        attributes: true,
-        childList: true,
-        subtree: true,
-      });
-  
-      console.log("Observer started");
-    }
+    table.addEventListener("mousedown", function cancel(e) {
+      e.stopPropagation();
+    });
   
     div.appendChild(table);
   });
+  
+  // other things to try
+  // event.preventDefault();
+  // event.stopPropagation();
+  // result.forEach((event, index) => {
+  //   const summaryTr = document.createElement("tr");
+  //   const summarr
+  // };
   
   ```
 	- {{evalparent}}
