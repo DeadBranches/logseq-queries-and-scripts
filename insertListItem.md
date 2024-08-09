@@ -18,9 +18,9 @@ description:: Inserts either a grocery or shopping list item under the purchase 
       grocery: "TODO {{grocery}} ",
       shopping: "TODO {{buy}} ",
       do: "{{do}} ",
-      doKitchen: "{{do}} {{kitchen}}",
-      doOffice: "{{do}} {{office}} ",
-      doBathroom: "{{do}} {{bathroom}} "
+      doKitchen: "{{do}} {{i-kitchen}}",
+      doOffice: "{{do}} {{i-office}} ",
+      doBathroom: "{{do}} {{i-bathroom}} "
     } 
     const insertOptions = {
       before: true,
