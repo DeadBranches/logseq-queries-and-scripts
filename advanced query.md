@@ -2444,19 +2444,19 @@ repository:: DeadBranches/logseq-queries-and-scripts
 			  ```
 		- blocks **with a given \{\{macro}}**
 		  id:: 6638f4e8-101f-4d66-8aa5-0782d73d32f7
-			  ```datalog
-			  {:inputs ["grocery"]
-			   :query
-			   [:find (pull ?b [*])
-			    :in $ ?macro
-			    :where
-			    [?m :block/properties ?props]
-			    [(get ?props :logseq.macro-name) ?macros]
-			    [(= ?macros ?macro)]
-			    [?b :block/macros ?m]
-			   ]
-			   }
-			  ```
+		   ```datalog
+		   {:inputs ["grocery"]
+		    :query
+		    [:find (pull ?b [*])
+		     :in $ ?macro
+		     :where
+		     [?m :block/properties ?props]
+		     [(get ?props :logseq.macro-name) ?macros]
+		     [(= ?macros ?macro)]
+		     [?b :block/macros ?m]
+		    ]
+		    }
+		   ```
 			- news!!!
 			  #+BEGIN_QUERY
 			  {:inputs ["news"]
