@@ -103,13 +103,13 @@ kit:: futureEventsTable
               <tr>
                   <td rowspan="2" class="days-until"
                       >${event.daysUntil}</td>
-                  <td class="clickable"
-                      ><!-- <a href="logseq://graph/main?block-id=${event.uuid}">${event.properties.event}</a></td> --><a onclick="document.getElementById('event-info-${event.uuid}').classList.toggle('show');"
+                  <td class="touch-screen"
+                      ><!-- <a href="logseq://graph/main?block-id=${event.uuid}">${event.properties.event}</a></td> --><a onclick="document.getElementById('event-info-${event.uuid}').classList.toggle('closed');"
                           >${event.properties.event}</a></td>
               </tr>
               <tr>
-                  <td class="event-info" id="event-info-${event.uuid}"
-                      >${event.date} ${event.time} ${event.with}</td>
+                  <td class="event-info closed" id="event-info-${event.uuid}"
+                      >${event.properties.time} on ${event.date} with ${event.properties.with}</td>
               </tr>`
           ).join("")}
       </tbody>`;
