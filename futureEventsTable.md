@@ -89,10 +89,10 @@ kit:: futureEventsTable
     result = await futureEventsPromise;
   
     const table = document.createElement("table");
-    table.className = "compact future-event-table";
+    table.className = "future-event-table";
     table.innerHTML = `<thead>
           <tr>
-              <th class="days-until">In<br><small>(days)</small></th>
+              <th class="days-until">In<br><small>days</small></th>
               <th>Event</th>
           </tr>
       </thead>
@@ -123,7 +123,6 @@ kit:: futureEventsTable
   
   ```
 	- {{evalparent}}
-- /data
 - id:: 66b750b0-17c1-4fa1-be49-6445f5617ebd
 - {{futureEventsTable}}
 	-
