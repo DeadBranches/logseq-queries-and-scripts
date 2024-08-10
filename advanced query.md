@@ -718,19 +718,20 @@ repository:: DeadBranches/logseq-queries-and-scripts
 				                   :current-page-uuid current-page-uuid}))
 				              next-events)]
 				  
-				            [:div [:small
+				            [:div {:class "quick-view-container"} 
+				             [:span {:class "ti"} "\u0020\u0020"]
+				             [:span {:class "content-slot"}
 				                   (cond (empty? next-events) "no events"
-				                         (= (count next-events) 1)  (for [event formatted-events] 
-				                            [:a {:on-click (fn [] (call-api "append_block_in_page"
-				                                                                 (:current-page-uuid event)
-				                                                                 (str "{{i eb6d}} note for {{i f621}} [" (:name event)
-				                                                                      "](((" (:uuid event) ")))")))} (:name event)])
-				                         :else [:ul (for [event formatted-events] [:li [:a {:on-click
-				                               (fn [] (call-api "append_block_in_page"
-				                                                (:current-page-uuid event)
-				                                                (str "{{i eb6d}} note for {{i f621}} [" (:name event)
-				                                                     "](((" (:uuid event) ")))")))}
-				                                                                        (:name event)]])])]])))
+				                         (= (count next-events) 1)  (for [event formatted-events]
+				                                                      [:a {:class "link"
+				                                                           :on-click (fn [] (call-api "append_block_in_page" (:current-page-uuid event)
+				                                                                                      (str "{{i eb6d}} note for {{i f621}} [" (:name event) "](((" (:uuid event) ")))")))} (:name event)])
+				                         :else [:ul (for [event formatted-events]
+				                                      [:li [:a {:on-click (fn []
+				                                                            (call-api "append_block_in_page" (:current-page-uuid event)
+				                                                                      (str "{{i eb6d}} note for {{i f621}} [" (:name event)
+				                                                                           "](((" (:uuid event) ")))")))}
+				                                            (:name event)]])])]])))
 				                      
 				              
 				   :result-transform (fn [result]
@@ -740,10 +741,88 @@ repository:: DeadBranches/logseq-queries-and-scripts
 				  #+END_QUERY
 			- ### {{i ea0b}} *version archive*
 			  *older stuff*
+				- v2.1 slightly more formatted event. (current)
 				- v2.0 upcoming event and activities information **with quick-reference links**
-				  *date retired*: **(current version)**
+				  *date retired*: [[Saturday, Aug 10th, 2024]] 
 				  ![image.png](../assets/image_1719765578558_0.png){:height 31, :width 246}
 					- {{i eac5}} Developed on [[Sunday, Jun 30th, 2024]] during {{i ea77}} [this iteration session](((66817d91-9f86-4ab3-9c45-face6802e356)))
+					  ```javascript
+					  #+BEGIN_QUERY
+					  {:query
+					   [:find (min ?datestamp) ?date ?datestamp ?today-datestamp ?content ?props ?current-page-name ?activity-uuid ?current-page-uuid
+					    :keys first-activity-datestamp date datestamp today-datestamp content properties current-page-name activity-card-uuid current-page-uuid
+					    :in $ ?today-datestamp ?current-page-name
+					  
+					    :where
+					    [?a :block/properties ?props]
+					    [(get ?props :activity) ?activity]
+					    [(get ?props :event) ?event]
+					    [(get ?props :date) ?date]
+					    [?a :block/refs ?refs]
+					    [?a :block/content ?content]
+					    [?refs :block/journal-day ?datestamp]
+					    [(>= ?datestamp ?today-datestamp)]
+					    [?a :block/uuid ?activity-uuid]
+					  
+					    [?p :block/name ?current-page-name]
+					    [?p :block/uuid ?current-page-uuid]]
+					  
+					  
+					   :view 
+					   (fn [results]
+					     (letfn [(format-event-string [event-name person-names]
+					               (if (seq person-names)
+					                 (str event-name " with " (clojure.string/join ", " person-names))
+					                 (str event-name)))]
+					       (let [current-page-uuid (str (get-in (first results) [:current-page-uuid]))
+					             first-activity-datestamp (get-in (first results) [:first-activity-datestamp])
+					             dates-set (get-in (first results) [:date])
+					             date-str (if (set? dates-set)
+					                        (first dates-set)
+					                        dates-set)
+					             today (get-in (first results) [:today-datestamp])
+					             difference (- first-activity-datestamp today)
+					  
+					             next-events
+					             (vec
+					              (keep (fn [result]
+					                      (when (= (get-in result [:datestamp]) first-activity-datestamp)
+					                        result))
+					                    results))
+					  
+					             formatted-events
+					             (map
+					              (fn [result]
+					                (let [event-name (get-in result [:properties :event])
+					                      person-names (get-in result [:properties :with])
+					                      event-uuid (str (get-in result [:activity-card-uuid]))
+					                      current-page-uuid (str (get-in (first results) [:current-page-uuid]))]
+					                  {:name (format-event-string event-name person-names)
+					                   :uuid event-uuid
+					                   :current-page-uuid current-page-uuid}))
+					              next-events)]
+					  
+					            [:div [:small
+					                   (cond (empty? next-events) "no events"
+					                         (= (count next-events) 1)  (for [event formatted-events] 
+					                            [:a {:on-click (fn [] (call-api "append_block_in_page"
+					                                                                 (:current-page-uuid event)
+					                                                                 (str "{{i eb6d}} note for {{i f621}} [" (:name event)
+					                                                                      "](((" (:uuid event) ")))")))} (:name event)])
+					                         :else [:ul (for [event formatted-events] [:li [:a {:on-click
+					                               (fn [] (call-api "append_block_in_page"
+					                                                (:current-page-uuid event)
+					                                                (str "{{i eb6d}} note for {{i f621}} [" (:name event)
+					                                                     "](((" (:uuid event) ")))")))}
+					                                                                        (:name event)]])])]])))
+					                      
+					              
+					   :result-transform (fn [result]
+					                       (sort-by (fn [r] (get-in r [:datestamp])) (fn [a b] (compare a b)) result))
+					   :inputs [:today :current-page]}
+					   
+					  #+END_QUERY
+					  ```
 				- v1.8 **simplified** event information
 				  *date retired:* [[Sunday, Jun 30th, 2024]]
 				    ![image.png](../assets/image_1719765241005_0.png){:height 24, :width 246}
