@@ -143,7 +143,7 @@ kit:: futureEventsTable
               <tr>
                   <td rowspan="2" class="days-until"
                       >${event.daysUntil}</td>
-                  <td class="touch-screen"><a onclick="logseq.api.append_block_in_page('${todaysJournalUUID}', '{{i eb6d}} note\n{{i f621}} [${event.properties.event}](((${event.uuid})))')"
+                  <td class="touch-screen"><a onclick="logseq.api.append_block_in_page('${todaysJournalUUID}', '{{i-note}}\u0020\\n{{i-event}} [${event.properties.event}](((${event.uuid})))')"
                           >${event.properties.event}</a></td>
                           <td class="touch-screen ti disclosure"><a onclick="document.getElementById('event-info-${event.uuid}').classList.toggle('closed');">&#xea5f;</a></td>
               </tr>
@@ -162,66 +162,11 @@ kit:: futureEventsTable
     div.appendChild(table);
   });
   ```
-	- {{evalparent}}
-- id:: 66b750b0-17c1-4fa1-be49-6445f5617ebd
-- {{futureEventsTable}}
-	-
-- ```shell
-  const targetNode = document.getElementById("event-table-0");
-  const config = { attributes: true, childList: true, subtree: true };
-  
-  // Callback function to execute when mutations are observed
-  const callback = (mutationList, observer) => {
-    for const mutation of mutationList) {
-      console.log(`A mutation has been observed. Mutation type: ${mutation.type}`);
-    }
-  }
-  ```
-- [[hi]]
-- ```shell
-  // ONE TIME MY CODE WAS THIS
-  const parentNode = div.closest(".block-main-container");
-    // // Maybe if I attach the objects to window?
-    window.futureEventsCallback = (mutationList, observer) => {
-      mutationList.forEach((mutation) => {
-        if (mutation.type !== "childList") return;
-        //console.log("huh?")
-        mutation.addedNodes.forEach((node) => {
-          if (!node.className) return;
-  
-          console.log(node.className);
-          console.log(typeof node.className);
-          if (node.className.includes("future-event-table")) {
-            console.log("got-emm");
-            const cowElement = document.querySelector(".mooo");
-            cowElement.addEventListener("click", function onClicked(e) {
-              e.preventDefault();
-              e.stopPropagation();
-              console.log("STOPPOPOP.");
-            });
-          }
-        });
-      });
-    };
-    function stopIt(event) {
-      console.log("STOPIT CALLED");
-      event.stopImmediatePropagation();
-      event.preventDefault();
-      event.stopPropagation();
-      console.log(this.className); // logs the className of my_element
-      console.log(event.currentTarget === this); // logs `true`
-    }
-    if (!window.eventTableObserver) {
-      window.eventTableObserver = new MutationObserver(futureEventsCallback);
-      if (parentNode) {
-        eventTableObserver.observe(parentNode, {
-          attributes: true,
-          childList: true,
-          subtree: true,
-        });
-        console.log("Observer started");
-      } else {
-        console.log("Target node not found");
-      }
-    }
-  ```
+	- **Re-evaluate kit**
+	  {{evalparent}}
+- # Documentation
+  id:: 66b750b0-17c1-4fa1-be49-6445f5617ebd
+- ### Usage
+	- `{{futureEventsTable}}`
+- ### Result
+	- {{futureEventsTable}}
