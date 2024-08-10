@@ -9,6 +9,102 @@ repository:: DeadBranches/logseq-queries-and-scripts
 	- Logseq config.edn template -> {{i-github}} [logseq/logseq](https://github.com/logseq/logseq/blob/4374741afd9add1716da62b3bf6466cffa5be082/src/resources/templates/config.edn#L4)
 		- My local version last drawn from commit [`26d255d`](https://github.com/logseq/logseq/commit/26d255d0b1a065fa66c135b0fbe4d7270b55e1b5)
 	- [[logseq-source]]
+- ## Things I built
+	- ### {{i fa1e}} Logseq clickable tables
+	  Prevent clicks from entering edit mode
+		- {{i f313}} *Created,* [Friday, Aug 9th, 2024](((66b64953-d2cf-40c8-a6b0-287d4e947659)))
+		- {{i ee1d}} *Project,* [[logseq-clickable-tables]]
+		- {{i-github}} *Initial commit,* [`7969123`](https://github.com/deadbranch-configuration/logseq-conf/commit/79691236568efd4e266cf35ed545f7cf3b98baad)
+		- {{i eac6}}  Info ->
+			- {{embed ((66b64953-d2cf-40c8-a6b0-287d4e947659))}}
+	- {{i-icon}} Logseq tabler icons
+	  id:: 66acd8ef-ed7b-4ad2-9b62-491833497415
+		-
+	- ### {{i ea06}} Idea helper
+	  Issue/idea/question tracker
+		- {{i f313}} *Initiated,* [July 3rd, 2024](((66a015d2-1f08-4b33-bcba-84207b76eeda)))
+		- {{i ee1d}} *Project,* [[logseq-project-management-2024.8]]
+		- {{i eac6}}  Info ->
+			- {{embed ((66a015d2-1f08-4b33-bcba-84207b76eeda))}}
+		- Related
+			- Advanced query concept snippet: ((66a05e34-42c8-4cf7-8b0b-27cb0943d9ac))
+	- #### {{i-rocket}} Dynamic do icon color
+	  id:: 66437a69-136d-4497-939e-417a30549cd0
+	  Colors a rocket icon in different ways depending on the marker block status
+	  `custom.css`
+		- ![image.png](../assets/image_1715698586106_0.png){:height 88, :width 263}
+	- ### {{i ef0c}} nested code button blocks
+	  id:: 663a5760-c71b-451f-82f5-8bc5d2e6538a
+	  Hide a code block in a code button's *first child's first child* by using the `{{nested-code-block}}` macro
+	- ### {{i ebcc}} code-inside macro
+	  id:: 6633bac5-c14b-42f9-addb-301f036b3a14
+	  ![image.png](../assets/image_1714666556422_0.png)
+		- `{{code-inside}}`
+	- #### {{i ebcd}} inline span for hiccups
+	  id:: 6633ba16-d333-4dc6-b5c9-90fa2edd278d
+	  Add `{:class "inline"}`to any hiccup to make inline
+		- Made to enable icons beside a span with different font styles in the `{{code-inside}}` macro
+		- Original css:
+		  ```css
+		  /* Inline span */
+		  /* Makes hiccup spans inline with other things around them. */
+		  div.hiccup_html:has(span.inline) {
+		    display: inline-block;
+		  }
+		  ```
+	- ### {{i ec36}} Journal quick-view
+	  id:: 662cf12c-9daa-49bc-be99-1aa91bece6cb
+	  ![image.png](../assets/image_1714221417848_0.png)
+	- ### {{i ebcc}} Youtube icon-link generator
+	  id:: 661fd703-8f9c-4e25-84f8-5f27171a8dde
+	  *kit*: Gets the title from a youtube link via `{{yt url}}}`
+		- Uses kits: [[youtubeIconLinker]]
+	- #### {{i ebcc}} appointment header macro
+	  id:: 6617fa76-02fe-4af6-9291-e2c531e0ea9e
+	  `{{h-appointment}}` *adds appointment header*
+		- {{embed ((6617fa07-211b-4e83-a0da-92fc7a052062))}}
+	- #### {{i f4f9}} appointment command
+	  `/appointment` *inserts an appointment header and properties*
+		- {{embed ((6617fb78-4812-437e-a756-0f141ba062fd))}}
+	- #### {{i f61a}} schedule-date-today replacement macro
+	  id:: 6612c8d2-e36d-472e-a510-de50978ae6a3
+	  Today's date in `SCHEDULED:` format
+		- Uses ((6612c2d3-809e-46f8-836c-ad132a528707))
+		- Implementation:
+		  {{embed ((65fdfbf2-818e-404e-9d60-7f941f29bf34))}}
+		- `custom.edn`
+		  ```edn
+		  :macros {
+		         :schedule-date-today "<div class='kit' data-kit='expandmacro'>||scheduled today||</div>"
+		           }
+		  ```
+		- {{embed [[scheduleDateToday]] }}
+	- #### icon links
+	  id:: 6612cf52-7324-492d-9c8f-f78061e1e841
+		- ```css
+		  div[data-macro-name="il" i] {
+		    display: inline;
+		  }
+		  div.raw_html:has(a[data-icon-before]){
+		    display: inline;
+		  }
+		  a[class~="tag"]:is([data-icon-before])::before {
+		    font-size: 16px;
+		    font-family: 'tabler-icons';
+		    content: attr(data-icon-before);
+		    color: var(--ls-link-text-color);
+		    -webkit-font-smoothing: antialiased;
+		  }
+		  ```
+	- #### hidden properties
+	  id:: 6612cfab-c66a-4e7f-a04b-0c08e002a9d7
+		- `custom.css`
+		  ```css
+		  /**   Hidden properties              */
+		  div.block-properties.rounded:has(+ div.block-body div.is-paragraph div[data-macro-name="grocery"]) {
+		    display: none;
+		  }
+		  ```
 - ## {{i ef0c}} JavaScript functions
   For logseq
 	- ### toLogseqJournalDate( date ) -> int
@@ -95,18 +191,18 @@ repository:: DeadBranches/logseq-queries-and-scripts
 			  ```
 	- **copy query data** to clipboard
 	  id:: 660cbb59-8f06-43c6-b600-f4adb08758b5
-- **block spy** for logseq data
-  id:: 66046249-db4c-4206-b001-691fad2bd2e2
-	- #### Tool: Logseq block spy
-		- {{button spy,spy,''}}
-		  template:: tool, return element data as JSON
-			- blocks
-			  spy:
-			  ```js
-			  let parent = logseq.api.get_block(getParentUUID(this.target_uuid));
-			  copy_to_clipboard(JSON.stringify(parent,null,2));
-			  
-			  ```
+	- **block spy** for logseq data
+	  id:: 66046249-db4c-4206-b001-691fad2bd2e2
+		- #### Tool: Logseq block spy
+			- {{button spy,spy,''}}
+			  template:: tool, return element data as JSON
+				- blocks
+				  spy:
+				  ```js
+				  let parent = logseq.api.get_block(getParentUUID(this.target_uuid));
+				  copy_to_clipboard(JSON.stringify(parent,null,2));
+				  
+				  ```
 	- **get parent uuid** from button block
 		- ```js
 		  let button_block = logseq.api.get_block(this.target_uuid);
@@ -194,92 +290,6 @@ repository:: DeadBranches/logseq-queries-and-scripts
 		  copy_to_clipboard(api_implementation.trim());
 		  ```
 -
-- ## Things I built
-	- {{i-icon}} Logseq tabler icons
-	  id:: 66acd8ef-ed7b-4ad2-9b62-491833497415
-		-
-	- #### {{issue}} issue tracker
-		- Original workspace:
-			- ((66a015d2-1f08-4b33-bcba-84207b76eeda))
-		- Related
-			- Advanced query concept snippet: ((66a05e34-42c8-4cf7-8b0b-27cb0943d9ac))
-	- #### {{i-rocket}} Dynamic do icon color
-	  id:: 66437a69-136d-4497-939e-417a30549cd0
-	  Colors a rocket icon in different ways depending on the marker block status
-	  `custom.css`
-		- ![image.png](../assets/image_1715698586106_0.png){:height 88, :width 263}
-	- ### {{i ef0c}} nested code button blocks
-	  id:: 663a5760-c71b-451f-82f5-8bc5d2e6538a
-	  Hide a code block in a code button's *first child's first child* by using the `{{nested-code-block}}` macro
-	- ### {{i ebcc}} code-inside macro
-	  id:: 6633bac5-c14b-42f9-addb-301f036b3a14
-	  ![image.png](../assets/image_1714666556422_0.png)
-		- `{{code-inside}}`
-	- #### {{i ebcd}} inline span for hiccups
-	  id:: 6633ba16-d333-4dc6-b5c9-90fa2edd278d
-	  Add `{:class "inline"}`to any hiccup to make inline
-		- Made to enable icons beside a span with different font styles in the `{{code-inside}}` macro
-		- Original css:
-		  ```css
-		  /* Inline span */
-		  /* Makes hiccup spans inline with other things around them. */
-		  div.hiccup_html:has(span.inline) {
-		    display: inline-block;
-		  }
-		  ```
-	- ### {{i ec36}} Journal quick-view
-	  id:: 662cf12c-9daa-49bc-be99-1aa91bece6cb
-	  ![image.png](../assets/image_1714221417848_0.png)
-	- ### {{i ebcc}} Youtube icon-link generator
-	  id:: 661fd703-8f9c-4e25-84f8-5f27171a8dde
-	  *kit*: Gets the title from a youtube link via `{{yt url}}}`
-		- Uses kits: [[youtubeIconLinker]]
-	- #### {{i ebcc}} appointment header macro
-	  id:: 6617fa76-02fe-4af6-9291-e2c531e0ea9e
-	  `{{h-appointment}}` *adds appointment header*
-		- {{embed ((6617fa07-211b-4e83-a0da-92fc7a052062))}}
-	- #### {{i f4f9}} appointment command
-	  `/appointment` *inserts an appointment header and properties*
-		- {{embed ((6617fb78-4812-437e-a756-0f141ba062fd))}}
-	- #### {{i f61a}} schedule-date-today replacement macro
-	  id:: 6612c8d2-e36d-472e-a510-de50978ae6a3
-	  Today's date in `SCHEDULED:` format
-		- Uses ((6612c2d3-809e-46f8-836c-ad132a528707))
-		- Implementation:
-		  {{embed ((65fdfbf2-818e-404e-9d60-7f941f29bf34))}}
-		- `custom.edn`
-		  ```edn
-		  :macros {
-		         :schedule-date-today "<div class='kit' data-kit='expandmacro'>||scheduled today||</div>"
-		           }
-		  ```
-		- {{embed [[scheduleDateToday]] }}
-	- #### icon links
-	  id:: 6612cf52-7324-492d-9c8f-f78061e1e841
-		- ```css
-		  div[data-macro-name="il" i] {
-		    display: inline;
-		  }
-		  div.raw_html:has(a[data-icon-before]){
-		    display: inline;
-		  }
-		  a[class~="tag"]:is([data-icon-before])::before {
-		    font-size: 16px;
-		    font-family: 'tabler-icons';
-		    content: attr(data-icon-before);
-		    color: var(--ls-link-text-color);
-		    -webkit-font-smoothing: antialiased;
-		  }
-		  ```
-	- #### hidden properties
-	  id:: 6612cfab-c66a-4e7f-a04b-0c08e002a9d7
-		- `custom.css`
-		  ```css
-		  /**   Hidden properties              */
-		  div.block-properties.rounded:has(+ div.block-body div.is-paragraph div[data-macro-name="grocery"]) {
-		    display: none;
-		  }
-		  ```
 - ### Things from other users
 	- #### Labels macro
 	  {{il eb02,status labels macro,https://discuss.logseq.com/t/macros-and-commands-lets-share/9565/4?u=deadbranch}}

@@ -95,3 +95,8 @@ description:: Runpage kit that exports a parent block as HTML to the clipboard (
   exportquery(null)
   ```
 	- {{evalparent}}
+- Example table
+  | item | content |
+  | --- | --- |
+  | 1 | stuff |
+	- {{runpage exportBlockContent}}
