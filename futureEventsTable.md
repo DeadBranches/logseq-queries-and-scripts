@@ -94,6 +94,7 @@ kit:: futureEventsTable
           <tr>
               <th class="days-until">In<br><small>days</small></th>
               <th>Event</th>
+              <th class="disclosure"></th>
           </tr>
       </thead>
       <tbody>
@@ -105,9 +106,10 @@ kit:: futureEventsTable
                       >${event.daysUntil}</td>
                   <td class="touch-screen"><a onclick="document.getElementById('event-info-${event.uuid}').classList.toggle('closed');"
                           >${event.properties.event}</a></td>
+                          <td class="touch-screen ti disclosure"><a onclick="document.getElementById('event-info-${event.uuid}').classList.toggle('closed');">&#xea5f;</a></td>
               </tr>
               <tr>
-                  <td class="event-info closed" id="event-info-${event.uuid}"
+                  <td colspan="2" class="event-info closed" id="event-info-${event.uuid}"
                       >${event.date} with ${event.properties.with} at ${event.properties.time}</td>
               </tr>`
             )
