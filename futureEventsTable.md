@@ -6,14 +6,16 @@ kit:: futureEventsTable
     // to start from today
     const fromDate = new Date();
     const futureEventsPromise = (async (startDate = fromDate) => {
+  
       // Logseq's :journal-day uses the format date YYYYMMDD.
-      const logseqStartDate = ((date = startDate) => {
+      const toLogseqDate = (date = startDate) => {
         const month = (date.getMonth() + 1).toString().padStart(2, "0"),
           day = date.getDate().toString().padStart(2, "0"),
           year = date.getFullYear().toString();
         return [year, month, day].join("");
-      })();
+      };
   
+      const logseqStartDate = toLogseqDate(date = startDate);
       const futureEventsArray = await (async (startDate = logseqStartDate) => {
         if (typeof startDate != "string") {
           console.log(
@@ -122,7 +124,6 @@ kit:: futureEventsTable
   
     div.appendChild(table);
   });
-  
   ```
 	- {{evalparent}}
 - id:: 66b750b0-17c1-4fa1-be49-6445f5617ebd
