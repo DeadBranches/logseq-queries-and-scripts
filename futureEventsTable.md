@@ -8,14 +8,13 @@ kit:: futureEventsTable
     const futureEventsPromise = (async (startDate = fromDate) => {
   
       // Logseq's :journal-day uses the format date YYYYMMDD.
-      const toLogseqDate = (date = startDate) => {
+      const logseqStartDate = ((date = startDate) => {
         const month = (date.getMonth() + 1).toString().padStart(2, "0"),
-          day = date.getDate().toString().padStart(2, "0"),
-          year = date.getFullYear().toString();
+              day = date.getDate().toString().padStart(2, "0"),
+              year = date.getFullYear().toString();
         return [year, month, day].join("");
-      };
+      })();
   
-      const logseqStartDate = toLogseqDate(date = startDate);
       const futureEventsArray = await (async (startDate = logseqStartDate) => {
         if (typeof startDate != "string") {
           console.log(
@@ -106,7 +105,7 @@ kit:: futureEventsTable
               <tr>
                   <td rowspan="2" class="days-until"
                       >${event.daysUntil}</td>
-                  <td class="touch-screen"><a onclick="document.getElementById('event-info-${event.uuid}').classList.toggle('closed');"
+                  <td class="touch-screen"><a onclick="logseq.api.append_block_in_page('${new Date()}', '{{i eb6d}} note\n{{i f621}} [${event.properties.event}](((${event.uuid})))')"
                           >${event.properties.event}</a></td>
                           <td class="touch-screen ti disclosure"><a onclick="document.getElementById('event-info-${event.uuid}').classList.toggle('closed');">&#xea5f;</a></td>
               </tr>
