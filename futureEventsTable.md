@@ -103,8 +103,7 @@ kit:: futureEventsTable
               <tr>
                   <td rowspan="2" class="days-until"
                       >${event.daysUntil}</td>
-                  <td class="clickable"
-                      ><a onclick="document.getElementById('event-info-${event.uuid}').classList.toggle('closed');"
+                  <td class="touch-screen"><a onclick="document.getElementById('event-info-${event.uuid}').classList.toggle('closed');"
                           >${event.properties.event}</a></td>
               </tr>
               <tr>
@@ -125,12 +124,7 @@ kit:: futureEventsTable
   ```
 	- {{evalparent}}
 - /data
-- event:: Something fun
-  activity:: [[something]] 
-  with:: [[@Someone]] 
-  location:: [[.some place]]
-  date:: [[Saturday, Aug 10th, 2024]] 
-  time:: 1200
+- id:: 66b750b0-17c1-4fa1-be49-6445f5617ebd
 - {{futureEventsTable}}
 	-
 - ```shell
