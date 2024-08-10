@@ -89,6 +89,44 @@ kit:: futureEventsTable
   
     result = await futureEventsPromise;
   
+    
+    async function toJournalPageUUID(date = new Date()) {
+      // TODO: This is going to work for my journal format, but no one elses. See if I can
+      // get the journal format from the config file, then convert using built-ins
+      const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+      const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+  
+      const dayName = days[date.getDay()];
+      const monthName = months[date.getMonth()];
+      const day = date.getDate();
+      const year = date.getFullYear();
+    
+      const daySuffix = (day) => {
+          if (day > 3 && day < 21) return 'th'; // special case for 11th-13th
+          switch (day % 10) {
+              case 1: return 'st';
+              case 2: return 'nd';
+              case 3: return 'rd';
+              default: return 'th';
+          }
+      };
+    
+      const journalDate = `${dayName}, ${monthName} ${day}${daySuffix(day)}, ${year}`;
+      console.info(`[toJournalPageUUID]: Fetching UUID for journal page with name "${journalDate}"`);
+      
+      const journalUUID = (async (date = journalDate) => {
+        const page = await logseq.api.get_page(date);
+        console.assert(typeof page == "object", "[toJournalPageUUID()]: Expected page to be an object but it was not");
+        console.assert(typeof page?.uuid == "string", "[toJournalPageUUID()]: Expected page.uuid to be a string but it was not");
+  
+        return page?.uuid || null;
+      })();
+  
+      return journalUUID;
+    }
+    
+    const todaysJournalUUID = await toJournalPageUUID(new Date());
+  
     const table = document.createElement("table");
     table.className = "future-event-table";
     table.innerHTML = `<thead>
@@ -105,7 +143,7 @@ kit:: futureEventsTable
               <tr>
                   <td rowspan="2" class="days-until"
                       >${event.daysUntil}</td>
-                  <td class="touch-screen"><a onclick="logseq.api.append_block_in_page('${new Date()}', '{{i eb6d}} note\n{{i f621}} [${event.properties.event}](((${event.uuid})))')"
+                  <td class="touch-screen"><a onclick="logseq.api.append_block_in_page('${todaysJournalUUID}', '{{i eb6d}} note\n{{i f621}} [${event.properties.event}](((${event.uuid})))')"
                           >${event.properties.event}</a></td>
                           <td class="touch-screen ti disclosure"><a onclick="document.getElementById('event-info-${event.uuid}').classList.toggle('closed');">&#xea5f;</a></td>
               </tr>
