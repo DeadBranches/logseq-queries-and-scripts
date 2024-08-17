@@ -17,7 +17,14 @@ description:: (formerly journalGroceryWidget). Add a purchase manager to the cur
     const me = event.target.closest(".ls-block");
     const parentBlockId = me.parentElement.closest(".ls-block").getAttribute("blockId");
   
+    /**
+     * Container identification
+     */
     const CONTAINER_IDENTIFIER = "purchase-holder";
+  
+    /**
+     * Container content
+     */  
     const TEMPLATE_UUID = "66b0edf9-37ba-4756-8421-c60cbd44b334";
     const BATCH_BLOCK_CONTENT = [
       {
@@ -26,6 +33,9 @@ description:: (formerly journalGroceryWidget). Add a purchase manager to the cur
     ];
   
     /**
+     * Don't add the container if one already exists on the page. Check for the
+     * presence of a specific macro present only in the doing-container block.
+     *
      * Return the UUID of:
      * - the first block on the page
      * - that has the macro `${macroName}`
