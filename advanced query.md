@@ -115,6 +115,138 @@ repository:: DeadBranches/logseq-queries-and-scripts
   #+END_QUERY
 	- ## Embedding queries
 	  *for `{{embedding}}`*
+		- Previous grocery purchases
+		  ![image.png](../assets/image_1723933819675_0.png){:height 161, :width 240}
+			- current query
+			  id:: 66c12455-c198-452e-9dd4-e23c642bf78e
+				- id:: 66c12458-4744-4f60-bc2b-8396c7bd3819
+				  #+BEGIN_QUERY
+				  ;; [[grocery list]] query
+				   {:inputs ["grocery" :today]
+				    :query
+				    [:find ?content ?journal-day ?today-journal-day ?today ?today-journal-uuid
+				     :keys content journal-day today-journal-day today today-journal-uuid
+				     :in $ ?macro-name ?today-journal-day %
+				  
+				     :where
+				     [?b :block/marker ?marker]
+				     [(contains? #{"DONE"} ?marker)]
+				     (using-macro ?b ?macro-name)
+				  
+				     [?b :block/content ?content]
+				     [?b :block/page ?p]
+				     [?p :block/journal-day ?journal-day]
+				  
+				     [?j :block/journal-day ?today-journal-day]
+				     [?j :block/name ?today]
+				     [?j :block/uuid ?today-journal-uuid]]
+				  
+				  
+				    :rules
+				    [[(using-macro ?b ?macro-name)
+				      [?b :block/macros ?m]
+				      [?m :block/properties ?props]
+				      [(get ?props :logseq.macro-name) ?macros]
+				      [(= ?macros ?macro-name)]]]
+				  
+				  
+				    :result-transform
+				    (fn [results]
+				      (let [query-data (first results)
+				            query-results (map (fn [result]
+				                                 (dissoc result :today-journal-day :today :today-journal-uuid))
+				                               results)
+				            transformed-results (->> query-results
+				                                     (map (fn [result]
+				                                            (update result :content
+				                                                    (fn [item]
+				                                                      (-> item
+				                                                          clojure.string/lower-case
+				                                                          (clojure.string/replace
+				                                                           (re-pattern "done \\{\\{grocery\\}\\} ") "")
+				                                                          (clojure.string/replace (re-pattern "x\\d$") "")
+				                                                          clojure.string/trim)))))
+				  
+				  
+				                                     (group-by :content)
+				  
+				                                     (sort-by (fn [[_ entries]] (count entries)) >)
+				  
+				                                     (map (fn [[grocery-item entries]]
+				                                            [grocery-item (map (fn [entry] (dissoc entry :content)) entries)]))
+				  
+				                                     (map (fn [[grocery-item purchase-data]]
+				                                            [grocery-item {:purchase-count (count purchase-data)
+				                                                           :first-purchase (->> purchase-data
+				                                                                                (map :journal-day)
+				                                                                                (apply min))
+				                                                           :last-purchase (->> purchase-data
+				                                                                               (map :journal-day)
+				                                                                               (apply max))
+				                                                           :purchase-data purchase-data}])))]
+				  
+				        (assoc {}
+				               :query-data (select-keys query-data [:today-journal-day :today :today-journal-uuid])
+				               :query-results transformed-results)))
+				  
+				    :view (letfn [(make-link [text journal-uuid]
+				                    [:a {:on-click (fn [] (call-api "append_block_in_page" (str journal-uuid) (str "TODO {{grocery}} " text)))}
+				                     text])
+				                  (make-icon [item-name]
+				                    (let [icon-table {:cream "ef13"
+				                                      :frozen-berries "f511"
+				                                      :yogurt "f4c8"
+				                                      :cat-food "f287"
+				                                      :naan "efa3"
+				                                      :patties "feb5"
+				                                      :eggs "f500"
+				                                      :water "ef0b"
+				                                      :sour-cream "ee9f"
+				                                      :milk "ef13"
+				                                      :cheese "ef26"
+				                                      :cheese-powder "ee92"
+				                                      :cat-litter "f65b"
+				                                      :salad "f50a"
+				                                      :tomato-sauce "edbb"
+				                                      :automatic-toilet-bowl-cleaner-pucks "efd3"
+				                                      :fries "fae9"
+				                                      :detergent "f30e"
+				                                      :wax-paper "eb2f"
+				                                      :perogies "feb5"
+				                                      :potatoes "eb8a"
+				                                      :sapporo-ramen-noodle "fd90"
+				                                      :frozen-vegetables "f21c"
+				                                      :butter "fab5"
+				                                      :berries "f511"
+				                                      :sodium-bicarbonate "ef16"
+				                                      :peanut-oil "ef60"
+				                                      :pizza-meat "ef17"
+				                                      :garbage-bags "f02f"
+				                                      :downy-rinse-and-refresh "f311"
+				                                      :little-tissues "f4c9"}
+				                          icon-code (get icon-table (keyword (clojure.string/replace item-name " " "-")) "0000")]
+				                      (str "&#x" icon-code ";")))]
+				  
+				            (fn [results]
+				              (let [query-data (get-in results [:query-data])
+				                    query-results (get-in results [:query-results])]
+				                [:div
+				                 [:table {:class "future-appointments compact"}
+				                  [:thead
+				                   [:tr
+				                    [:th ""]
+				                    [:th "Item"]
+				                    ]]
+				                  [:tbody
+				                   (for [[grocery-item _] query-results]
+				                     [:tr
+				                      [:td [:span {:class "bti" :dangerouslySetInnerHTML {:__html (make-icon grocery-item)}} ]]
+				                      [:td (make-link grocery-item (get-in query-data [:today-journal-uuid]))]
+				                      
+				                      ])]]])))
+				  
+				    :breadcrumb-show? false}
+				  #+END_QUERY
 		- **Related page** linked references
 			- On a given page with the `:related` page property,
 				- Find all blocks with linked references to pages included in `:related`
@@ -719,7 +851,7 @@ repository:: DeadBranches/logseq-queries-and-scripts
 				              next-events)]
 				  
 				            [:div {:class "quick-view-container"} 
-				             [:span {:class "ti"} "\u0020\u0020"]
+				             [:span {:class "ti"} "\u0020"]
 				             [:span {:class "content-slot"}
 				                   (cond (empty? next-events) "no events"
 				                         (= (count next-events) 1)  (for [event formatted-events]
@@ -1027,8 +1159,9 @@ repository:: DeadBranches/logseq-queries-and-scripts
 					  ```
 		- #### {{i ee20}} future appointments list
 		  id:: 66415c9e-ff58-4281-8007-160cb44fb8b3
-			- [:small "upcoming appointments"]
+			- [:small "upcoming ap
 			  id:: 66415ca6-d397-4fc1-97f1-95f7b516e6d1
+				- pointments"]
 				- #+BEGIN_QUERY
 				  {:query
 				   [:find (min ?journal-day) ?date ?journal-day ?content ?props ?today ?activity ?event ?uuid ?current-page
@@ -1132,7 +1265,7 @@ repository:: DeadBranches/logseq-queries-and-scripts
 			            (group-by :mname)
 			            (map (fn [[medication entries]]
 			                   {medication (filter-active-medications entries)}))
-			            (filter (fn [medication-map]
+			            (filter (fn [medication-map] ;; Filter empty
 			                      (seq (val (first medication-map)))))
 			            (map (fn [medication-map]
 			                   (update-in medication-map [(key (first medication-map))] keep-most-recent)))
