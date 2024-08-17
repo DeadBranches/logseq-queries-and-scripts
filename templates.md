@@ -3,118 +3,84 @@ description:: `/template`s with boilerplate for collector blocks, page tags, dai
 
 - ## {{i fab5}} block templates
   for repeatable structures that could go anywhere.
-	- #### {{I f499}} collector blocks
-		- {{i ef11}} Numbered list
-			- ### {{i-example}} examples
-			- ### {{i-template}} template
-			  template:: block, numbered list
-			  template-including-parent:: false
-				- *list name*
-				  {{i ef11}} #list
-					- logseq.order-list-type:: number
 	- #### {{i ef91}} project management
-		- {{i-coding}} coding iteration
-		  id:: 66818163-8a53-447b-a959-0ae93dde245f
-			- *w/ feature goal, scope, result, final code*
-			    ![image.png](../assets/image_1719949398805_0.png){:height 178, :width 216}
+		- {{i ee21}} expecting *<something>*
+			- ### {{i-example}} samples
+				- [[~autism assessment]]
 			- ### {{i-template}} template
-			  template:: project, coding iteration
+			  template:: project, expecting section 
 			  template-including-parent:: false
-				- ### {{i f6af}} iteration: title of work
-					- {{i f51a}} feature goal
-						-
-					- {{i efb1}} iteration goal (scope)
-						-
-					- {{i ea99}} external resources
-						- `{{chat name,url}}`
-					- {{i f082}} workspace
-						- *work it!*
-					- {{i f35e}} result
-						-
-					- {{i eb45}} final {{i ea77}} code for this iteration
-					    {{code-inside}}
-						- ```
+				- ## {{i ee21}} Expecting
+					- ### {{i ed07}} Take Action
+						- #+BEGIN_QUERY
+						  {:inputs [:query-page :today]
+						  :query
+						  [:find (pull ?b [*])
+						  :in $ ?current-page ?today
+						  :where
+						  [?c :block/name ?current-page]
+						  [?b :block/page ?c]
+						  [?n :block/name "expect"]
+						  [?b :block/refs ?n]
 						  
-						  ```
-		- {{i-expecting}} expecting queries
-			- {{i }} title
-				- **
-				- ### {{i-example}} samples
-					- [[autism assessment]]
-				- ### {{i-template}} template
-				  template:: project, expecting section 
-				  template-including-parent:: false
-					- ## {{i ee21}} Expecting
-						- ### {{i ed07}} Take Action
-							- #+BEGIN_QUERY
-							  {:inputs [:query-page :today]
-							  :query
-							  [:find (pull ?b [*])
-							  :in $ ?current-page ?today
-							  :where
-							  [?c :block/name ?current-page]
-							  [?b :block/page ?c]
-							  [?n :block/name "expect"]
-							  [?b :block/refs ?n]
-							  
-							  [?b :block/scheduled ?scheduled-day]
-							  [(<= ?scheduled-day ?today)]
-							  
-							  [?b :block/marker ?marker]
-							  [(= ?marker "TODO")]
-							  ]
-							   :breadcrumb-show? false
-							   :children? false
-							   :group-by-page? false}
-							  #+END_QUERY
-						- ### {{i f146}} Anticipating
-						  *open-ended*
-							- #+BEGIN_QUERY
-							  {:inputs [:query-page :today]
-							  :query
-							  [:find (pull ?b [*])
-							  :in $ ?current-page ?today
-							  :where
-							  [?c :block/name ?current-page]
-							  [?b :block/page ?c]
-							  [?n :block/name "expect"]
-							  [?b :block/refs ?n]
-							  
-							  (not [?b :block/scheduled _])
-							  
-							  [?b :block/marker ?marker]
-							  [(= ?marker "TODO")]
-							  ]
-							   :breadcrumb-show? false
-							   :children? false
-							   :group-by-page? false}
-							  #+END_QUERY
-						- ### {{i f82c}} Waiting...
-						  *until date*
-							- #+BEGIN_QUERY
-							  {:inputs [:query-page :today]
-							  :query
-							  [:find (pull ?b [*])
-							  :in $ ?current-page ?today
-							  :where
-							  [?c :block/name ?current-page]
-							  [?b :block/page ?c]
-							  [?n :block/name "expect"]
-							  [?b :block/refs ?n]
-							  
-							  [?b :block/scheduled ?scheduled-day]
-							  [(> ?scheduled-day ?today)]
-							  
-							  [?b :block/marker ?marker]
-							  [(= ?marker "TODO")]
-							  ]
-							   :breadcrumb-show? false
-							   :children? false
-							   :group-by-page? false}
-							  #+END_QUERY
-						- *example usage*
-							- TODO **[[EXPECT]]** some things \/schedule
-		- *older stuff*
+						  [?b :block/scheduled ?scheduled-day]
+						  [(<= ?scheduled-day ?today)]
+						  
+						  [?b :block/marker ?marker]
+						  [(= ?marker "TODO")]
+						  ]
+						   :breadcrumb-show? false
+						   :children? false
+						   :group-by-page? false}
+						  #+END_QUERY
+					- ### {{i f146}} Anticipating
+					  *open-ended*
+						- #+BEGIN_QUERY
+						  {:inputs [:query-page :today]
+						  :query
+						  [:find (pull ?b [*])
+						  :in $ ?current-page ?today
+						  :where
+						  [?c :block/name ?current-page]
+						  [?b :block/page ?c]
+						  [?n :block/name "expect"]
+						  [?b :block/refs ?n]
+						  
+						  (not [?b :block/scheduled _])
+						  
+						  [?b :block/marker ?marker]
+						  [(= ?marker "TODO")]
+						  ]
+						   :breadcrumb-show? false
+						   :children? false
+						   :group-by-page? false}
+						  #+END_QUERY
+					- ### {{i f82c}} Waiting...
+					  *until date*
+						- #+BEGIN_QUERY
+						  {:inputs [:query-page :today]
+						  :query
+						  [:find (pull ?b [*])
+						  :in $ ?current-page ?today
+						  :where
+						  [?c :block/name ?current-page]
+						  [?b :block/page ?c]
+						  [?n :block/name "expect"]
+						  [?b :block/refs ?n]
+						  
+						  [?b :block/scheduled ?scheduled-day]
+						  [(> ?scheduled-day ?today)]
+						  
+						  [?b :block/marker ?marker]
+						  [(= ?marker "TODO")]
+						  ]
+						   :breadcrumb-show? false
+						   :children? false
+						   :group-by-page? false}
+						  #+END_QUERY
+					- *example usage*
+						- TODO **[[EXPECT]]** some things \/schedule
+		- [:small "older stuff"]
 			- ##### project management
 			  Goals, task management
 				- ### Project goals
@@ -171,35 +137,11 @@ description:: `/template`s with boilerplate for collector blocks, page tags, dai
 				- #### current template notes
 					- ref to: ((65fb267e-8199-4ada-95e3-2232fa2d2190))
 					-
-	- {{i-conversation}} advanced query conversation
-		- **w/ prompt & response**
-		- ### {{i-example}} samples
-			- ((6678932d-b247-4894-af50-3c3161cfbec4))
-		- ### {{i-template}} template
-		  template:: block, advanced query conversation
-		  template-including-parent:: false
-			- {{chat with,http://}}
-				- **Result**: 
-				  *
-				  *
-				  
-				  (*sample*):
-			- **Prompt** given to claude
-				- >
-			- **Response**
-				- **Result**
-					- ```edn
-					  
-					  ```
-				- **Advanced query**
-					- ```clojure
-					  
-					  ```
-	- {{i ebba}} agenda event card
+	- {{i ebba}} appointment agenda card
 		- *for appointments and events*
 		- ### {{i-example}} examples
 		- ### {{i-template}} template
-		  template:: block, agenda event card
+		  template:: block, appointment/activity/event agenda card
 		  template-including-parent:: false
 			- event :: 
 			  activity :: 
@@ -207,6 +149,8 @@ description:: `/template`s with boilerplate for collector blocks, page tags, dai
 			  location ::
 			  date ::
 			  time ::
+			  scheduling ::
+			  related ::
 	- {{i eb25}} online order
 		- ### {{i-template}} template
 		  template:: logseq, online order 
@@ -221,6 +165,70 @@ description:: `/template`s with boilerplate for collector blocks, page tags, dai
 				  | Item | Qty |
 				  |---|---|
 				-
+	- [:small "specialist stuff"]
+		- #### {{I f499}} collector blocks
+			- {{i ef11}} Numbered list
+				- ### {{i-example}} examples
+				- ### {{i-template}} template
+				  template:: block, numbered list
+				  template-including-parent:: false
+					- *list name*
+					  {{i ef11}} #list
+						- logseq.order-list-type:: number
+		- {{i-conversation}} advanced query conversation
+			- **w/ prompt & response**
+			- ### {{i-example}} samples
+				- ((6678932d-b247-4894-af50-3c3161cfbec4))
+			- ### {{i-template}} template
+			  template:: block, advanced query conversation
+			  template-including-parent:: false
+				- {{chat with,http://}}
+					- **Result**: 
+					  *
+					  *
+					  
+					  (*sample*):
+				- **Prompt** given to claude
+					- >
+				- **Response**
+					- **Result**
+						- ```edn
+						  
+						  ```
+					- **Advanced query**
+						- ```clojure
+						  
+						  ```
+		- {{i eafd}} news
+			- ### {{i-example}} samples
+			- ### {{i-template}} template
+			  template :: 
+			  template-including-parent :: false
+				- ##### {{i eafd}}  news
+					- {{embed ((66415d9e-5591-4219-bc68-eb54393bccff))}}
+		- {{i-coding}} coding iteration
+		  id:: 66818163-8a53-447b-a959-0ae93dde245f
+			- *w/ feature goal, scope, result, final code*
+			    ![image.png](../assets/image_1719949398805_0.png){:height 178, :width 216}
+			- ### {{i-template}} template
+			  template:: project, coding iteration
+			  template-including-parent:: false
+				- ### {{i f6af}} iteration: title of work
+					- {{i f51a}} feature goal
+						-
+					- {{i efb1}} iteration goal (scope)
+						-
+					- {{i ea99}} external resources
+						- `{{chat name,url}}`
+					- {{i f082}} workspace
+						- *work it!*
+					- {{i f35e}} result
+						-
+					- {{i eb45}} final {{i ea77}} code for this iteration
+					    {{code-inside}}
+						- ```
+						  
+						  ```
 	- #### Logseq-related
 	- {{i f6ef}} depreciate logseq block
 		- ![image.png](../assets/image_1719951269675_0.png){:height 76, :width 307}
@@ -814,7 +822,7 @@ description:: `/template`s with boilerplate for collector blocks, page tags, dai
 		- ### {{i-example}} examples
 			- [[.Snowdon Pharmacy]]
 		- ### {{i-template}} template
-		  template:: page, location
+		  template:: page, contacts - location
 		  template-including-parent:: false
 			- ### {{i ea70}} Business Hours
 				- *Mon-Fri*: am-pm
@@ -829,57 +837,82 @@ description:: `/template`s with boilerplate for collector blocks, page tags, dai
 				- {{fax}} () -
 			- ### {{i ebf2}} Contacts
 				- Name, *title*
-	- {{i ef14}} food item
-		- *w/ nutritonal fact tool structure*
-		- ### {{i-example}} examples
-			- [[oat]]
-			- {{i ea9b}}#query-placeholder `:block/name` *:where* `[:block/properties [:tags "food item"]]`
+	- {{i }} organization
+		- **
+		- ### {{i-example}} samples
 		- ### {{i-template}} template
-		  id:: 666f76e0-09c0-4695-b66d-42c727c5a003
-		  template:: page, food item
-		  template-including-parent:: false
-			- tags:: food-item
-			- # Nutritional facts
-				- ## Vitamins
-				  *per 100g portion*
-				  {{embed ((666f7733-1891-45d3-8bbb-8f32dd4631e1))}}
-				- ### Minerals
-				  *per 100g portion*
-				  {{embed ((666f7747-d031-4ef7-8a4e-faaadde102c4))}}
-			- # Nutritional data
-				- ## [[Vitamins]]
+		  template:: page, contacts - organization
+		  template-including-parent :: false
+			- # {{i ea4f}} organization
+			  details
+				- words
+			- # {{i ebf6}} location
+			  *places to go*
+				- **Place name**
+				  Some words
+					- {{i eae0}} St. Michael's Hospital
+					  30 Bond Street, Toronto, ON
+					- {{i eae7}} directions
+						- Follow the blue line to the Cardinal Carter wing
+						  (north or south)
+			- # {{i eb4d}} contacts
+			  *its who you know*
+				- **Margot Boucher**
+				  Research Coordinator I, Multiple Sclerosis Research Program
+					- {{i-phone}}  416.360.4000 x41750
+					- {{i-email}}  [Margot.Boucher@unityhealth.to](mailto:Margot.Boucher@unityhealth.to)
+	- [:small "disused templates"]
+		- {{i ef14}} food item
+			- *w/ nutritonal fact tool structure*
+			- ### {{i-example}} examples
+				- [[oat]]
+				- {{i ea9b}}#query-placeholder `:block/name` *:where* `[:block/properties [:tags "food item"]]`
+			- ### {{i-template}} template
+			  id:: 666f76e0-09c0-4695-b66d-42c727c5a003
+			  template:: page, food item
+			  template-including-parent:: false
+				- tags:: food-item
+				- # Nutritional facts
+					- ## Vitamins
+					  *per 100g portion*
+					  {{embed ((666f7733-1891-45d3-8bbb-8f32dd4631e1))}}
+					- ### Minerals
+					  *per 100g portion*
+					  {{embed ((666f7747-d031-4ef7-8a4e-faaadde102c4))}}
+				- # Nutritional data
+					- ## [[Vitamins]]
+						-
+					- ## [[Minerals]]
+						-
+		- {{i f4e6}} function documentation
+			- *syntax & examples*
+			- ### {{i-example}} examples
+			- ### {{i-template}} template
+			  template:: page, code function documentation
+			  template-including-parent:: false
+				- *function*
+				- *macro*
+				- [ClojureScript documentation >]()
+				- ### Syntax
 					-
-				- ## [[Minerals]]
+				- ### Details
 					-
-	- {{i f4e6}} function documentation
-		- *syntax & examples*
-		- ### {{i-example}} examples
-		- ### {{i-template}} template
-		  template:: page, code function documentation
-		  template-including-parent:: false
-			- *function*
-			- *macro*
-			- [ClojureScript documentation >]()
-			- ### Syntax
-				-
-			- ### Details
-				-
-			- ### Examples
-				-
-			- ### See Also
-				-
-	- {{i ea47}} logseq collector
-		- *:tags "collector"*
-		- template:: page, logseq collector
-		  template-including-parent:: false
-			- tags:: collector
-			  description:: 
-			  collector:: [[]]
+				- ### Examples
+					-
+				- ### See Also
+					-
+		- {{i ea47}} logseq collector
+			- *:tags "collector"*
+			- template:: page, logseq collector
+			  template-including-parent:: false
+				- tags:: collector
+				  description:: 
+				  collector:: [[]]
 - ---
 - # {{i eb96}} Daily journal
   id:: 6644f008-299c-43c2-9c36-d9ab220bd4f3
   *components and templates*
-	- {{i ec45}} doing container
+	- {{i ec45}}  doing container
 	  id:: 66994976-991f-4e60-9c59-52c7fc8f4241
 		- ### {{i eac9}} component
 		  id:: 66b0ead7-2d9d-4e05-a21e-da5d98e1d9b8
@@ -889,30 +922,38 @@ description:: `/template`s with boilerplate for collector blocks, page tags, dai
 			  
 			  {{kitButton '',insertListItem,f1fa,'',template='doKitchen'}}  {{kitButton '',insertListItem,ea89,'',template='doOffice'}}  {{kitButton '',insertListItem,ef48,'',template='doBathroom'}}
 			  {{doing-holder}}
-	- {{i eaad}} organization blocks
+	- {{i eaad}}  organization blocks
 		- ### {{i eac9}} component
 		  id:: 66b0ead7-67ee-44fd-a324-bd5dd7602f39
 			-
-	- {{i eb25}}{{i f21c}} {{i ef49}}  purchase holder
+	- {{i ef49}}  purchase holder
 		- ### {{i eac9}} component
 		  id:: 66b0ed6f-714f-4e1f-9d4c-85cf15341259
 			- #### {{kitButton purchase list,collapseBlock,ef49,-button-style full-width +bold-nth-word}}
 			  id:: 66b0edf9-37ba-4756-8421-c60cbd44b334
-			  {{kitButton '',insertListItem,eb0b eb25,squat,grocery}}   {{kitButton '',insertListItem,eb0b f21c,squat,shopping}}
-			    {{purchase-holder}}
-	- {{i eafd}} news
-		- ### {{i-example}} samples
-		- ### {{i-template}} template
-		  template :: 
-		  template-including-parent :: false
-			- ##### {{i eafd}}  news
-				- {{embed ((66415d9e-5591-4219-bc68-eb54393bccff))}}
+			  {{kitButton '',insertListItem,eb0b eb25,squat,template='shopping'}}   {{kitButton '',insertListItem,eb0b f21c,squat,template='grocery'}}
+			  {{purchase-holder}}
 	- ## {{i ec9e}} Journal buddies component
 	  id:: 662becda-117c-4bed-a4e7-d27b7cd1b6f3
 	  {{i ea06}} *this block must remain open.*
-		- ### {{i-template}} template
+		- ### {{i-template}} template B
+		  template:: logseq, daily journal 2024.8
+		  template-including-parent:: false
+			- {{kitButton grocery list,collapseBlock,f21c,-button-style full-width small-caps}}
+				- {{embed ((6682d241-16ee-4991-bf3f-85c90add7dbd))}}
+			- {{kitButton shopping list,collapseBlock,eb25,-button-style full-width small-caps}}
+				- {{embed ((6644ee82-6e4e-4936-af4f-8a47ece6985d))}}
+			- {{kitButton '',doingWidget,ec45,squat half-long dark-gray gray-border}}  {{kitButton '',journalOrganizationBlocks,eaad,squat half-long dark-gray gray-border}}  {{kitButton '',purchaseHolderComponent,eb25 f21c,squat half-long dark-gray gray-border}}
+			- {{kitButton project focus,collapseBlock,ee1d,-button-style full-width small-caps}}
+			  {{embed ((664f42a4-40eb-44ba-8e8c-89dba2c17a06))}}
+				- [:span {:class "small-caps"} "project queue"]
+				  {{embed ((6654b591-49ea-4d3a-b9d9-1dc4f25bab0c))}}
+			- {{kitButton next appointment: |nextAppointment| days,collapseBlock,ea53,-button-style full-width small-caps}}
+			  {{embed ((664e4055-3b72-4ba1-ac8b-48e34544629c))}}
+				- {{futureEventsTable}}
+		- ### {{i-template}} template A
 		  id:: 65fb3d58-f121-4f03-a702-fbc3e6e5c98c
-		  template:: Event header for daily journal
+		  template:: logseq, daily journal
 		  template-including-parent:: false
 			- ### {{journalBuddy}} Journal buddies
 			  id:: 669bc80f-ccbb-4be3-8144-ad79decd7ee9
@@ -933,9 +974,9 @@ description:: `/template`s with boilerplate for collector blocks, page tags, dai
 				  {{embed ((664f42a4-40eb-44ba-8e8c-89dba2c17a06))}}
 					- *projects in the wings*
 					  {{embed ((6654b591-49ea-4d3a-b9d9-1dc4f25bab0c))}}
-				- #### {{kitButton upcoming appointment in |nextAppointment| day,collapseBlock,ea53,-button-style full-width}}
+				- #### {{kitButton next appointment in |nextAppointment| days,collapseBlock,ea53,-button-style full-width}}
 				  {{embed ((664e4055-3b72-4ba1-ac8b-48e34544629c))}}
-					- {{futureAppointmentTable}}
+					- {{futureEventsTable}}
 						- {{embed ((66415ca6-d397-4fc1-97f1-95f7b516e6d1))}}
 		- Templates temporarily excluded
 			- #### awaiting delivery of {{i eaff}} {{openOrders words}}

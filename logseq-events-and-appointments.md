@@ -3,6 +3,7 @@ tags:: project
 
 - [[Friday, Jun 14th, 2024]] Renamed page from `[[logseq-appointments-journal-widget]]` to `[[logseq-events-and-appointments]]` to reflect the fact that the MS-journal, medical appointments, and journal widget are all an overlapping concern.
 - {{kitButton idea helper,collapseBlock,ea76,-button-style full-width small-caps}}
+- {{kitButton idea helper,collapseBlock,ea76,-button-style full-width small-caps}}
 	- #+BEGIN_QUERY
 	  {:inputs [:query-page "idea"]
 	   :query

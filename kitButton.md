@@ -102,7 +102,7 @@ description:: kitButton [label] <kit-name> [icon] [positive-class | {-inline | -
     
       //async function kitButton(div) {
       //console.log("kitButton function initiated");
-      const DEFAULT_CLASSES = "kit run inline button-style button-shape hover active";
+      const DEFAULT_CLASSES = "kit kitbutton inline button-style button-shape hover active";
       const ICON_DATA_ATTRIBUTE = "data-button-icon";
       const LABEL_DATA_ATTRIBUTE = "data-button-text";
       const ARGUMENTS_DATA_ATTRIBUTE = "data-arguments";
@@ -302,16 +302,22 @@ description:: kitButton [label] <kit-name> [icon] [positive-class | {-inline | -
 		  {{kitButton hi,testkit,f3f3,full-width}}
 		- Kit buttons, inline, full width.
 		  {{kitButton hi,testkit,f3f3,full-width}} {{kitButton hi,testkit,f3f3,full-width}}
-		- Text and icon, full-width, flex-grow-1
+		- kitbutton, inline button-style button-shape hover active
+		  {{kitButton hi,testkit,f3f3}}
+		- Control (raw text)
+		  {{i f3f3}} hi
+		- -button-style
+		  {{kitButton hi,testkit,f3f3,-button-style}}
+		- -button-style full-width
+		  {{kitButton hi,testkit,f3f3,-button-style full-width}}
+		- -button-style full-width flex-grow-1
 		  {{kitButton hi,testkit,f3f3,-button-style full-width flex-grow-1}}
-		- Text and icon, flex-grow-1
+		- -button-style, flex-grow-1
 		  {{kitButton hi,testkit,f3f3,-button-style flex-grow-1}}
 		- Inline text and icons, full-width (flex-grow-1 | flex-grow-2)
 		  {{kitButton hi,testkit,f3f3,-button-style full-width flex-grow-1}} {{kitButton hi,testkit,f3f3,-button-style full-width flex-grow-2}}
 		- Kit button, flex-grow-2 | flex-grow-1
 		  {{kitButton hi,testkit,f3f3,-button-style flex-grow-2}} {{kitButton hi,testkit,f3f3,-button-style flex-grow-1}}
-		- Just text
-		  {{i f3f3}} hi
 		- Kit style expression test
 			- +bold-nth-word
 			- {{kitButton hi mom,testkit,f3f3,-button-style full-width flex-grow-1 +bold-nth-word}}

@@ -1,6 +1,6 @@
 repository:: DeadBranches/logseq-queries-and-scripts
 
-- #### {{i ef40}} items on the list
+- {{kitButton items on the list,collapseBlock,ef40,-button-style}}
   id:: 667992b0-0c2b-4343-9c1a-9c7e5e4ada50
 	- id:: 6682d241-16ee-4991-bf3f-85c90add7dbd
 	  #+BEGIN_QUERY
@@ -72,6 +72,8 @@ repository:: DeadBranches/logseq-queries-and-scripts
 	   :breadcrumb-show? false
 	  }
 	  #+END_QUERY
+- {{kitButton previous purchases,collapseBlock,eb9b,-button-style}}
+	- {{embed ((66c12458-4744-4f60-bc2b-8396c7bd3819))}}
 - #### {{i f5f8}} in my basket..
   id:: 667992b0-0de4-46c7-a490-296854304e56
 	- id:: 6682d241-e03c-4501-9c07-243c18d7f606
@@ -110,4 +112,3 @@ repository:: DeadBranches/logseq-queries-and-scripts
 	   :breadcrumb-show? false
 	  }
 	  #+END_QUERY
--

@@ -62,7 +62,7 @@ kit:: futureEventsTable
         });
       })();
   
-      const futureEventsWithCountdown = ((
+   	const futureEventsWithCountdown = ((
         activities = chronologicalEvents,
         earlierDate = startDate
       ) => {
@@ -93,8 +93,17 @@ kit:: futureEventsTable
     async function toJournalPageUUID(date = new Date()) {
       // TODO: This is going to work for my journal format, but no one elses. See if I can
       // get the journal format from the config file, then convert using built-ins
-      const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
-      const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+      const days = [
+        'Sunday', 'Monday', 
+        'Tuesday', 'Wednesday', 
+        'Thursday', 'Friday',
+        'Saturday'
+      ];
+      const months = [
+        'Jan', 'Feb', 'Mar', 
+        'Apr', 'May', 'Jun', 
+        'Jul', 'Aug', 'Sep', 
+        'Oct', 'Nov', 'Dec'];
   
       const dayName = days[date.getDay()];
       const monthName = months[date.getMonth()];
@@ -124,8 +133,13 @@ kit:: futureEventsTable
   
       return journalUUID;
     }
-    
+  
     const todaysJournalUUID = await toJournalPageUUID(new Date());
+  
+    // Doesn't work because it doesn't deal with ordinals
+    // const preferredDateformat = logseq.api.get_user_configs().preferredDateFormat;
+    // const myFormattedDate = new simpleDateFormat(preferredDateformat);
+    // const todaysJournalUUID = await logseq.api.get_page(myFormattedDate.format())?.uuid; 
   
     const table = document.createElement("table");
     table.className = "future-event-table";
@@ -148,6 +162,7 @@ kit:: futureEventsTable
                           <td class="touch-screen ti disclosure"><a onclick="document.getElementById('event-info-${event.uuid}').classList.toggle('closed');">&#xea5f;</a></td>
               </tr>
               <tr>
+              
                   <td colspan="2" class="event-info closed" id="event-info-${event.uuid}"
                       >${event.date} with ${event.properties.with} at ${event.properties.time}</td>
               </tr>`
