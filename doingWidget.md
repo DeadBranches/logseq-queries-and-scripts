@@ -18,14 +18,18 @@ description:: Adds a doing block set to the page if one doesn't already exist
     const me = event.target.closest('.ls-block');
     const parentBlockId = me.parentElement.closest('.ls-block').getAttribute("blockId");
   
-    // Location in graph of doing container
-    const MACRO_NAME = "doing-holder";
+    
+    const MACRO_NAME = "doing-holder"; // Location in graph of doing container
+    // Fetch the doing-container block content from a location in the graph:
     const COMPONENT_UUID = "66aaac57-179b-457a-8b06-3814ddbaa12b";
     const BATCH_BLOCK_CONTENT = [ { 
         content: `${await get_block_content(COMPONENT_UUID)}`
     } ];
   
       /**
+       * Don't add the container if one already exists on the page. Check for the
+       * presence of a specific macro present only in the doing-container block.
+       * 
        * Return the UUID of:
        * - the first block on the page
        * - that has the macro `${macroName}`
@@ -52,8 +56,9 @@ description:: Adds a doing block set to the page if one doesn't already exist
           [(= ?macros "${MACRO_NAME}")]
           ]`;
       const blocksContainingMacro = await logseq.api.datascript_query(blocksContainingMacroQuery)?.flat();
-      if (!blocksContainingMacro[0]) {
-          console.log(`Searched for blocks containing the macro {{${MACRO_NAME}}} but none were found.`);
+  
+      if (blocksContainingMacro[0]) return null;
+      // There's already a doing-container on the page.
   
           /**
            * Insert block
@@ -82,12 +87,14 @@ description:: Adds a doing block set to the page if one doesn't already exist
       }
       //const firstBlockWithMacroUUID = blocksContainingMacro[0].uuid
   
-  
-  
-  }
   doingWidget(null, 'plaintext')
   ```
 	- {{evalparent}}
+- #### {{kitButton Doing today,testkit,ec45,-button-style full-width flex-grow-1 +bold-nth-word:1}}
+  {{kitButton do,insertListItem,ec45,long,template='do'}}
+  
+  {{kitButton '',insertListItem,f1fa,'',template='doKitchen'}}  {{kitButton '',insertListItem,ea89,'',template='doOffice'}}  {{kitButton '',insertListItem,ef48,'',template='doBathroom'}}
+  {{doing-holder}}
 - # UI Elements
   {{i ec9e}} *[[logseq-journal-buddy-improvement-2024.6]]* *(live embed)*
 	- {{embed ((668d8204-e490-4d23-8d14-1c8f167c9edb))}}
