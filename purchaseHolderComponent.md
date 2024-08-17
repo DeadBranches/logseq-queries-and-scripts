@@ -24,7 +24,7 @@ description:: (formerly journalGroceryWidget). Add a purchase manager to the cur
   
     /**
      * Container content
-     */  
+     */
     const TEMPLATE_UUID = "66b0edf9-37ba-4756-8421-c60cbd44b334";
     const BATCH_BLOCK_CONTENT = [
       {
@@ -64,44 +64,45 @@ description:: (formerly journalGroceryWidget). Add a purchase manager to the cur
     const blocksContainingMacro = await logseq.api
       .datascript_query(blocksContainingMacroQuery)
       ?.flat();
-    if (!blocksContainingMacro[0]) {
-      console.log(
-        `Searched for blocks containing the macro {{${CONTAINER_IDENTIFIER}}} but none were found.`
+  
+    if (blocksContainingMacro[0]) return null;
+    // There's already a doing-container on the page.
+  
+    /**
+     * Insert block
+     */
+    const targetBlockUUID = parentBlockId;
+    const options = {
+      sibling: true,
+    };
+    try {
+      const insertedBlocks = await logseq.api.insert_batch_block(
+        targetBlockUUID,
+        BATCH_BLOCK_CONTENT,
+        options
       );
   
-      /**
-       * Insert block
-       */
-      const targetBlockUUID = parentBlockId;
-      const options = {
-        sibling: true,
-      };
-      try {
-        const insertedBlocks = await logseq.api.insert_batch_block(
-          targetBlockUUID,
-          BATCH_BLOCK_CONTENT,
-          options
-        );
+      await new Promise((resolve) => setTimeout(resolve, 400));
+      await logseq.api.exit_editing_mode();
   
-        await new Promise((resolve) => setTimeout(resolve, 400));
-        await logseq.api.exit_editing_mode();
-  
-        console.log("Exited editing mode successfully");
-      } catch (error) {
-        console.log(
-          `Inserting blocks via \`insert_batch_block()\` failed.\ntargetBlockUUID: ${targetBlockUUID}\n${error}`
-        );
-        return null;
-      }
-  
+      console.log("Exited editing mode successfully");
+    } catch (error) {
+      console.log(
+        `Inserting blocks via \`insert_batch_block()\` failed.\ntargetBlockUUID: ${targetBlockUUID}\n${error}`
+      );
       return null;
     }
-    //const firstBlockWithMacroUUID = blocksContainingMacro[0].uuid
+  
+    return null;
   }
+  
   purchaseHolderComponent(null, "plaintext");
   
   ```
 	- {{evalparent}}
+- #### {{kitButton purchase list,collapseBlock,ef49,-button-style full-width +bold-nth-word}}
+  {{kitButton '',insertListItem,eb0b eb25,squat,template='shopping'}}   {{kitButton '',insertListItem,eb0b f21c,squat,template='grocery'}}
+  {{purchase-holder}}
 -
 - # UI Elements
   {{i ec9e}} *[[logseq-journal-buddy-improvement-2024.6]]* *(live embed)*
