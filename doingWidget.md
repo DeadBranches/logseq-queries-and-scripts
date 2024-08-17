@@ -17,12 +17,18 @@ description:: Adds a doing block set to the page if one doesn't already exist
     const me = event.target.closest(".ls-block");
     const parentBlockId = me.parentElement.closest(".ls-block").getAttribute("blockId");
   
-    const MACRO_NAME = "doing-holder"; // Location in graph of doing container
-    // Fetch the doing-container block content from a location in the graph:
-    const COMPONENT_UUID = "66aaac57-179b-457a-8b06-3814ddbaa12b";
+    /**
+     * Container identification
+     */
+    const CONTAINER_IDENTIFIER = "doing-holder"; // A macro in the container
+  
+    /**
+     * Container content
+     */
+    const TEMPALTE_UUID = "66aaac57-179b-457a-8b06-3814ddbaa12b"; // doing-container data
     const BATCH_BLOCK_CONTENT = [
       {
-        content: `${await get_block_content(COMPONENT_UUID)}`,
+        content: `${await get_block_content(TEMPALTE_UUID)}`,
       },
     ];
   
@@ -53,7 +59,7 @@ description:: Adds a doing block set to the page if one doesn't already exist
           [?b :block/macros ?m]
           [?m :block/properties ?props]
           [(get ?props :logseq.macro-name) ?macros]
-          [(= ?macros "${MACRO_NAME}")]
+          [(= ?macros "${CONTAINER_IDENTIFIER}")]
           ]`;
     const blocksContainingMacro = await logseq.api
       .datascript_query(blocksContainingMacroQuery)
@@ -62,18 +68,25 @@ description:: Adds a doing block set to the page if one doesn't already exist
     if (blocksContainingMacro[0]) return null;
     // There's already a doing-container on the page.
   
+  
+    const journal_root = me.closest('.journal-item.content');
+  
     /**
      * Insert block
      */
-    const targetBlockUUID = parentBlockId;
-    const options = {
-      sibling: true,
-    };
+  
+    const INSERTION_IDENTIFIER = "journal-container-insertion-point"  // macro name
+    const journalRoot = me.closest(".journal-item.content");
+    const targetBlockUUID = journalRoot
+      .querySelector(`[data-macro-name="${INSERTION_IDENTIFIER}"]`)
+      .closest(".ls-block")
+      .getAttribute("blockId");
+  
     try {
       const insertedBlocks = await logseq.api.insert_batch_block(
         targetBlockUUID,
         BATCH_BLOCK_CONTENT,
-        options
+        {before: false, sibling: true}
       );
   
       await new Promise((resolve) => setTimeout(resolve, 400));
