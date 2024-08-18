@@ -159,12 +159,11 @@ kit:: futureEventsTable
                       >${event.daysUntil}</td>
                   <td class="touch-screen"><a onclick="logseq.api.append_block_in_page('${todaysJournalUUID}', '{{i-note}}\u0020\\n{{i-event}} [${event.properties.event}](((${event.uuid})))')"
                           >${event.properties.event}</a></td>
-                          <td class="touch-screen ti disclosure"><a onclick="document.getElementById('event-info-${event.uuid}').classList.toggle('closed');">&#xea5f;</a></td>
+                  <td class="touch-screen ti disclosure"><a onclick="document.getElementById('event-info-${event.uuid}').classList.toggle('closed');">&#xea5f;</a></td>
               </tr>
               <tr>
-              
-                  <td colspan="2" class="event-info closed" id="event-info-${event.uuid}"
-                      >${event.date} with ${event.properties.with} at ${event.properties.time}</td>
+                  <td colspan="2" class="closed event-info" id="event-info-${event.uuid}" 
+                      ><div class="quick-view-container"><span class="content-slot">@ ${event.properties.time} <span class="even-smaller">with</span> ${event.properties.with} <span class="even-smaller">on</span> ${event.date}</span><span class="trailing-slot touch-screen-fit bti"><a onclick="logseq.api.push_state('page', { name: '${event.uuid}' })">&#xea99;</a></span></div></td>
               </tr>`
             )
             .join("")}
