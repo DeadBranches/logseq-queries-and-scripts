@@ -15,7 +15,6 @@ description:: Adds a doing block set to the page if one doesn't already exist
   
   async function doingWidget(el, mode = "process") {
     const me = event.target.closest(".ls-block");
-    const parentBlockId = me.parentElement.closest(".ls-block").getAttribute("blockId");
   
     /**
      * Container identification
@@ -68,19 +67,21 @@ description:: Adds a doing block set to the page if one doesn't already exist
     if (blocksContainingMacro[0]) return null;
     // There's already a doing-container on the page.
   
-  
-    const journal_root = me.closest('.journal-item.content');
-  
     /**
      * Insert block
      */
   
     const INSERTION_IDENTIFIER = "journal-container-insertion-point"  // macro name
     const journalRoot = me.closest(".journal-item.content");
+    // const blockWithMacro = journalRoot.querySelector(`[data-macro-name="${INSERTION_IDENTIFIER}"]`);
+    // console.log(journalRoot);
+    // console.log(blockWithMacro);
+  
     const targetBlockUUID = journalRoot
       .querySelector(`[data-macro-name="${INSERTION_IDENTIFIER}"]`)
       .closest(".ls-block")
       .getAttribute("blockId");
+  
   
     try {
       const insertedBlocks = await logseq.api.insert_batch_block(

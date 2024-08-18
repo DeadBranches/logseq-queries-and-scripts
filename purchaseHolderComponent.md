@@ -15,7 +15,6 @@ description:: (formerly journalGroceryWidget). Add a purchase manager to the cur
   
   async function purchaseHolderComponent(el, mode = "process") {
     const me = event.target.closest(".ls-block");
-    const parentBlockId = me.parentElement.closest(".ls-block").getAttribute("blockId");
   
     /**
      * Container identification
@@ -71,21 +70,23 @@ description:: (formerly journalGroceryWidget). Add a purchase manager to the cur
     /**
      * Insert block
      */
-    const targetBlockUUID = parentBlockId;
-    const options = {
-      sibling: true,
-    };
+    const journal_root = me.closest('.journal-item.content'); 
+    const INSERTION_IDENTIFIER = "journal-container-insertion-point"  // macro name
+    const journalRoot = me.closest(".journal-item.content");
+    const targetBlockUUID = journalRoot
+      .querySelector(`[data-macro-name="${INSERTION_IDENTIFIER}"]`)
+      .closest(".ls-block")
+      .getAttribute("blockId");
+  
     try {
       const insertedBlocks = await logseq.api.insert_batch_block(
         targetBlockUUID,
         BATCH_BLOCK_CONTENT,
-        options
+        {before: false, sibling: true}
       );
-  
       await new Promise((resolve) => setTimeout(resolve, 400));
       await logseq.api.exit_editing_mode();
   
-      console.log("Exited editing mode successfully");
     } catch (error) {
       console.log(
         `Inserting blocks via \`insert_batch_block()\` failed.\ntargetBlockUUID: ${targetBlockUUID}\n${error}`
@@ -97,6 +98,7 @@ description:: (formerly journalGroceryWidget). Add a purchase manager to the cur
   }
   
   purchaseHolderComponent(null, "plaintext");
+  
   
   ```
 	- {{evalparent}}
