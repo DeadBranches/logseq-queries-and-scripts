@@ -916,11 +916,11 @@ description:: `/template`s with boilerplate for collector blocks, page tags, dai
 	  id:: 66994976-991f-4e60-9c59-52c7fc8f4241
 		- ### {{i eac9}} component
 		  id:: 66b0ead7-2d9d-4e05-a21e-da5d98e1d9b8
-			- #### {{kitButton Doing today,testkit,ec45,-button-style full-width flex-grow-1 +bold-nth-word:1}}
+			- {{kitButton Doing today,testkit,ec45,-button-style small-caps full-width flex-grow-1 +bold-nth-word:1}}
 			  id:: 66aaac57-179b-457a-8b06-3814ddbaa12b
-			  {{kitButton do,insertListItem,ec45,long,template='do'}}
+			  {{kitButton do,insertListItem,ec45,long dark-gray gray-border,template='do'}}
 			  
-			  {{kitButton '',insertListItem,f1fa,'',template='doKitchen'}}  {{kitButton '',insertListItem,ea89,'',template='doOffice'}}  {{kitButton '',insertListItem,ef48,'',template='doBathroom'}}
+			  {{kitButton '',insertListItem,f1fa,dark-gray gray-border,template='doKitchen'}}  {{kitButton '',insertListItem,ea89,dark-gray gray-border,template='doOffice'}}  {{kitButton '',insertListItem,ef48,dark-gray gray-border,template='doBathroom'}}
 			  {{doing-holder}}
 	- {{i eaad}}  organization blocks
 		- ### {{i eac9}} component
@@ -929,15 +929,15 @@ description:: `/template`s with boilerplate for collector blocks, page tags, dai
 	- {{i ef49}}  purchase holder
 		- ### {{i eac9}} component
 		  id:: 66b0ed6f-714f-4e1f-9d4c-85cf15341259
-			- #### {{kitButton purchase list,collapseBlock,ef49,-button-style full-width +bold-nth-word}}
+			- {{kitButton purchase list,collapseBlock,ef49,-button-style small-caps full-width +bold-nth-word}}
 			  id:: 66b0edf9-37ba-4756-8421-c60cbd44b334
-			  {{kitButton '',insertListItem,eb0b eb25,squat,template='shopping'}}   {{kitButton '',insertListItem,eb0b f21c,squat,template='grocery'}}
+			  {{kitButton '',insertListItem,eb0b eb25,squat dark-gray gray-border,template='shopping'}}   {{kitButton '',insertListItem,eb0b f21c,squat dark-gray gray-border,template='grocery'}}
 			  {{purchase-holder}}
 	- ## {{i ec9e}} Journal buddies component
 	  id:: 662becda-117c-4bed-a4e7-d27b7cd1b6f3
 	  {{i ea06}} *this block must remain open.*
 		- ### {{i-template}} template B
-		  template:: logseq, daily journal 2024.8
+		  template:: logseq, daily journal
 		  template-including-parent:: false
 			- {{kitButton grocery list,collapseBlock,f21c,-button-style full-width small-caps}}
 				- {{embed ((6682d241-16ee-4991-bf3f-85c90add7dbd))}}
@@ -953,7 +953,7 @@ description:: `/template`s with boilerplate for collector blocks, page tags, dai
 				- {{futureEventsTable}}
 		- ### {{i-template}} template A
 		  id:: 65fb3d58-f121-4f03-a702-fbc3e6e5c98c
-		  template:: logseq, daily journal
+		  template:: logseq, daily journal pre-2024.8
 		  template-including-parent:: false
 			- ### {{journalBuddy}} Journal buddies
 			  id:: 669bc80f-ccbb-4be3-8144-ad79decd7ee9
