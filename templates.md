@@ -941,6 +941,8 @@ description:: `/template`s with boilerplate for collector blocks, page tags, dai
 		  template-including-parent:: false
 			- {{kitButton grocery list,collapseBlock,f21c,-button-style full-width small-caps}}
 				- {{embed ((6682d241-16ee-4991-bf3f-85c90add7dbd))}}
+				- {{kitButton show previous purchases,collapseBlock,'',-button-style full-width}}
+					- {{embed ((66c12458-4744-4f60-bc2b-8396c7bd3819))}}
 			- {{kitButton shopping list,collapseBlock,eb25,-button-style full-width small-caps}}
 				- {{embed ((6644ee82-6e4e-4936-af4f-8a47ece6985d))}}
 			- {{kitButton '',doingWidget,ec45,squat half-long dark-gray gray-border}}  {{kitButton '',journalOrganizationBlocks,eaad,squat half-long dark-gray gray-border}}  {{kitButton '',purchaseHolderComponent,eb25 f21c,squat half-long dark-gray gray-border}}
@@ -950,6 +952,7 @@ description:: `/template`s with boilerplate for collector blocks, page tags, dai
 				  {{embed ((6654b591-49ea-4d3a-b9d9-1dc4f25bab0c))}}
 			- {{kitButton next appointment: |nextAppointment| days,collapseBlock,ea53,-button-style full-width small-caps}}
 			  {{embed ((664e4055-3b72-4ba1-ac8b-48e34544629c))}}
+			  {{journal-container-insertion-point}}
 				- {{futureEventsTable}}
 		- ### {{i-template}} template A
 		  id:: 65fb3d58-f121-4f03-a702-fbc3e6e5c98c

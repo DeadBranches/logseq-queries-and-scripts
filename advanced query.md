@@ -116,10 +116,156 @@ repository:: DeadBranches/logseq-queries-and-scripts
 	- ## Embedding queries
 	  *for `{{embedding}}`*
 		- Previous grocery purchases
-		  ![image.png](../assets/image_1723933819675_0.png){:height 161, :width 240}
-			- current query
+		  ![image.png](../assets/image_1724109056266_0.png){:height 190, :width 181}
+			- current query (v2). Now shows if items are in the basket or not lol
 			  id:: 66c12455-c198-452e-9dd4-e23c642bf78e
 				- id:: 66c12458-4744-4f60-bc2b-8396c7bd3819
+				  #+BEGIN_QUERY
+				  ;; original
+				   {:inputs ["grocery" :today]
+				    :query
+				    [:find ?content ?journal-day ?today-journal-day ?today ?today-journal-uuid ?marker
+				     :keys content journal-day today-journal-day today today-journal-uuid marker
+				     :in $ ?macro-name ?today-journal-day %
+				  
+				     :where
+				     [?b :block/marker ?marker]
+				     ;;[(contains? #{"DONE"} ?marker)]
+				     (using-macro ?b ?macro-name)
+				  
+				     [?b :block/content ?content]
+				     [?b :block/page ?p]
+				     [?p :block/journal-day ?journal-day]
+				  
+				     [?j :block/journal-day ?today-journal-day]
+				     [?j :block/name ?today]
+				     [?j :block/uuid ?today-journal-uuid]]
+				  
+				  
+				    :rules
+				    [[(using-macro ?b ?macro-name)
+				      [?b :block/macros ?m]
+				      [?m :block/properties ?props]
+				      [(get ?props :logseq.macro-name) ?macros]
+				      [(= ?macros ?macro-name)]]]
+				  
+				  
+				    :result-transform
+				    (fn [results]
+				      (let [first-line (fn [item]
+				                         (if (clojure.string/index-of item "\n")
+				                           (subs item 0 (clojure.string/index-of item "\n"))
+				                           item))
+				            query-data (first results)
+				            query-results (map (fn [result]
+				                                 (dissoc result :today-journal-day :today :today-journal-uuid))
+				                               results)
+				            transformed-results (->> query-results
+				                                     (map (fn [result]
+				                                            (update result :content
+				                                                    (fn [item]
+				                                                      (-> item
+				                                                          first-line
+				                                                          clojure.string/lower-case
+				                                                          (clojure.string/replace
+				                                                           (re-pattern "(?:done|todo) \\{\\{grocery\\}\\} ") "")
+				                                                          (clojure.string/replace (re-pattern "x\\d$") "")
+				                                                          clojure.string/trim)))))
+				  
+				  
+				                                     (group-by :content)
+				  
+				                                     (sort-by (fn [[_ entries]] (count entries)) >)
+				  
+				                                     (map (fn [[grocery-item entries]]
+				                                            [grocery-item (map (fn [entry] (dissoc entry :content)) entries)]))
+				  
+				                                     (map (fn [[grocery-item purchase-data]]
+				                                            [grocery-item {:purchase-count (count purchase-data)
+				                                                           :first-purchase (->> purchase-data
+				                                                                                (map :journal-day)
+				                                                                                (apply min))
+				                                                           :last-purchase (->> purchase-data
+				                                                                               (map :journal-day)
+				                                                                               (apply max))
+				                                                           :in-basket (some (fn [entry] (= (:marker entry) "TODO")) purchase-data)
+				                                                           :purchase-data purchase-data}])))]
+				  
+				        (assoc {}
+				               :query-data (select-keys query-data [:today-journal-day :today :today-journal-uuid])
+				               :query-results transformed-results)))
+				  
+				    :view (letfn [(make-link [text journal-uuid class-addition]
+				                   [:a {:class class-addition :on-click (fn [] (call-api "append_block_in_page" (str journal-uuid) (str "TODO {{grocery}} " text)))}
+				                    text])
+				                  (make-icon [item-name]
+				                    (let [icon-table {:cream "ef13"
+				                                      :frozen-berries "f511"
+				                                      :yogurt "f4c8"
+				                                      :cat-food "f287"
+				                                      :naan "efa3"
+				                                      :patties "feb5"
+				                                      :eggs "f500"
+				                                      :water "ef0b"
+				                                      :sour-cream "ee9f"
+				                                      :milk "ef13"
+				                                      :cheese "ef26"
+				                                      :cheese-powder "ee92"
+				                                      :cat-litter "f65b"
+				                                      :salad "f50a"
+				                                      :tomato-sauce "edbb"
+				                                      :automatic-toilet-bowl-cleaner-pucks "efd3"
+				                                      :fries "fae9"
+				                                      :detergent "f30e"
+				                                      :wax-paper "eb2f"
+				                                      :perogies "feb5"
+				                                      :potatoes "eb8a"
+				                                      :sapporo-ramen-noodle "fd90"
+				                                      :frozen-veg "f21c"
+				                                      :butter "fab5"
+				                                      :berries "f511"
+				                                      :sodium-bicarbonate "ef16"
+				                                      :peanut-oil "ef60"
+				                                      :dried-meat "ef17"
+				                                      :smokies "ef17"
+				                                      :brioche-hotdog-buns "f3a5"
+				                                      :sodium-bicarbonate-laundry-booster "f311"
+				                                      :garbage-bags "f02f"
+				                                      :downy-rinse-and-refresh-laundry-stripper "f311"
+				                                      :borax-laundry-booster "f311"
+				                                      :little-tissues "f4c9"}
+				            
+				                          sanitized-item-name (-> item-name
+				                                                  (clojure.string/replace " " "-")
+				                                                  (clojure.string/replace (re-pattern "[\\(\\)]") ""))
+				                          icon-code (get icon-table (keyword sanitized-item-name) "0000")]
+				                      (str "&#x" icon-code ";")))]
+				  
+				           (fn [results]
+				             (let [query-data (get-in results [:query-data])
+				                   query-results (get-in results [:query-results])]
+				                  
+				               [:div
+				                [:table {:class "future-appointments compact more-compact"}
+				                 [:thead
+				                  [:tr
+				                   [:th ""]
+				                   [:th "Item"]]]
+				                 [:tbody
+				                  (for [[grocery-item item-data] query-results]
+				                    (let [class-addition (if (:in-basket item-data) "strikethrough" "")]
+				                     [:tr
+				                      [:td [:span {:class "bti bigger" :dangerouslySetInnerHTML {:__html (make-icon grocery-item)}}]]
+				                      [:td (make-link grocery-item (get-in query-data [:today-journal-uuid]) class-addition)]]))]]])))
+				                   
+				                 
+				  
+				    :breadcrumb-show? false}
+				  #+END_QUERY
+			- query v1
+				- ![image.png](../assets/image_1723933819675_0.png){:height 161, :width 240}
+				- No way to indicate if an item is in the basket
+				- ```cljs
 				  #+BEGIN_QUERY
 				  ;; [[grocery list]] query
 				   {:inputs ["grocery" :today]
@@ -240,13 +386,14 @@ repository:: DeadBranches/logseq-queries-and-scripts
 				                  [:tbody
 				                   (for [[grocery-item _] query-results]
 				                     [:tr
-				                      [:td [:span {:class "bti" :dangerouslySetInnerHTML {:__html (make-icon grocery-item)}} ]]
+				                      [:td [:span {:class "bti bigger" :dangerouslySetInnerHTML {:__html (make-icon grocery-item)}} ]]
 				                      [:td (make-link grocery-item (get-in query-data [:today-journal-uuid]))]
 				                      
 				                      ])]]])))
 				  
 				    :breadcrumb-show? false}
 				  #+END_QUERY
+				  ```
 		- **Related page** linked references
 			- On a given page with the `:related` page property,
 				- Find all blocks with linked references to pages included in `:related`
@@ -561,7 +708,7 @@ repository:: DeadBranches/logseq-queries-and-scripts
 				                   (let [project-name (:project-name result)
 				                         uuid (str (:current-page-id result))
 				                         icon (:icon result)] ; Define icon here
-				                     [:div {:class "quick-view-container"} 
+				                     [:div {:class "quick-view-container left-spacing"} 
 				                      [:span {:class "ti"} (read-string (str "\"\\u" icon "\""))]
 				                      [:span {:class "content-slot"}
 				                       [:a {:data-ref project-name :class "link"
@@ -797,26 +944,41 @@ repository:: DeadBranches/logseq-queries-and-scripts
 				- id:: 664e4055-3b72-4ba1-ac8b-48e34544629c
 				  #+BEGIN_QUERY
 				  {:query
-				   [:find (min ?datestamp) ?date ?datestamp ?today-datestamp ?content ?props ?current-page-name ?activity-uuid ?current-page-uuid
-				    :keys first-activity-datestamp date datestamp today-datestamp content properties current-page-name activity-card-uuid current-page-uuid
+				   [:find (min ?datestamp) ?date ?datestamp ?today-datestamp ?content ?props ?current-page-name ?activity-uuid ?current-page-uuid (distinct ?icon)
+				    :keys first-activity-datestamp date datestamp today-datestamp content properties current-page-name activity-card-uuid current-page-uuid icon
 				    :in $ ?today-datestamp ?current-page-name
 				  
 				    :where
-				    [?a :block/properties ?props]
+				    [?b :block/properties ?props]
 				    [(get ?props :activity) ?activity]
 				    [(get ?props :event) ?event]
 				    [(get ?props :date) ?date]
-				    [?a :block/refs ?refs]
-				    [?a :block/content ?content]
+				  
+				    [?b :block/refs ?refs]
 				    [?refs :block/journal-day ?datestamp]
 				    [(>= ?datestamp ?today-datestamp)]
-				    [?a :block/uuid ?activity-uuid]
+				  
+				    [?b :block/content ?content]
+				    [?b :block/uuid ?activity-uuid]
 				  
 				    [?p :block/name ?current-page-name]
-				    [?p :block/uuid ?current-page-uuid]]
+				    [?p :block/uuid ?current-page-uuid]
 				  
+				    [?a :block/name ?activity-page]
+				    [(contains? ?activity ?activity-page)]
 				  
-				   :view 
+				    (or-join [?a ?icon]
+				             (and
+				              [?a :block/properties ?activity-props]
+				              [(get ?activity-props :-icon "0000") ?icon])
+				             (and
+				              [(missing? $ ?a :block/properties)]
+				              [(identity "0000") ?icon])
+				             )
+				  
+				    ]
+				  
+				  :view 
 				   (fn [results]
 				     (letfn [(format-event-string [event-name person-names]
 				               (if (seq person-names)
@@ -844,36 +1006,118 @@ repository:: DeadBranches/logseq-queries-and-scripts
 				                (let [event-name (get-in result [:properties :event])
 				                      person-names (get-in result [:properties :with])
 				                      event-uuid (str (get-in result [:activity-card-uuid]))
-				                      current-page-uuid (str (get-in (first results) [:current-page-uuid]))]
+				                      current-page-uuid (str (get-in (first results) [:current-page-uuid]))
+				                      event-icon (first (get-in result [:icon]))]
 				                  {:name (format-event-string event-name person-names)
 				                   :uuid event-uuid
-				                   :current-page-uuid current-page-uuid}))
+				                   :current-page-uuid current-page-uuid
+				                   :icon event-icon}))
 				              next-events)]
 				  
-				            [:div {:class "quick-view-container"} 
-				             [:span {:class "ti"} "\u0020"]
-				             [:span {:class "content-slot"}
-				                   (cond (empty? next-events) "no events"
-				                         (= (count next-events) 1)  (for [event formatted-events]
-				                                                      [:a {:class "link"
-				                                                           :on-click (fn [] (call-api "append_block_in_page" (:current-page-uuid event)
-				                                                                                      (str "{{i eb6d}} note for {{i f621}} [" (:name event) "](((" (:uuid event) ")))")))} (:name event)])
-				                         :else [:ul (for [event formatted-events]
-				                                      [:li [:a {:on-click (fn []
-				                                                            (call-api "append_block_in_page" (:current-page-uuid event)
-				                                                                      (str "{{i eb6d}} note for {{i f621}} [" (:name event)
-				                                                                           "](((" (:uuid event) ")))")))}
-				                                            (:name event)]])])]])))
-				                      
-				              
+				  
+				         
+				  
+				       (cond (empty? next-events) "no events"
+				             :else (for [event formatted-events]
+				                     [:div {:class "quick-view-container left-spacing"}
+				                      [:span {:class "ti"} (read-string (str "\"\\u" (:icon event) "\""))]
+				                      ;; [:span {:class "ti"} (read-string (str "\"\\u" icon "\""))]
+				                      [:span {:class "content-slot"}
+				                       [:a {:on-click (fn []
+				                                        (call-api "append_block_in_page" (:current-page-uuid event)
+				                                                  (str "{{i eb6d}} note for {{i f621}} [" (:name event)
+				                                                       "](((" (:uuid event) ")))")))}
+				                        (:name event)]]])))))
+				  
 				   :result-transform (fn [result]
+				                       (map (fn [r] (update r :icons (fn [icons] (if icons (set icons) #{})))))
 				                       (sort-by (fn [r] (get-in r [:datestamp])) (fn [a b] (compare a b)) result))
-				   :inputs [:today :current-page]}
+				   :inputs [:today :query-page]}
 				   
 				  #+END_QUERY
 			- ### {{i ea0b}} *version archive*
 			  *older stuff*
-				- v2.1 slightly more formatted event. (current)
+				- v.2.2 formatted event with activity icons (current)
+				- v2.1 slightly more formatted event.
+				  ![image.png](../assets/image_1724361343098_0.png){:height 38, :width 240}
+					- ```
+					  #+BEGIN_QUERY
+					  {:query
+					   [:find (min ?datestamp) ?date ?datestamp ?today-datestamp ?content ?props ?current-page-name ?activity-uuid ?current-page-uuid
+					    :keys first-activity-datestamp date datestamp today-datestamp content properties current-page-name activity-card-uuid current-page-uuid
+					    :in $ ?today-datestamp ?current-page-name
+					  
+					    :where
+					    [?a :block/properties ?props]
+					    [(get ?props :activity) ?activity]
+					    [(get ?props :event) ?event]
+					    [(get ?props :date) ?date]
+					    [?a :block/refs ?refs]
+					    [?a :block/content ?content]
+					    [?refs :block/journal-day ?datestamp]
+					    [(>= ?datestamp ?today-datestamp)]
+					    [?a :block/uuid ?activity-uuid]
+					  
+					    [?p :block/name ?current-page-name]
+					    [?p :block/uuid ?current-page-uuid]]
+					  
+					  
+					   :view 
+					   (fn [results]
+					     (letfn [(format-event-string [event-name person-names]
+					               (if (seq person-names)
+					                 (str event-name " with " (clojure.string/join ", " person-names))
+					                 (str event-name)))]
+					       (let [current-page-uuid (str (get-in (first results) [:current-page-uuid]))
+					             first-activity-datestamp (get-in (first results) [:first-activity-datestamp])
+					             dates-set (get-in (first results) [:date])
+					             date-str (if (set? dates-set)
+					                        (first dates-set)
+					                        dates-set)
+					             today (get-in (first results) [:today-datestamp])
+					             difference (- first-activity-datestamp today)
+					  
+					             next-events
+					             (vec
+					              (keep (fn [result]
+					                      (when (= (get-in result [:datestamp]) first-activity-datestamp)
+					                        result))
+					                    results))
+					  
+					             formatted-events
+					             (map
+					              (fn [result]
+					                (let [event-name (get-in result [:properties :event])
+					                      person-names (get-in result [:properties :with])
+					                      event-uuid (str (get-in result [:activity-card-uuid]))
+					                      current-page-uuid (str (get-in (first results) [:current-page-uuid]))]
+					                  {:name (format-event-string event-name person-names)
+					                   :uuid event-uuid
+					                   :current-page-uuid current-page-uuid}))
+					              next-events)]
+					  
+					            [:div {:class "quick-view-container left-spacing"} 
+					             [:span {:class "ti"} "\u0020"]
+					             [:span {:class "content-slot"}
+					                   (cond (empty? next-events) "no events"
+					                         (= (count next-events) 1)  (for [event formatted-events]
+					                                                      [:a {:class "link"
+					                                                           :on-click (fn [] (call-api "append_block_in_page" (:current-page-uuid event)
+					                                                                                      (str "{{i eb6d}} note for {{i f621}} [" (:name event) "](((" (:uuid event) ")))")))} (:name event)])
+					                         :else [:ul (for [event formatted-events]
+					                                      [:li [:a {:on-click (fn []
+					                                                            (call-api "append_block_in_page" (:current-page-uuid event)
+					                                                                      (str "{{i eb6d}} note for {{i f621}} [" (:name event)
+					                                                                           "](((" (:uuid event) ")))")))}
+					                                            (:name event)]])])]])))
+					                      
+					              
+					   :result-transform (fn [result]
+					                       (sort-by (fn [r] (get-in r [:datestamp])) (fn [a b] (compare a b)) result))
+					   :inputs [:today :current-page]}
+					   
+					  #+END_QUERY
+					  ```
 				- v2.0 upcoming event and activities information **with quick-reference links**
 				  *date retired*: [[Saturday, Aug 10th, 2024]] 
 				  ![image.png](../assets/image_1719765578558_0.png){:height 31, :width 246}
@@ -1159,66 +1403,65 @@ repository:: DeadBranches/logseq-queries-and-scripts
 					  ```
 		- #### {{i ee20}} future appointments list
 		  id:: 66415c9e-ff58-4281-8007-160cb44fb8b3
-			- [:small "upcoming ap
+			- [:small "upcoming appointments"]
 			  id:: 66415ca6-d397-4fc1-97f1-95f7b516e6d1
-				- pointments"]
-				- #+BEGIN_QUERY
-				  {:query
-				   [:find (min ?journal-day) ?date ?journal-day ?content ?props ?today ?activity ?event ?uuid ?current-page
-				    :keys min-day date journal-day content properties today activity event uuid current-page
-				    :in $ ?today ?current-page
-				    :where
-				    [?b :block/properties ?props]
-				    [(get
-				      ?props :activity) ?activity]
-				  ;[(contains? ?activity "ocrevus infusion")] 
-				    [?e :block/properties ?props]
-				    [(get ?props :event) ?event]
-				    [(get ?props :date) ?date]
-				    [?e :block/refs ?refs]
-				    [?e :block/content ?content]
-				    [?refs :block/journal-day ?journal-day]
-				    [(> ?journal-day ?today)]
-				  
-				   [?e :block/uuid ?uuid] 
-				    ]
-				  
-				   :result-transform  (fn [result] (sort-by (fn [r] (get-in r [:journal-day])) (fn [a b] (compare a b)) result))
-				  
-				   :view (letfn [(make-append-link [page block-content link-text]
-				                                   [:a {:on-click
-				                                        (fn [] (call-api "append_block_in_page"
-				                                                         page
-				                                                         block-content))}
-				                                    link-text])
-				                 (make-link [text destination]
-				                   [:a {:on-click
-				                        (fn []
-				                          (call-api "push_state" "page" {:name destination}))} text])]
-				           (fn [results]
-				             [:div
-				              [:table {:class "future-appointments stop-click"}
-				               [:thead
-				                [:tr
-				                 [:th {:width "120px"} "Date"]
-				                 [:th "Event"]]]
-				               [:tbody
-				                (for [result results]
-				                  [:tr
-				                   [:td (get-in result [:date])]
-				                   [:td (make-append-link
-				                         (get-in result [:current-page])
-				                          (str "{{i-note}} text \n{{i-event}} [" (get-in result [:event]) "](" (get-in result [:uuid])")")
-				                          (get-in result [:event]))        
-				                   ]])]]])
-				   )
-				  
-				          
-				   :inputs [:today :current-page]
-				   :breadcrumb-show? false
-				   :children? false
-				   :group-by-page? false}
-				  #+END_QUERY
+			  #+BEGIN_QUERY
+			  {:query
+			   [:find (min ?journal-day) ?date ?journal-day ?content ?props ?today ?activity ?event ?uuid ?current-page
+			    :keys min-day date journal-day content properties today activity event uuid current-page
+			    :in $ ?today ?current-page
+			    :where
+			    [?b :block/properties ?props]
+			    [(get
+			      ?props :activity) ?activity]
+			  ;[(contains? ?activity "ocrevus infusion")] 
+			    [?e :block/properties ?props]
+			    [(get ?props :event) ?event]
+			    [(get ?props :date) ?date]
+			    [?e :block/refs ?refs]
+			    [?e :block/content ?content]
+			    [?refs :block/journal-day ?journal-day]
+			    [(> ?journal-day ?today)]
+			  
+			   [?e :block/uuid ?uuid] 
+			    ]
+			  
+			   :result-transform  (fn [result] (sort-by (fn [r] (get-in r [:journal-day])) (fn [a b] (compare a b)) result))
+			  
+			   :view (letfn [(make-append-link [page block-content link-text]
+			                                   [:a {:on-click
+			                                        (fn [] (call-api "append_block_in_page"
+			                                                         page
+			                                                         block-content))}
+			                                    link-text])
+			                 (make-link [text destination]
+			                   [:a {:on-click
+			                        (fn []
+			                          (call-api "push_state" "page" {:name destination}))} text])]
+			           (fn [results]
+			             [:div
+			              [:table {:class "future-appointments stop-click"}
+			               [:thead
+			                [:tr
+			                 [:th {:width "120px"} "Date"]
+			                 [:th "Event"]]]
+			               [:tbody
+			                (for [result results]
+			                  [:tr
+			                   [:td (get-in result [:date])]
+			                   [:td (make-append-link
+			                         (get-in result [:current-page])
+			                          (str "{{i-note}} text \n{{i-event}} [" (get-in result [:event]) "](" (get-in result [:uuid])")")
+			                          (get-in result [:event]))        
+			                   ]])]]])
+			   )
+			  
+			          
+			   :inputs [:today :current-page]
+			   :breadcrumb-show? false
+			   :children? false
+			   :group-by-page? false}
+			  #+END_QUERY
 		- ####  {{i ec44}} current medication list
 		  id:: 667a53af-9c93-4a1d-a01b-7e8b8fd22b53
 		      ![image.png](../assets/image_1719766132026_0.png){:height 107, :width 337}
@@ -1290,7 +1533,6 @@ repository:: DeadBranches/logseq-queries-and-scripts
 			  }
 			  #+END_QUERY
 				- {{kitButton export,exportquery}}
-				  {{runpage exportquery}}
 			- {{runpage exportquery}}
 			- idk what this is, but it's broke:
 				- ```
@@ -2212,412 +2454,7 @@ repository:: DeadBranches/logseq-queries-and-scripts
 				  }
 				  #+END_QUERY
 				  ```
-- ## {{i efc5}} datalog language reference
-  cateloguing advanced query syntax elements
-  #+BEGIN_QUERY
-  {
-    :query [:find (pull ?children [*])
-            :in $ ?cb ?heading-set
-            :where
-            [?children :block/parent ?cb]
-            [?children :block/properties ?prop]
-            [(get ?prop :heading) ?heading-value]
-            [(contains? ?heading-set ?heading-value)]
-    ]
-    :inputs [:current-block #{1 2 3 4}]
-  :result-transform (fn [result]
-                      (let [heading-pattern (re-pattern "^(#+\\s+)")
-                            first-lines (map (fn [r]
-                                               (let [content (get-in r [:block/content])
-                                                     first-newline (str/index-of content "\n")
-                                                     line (if first-newline
-                                                            (subs content 0 first-newline)
-                                                            content)
-                                                     uuid (get-in r [:block/uuid])]
-                                                 {:text (clojure.string/replace line heading-pattern "")
-                                                  :uuid uuid}))
-                                             result)]
-                        first-lines))
-  :view (fn [items]
-          [:div
-           (for [[idx {:keys [text uuid]}] (map-indexed vector items)]
-             (if (= idx (dec (count items)))
-               [:a {:href (str "logseq://graph/main?block-id=" uuid) :class "tag"} text]
-               [:span [:a {:href (str "logseq://graph/main?block-id=" uuid) :class "tag"} text] ", "]))])
-  }
-  #+END_QUERY
-	- #### {{i f3f3}} Database utility functions
-	  id:: 65c59bb1-08f0-4e2f-bf0f-a7d9e5a4bb79
-	  Keywords for `:inputs`
-	  *(e.g. `:current-page`, `:query-page`, etc*)
-	  {{Il ec1c,logseq db.cljs:L77,https://github.com/logseq/logseq/blob/c3df737390d4728edc865136c07ee74860bce39a/deps/graph-parser/src/logseq/graph_parser/util/db.cljs#L77}}
-		- #+BEGIN_QUERY
-		  {:query
-		   [:find ?input ?input-txt
-		    :keys input input-txt
-		    :in $ ?input ?input-txt
-		    :where
-		    [_]]
-		  
-		   :inputs [:current-page ":current-page"]
-		  
-		   :view (fn [rows]
-		           [:div
-		            [:code (get (first rows) :input-txt)]
-		            (str " is ") 
-		                 [:i (get (first rows) :input)]
-		            ])}
-		  #+END_QUERY
-		- #+BEGIN_QUERY
-		  {:query
-		   [:find ?input ?input-txt
-		    :keys input input-txt
-		    :in $ ?input ?input-txt
-		    :where
-		    [_]]
-		  
-		   :inputs [:query-page ":query-page"]
-		  
-		   :view (fn [rows]
-		           [:div
-		            [:code (get (first rows) :input-txt)]
-		            (str " is ") 
-		                 [:i (get (first rows) :input)]
-		            ])}
-		  #+END_QUERY
-		- #+BEGIN_QUERY
-		  {:query
-		   [:find ?input ?input-txt
-		    :keys input input-txt
-		    :in $ ?input ?input-txt
-		    :where
-		    [_]]
-		  
-		   :inputs [:current-block ":current-block"]
-		  
-		   :view (fn [rows]
-		           [:div
-		            [:code (get (first rows) :input-txt)]
-		            (str " is ") 
-		                 [:i (get (first rows) :input)]
-		            ])}
-		  #+END_QUERY
-		- #+BEGIN_QUERY
-		  {:query
-		   [:find ?input ?input-txt
-		    :keys input input-txt
-		    :in $ ?input ?input-txt
-		    :where
-		    [_]]
-		  
-		   :inputs [:parent-block ":parent-block"]
-		  
-		   :view (fn [rows]
-		           [:div
-		            [:code (get (first rows) :input-txt)]
-		            (str " is ") 
-		                 [:i (get (first rows) :input)]
-		            ])}
-		  #+END_QUERY
-		- #+BEGIN_QUERY
-		  {:query
-		   [:find ?input ?input-txt
-		    :keys input input-txt
-		    :in $ ?input ?input-txt
-		    :where
-		    [_]]
-		  
-		   :inputs [:today ":today"]
-		  
-		   :view (fn [rows]
-		           [:div
-		            [:code (get (first rows) :input-txt)]
-		            (str " is ") 
-		                 [:i (get (first rows) :input)]
-		            ])}
-		  #+END_QUERY
-		- #+BEGIN_QUERY
-		  {:query
-		   [:find ?input ?input-txt
-		    :keys input input-txt
-		    :in $ ?input ?input-txt
-		    :where
-		    [_]]
-		  
-		   :inputs [:yesterday ":yesterday"]
-		  
-		   :view (fn [rows]
-		           [:div
-		            [:code (get (first rows) :input-txt)]
-		            (str " is ") 
-		                 [:i (get (first rows) :input)]
-		            ])}
-		  #+END_QUERY
-		- #+BEGIN_QUERY
-		  {:query
-		   [:find ?input ?input-txt
-		    :keys input input-txt
-		    :in $ ?input ?input-txt
-		    :where
-		    [_]]
-		  
-		   :inputs [:tomorrow ":tomorrow"]
-		  
-		   :view (fn [rows]
-		           [:div
-		            [:code (get (first rows) :input-txt)]
-		            (str " is ") 
-		                 [:i (get (first rows) :input)]
-		            ])}
-		  #+END_QUERY
-		- #+BEGIN_QUERY
-		  {:query
-		   [:find ?input ?input-txt
-		    :keys input input-txt
-		    :in $ ?input ?input-txt
-		    :where
-		    [_]]
-		  
-		   :inputs [:right-now-ms ":right-now"]
-		  
-		   :view (fn [rows]
-		           [:div
-		            [:code (get (first rows) :input-txt)]
-		            (str " is ") 
-		                 [:i (get (first rows) :input)]
-		            ])}
-		  #+END_QUERY
-		- #+BEGIN_QUERY
-		  {:query
-		   [:find ?input ?input-txt
-		    :keys input input-txt
-		    :in $ ?input ?input-txt
-		    :where
-		    [_]]
-		  
-		   :inputs [:start-of-today-ms ":start-of-today-ms"]
-		  
-		   :view (fn [rows]
-		           [:div
-		            [:code (get (first rows) :input-txt)]
-		            (str " is ") 
-		                 [:i (get (first rows) :input)]
-		            ])}
-		  #+END_QUERY
-		- #+BEGIN_QUERY
-		  {:query
-		   [:find ?input ?input-txt
-		    :keys input input-txt
-		    :in $ ?input ?input-txt
-		    :where
-		    [_]]
-		  
-		   :inputs [:+3d ":+3d"]
-		  
-		   :view (fn [rows]
-		           [:div
-		            [:code (get (first rows) :input-txt)]
-		            (str " is ") 
-		                 [:i (get (first rows) :input)]
-		            ])}
-		  #+END_QUERY
-	- #### DSL rule reference
-	  `:where` clause helpers
-	  *(e.g. `(page-tags ?p ?t)`)*
-	  {{il ec1c,logseq/rules.cljc:63,https://github.com/logseq/logseq/blob/53257d0919713f6096087fc188b80224742fe502/deps/db/src/logseq/db/rules.cljc#L63}}
-		- For more information see
-		- (page-property ?p ?key ?val)
-			- [(page-property ?p ?key ?val)
-			       [?p :block/name]
-			       [?p :block/properties ?prop]
-			       [(get ?prop ?key) ?v]
-			       (or [(= ?v ?val)] [(contains? ?v ?val)])]
-		- (has-page-property ?p ?key)
-			- [(has-page-property ?p ?key)
-			       [?p :block/name]
-			       [?p :block/properties ?prop]
-			       [(get ?prop ?key)]]
-		- (task ?b ?markers)
-			- [(task ?b ?markers)
-			     [?b :block/marker ?marker]
-			     [(contains? ?markers ?marker)]]
-		- (priority ?b ?priorities)
-			- [(priority ?b ?priorities)
-			     [?b :block/priority ?priority]
-			     [(contains? ?priorities ?priority)]]
-		- (page-tags ?p ?tags)
-			- [(page-tags ?p ?tags)
-			     [?p :block/tags ?t]
-			     [?t :block/name ?tag]
-			     [(contains? ?tags ?tag)]]
-		- (all-page-tags ?p)
-			- [(all-page-tags ?p)
-			     [_ :block/tags ?p]]
-		- (between ?b ?start ?end)
-			- [(between ?b ?start ?end)
-			     [?b :block/page ?p]
-			     [?p :block/journal? true]
-			     [?p :block/journal-day ?d]
-			     [(>= ?d ?start)]
-			     [(<= ?d ?end)]]
-		- (has-property ?b ?prop)
-			- [(has-property ?b ?prop)
-			     [?b :block/properties ?bp]
-			     [(missing? $ ?b :block/name)]
-			     [(get ?bp ?prop)]]
-		- (block-content ?b ?query)
-			- [(block-content ?b ?query)
-			     [?b :block/content ?content]
-			     [(clojure.string/includes? ?content ?query)]]
-		- (page ?b ?page-name)
-			- [(page ?b ?page-name)
-			     [?b :block/page ?bp]
-			     [?bp :block/name ?page-name]]
-		- (namespace ?p ?namespace)
-			- [(namespace ?p ?namespace)
-			     [?p :block/namespace ?parent]
-			     [?parent :block/name ?namespace]]
-		- (property ?b ?key ?val)
-			- [(property ?b ?key ?val)
-			     [?b :block/properties ?prop]
-			     [(missing? $ ?b :block/name)]
-			     [(get ?prop ?key) ?v]
-			     [(str ?val) ?str-val]
-			     (or [(= ?v ?val)]
-			         [(contains? ?v ?val)]
-			         ;; For integer pages that aren't strings
-			         [(contains? ?v ?str-val)])]
-		- (page-ref ?b ?page-name)
-			- [(page-ref ?b ?page-name)
-			     [?b :block/path-refs ?br]
-			     [?br :block/name ?page-name]]})
-		- *page-tags*
-		  `(page-tags ?page #{"tagname"}`
-		- block property
-		  `(property ?p :type "Player")`
-		- get-children
-		  `(get-children ?parent ?child)`
-	- #### query predicate functions
-	  id:: 6666f9ad-ef7d-455e-8319-906283ee8dcc
-	  (*for the* `:where` *clause*)
-	  {{il ec1c,datascript/built_ins.cljc:L81,https://https://github.com/tonsky/datascript/blob/9e3ad968ec6b25b53963f3f96c8f6cae6713d918/src/datascript/built_ins.cljc#L81}}
-		- **raw list** of functions
-		  *from source*
-			- ```clj
-			  (def query-fns {
-			    '= =, 
-			    '== ==,
-			    'not= not=,
-			    '!= not=,
-			    '< less, 
-			    '> greater,
-			    '<= less-equal,
-			    '>= greater-equal,
-			    '+ +,
-			    '- -, 
-			    '* *, 
-			    '/ /,
-			    'quot quot, 
-			    'rem rem,
-			    'mod mod, 
-			    'inc inc,
-			    'dec dec, 
-			    'max max, 
-			    'min min, 
-			    'zero? zero?,
-			    'pos? pos?,
-			    'neg? neg?,
-			    'even? even?,
-			    'odd? odd?,
-			    'compare compare,
-			    'rand rand, 
-			    'rand-int rand-int,
-			    'true? true?, 
-			    'false? false?, 
-			    'nil? nil?, 
-			    'some? some?,
-			    'not not, 
-			    'and and-fn,
-			    'or or-fn,
-			    'complement complement,
-			    'identical? identical?,
-			    'identity identity,
-			    'keyword keyword, 
-			    'meta meta,
-			    'name name, 
-			    'namespace namespace,
-			    'type type,
-			    'vector vector,
-			    'list list, 
-			    'set set,
-			    'hash-map hash-map,
-			    'array-map array-map,
-			    'count count,
-			    'range range, 
-			    'not-empty not-empty,
-			    'empty? empty?, 
-			    'contains? contains?,
-			    'str str,
-			    'subs, subs,
-			    'get get, 
-			    'pr-str pr-str,
-			    'print-str print-str,
-			    'println-str println-str,
-			    'prn-str prn-str,
-			    're-find re-find, 
-			    're-matches re-matches,
-			    're-seq re-seq,
-			    're-pattern re-pattern,
-			    '-differ? -differ?,
-			    'get-else -get-else,
-			    'get-some -get-some,
-			    'missing? -missing?,
-			    'ground identity,
-			    'clojure.string/blank? str/blank?,
-			    'clojure.string/includes? str/includes?,
-			    'clojure.string/starts-with? str/starts-with?,
-			    'clojure.string/ends-with? str/ends-with?
-			    'tuple vector, 
-			    'untuple identity
-			  })
-			  ```
-		- function **explanation**
-		  *as a table*
-			- *note: use the `/page, code function documentation` template when adding new info*
-			- silly query attempt at automation
-			  id:: 66a2b92f-68a8-48fe-b9fa-921a4518ef4b
-				- ```
-				  #+BEGIN_QUERY
-				  {:query
-				  [:find ?doc-page ?details ?header ?b
-				  :keys doc-page details header b
-				  :where
-				  [?p :block/properties ?properties]
-				  [(get ?properties :datascript) ?datascript]
-				  [(= ?datascript "query predicate function")]
-				  [?p :block/page ?doc-page]
-				  
-				  
-				  [?d :block/name "details"]
-				  [?b :block/path-refs ?d]
-				  [?b :block/page ?doc-page]
-				  [?b :block/content ?details]
-				  
-				  [?header :block/refs ?d]
-				  ]
-				  :view :pprint
-				  }
-				  #+END_QUERY
-				  ```
-			- {{embed ((66785bca-acd2-4401-95e2-32efb961ccb3))}}
-		- Conversational analyses
-			- ((66749df3-627b-4ef6-8e5d-88f843e2ccbc))
-				- {{embed ((66749df3-627b-4ef6-8e5d-88f843e2ccbc))}}
-	- #### clojure functions
-	  available in `:result-transform` and `:view`
-		- ((66749df3-8843-473e-bfe7-d32bfce93215))
-			- {{embed ((66749df3-8843-473e-bfe7-d32bfce93215))}}
-- ## {{i eb6d}}  concept snippets
+- ## {{i eb6d}}  concepts
   advanced queries labeled by use case
 	- ### {{i eead}} query concept inbox
 	  id:: 66ae786c-0e7c-4d19-a94a-a1ae04fa3f19
@@ -3068,6 +2905,411 @@ repository:: DeadBranches/logseq-queries-and-scripts
 			    [?pb :block/name "pile"] ; where pb is the block for a page named "pile"
 			    [?b :block/refs ?pb]]}   ; and blocks reference it
 			  ```
+- ## {{i efc5}} datalog language reference
+  cateloguing advanced query syntax elements
+  #+BEGIN_QUERY
+  {
+    :query [:find (pull ?children [*])
+            :in $ ?cb ?heading-set
+            :where
+            [?children :block/parent ?cb]
+            [?children :block/properties ?prop]
+            [(get ?prop :heading) ?heading-value]
+            [(contains? ?heading-set ?heading-value)]
+    ]
+    :inputs [:current-block #{1 2 3 4}]
+  :result-transform (fn [result]
+                      (let [heading-pattern (re-pattern "^(#+\\s+)")
+                            first-lines (map (fn [r]
+                                               (let [content (get-in r [:block/content])
+                                                     first-newline (str/index-of content "\n")
+                                                     line (if first-newline
+                                                            (subs content 0 first-newline)
+                                                            content)
+                                                     uuid (get-in r [:block/uuid])]
+                                                 {:text (clojure.string/replace line heading-pattern "")
+                                                  :uuid uuid}))
+                                             result)]
+                        first-lines))
+  :view (fn [items]
+          [:div
+           (for [[idx {:keys [text uuid]}] (map-indexed vector items)]
+             (if (= idx (dec (count items)))
+               [:a {:href (str "logseq://graph/main?block-id=" uuid) :class "tag"} text]
+               [:span [:a {:href (str "logseq://graph/main?block-id=" uuid) :class "tag"} text] ", "]))])
+  }
+  #+END_QUERY
+	- #### {{i f3f3}} Database utility functions
+	  id:: 65c59bb1-08f0-4e2f-bf0f-a7d9e5a4bb79
+	  Keywords for `:inputs`
+	  *(e.g. `:current-page`, `:query-page`, etc*)
+	  {{Il ec1c,logseq db.cljs:L77,https://github.com/logseq/logseq/blob/c3df737390d4728edc865136c07ee74860bce39a/deps/graph-parser/src/logseq/graph_parser/util/db.cljs#L77}}
+		- #+BEGIN_QUERY
+		  {:query
+		   [:find ?input ?input-txt
+		    :keys input input-txt
+		    :in $ ?input ?input-txt
+		    :where
+		    [_]]
+		  
+		   :inputs [:current-page ":current-page"]
+		  
+		   :view (fn [rows]
+		           [:div
+		            [:code (get (first rows) :input-txt)]
+		            (str " is ") 
+		                 [:i (get (first rows) :input)]
+		            ])}
+		  #+END_QUERY
+		- #+BEGIN_QUERY
+		  {:query
+		   [:find ?input ?input-txt
+		    :keys input input-txt
+		    :in $ ?input ?input-txt
+		    :where
+		    [_]]
+		  
+		   :inputs [:query-page ":query-page"]
+		  
+		   :view (fn [rows]
+		           [:div
+		            [:code (get (first rows) :input-txt)]
+		            (str " is ") 
+		                 [:i (get (first rows) :input)]
+		            ])}
+		  #+END_QUERY
+		- #+BEGIN_QUERY
+		  {:query
+		   [:find ?input ?input-txt
+		    :keys input input-txt
+		    :in $ ?input ?input-txt
+		    :where
+		    [_]]
+		  
+		   :inputs [:current-block ":current-block"]
+		  
+		   :view (fn [rows]
+		           [:div
+		            [:code (get (first rows) :input-txt)]
+		            (str " is ") 
+		                 [:i (get (first rows) :input)]
+		            ])}
+		  #+END_QUERY
+		- #+BEGIN_QUERY
+		  {:query
+		   [:find ?input ?input-txt
+		    :keys input input-txt
+		    :in $ ?input ?input-txt
+		    :where
+		    [_]]
+		  
+		   :inputs [:parent-block ":parent-block"]
+		  
+		   :view (fn [rows]
+		           [:div
+		            [:code (get (first rows) :input-txt)]
+		            (str " is ") 
+		                 [:i (get (first rows) :input)]
+		            ])}
+		  #+END_QUERY
+		- #+BEGIN_QUERY
+		  {:query
+		   [:find ?input ?input-txt
+		    :keys input input-txt
+		    :in $ ?input ?input-txt
+		    :where
+		    [_]]
+		  
+		   :inputs [:today ":today"]
+		  
+		   :view (fn [rows]
+		           [:div
+		            [:code (get (first rows) :input-txt)]
+		            (str " is ") 
+		                 [:i (get (first rows) :input)]
+		            ])}
+		  #+END_QUERY
+		- #+BEGIN_QUERY
+		  {:query
+		   [:find ?input ?input-txt
+		    :keys input input-txt
+		    :in $ ?input ?input-txt
+		    :where
+		    [_]]
+		  
+		   :inputs [:yesterday ":yesterday"]
+		  
+		   :view (fn [rows]
+		           [:div
+		            [:code (get (first rows) :input-txt)]
+		            (str " is ") 
+		                 [:i (get (first rows) :input)]
+		            ])}
+		  #+END_QUERY
+		- #+BEGIN_QUERY
+		  {:query
+		   [:find ?input ?input-txt
+		    :keys input input-txt
+		    :in $ ?input ?input-txt
+		    :where
+		    [_]]
+		  
+		   :inputs [:tomorrow ":tomorrow"]
+		  
+		   :view (fn [rows]
+		           [:div
+		            [:code (get (first rows) :input-txt)]
+		            (str " is ") 
+		                 [:i (get (first rows) :input)]
+		            ])}
+		  #+END_QUERY
+		- #+BEGIN_QUERY
+		  {:query
+		   [:find ?input ?input-txt
+		    :keys input input-txt
+		    :in $ ?input ?input-txt
+		    :where
+		    [_]]
+		  
+		   :inputs [:right-now-ms ":right-now"]
+		  
+		   :view (fn [rows]
+		           [:div
+		            [:code (get (first rows) :input-txt)]
+		            (str " is ") 
+		                 [:i (get (first rows) :input)]
+		            ])}
+		  #+END_QUERY
+		- #+BEGIN_QUERY
+		  {:query
+		   [:find ?input ?input-txt
+		    :keys input input-txt
+		    :in $ ?input ?input-txt
+		    :where
+		    [_]]
+		  
+		   :inputs [:start-of-today-ms ":start-of-today-ms"]
+		  
+		   :view (fn [rows]
+		           [:div
+		            [:code (get (first rows) :input-txt)]
+		            (str " is ") 
+		                 [:i (get (first rows) :input)]
+		            ])}
+		  #+END_QUERY
+		- #+BEGIN_QUERY
+		  {:query
+		   [:find ?input ?input-txt
+		    :keys input input-txt
+		    :in $ ?input ?input-txt
+		    :where
+		    [_]]
+		  
+		   :inputs [:+3d ":+3d"]
+		  
+		   :view (fn [rows]
+		           [:div
+		            [:code (get (first rows) :input-txt)]
+		            (str " is ") 
+		                 [:i (get (first rows) :input)]
+		            ])}
+		  #+END_QUERY
+	- #### DSL rule reference
+	  `:where` clause helpers
+	  *(e.g. `(page-tags ?p ?t)`)*
+	  {{il ec1c,logseq/rules.cljc:63,https://github.com/logseq/logseq/blob/53257d0919713f6096087fc188b80224742fe502/deps/db/src/logseq/db/rules.cljc#L63}}
+		- For more information see
+		- (page-property ?p ?key ?val)
+			- [(page-property ?p ?key ?val)
+			       [?p :block/name]
+			       [?p :block/properties ?prop]
+			       [(get ?prop ?key) ?v]
+			       (or [(= ?v ?val)] [(contains? ?v ?val)])]
+		- (has-page-property ?p ?key)
+			- [(has-page-property ?p ?key)
+			       [?p :block/name]
+			       [?p :block/properties ?prop]
+			       [(get ?prop ?key)]]
+		- (task ?b ?markers)
+			- [(task ?b ?markers)
+			     [?b :block/marker ?marker]
+			     [(contains? ?markers ?marker)]]
+		- (priority ?b ?priorities)
+			- [(priority ?b ?priorities)
+			     [?b :block/priority ?priority]
+			     [(contains? ?priorities ?priority)]]
+		- (page-tags ?p ?tags)
+			- [(page-tags ?p ?tags)
+			     [?p :block/tags ?t]
+			     [?t :block/name ?tag]
+			     [(contains? ?tags ?tag)]]
+		- (all-page-tags ?p)
+			- [(all-page-tags ?p)
+			     [_ :block/tags ?p]]
+		- (between ?b ?start ?end)
+			- [(between ?b ?start ?end)
+			     [?b :block/page ?p]
+			     [?p :block/journal? true]
+			     [?p :block/journal-day ?d]
+			     [(>= ?d ?start)]
+			     [(<= ?d ?end)]]
+		- (has-property ?b ?prop)
+			- [(has-property ?b ?prop)
+			     [?b :block/properties ?bp]
+			     [(missing? $ ?b :block/name)]
+			     [(get ?bp ?prop)]]
+		- (block-content ?b ?query)
+			- [(block-content ?b ?query)
+			     [?b :block/content ?content]
+			     [(clojure.string/includes? ?content ?query)]]
+		- (page ?b ?page-name)
+			- [(page ?b ?page-name)
+			     [?b :block/page ?bp]
+			     [?bp :block/name ?page-name]]
+		- (namespace ?p ?namespace)
+			- [(namespace ?p ?namespace)
+			     [?p :block/namespace ?parent]
+			     [?parent :block/name ?namespace]]
+		- (property ?b ?key ?val)
+			- [(property ?b ?key ?val)
+			     [?b :block/properties ?prop]
+			     [(missing? $ ?b :block/name)]
+			     [(get ?prop ?key) ?v]
+			     [(str ?val) ?str-val]
+			     (or [(= ?v ?val)]
+			         [(contains? ?v ?val)]
+			         ;; For integer pages that aren't strings
+			         [(contains? ?v ?str-val)])]
+		- (page-ref ?b ?page-name)
+			- [(page-ref ?b ?page-name)
+			     [?b :block/path-refs ?br]
+			     [?br :block/name ?page-name]]})
+		- *page-tags*
+		  `(page-tags ?page #{"tagname"}`
+		- block property
+		  `(property ?p :type "Player")`
+		- get-children
+		  `(get-children ?parent ?child)`
+	- #### query predicate functions
+	  id:: 6666f9ad-ef7d-455e-8319-906283ee8dcc
+	  (*for the* `:where` *clause*)
+	  {{il ec1c,datascript/built_ins.cljc:L81,https://https://github.com/tonsky/datascript/blob/9e3ad968ec6b25b53963f3f96c8f6cae6713d918/src/datascript/built_ins.cljc#L81}}
+		- **raw list** of functions
+		  *from source*
+			- ```clj
+			  (def query-fns {
+			    '= =, 
+			    '== ==,
+			    'not= not=,
+			    '!= not=,
+			    '< less, 
+			    '> greater,
+			    '<= less-equal,
+			    '>= greater-equal,
+			    '+ +,
+			    '- -, 
+			    '* *, 
+			    '/ /,
+			    'quot quot, 
+			    'rem rem,
+			    'mod mod, 
+			    'inc inc,
+			    'dec dec, 
+			    'max max, 
+			    'min min, 
+			    'zero? zero?,
+			    'pos? pos?,
+			    'neg? neg?,
+			    'even? even?,
+			    'odd? odd?,
+			    'compare compare,
+			    'rand rand, 
+			    'rand-int rand-int,
+			    'true? true?, 
+			    'false? false?, 
+			    'nil? nil?, 
+			    'some? some?,
+			    'not not, 
+			    'and and-fn,
+			    'or or-fn,
+			    'complement complement,
+			    'identical? identical?,
+			    'identity identity,
+			    'keyword keyword, 
+			    'meta meta,
+			    'name name, 
+			    'namespace namespace,
+			    'type type,
+			    'vector vector,
+			    'list list, 
+			    'set set,
+			    'hash-map hash-map,
+			    'array-map array-map,
+			    'count count,
+			    'range range, 
+			    'not-empty not-empty,
+			    'empty? empty?, 
+			    'contains? contains?,
+			    'str str,
+			    'subs, subs,
+			    'get get, 
+			    'pr-str pr-str,
+			    'print-str print-str,
+			    'println-str println-str,
+			    'prn-str prn-str,
+			    're-find re-find, 
+			    're-matches re-matches,
+			    're-seq re-seq,
+			    're-pattern re-pattern,
+			    '-differ? -differ?,
+			    'get-else -get-else,
+			    'get-some -get-some,
+			    'missing? -missing?,
+			    'ground identity,
+			    'clojure.string/blank? str/blank?,
+			    'clojure.string/includes? str/includes?,
+			    'clojure.string/starts-with? str/starts-with?,
+			    'clojure.string/ends-with? str/ends-with?
+			    'tuple vector, 
+			    'untuple identity
+			  })
+			  ```
+		- function **explanation**
+		  *as a table*
+			- *note: use the `/page, code function documentation` template when adding new info*
+			- silly query attempt at automation
+			  id:: 66a2b92f-68a8-48fe-b9fa-921a4518ef4b
+				- ```
+				  #+BEGIN_QUERY
+				  {:query
+				  [:find ?doc-page ?details ?header ?b
+				  :keys doc-page details header b
+				  :where
+				  [?p :block/properties ?properties]
+				  [(get ?properties :datascript) ?datascript]
+				  [(= ?datascript "query predicate function")]
+				  [?p :block/page ?doc-page]
+				  
+				  
+				  [?d :block/name "details"]
+				  [?b :block/path-refs ?d]
+				  [?b :block/page ?doc-page]
+				  [?b :block/content ?details]
+				  
+				  [?header :block/refs ?d]
+				  ]
+				  :view :pprint
+				  }
+				  #+END_QUERY
+				  ```
+			- {{embed ((66785bca-acd2-4401-95e2-32efb961ccb3))}}
+		- Conversational analyses
+			- ((66749df3-627b-4ef6-8e5d-88f843e2ccbc))
+				- {{embed ((66749df3-627b-4ef6-8e5d-88f843e2ccbc))}}
+	- #### clojure functions
+	  available in `:result-transform` and `:view`
+		- ((66749df3-8843-473e-bfe7-d32bfce93215))
+			- {{embed ((66749df3-8843-473e-bfe7-d32bfce93215))}}
 - ## {{i eb6e}} My functions
   for `:result-transform` and `:view` clauses
 	- ### {{i f38e}} `:result-transform` functions
