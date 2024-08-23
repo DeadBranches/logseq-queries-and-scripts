@@ -5,6 +5,7 @@ kit:: futureEventsTable
     // Start counting from startDate date into the future. You probably want
     // to start from today
     const fromDate = new Date();
+    fromDate.setDate(fromDate.getDate() +1);
     const futureEventsPromise = (async (startDate = fromDate) => {
   
       // Logseq's :journal-day uses the format date YYYYMMDD.
@@ -182,7 +183,7 @@ kit:: futureEventsTable
   id:: 66b750b0-17c1-4fa1-be49-6445f5617ebd
 - ### Usage
 	- `{{futureEventsTable}}`
-- ```javascript
+- ```no
   logseq.kits.setStatic(async function futureEventsTable(div) {
     // Start counting from startDate date into the future. You probably want
     // to start from today
