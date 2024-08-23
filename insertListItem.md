@@ -14,13 +14,14 @@ description:: Inserts either a grocery or shopping list item under the purchase 
     const dataArguments = buttonElement.dataset.template;
     
     // Values
+    const whitespace = '\u{0020}';
     const blockTemplates = {
-      grocery: "TODO {{grocery}}\u0020",
+      grocery: `TODO {{grocery}}${whitespace}`,
       shopping: "TODO {{buy}} ",
       do: "{{do}} ",
-      doKitchen: "{{do}} {{i-kitchen}}",
-      doOffice: "{{do}} {{i-office}} ",
-      doBathroom: "{{do}} {{i-bathroom}} "
+      doKitchen: `{{do}} {{i-kitchen}} ${whitespace}`,
+      doOffice: `{{do}} {{i-office}} ${whitespace}`,
+      doBathroom: `{{do}} {{i-bathroom}} ${whitespace}`
     } 
     const insertOptions = {
       before: true,

@@ -483,7 +483,7 @@ repository:: DeadBranches/logseq-queries-and-scripts
 			  #+END_QUERY
 		- #### {{i ef91}} Upcoming project quick-view
 		        ![image.png](../assets/image_1719764401764_0.png){:height 38, :width 143}
-			- *see [[logseq-project-manager-2024.5]]*
+			- *see [[:logseq-project-manager-2024.5]]*
 			- **Current query**
 				- id:: 6654b591-49ea-4d3a-b9d9-1dc4f25bab0c
 				  #+BEGIN_QUERY
@@ -672,7 +672,7 @@ repository:: DeadBranches/logseq-queries-and-scripts
 		  id:: 6666f9ad-7589-4721-a459-d7d18591c09e
 		      ![image.png](../assets/image_1719764465551_0.png){:height 30, :width 183}
 			- ###  {{i f635}} information
-				- for related {{i ef91}} project see [[logseq-project-manager-2024.5]]
+				- for related {{i ef91}} project see [[:logseq-project-manager-2024.5]]
 			- ### {{i eb89}} current query
 			  *for use in embedding*
 				- id:: 664f42a4-40eb-44ba-8e8c-89dba2c17a06
@@ -939,7 +939,7 @@ repository:: DeadBranches/logseq-queries-and-scripts
 		  id:: 664ceeec-b343-4d67-94d5-4db82220f06f
 		      ![image.png](../assets/image_1719765578558_0.png){:height 28, :width 229}
 			- ###  {{i f635}} information
-				- for related {{i ef91}} project see [[logseq-events-and-appointments]]
+				- for related {{i ef91}} project see [[:logseq-events-and-appointments]]
 			- ### {{i eb89}} current query
 				- id:: 664e4055-3b72-4ba1-ac8b-48e34544629c
 				  #+BEGIN_QUERY
@@ -1032,7 +1032,7 @@ repository:: DeadBranches/logseq-queries-and-scripts
 				   :result-transform (fn [result]
 				                       (map (fn [r] (update r :icons (fn [icons] (if icons (set icons) #{})))))
 				                       (sort-by (fn [r] (get-in r [:datestamp])) (fn [a b] (compare a b)) result))
-				   :inputs [:today :query-page]}
+				   :inputs [:today :current-page]}
 				   
 				  #+END_QUERY
 			- ### {{i ea0b}} *version archive*
@@ -3704,3 +3704,11 @@ repository:: DeadBranches/logseq-queries-and-scripts
 - ### {{I eade}} resources
 	- https://charleschiugit.github.io/page/logseq/queries/
 	- https://www.reddit.com/r/logseq/comments/15yib2v/advanced_query_bootstrap_please_check_and_comment/
+- {{i eb6d}} note for {{i f621}} [GP follow-up appointment with @Dr Teplitsky](((66ab9503-33ee-47da-a6b5-2c5f98e20f42)))
+- {{i eb6d}} note for {{i f621}} [GP follow-up appointment with @Dr Teplitsky](((66ab9503-33ee-47da-a6b5-2c5f98e20f42)))
+- {{i eb6d}} note for {{i f621}} [GP follow-up appointment with @Dr Teplitsky](((66ab9503-33ee-47da-a6b5-2c5f98e20f42)))
+- {{i eb6d}} note for {{i f621}} [GP follow-up appointment with @Dr Teplitsky](((66ab9503-33ee-47da-a6b5-2c5f98e20f42)))
+- {{i eb6d}} note for {{i f621}} [GP follow-up appointment with @Dr Teplitsky](((66ab9503-33ee-47da-a6b5-2c5f98e20f42)))
+- {{i eb6d}} note for {{i f621}} [Ocrevus (fall 2024) 6-wk pre-infusion bloodwork](((6682d243-e508-49f4-b29d-010c43c4ef6d)))
+- {{i eb6d}} note for {{i f621}} [Ocrevus (fall 2024) 6-wk pre-infusion bloodwork](((6682d243-e508-49f4-b29d-010c43c4ef6d)))
+- {{i eb6d}} note for {{i f621}} [GP follow-up appointment with @Dr Teplitsky](((66ab9503-33ee-47da-a6b5-2c5f98e20f42)))

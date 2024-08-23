@@ -112,3 +112,4 @@ repository:: DeadBranches/logseq-queries-and-scripts
 	   :breadcrumb-show? false
 	  }
 	  #+END_QUERY
+-

@@ -13,7 +13,7 @@ repository:: DeadBranches/logseq-queries-and-scripts
 	- ### {{i fa1e}} Logseq clickable tables
 	  Prevent clicks from entering edit mode
 		- {{i f313}} *Created,* [Friday, Aug 9th, 2024](((66b64953-d2cf-40c8-a6b0-287d4e947659)))
-		- {{i ee1d}} *Project,* [[logseq-clickable-tables]]
+		- {{i ee1d}} *Project,* [[:logseq-clickable-tables]]
 		- {{i-github}} *Initial commit,* [`7969123`](https://github.com/deadbranch-configuration/logseq-conf/commit/79691236568efd4e266cf35ed545f7cf3b98baad)
 		- {{i eac6}}  Info ->
 			- {{embed ((66b64953-d2cf-40c8-a6b0-287d4e947659))}}
@@ -23,7 +23,7 @@ repository:: DeadBranches/logseq-queries-and-scripts
 	- ### {{i ea06}} Idea helper
 	  Issue/idea/question tracker
 		- {{i f313}} *Initiated,* [July 3rd, 2024](((66a015d2-1f08-4b33-bcba-84207b76eeda)))
-		- {{i ee1d}} *Project,* [[logseq-project-management-2024.8]]
+		- {{i ee1d}} *Project,* [[:logseq-project-management-2024.8]]
 		- {{i eac6}}  Info ->
 			- {{embed ((66a015d2-1f08-4b33-bcba-84207b76eeda))}}
 		- Related

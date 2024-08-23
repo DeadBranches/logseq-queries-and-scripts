@@ -1,5 +1,8 @@
 kit:: futureAppointmentTable
 
+- ### {{i f6ef}}  depreciation warning
+      this block is no longer in use
+	- {{i ea0b}} *depreciated on* *[[Sunday, Aug 18th, 2024]]*
 - ```javascript
   /// backup 
   logseq.kits.setStatic(async function futureAppointmentTable(div) {
@@ -105,7 +108,7 @@ kit:: futureAppointmentTable
             <td class="clickable"><a href="${appointment.uuid}">${appointment.properties.event}</a></td>
           </tr>
           <tr>
-          <td class="event-info" id="info-${appointment.index}">${appointment.date} ${appointment.time} ${appointment.with}<br></td>
+          <td class="event-info" id="info-${appointment.index}">${appointment.time} with ${appointment.with} on ${appointment.date}</td>
           </tr>
         `).join('')}
       </tbody>

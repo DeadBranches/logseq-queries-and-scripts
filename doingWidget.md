@@ -115,5 +115,5 @@ description:: Adds a doing block set to the page if one doesn't already exist
   {{kitButton '',insertListItem,f1fa,'',template='doKitchen'}}  {{kitButton '',insertListItem,ea89,'',template='doOffice'}}  {{kitButton '',insertListItem,ef48,'',template='doBathroom'}}
   {{doing-holder}}
 - # UI Elements
-  {{i ec9e}} *[[logseq-journal-buddy-improvement-2024.6]]* *(live embed)*
+  {{i ec9e}} *[[:logseq-journal-buddy-improvement-2024.6]]* *(live embed)*
 	- {{embed ((668d8204-e490-4d23-8d14-1c8f167c9edb))}}

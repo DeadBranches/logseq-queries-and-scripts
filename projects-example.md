@@ -3,14 +3,14 @@ repository:: DeadBranches/logseq-queries-and-scripts
 
 - ## {{i eb4e}}  [[focus]]
   Let's do it!
-	- [[logseq-events-and-appointments]]
+	- [[:logseq-events-and-appointments]]
 - ## {{i ef93}}  [[next]]
   *More aspirational than anything.*
-	- [[Android quick tile manager]]
+	- [[:Android quick tile manager]]
 	- [[logseq journal news feed]]
-	- [[android handsfree note-taker]]
-	- [[denim repair 2024]]
-	- [[logseq-queries-and-scripts-repo]]
+	- [[:android handsfree note-taker]]
+	- [[:denim repair 2024]]
+	- [[:logseq-queries-and-scripts-repo]]
 - ## {{i f258}}  [[unmanaged]]
   *oh mah gawd*
 	- #+BEGIN_QUERY
@@ -52,9 +52,9 @@ repository:: DeadBranches/logseq-queries-and-scripts
 	  #+END_QUERY
 - ## {{i ef3a}}  [[finished]]
   *Hall of Glorious achievements*
-	- [[semantic-icon-search-tool]]
-	- [[home automation core 2024.5 update]]
-	- [[logseq-project-manager-2024.5]]
+	- [[:semantic-icon-search-tool]]
+	- [[:home automation core 2024.5 update]]
+	- [[:logseq-project-manager-2024.5]]
 	- 2023 income tax filing
 		- {{i-inbox}} 2023 income tax filing inbox
 		-

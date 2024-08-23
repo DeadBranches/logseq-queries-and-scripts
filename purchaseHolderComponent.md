@@ -70,9 +70,10 @@ description:: (formerly journalGroceryWidget). Add a purchase manager to the cur
     /**
      * Insert block
      */
-    const journal_root = me.closest('.journal-item.content'); 
+  
     const INSERTION_IDENTIFIER = "journal-container-insertion-point"  // macro name
     const journalRoot = me.closest(".journal-item.content");
+  
     const targetBlockUUID = journalRoot
       .querySelector(`[data-macro-name="${INSERTION_IDENTIFIER}"]`)
       .closest(".ls-block")
@@ -107,7 +108,7 @@ description:: (formerly journalGroceryWidget). Add a purchase manager to the cur
   {{purchase-holder}}
 -
 - # UI Elements
-  {{i ec9e}} *[[logseq-journal-buddy-improvement-2024.6]]* *(live embed)*
+  {{i ec9e}} *[[:logseq-journal-buddy-improvement-2024.6]]* *(live embed)*
 	- {{embed ((668bfa16-f000-4381-80b7-155ed5ebe7f1))}}
 - # Changes
 	- [[Tuesday, Jul 23rd, 2024]] feat: Use block content from project page. {{i-commit}}[e349a15](https://github.com/DeadBranches/logseq-queries-and-scripts/commits/main/)
