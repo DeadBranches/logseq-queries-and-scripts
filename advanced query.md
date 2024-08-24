@@ -884,7 +884,6 @@ repository:: DeadBranches/logseq-queries-and-scripts
 				   [:find (min ?activity-datestamp) ?date ?activity-datestamp ?today-datestamp ?content ?props ?current-page-name ?activity-uuid ?current-page-uuid (distinct ?icon)
 				    :keys first-activity-datestamp date activity-datestamp today-datestamp content properties current-page-name activity-card-uuid current-page-uuid icon
 				    :in $ ?today-datestamp ?current-page-name
-				  
 				    :where
 				    [?b :block/properties ?props]
 				    [(get ?props :activity) ?activity]
@@ -911,73 +910,251 @@ repository:: DeadBranches/logseq-queries-and-scripts
 				    (or-join [?a ?icon]
 				             (and
 				              [?a :block/properties ?activity-props]
-				              [(get ?activity-props :-icon "0000") ?icon])
+				              [(get ?activity-props :-icon) ?icon]
+				              [(some? ?icon)]) ;; :-icon exists and is not nil
 				             (and
-				              [(missing? $ ?a :block/properties)]
+				              [?a :block/properties ?activity-props]
+				              [(get ?activity-props :-icon) ?icon]
+				              [(nil? ?icon)] ;; :block/properties, but nil icon
+				              [(identity "0000") ?icon])
+				             (and ;; no block properties
+				              [(missing? $ ?a :block/properties)] ;; no :bp
 				              [(identity "0000") ?icon]))]
-				  
-				  :view
-				  (fn [results]
-				    (letfn [(format-event-string [event-name person-names]
-				              (if (seq person-names)
-				                (str event-name " with " (clojure.string/join ", " person-names))
-				                (str event-name)))]
-				      (let [current-page-uuid (str (get-in (first results) [:current-page-uuid]))
-				            first-activity-datestamp (get-in (first results) [:first-activity-datestamp])
-				            dates-set (get-in (first results) [:date])
-				            date-str (if (set? dates-set)
-				                       (first dates-set)
-				                       dates-set)
-				            today (get-in (first results) [:today-datestamp])
-				            difference (- first-activity-datestamp today)
-				  
-				            next-events
-				            (vec
-				             (keep (fn [result]
-				                     (when (= (get-in result [:activity-datestamp]) first-activity-datestamp)
-				                       result))
-				                   results))
-				  
-				            formatted-events
-				            (map
-				             (fn [result]
-				               (let [event-name (get-in result [:properties :event])
-				                     person-names (get-in result [:properties :with])
-				                     event-uuid (str (get-in result [:activity-card-uuid]))
-				                     current-page-uuid (str (get-in (first results) [:current-page-uuid]))
-				                     event-icon (first (get-in result [:icon]))]
-				                 {:name (format-event-string event-name person-names)
-				                  :uuid event-uuid
-				                  :current-page-uuid current-page-uuid
-				                  :icon event-icon}))
-				             next-events)]
-				  
-				  
-				  
-				  
-				        (cond (empty? next-events) "no events"
-				              :else (for [event formatted-events]
-				                      [:div {:class "quick-view-container left-spacing"}
-				                       [:span {:class "ti"} (read-string (str "\"\\u" (:icon event) "\""))]
-				                      ;; [:span {:class "ti"} (read-string (str "\"\\u" icon "\""))]
-				                       [:span {:class "content-slot"}
-				                        [:a {:on-click (fn []
-				                                         (call-api "append_block_in_page" (:current-page-uuid event)
-				                                                   (str "{{i eb6d}} note for {{i f621}} [" (:name event)
-				                                                        "](((" (:uuid event) ")))")))}
-				                         (:name event)]]])))))
-				  
-				  :result-transform (fn [result]
-				                      (map (fn [r] (update r :icons (fn [icons] (if icons (set icons) #{})))))
-				                      (sort-by (fn [r] (get-in r [:activity-datestamp])) (fn [a b] (compare a b)) result))
-				  :inputs [:today :current-page]
-				  
-				  }
 				   
+				  
+				   :result-transform
+				   (letfn [(format-event-string [event-name person-names]
+				             (if (seq person-names)
+				               (str event-name " with " (clojure.string/join ", " person-names))
+				               (str event-name)))
+				  
+				           (format-event [result]
+				             (let [event-name (get-in result [:properties :event])
+				                   person-names (get-in result [:properties :with])
+				                   event-uuid (str (get-in result [:activity-card-uuid]))
+				                   current-page-uuid (str (get-in result [:current-page-uuid]))
+				                   event-icon (first (get-in result [:icon]))]
+				               {:name (format-event-string event-name person-names)
+				                :uuid event-uuid
+				                :current-page-uuid current-page-uuid
+				                :icon event-icon}))
+				  
+				           (filter-next-events [results]
+				             (let [first-activity-datestamp (get-in (first results) [:first-activity-datestamp])]
+				               (filter (fn [result]
+				                         (= (get-in result [:activity-datestamp]) first-activity-datestamp))
+				                       results)))
+				  
+				           (sort-by-activity-datestamp [results]
+				             (sort-by (fn [r] (get-in r [:activity-datestamp])) compare results))]
+				  
+				     (fn [results]
+				       (as-> results $
+				         (sort-by-activity-datestamp $)
+				         (filter-next-events $)
+				         (map format-event $))))
+				  
+				   :view
+				   (fn [formatted-events]
+				     (if (empty? formatted-events)
+				       "no events"
+				       (for [event formatted-events]
+				         [:div {:class "quick-view-container left-spacing"}
+				          [:span {:class "ti"} (read-string (str "\"\\u" (:icon event) "\""))]
+				          [:span {:class "content-slot"}
+				           [:a {:on-click (fn []
+				                            (call-api "append_block_in_page" (:current-page-uuid event)
+				                                      (str "{{i eb6d}} note for {{i f621}} [" (:name event)
+				                                           "](((" (:uuid event) ")))")))}
+				            (:name event)]]])))
+				  
+				   :inputs [:today :current-page]}
 				  #+END_QUERY
 			- {{i ea0b}} *version archive*
 			  *older stuff*
-				- v2.3.1 renamed ?datestamp to ?activity-datestamp for clarity (current)
+				- v2.4.1 fix: Show icon if at least one :activity :-icon exists. (current)
+					- ```cljs
+					  #+BEGIN_QUERY
+					  {:query
+					   [:find (min ?activity-datestamp) ?date ?activity-datestamp ?today-datestamp ?content ?props ?current-page-name ?activity-uuid ?current-page-uuid (distinct ?icon)
+					    :keys first-activity-datestamp date activity-datestamp today-datestamp content properties current-page-name activity-card-uuid current-page-uuid icon
+					    :in $ ?today-datestamp ?current-page-name
+					    :where
+					    [?b :block/properties ?props]
+					    [(get ?props :activity) ?activity]
+					    [(get ?props :event) ?event]
+					    [(get ?props :date) ?date]
+					  
+					    [(get ?props :scheduling "") ?scheduling]
+					    (not [(contains? ?scheduling "CANCELED")])
+					  
+					    ;; :date
+					    [?d :block/original-name ?bn]
+					    [(contains? ?date ?bn)]
+					    [?d :block/journal-day ?activity-datestamp]
+					    [(>= ?activity-datestamp ?today-datestamp)]
+					  
+					    [?b :block/content ?content]
+					    [?b :block/uuid ?activity-uuid]
+					  
+					    [?p :block/name ?current-page-name]
+					    [?p :block/uuid ?current-page-uuid]
+					  
+					    [?a :block/name ?activity-page]
+					    [(contains? ?activity ?activity-page)]
+					    (or-join [?a ?icon]
+					             (and
+					              [?a :block/properties ?activity-props]
+					              [(get ?activity-props :-icon) ?icon]
+					              [(some? ?icon)]) ;; :-icon exists and is not nil
+					             (and
+					              [?a :block/properties ?activity-props]
+					              [(get ?activity-props :-icon) ?icon]
+					              [(nil? ?icon)] ;; :block/properties, but nil icon
+					              [(identity "0000") ?icon])
+					             (and ;; no block properties
+					              [(missing? $ ?a :block/properties)] ;; no :bp
+					              [(identity "0000") ?icon]))]
+					   
+					  
+					   :result-transform
+					   (letfn [(format-event-string [event-name person-names]
+					             (if (seq person-names)
+					               (str event-name " with " (clojure.string/join ", " person-names))
+					               (str event-name)))
+					  
+					           (format-event [result]
+					             (let [event-name (get-in result [:properties :event])
+					                   person-names (get-in result [:properties :with])
+					                   event-uuid (str (get-in result [:activity-card-uuid]))
+					                   current-page-uuid (str (get-in result [:current-page-uuid]))
+					                   event-icon (first (get-in result [:icon]))]
+					               {:name (format-event-string event-name person-names)
+					                :uuid event-uuid
+					                :current-page-uuid current-page-uuid
+					                :icon event-icon}))
+					  
+					           (filter-next-events [results]
+					             (let [first-activity-datestamp (get-in (first results) [:first-activity-datestamp])]
+					               (filter (fn [result]
+					                         (= (get-in result [:activity-datestamp]) first-activity-datestamp))
+					                       results)))
+					  
+					           (sort-by-activity-datestamp [results]
+					             (sort-by (fn [r] (get-in r [:activity-datestamp])) compare results))]
+					  
+					     (fn [results]
+					       (as-> results $
+					         (sort-by-activity-datestamp $)
+					         (filter-next-events $)
+					         (map format-event $))))
+					  
+					   :view
+					   (fn [formatted-events]
+					     (if (empty? formatted-events)
+					       "no events"
+					       (for [event formatted-events]
+					         [:div {:class "quick-view-container left-spacing"}
+					          [:span {:class "ti"} (read-string (str "\"\\u" (:icon event) "\""))]
+					          [:span {:class "content-slot"}
+					           [:a {:on-click (fn []
+					                            (call-api "append_block_in_page" (:current-page-uuid event)
+					                                      (str "{{i eb6d}} note for {{i f621}} [" (:name event)
+					                                           "](((" (:uuid event) ")))")))}
+					            (:name event)]]])))
+					  
+					   :inputs [:today :current-page]}
+					  #+END_QUERY
+					  ```
+				- v2.4 refactored :view, moving transforms to :result-transform
+					- ```cljs
+					  #+BEGIN_QUERY
+					  {:query
+					   [:find (min ?activity-datestamp) ?date ?activity-datestamp ?today-datestamp ?content ?props ?current-page-name ?activity-uuid ?current-page-uuid (distinct ?icon)
+					    :keys first-activity-datestamp date activity-datestamp today-datestamp content properties current-page-name activity-card-uuid current-page-uuid icon
+					    :in $ ?today-datestamp ?current-page-name
+					    :where
+					    [?b :block/properties ?props]
+					    [(get ?props :activity) ?activity]
+					    [(get ?props :event) ?event]
+					    [(get ?props :date) ?date]
+					  
+					    [(get ?props :scheduling "") ?scheduling]
+					    (not [(contains? ?scheduling "CANCELED")])
+					  
+					    ;; :date
+					    [?d :block/original-name ?bn]
+					    [(contains? ?date ?bn)]
+					    [?d :block/journal-day ?activity-datestamp]
+					    [(>= ?activity-datestamp ?today-datestamp)]
+					  
+					    [?b :block/content ?content]
+					    [?b :block/uuid ?activity-uuid]
+					  
+					    [?p :block/name ?current-page-name]
+					    [?p :block/uuid ?current-page-uuid]
+					  
+					    [?a :block/name ?activity-page]
+					    [(contains? ?activity ?activity-page)]
+					    (or-join [?a ?icon]
+					             (and
+					              [?a :block/properties ?activity-props]
+					              [(get ?activity-props :-icon "0000") ?icon])
+					             (and
+					              [(missing? $ ?a :block/properties)]
+					              [(identity "0000") ?icon]))]
+					   
+					  
+					   :result-transform
+					   (letfn [(format-event-string [event-name person-names]
+					             (if (seq person-names)
+					               (str event-name " with " (clojure.string/join ", " person-names))
+					               (str event-name)))
+					  
+					           (format-event [result]
+					             (let [event-name (get-in result [:properties :event])
+					                   person-names (get-in result [:properties :with])
+					                   event-uuid (str (get-in result [:activity-card-uuid]))
+					                   current-page-uuid (str (get-in result [:current-page-uuid]))
+					                   event-icon (first (get-in result [:icon]))]
+					               {:name (format-event-string event-name person-names)
+					                :uuid event-uuid
+					                :current-page-uuid current-page-uuid
+					                :icon event-icon}))
+					  
+					           (filter-next-events [results]
+					             (let [first-activity-datestamp (get-in (first results) [:first-activity-datestamp])]
+					               (filter (fn [result]
+					                         (= (get-in result [:activity-datestamp]) first-activity-datestamp))
+					                       results)))
+					  
+					           (sort-by-activity-datestamp [results]
+					             (sort-by (fn [r] (get-in r [:activity-datestamp])) compare results))]
+					  
+					     (fn [results]
+					       (as-> results $
+					         (sort-by-activity-datestamp $)
+					         (filter-next-events $)
+					         (map format-event $))))
+					  
+					   :view
+					   (fn [formatted-events]
+					     (if (empty? formatted-events)
+					       "no events"
+					       (for [event formatted-events]
+					         [:div {:class "quick-view-container left-spacing"}
+					          [:span {:class "ti"} (read-string (str "\"\\u" (:icon event) "\""))]
+					          [:span {:class "content-slot"}
+					           [:a {:on-click (fn []
+					                            (call-api "append_block_in_page" (:current-page-uuid event)
+					                                      (str "{{i eb6d}} note for {{i f621}} [" (:name event)
+					                                           "](((" (:uuid event) ")))")))}
+					            (:name event)]]])))
+					  
+					   :inputs [:today :current-page]}
+					  #+END_QUERY
+					  ```
+				- v2.3.1 renamed ?datestamp to ?activity-datestamp for clarity
 					- ```cljs
 					  #+BEGIN_QUERY
 					  {:query
