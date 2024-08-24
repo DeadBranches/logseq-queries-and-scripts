@@ -418,260 +418,10 @@ repository:: DeadBranches/logseq-queries-and-scripts
 			  }
 			  #+END_QUERY
 			  ```
-		- #### Nutritional facts (vitamins)
-		  id:: 666f7716-c32e-40e0-8b10-8f93fc591165
-			- id:: 666f7733-1891-45d3-8bbb-8f32dd4631e1
-			  #+BEGIN_QUERY
-			   {:inputs [:current-page]
-			   :query
-			   [:find ?current-page ?nutrient ?amount ?unit
-			    :keys current-page nutrient amount unit
-			    :in $ ?current-page
-			    :where
-			    [?f :block/name ?current-page]
-			    [?b :block/page ?f]
-			    [?b :block/path-refs [:block/name "vitamins"]]
-			    [?b :block/properties ?props]
-			    [(get ?props :nutrient) ?nutrient]
-			  
-			    [(get ?props :per-100g) ?amount]
-			  [(not= ?amount 0)]
-			    [(get ?props :unit) ?unit]]
-			   :view (fn [query-results]
-			           [:div {:class "mdc-grid-list button-bunny"}
-			            [:md-list  
-			            (map (fn [{:keys [nutrient amount unit]}]
-			                   [:div
-			                    [:md-list-item
-			                    [:div {:slot "headline" :class "list-item"} (str (first nutrient))]
-			                    [:div {:slot "supporting-text" :class "list-item"} (str amount " " unit)]]]
-			                   )
-			                 query-results)]])}
-			  
-			  #+END_QUERY
-			-
-		- #### Nutritional facts (minerals)
-		  id:: 666f7726-4350-45b0-b0fd-4cdd2b75497c
-			- id:: 666f7747-d031-4ef7-8a4e-faaadde102c4
-			  #+BEGIN_QUERY
-			   {:inputs [:current-page]
-			   :query
-			   [:find ?current-page ?nutrient ?amount ?unit
-			    :keys current-page nutrient amount unit
-			    :in $ ?current-page
-			    :where
-			    [?f :block/name ?current-page]
-			    [?b :block/page ?f]
-			    [?b :block/path-refs [:block/name "minerals"]]
-			    [?b :block/properties ?props]
-			    [(get ?props :nutrient) ?nutrient]
-			  
-			    [(get ?props :per-100g) ?amount]
-			  [(not= ?amount 0)]
-			    [(get ?props :unit) ?unit]]
-			   :view (fn [query-results]
-			           [:div {:class "mdc-grid-list button-bunny"}
-			            [:md-list  
-			            (map (fn [{:keys [nutrient amount unit]}]
-			                   [:div
-			                    [:md-list-item
-			                    [:div {:slot "headline" :class "list-item"} (str (first nutrient))]
-			                    [:div {:slot "supporting-text" :class "list-item"} (str amount " " unit)]]]
-			                   )
-			                 query-results)]])}
-			  
-			  #+END_QUERY
-		- #### {{i ef91}} Upcoming project quick-view
-		        ![image.png](../assets/image_1719764401764_0.png){:height 38, :width 143}
-			- *see [[:logseq-project-manager-2024.5]]*
-			- **Current query**
-				- id:: 6654b591-49ea-4d3a-b9d9-1dc4f25bab0c
-				  #+BEGIN_QUERY
-				  {:query
-				   [:find ?current-page-id ?project-name ?manager-name ?project-properties
-				    :keys current-page-id project-name manager-name project-properties
-				    :in $ ?current-page
-				    :where
-				    ;; Step 1: Identify all project pages
-				    (page-tags ?project #{"project"})
-				  
-				      [?refs-project :block/refs ?project]
-				      ;; Ensure there is a parent block
-				  
-				      [?refs-project :block/parent ?ref-parent]
-				      ;; Check if the parent block references a manager
-				  
-				      [?ref-parent :block/refs ?managers]
-				      ;; Ensure the manager is one of the specified categories
-				  
-				      [?managers :block/name ?manager-name]
-				      [(contains? #{"next"} ?manager-name)]
-				    
-				    [?page :block/name ?current-page]
-				    [?page :block/uuid ?current-page-id]
-				    [?project :block/name ?project-name]
-				    [?project :block/properties ?project-properties]
-				  
-				  ]
-				  :result-transform (fn [results]
-				                      (let [sorted-results (sort-by (fn [r] (get r :block/name "none")) results)]
-				                        (map (fn [result]
-				                               (let [icon (get-in result [:block/properties :icon] "ef27")] ; Use fallback icon if none
-				                                 (assoc result :icon icon))) ; Associate the icon with the result
-				                             (if (empty? sorted-results)
-				                               [{:block/name "\uf4a5 none"}]
-				                               sorted-results))))
-				  
-				   :view (fn [results]
-				           [:div {:class "projects-list-container"}
-				            (map (fn [results]
-				                   (let [project-name (:project-name results)
-				                         uuid (str (:current-page-id results))
-				                         icon (:icon results)]
-				                                 ;inside let scope 
-				                      [:span {:class "project-item"}
-				                          [:a {:class "project-quick-add" 
-				                               :on-click (
-				                                          fn [] (call-api "append_block_in_page" uuid (
-				                                                                                       str "{{i " icon "}} #[[" project-name "]]")))
-				                               }
-				                           [:span {:class "project-leading-icon"} "\uf63f "] [:span {:class "project-name"} project-name]
-				                           ] [:a {
-				                                  :class "project-trailing-icon" 
-				                                  :on-click (fn [] (call-api "push_state" "page" {:name project-name}))
-				                                  } "\uea99 "
-				                              ]
-				                          ]
-				                     ))
-				                 results)
-				                                     ])
-				  :inputs [:current-page]
-				  }
-				  #+END_QUERY
-			- [:small "(older versions)"]
-				- version 1.2
-				  *introduces project icons & open page icon*
-					- #+BEGIN_QUERY
-					  {:query
-					   [:find ?current-page-id ?project-name ?manager-name ?project-properties
-					    :keys current-page-id project-name manager-name project-properties
-					    :in $ ?current-page
-					    :where
-					    ;; Step 1: Identify all project pages
-					    (page-tags ?project #{"project"})
-					  
-					      [?refs-project :block/refs ?project]
-					      ;; Ensure there is a parent block
-					  
-					      [?refs-project :block/parent ?ref-parent]
-					      ;; Check if the parent block references a manager
-					  
-					      [?ref-parent :block/refs ?managers]
-					      ;; Ensure the manager is one of the specified categories
-					  
-					      [?managers :block/name ?manager-name]
-					      [(contains? #{"next"} ?manager-name)]
-					    
-					    [?page :block/name ?current-page]
-					    [?page :block/uuid ?current-page-id]
-					    [?project :block/name ?project-name]
-					    [?project :block/properties ?project-properties]
-					  
-					  ]
-					  :result-transform (fn [results]
-					                      (let [sorted-results (sort-by (fn [r] (get r :block/name "none")) results)]
-					                        (map (fn [result]
-					                               (let [icon (get-in result [:block/properties :icon] "ef27")] ; Use fallback icon if none
-					                                 (assoc result :icon icon))) ; Associate the icon with the result
-					                             (if (empty? sorted-results)
-					                               [{:block/name "\uf4a5 none"}]
-					                               sorted-results))))
-					  
-					   :view (fn [results]
-					           [:div
-					            (map (fn [results]
-					                   (let [project-name (:project-name results)
-					                         uuid (str (:current-page-id results))
-					                         icon (:icon results)]
-					                                 ;inside let scope 
-					                     [:p [:span
-					                          [:a
-					                           {:class "tag"
-					                            :on-click (fn [] (call-api "append_block_in_page"
-					                                                       uuid
-					                                                       (str "{{i " icon "}} #[[" project-name "]]")))
-					                            }
-					                           [:span {:class "ti"} "\uf63f "] 
-					                           project-name] [:a {:class "ti"
-					                          :on-click (fn [] (call-api "push_state" "page" {:name project-name}))} 
-					                      "  \uea99 "
-					                      ] 
-					                          ]]
-					                     ))
-					                 results)
-					                                     ])
-					  :inputs [:current-page]
-					  }
-					  #+END_QUERY
-					-
-				- version 1.1
-				  ![image.png](../assets/image_1717608526060_0.png)
-					- ```
-					  #+BEGIN_QUERY
-					  {:query
-					   [:find ?current-page-id ?project-name
-					    :keys current-page-id project-name
-					    :in $ ?current-page
-					    :where
-					    ;; Step 1: Identify all project pages
-					    (page-tags ?project #{"project"})
-					  
-					      [?refs-project :block/refs ?project]
-					      ;; Ensure there is a parent block
-					  
-					      [?refs-project :block/parent ?ref-parent]
-					      ;; Check if the parent block references a manager
-					  
-					      [?ref-parent :block/refs ?managers]
-					      ;; Ensure the manager is one of the specified categories
-					  
-					      [?managers :block/name ?name]
-					      [(contains? #{"next"} ?name)]
-					    
-					    [?page :block/name ?current-page]
-					    [?page :block/uuid ?current-page-id]
-					    [?project :block/name ?project-name]
-					  ]
-					  
-					   :view (fn [results]
-					           [:div
-					            (map (fn [results]
-					                   (let [project-name (:project-name results)
-					                         uuid (str (:current-page-id results))]
-					                                 ;inside let scope 
-					                     [:p [:span
-					                          [:a
-					                           {:class "tag tag-like"
-					                            :on-click (fn [] (call-api "append_block_in_page"
-					                                                       uuid
-					                                                       (str "[[" project-name "]]")))
-					                            }
-					                           [:span {:class "ti"} "\uf63f "] 
-					                           project-name]
-					                          ]]
-					                     ))
-					                 results)
-					                    
-					  
-					                    ])
-					  :inputs [:current-page]
-					  }
-					  #+END_QUERY
-					  ```
-		- #### {{i ef91}} project management journal widget
+		- {{i ef91}} **projects** journal widget
 		  id:: 6666f9ad-7589-4721-a459-d7d18591c09e
 		      ![image.png](../assets/image_1719764465551_0.png){:height 30, :width 183}
-			- ###  {{i f635}} information
+			- {{i f635}} information
 				- for related {{i ef91}} project see [[:logseq-project-manager-2024.5]]
 			- ### {{i eb89}} current query
 			  *for use in embedding*
@@ -724,7 +474,7 @@ repository:: DeadBranches/logseq-queries-and-scripts
 				   :inputs [:current-page]
 				  }
 				  #+END_QUERY
-			- ### {{i ea0b}} *version archive*
+			- {{i ea0b}} *version archive*
 			  id:: 6653554c-6a4b-4673-9f08-a7e58a13c5fe
 			  *older stuff*
 				- version 2.4 improves styling (*current*)
@@ -935,17 +685,204 @@ repository:: DeadBranches/logseq-queries-and-scripts
 					  }
 					  #+END_QUERY
 					  ```
-		- ####  {{i ee21}} next appointment journal widget
+		- {{i ef91}} **project waitlist** quick-view
+		        ![image.png](../assets/image_1719764401764_0.png){:height 38, :width 143}
+			- *see [[:logseq-project-manager-2024.5]]*
+			- **Current query**
+				- id:: 6654b591-49ea-4d3a-b9d9-1dc4f25bab0c
+				  #+BEGIN_QUERY
+				  {:query
+				   [:find ?current-page-id ?project-name ?manager-name ?project-properties
+				    :keys current-page-id project-name manager-name project-properties
+				    :in $ ?current-page
+				    :where
+				    ;; Step 1: Identify all project pages
+				    (page-tags ?project #{"project"})
+				  
+				      [?refs-project :block/refs ?project]
+				      ;; Ensure there is a parent block
+				  
+				      [?refs-project :block/parent ?ref-parent]
+				      ;; Check if the parent block references a manager
+				  
+				      [?ref-parent :block/refs ?managers]
+				      ;; Ensure the manager is one of the specified categories
+				  
+				      [?managers :block/name ?manager-name]
+				      [(contains? #{"next"} ?manager-name)]
+				    
+				    [?page :block/name ?current-page]
+				    [?page :block/uuid ?current-page-id]
+				    [?project :block/name ?project-name]
+				    [?project :block/properties ?project-properties]
+				  
+				  ]
+				  :result-transform (fn [results]
+				                      (let [sorted-results (sort-by (fn [r] (get r :block/name "none")) results)]
+				                        (map (fn [result]
+				                               (let [icon (get-in result [:block/properties :icon] "ef27")] ; Use fallback icon if none
+				                                 (assoc result :icon icon))) ; Associate the icon with the result
+				                             (if (empty? sorted-results)
+				                               [{:block/name "\uf4a5 none"}]
+				                               sorted-results))))
+				  
+				   :view (fn [results]
+				           [:div {:class "projects-list-container"}
+				            (map (fn [results]
+				                   (let [project-name (:project-name results)
+				                         uuid (str (:current-page-id results))
+				                         icon (:icon results)]
+				                                 ;inside let scope 
+				                      [:span {:class "project-item"}
+				                          [:a {:class "project-quick-add" 
+				                               :on-click (
+				                                          fn [] (call-api "append_block_in_page" uuid (
+				                                                                                       str "{{i " icon "}} #[[" project-name "]]")))
+				                               }
+				                           [:span {:class "project-leading-icon"} "\uf63f "] [:span {:class "project-name"} project-name]
+				                           ] [:a {
+				                                  :class "project-trailing-icon" 
+				                                  :on-click (fn [] (call-api "push_state" "page" {:name project-name}))
+				                                  } "\uea99 "
+				                              ]
+				                          ]
+				                     ))
+				                 results)
+				                                     ])
+				  :inputs [:current-page]
+				  }
+				  #+END_QUERY
+			- [:small "(older versions)"]
+				- version 1.2
+				  *introduces project icons & open page icon*
+					- #+BEGIN_QUERY
+					  {:query
+					   [:find ?current-page-id ?project-name ?manager-name ?project-properties
+					    :keys current-page-id project-name manager-name project-properties
+					    :in $ ?current-page
+					    :where
+					    ;; Step 1: Identify all project pages
+					    (page-tags ?project #{"project"})
+					  
+					      [?refs-project :block/refs ?project]
+					      ;; Ensure there is a parent block
+					  
+					      [?refs-project :block/parent ?ref-parent]
+					      ;; Check if the parent block references a manager
+					  
+					      [?ref-parent :block/refs ?managers]
+					      ;; Ensure the manager is one of the specified categories
+					  
+					      [?managers :block/name ?manager-name]
+					      [(contains? #{"next"} ?manager-name)]
+					    
+					    [?page :block/name ?current-page]
+					    [?page :block/uuid ?current-page-id]
+					    [?project :block/name ?project-name]
+					    [?project :block/properties ?project-properties]
+					  
+					  ]
+					  :result-transform (fn [results]
+					                      (let [sorted-results (sort-by (fn [r] (get r :block/name "none")) results)]
+					                        (map (fn [result]
+					                               (let [icon (get-in result [:block/properties :icon] "ef27")] ; Use fallback icon if none
+					                                 (assoc result :icon icon))) ; Associate the icon with the result
+					                             (if (empty? sorted-results)
+					                               [{:block/name "\uf4a5 none"}]
+					                               sorted-results))))
+					  
+					   :view (fn [results]
+					           [:div
+					            (map (fn [results]
+					                   (let [project-name (:project-name results)
+					                         uuid (str (:current-page-id results))
+					                         icon (:icon results)]
+					                                 ;inside let scope 
+					                     [:p [:span
+					                          [:a
+					                           {:class "tag"
+					                            :on-click (fn [] (call-api "append_block_in_page"
+					                                                       uuid
+					                                                       (str "{{i " icon "}} #[[" project-name "]]")))
+					                            }
+					                           [:span {:class "ti"} "\uf63f "] 
+					                           project-name] [:a {:class "ti"
+					                          :on-click (fn [] (call-api "push_state" "page" {:name project-name}))} 
+					                      "  \uea99 "
+					                      ] 
+					                          ]]
+					                     ))
+					                 results)
+					                                     ])
+					  :inputs [:current-page]
+					  }
+					  #+END_QUERY
+					-
+				- version 1.1
+				  ![image.png](../assets/image_1717608526060_0.png)
+					- ```
+					  #+BEGIN_QUERY
+					  {:query
+					   [:find ?current-page-id ?project-name
+					    :keys current-page-id project-name
+					    :in $ ?current-page
+					    :where
+					    ;; Step 1: Identify all project pages
+					    (page-tags ?project #{"project"})
+					  
+					      [?refs-project :block/refs ?project]
+					      ;; Ensure there is a parent block
+					  
+					      [?refs-project :block/parent ?ref-parent]
+					      ;; Check if the parent block references a manager
+					  
+					      [?ref-parent :block/refs ?managers]
+					      ;; Ensure the manager is one of the specified categories
+					  
+					      [?managers :block/name ?name]
+					      [(contains? #{"next"} ?name)]
+					    
+					    [?page :block/name ?current-page]
+					    [?page :block/uuid ?current-page-id]
+					    [?project :block/name ?project-name]
+					  ]
+					  
+					   :view (fn [results]
+					           [:div
+					            (map (fn [results]
+					                   (let [project-name (:project-name results)
+					                         uuid (str (:current-page-id results))]
+					                                 ;inside let scope 
+					                     [:p [:span
+					                          [:a
+					                           {:class "tag tag-like"
+					                            :on-click (fn [] (call-api "append_block_in_page"
+					                                                       uuid
+					                                                       (str "[[" project-name "]]")))
+					                            }
+					                           [:span {:class "ti"} "\uf63f "] 
+					                           project-name]
+					                          ]]
+					                     ))
+					                 results)
+					                    
+					  
+					                    ])
+					  :inputs [:current-page]
+					  }
+					  #+END_QUERY
+					  ```
+		- {{i ee21}} **next appointment** journal widget
 		  id:: 664ceeec-b343-4d67-94d5-4db82220f06f
-		      ![image.png](../assets/image_1719765578558_0.png){:height 28, :width 229}
-			- ###  {{i f635}} information
+		    ![image.png](../assets/image_1724503316662_0.png){:height 30, :width 245}
+			- {{i f635}} information
 				- for related {{i ef91}} project see [[:logseq-events-and-appointments]]
 			- ### {{i eb89}} current query
 				- id:: 664e4055-3b72-4ba1-ac8b-48e34544629c
 				  #+BEGIN_QUERY
 				  {:query
-				   [:find (min ?datestamp) ?date ?datestamp ?today-datestamp ?content ?props ?current-page-name ?activity-uuid ?current-page-uuid (distinct ?icon)
-				    :keys first-activity-datestamp date datestamp today-datestamp content properties current-page-name activity-card-uuid current-page-uuid icon
+				   [:find (min ?activity-datestamp) ?date ?activity-datestamp ?today-datestamp ?content ?props ?current-page-name ?activity-uuid ?current-page-uuid (distinct ?icon)
+				    :keys first-activity-datestamp date activity-datestamp today-datestamp content properties current-page-name activity-card-uuid current-page-uuid icon
 				    :in $ ?today-datestamp ?current-page-name
 				  
 				    :where
@@ -954,9 +891,14 @@ repository:: DeadBranches/logseq-queries-and-scripts
 				    [(get ?props :event) ?event]
 				    [(get ?props :date) ?date]
 				  
-				    [?b :block/refs ?refs]
-				    [?refs :block/journal-day ?datestamp]
-				    [(>= ?datestamp ?today-datestamp)]
+				    [(get ?props :scheduling "") ?scheduling]
+				    (not [(contains? ?scheduling "CANCELED")])
+				  
+				    ;; :date
+				    [?d :block/original-name ?bn]
+				    [(contains? ?date ?bn)]
+				    [?d :block/journal-day ?activity-datestamp]
+				    [(>= ?activity-datestamp ?today-datestamp)]
 				  
 				    [?b :block/content ?content]
 				    [?b :block/uuid ?activity-uuid]
@@ -966,78 +908,368 @@ repository:: DeadBranches/logseq-queries-and-scripts
 				  
 				    [?a :block/name ?activity-page]
 				    [(contains? ?activity ?activity-page)]
-				  
 				    (or-join [?a ?icon]
 				             (and
 				              [?a :block/properties ?activity-props]
 				              [(get ?activity-props :-icon "0000") ?icon])
 				             (and
 				              [(missing? $ ?a :block/properties)]
-				              [(identity "0000") ?icon])
-				             )
+				              [(identity "0000") ?icon]))]
 				  
-				    ]
+				  :view
+				  (fn [results]
+				    (letfn [(format-event-string [event-name person-names]
+				              (if (seq person-names)
+				                (str event-name " with " (clojure.string/join ", " person-names))
+				                (str event-name)))]
+				      (let [current-page-uuid (str (get-in (first results) [:current-page-uuid]))
+				            first-activity-datestamp (get-in (first results) [:first-activity-datestamp])
+				            dates-set (get-in (first results) [:date])
+				            date-str (if (set? dates-set)
+				                       (first dates-set)
+				                       dates-set)
+				            today (get-in (first results) [:today-datestamp])
+				            difference (- first-activity-datestamp today)
 				  
-				  :view 
-				   (fn [results]
-				     (letfn [(format-event-string [event-name person-names]
-				               (if (seq person-names)
-				                 (str event-name " with " (clojure.string/join ", " person-names))
-				                 (str event-name)))]
-				       (let [current-page-uuid (str (get-in (first results) [:current-page-uuid]))
-				             first-activity-datestamp (get-in (first results) [:first-activity-datestamp])
-				             dates-set (get-in (first results) [:date])
-				             date-str (if (set? dates-set)
-				                        (first dates-set)
-				                        dates-set)
-				             today (get-in (first results) [:today-datestamp])
-				             difference (- first-activity-datestamp today)
+				            next-events
+				            (vec
+				             (keep (fn [result]
+				                     (when (= (get-in result [:activity-datestamp]) first-activity-datestamp)
+				                       result))
+				                   results))
 				  
-				             next-events
-				             (vec
-				              (keep (fn [result]
-				                      (when (= (get-in result [:datestamp]) first-activity-datestamp)
-				                        result))
-				                    results))
-				  
-				             formatted-events
-				             (map
-				              (fn [result]
-				                (let [event-name (get-in result [:properties :event])
-				                      person-names (get-in result [:properties :with])
-				                      event-uuid (str (get-in result [:activity-card-uuid]))
-				                      current-page-uuid (str (get-in (first results) [:current-page-uuid]))
-				                      event-icon (first (get-in result [:icon]))]
-				                  {:name (format-event-string event-name person-names)
-				                   :uuid event-uuid
-				                   :current-page-uuid current-page-uuid
-				                   :icon event-icon}))
-				              next-events)]
+				            formatted-events
+				            (map
+				             (fn [result]
+				               (let [event-name (get-in result [:properties :event])
+				                     person-names (get-in result [:properties :with])
+				                     event-uuid (str (get-in result [:activity-card-uuid]))
+				                     current-page-uuid (str (get-in (first results) [:current-page-uuid]))
+				                     event-icon (first (get-in result [:icon]))]
+				                 {:name (format-event-string event-name person-names)
+				                  :uuid event-uuid
+				                  :current-page-uuid current-page-uuid
+				                  :icon event-icon}))
+				             next-events)]
 				  
 				  
-				         
 				  
-				       (cond (empty? next-events) "no events"
-				             :else (for [event formatted-events]
-				                     [:div {:class "quick-view-container left-spacing"}
-				                      [:span {:class "ti"} (read-string (str "\"\\u" (:icon event) "\""))]
+				  
+				        (cond (empty? next-events) "no events"
+				              :else (for [event formatted-events]
+				                      [:div {:class "quick-view-container left-spacing"}
+				                       [:span {:class "ti"} (read-string (str "\"\\u" (:icon event) "\""))]
 				                      ;; [:span {:class "ti"} (read-string (str "\"\\u" icon "\""))]
-				                      [:span {:class "content-slot"}
-				                       [:a {:on-click (fn []
-				                                        (call-api "append_block_in_page" (:current-page-uuid event)
-				                                                  (str "{{i eb6d}} note for {{i f621}} [" (:name event)
-				                                                       "](((" (:uuid event) ")))")))}
-				                        (:name event)]]])))))
+				                       [:span {:class "content-slot"}
+				                        [:a {:on-click (fn []
+				                                         (call-api "append_block_in_page" (:current-page-uuid event)
+				                                                   (str "{{i eb6d}} note for {{i f621}} [" (:name event)
+				                                                        "](((" (:uuid event) ")))")))}
+				                         (:name event)]]])))))
 				  
-				   :result-transform (fn [result]
-				                       (map (fn [r] (update r :icons (fn [icons] (if icons (set icons) #{})))))
-				                       (sort-by (fn [r] (get-in r [:datestamp])) (fn [a b] (compare a b)) result))
-				   :inputs [:today :current-page]}
+				  :result-transform (fn [result]
+				                      (map (fn [r] (update r :icons (fn [icons] (if icons (set icons) #{})))))
+				                      (sort-by (fn [r] (get-in r [:activity-datestamp])) (fn [a b] (compare a b)) result))
+				  :inputs [:today :current-page]
+				  
+				  }
 				   
 				  #+END_QUERY
-			- ### {{i ea0b}} *version archive*
+			- {{i ea0b}} *version archive*
 			  *older stuff*
-				- v.2.2 formatted event with activity icons (current)
+				- v2.3.1 renamed ?datestamp to ?activity-datestamp for clarity (current)
+					- ```cljs
+					  #+BEGIN_QUERY
+					  {:query
+					   [:find (min ?activity-datestamp) ?date ?activity-datestamp ?today-datestamp ?content ?props ?current-page-name ?activity-uuid ?current-page-uuid (distinct ?icon)
+					    :keys first-activity-datestamp date activity-datestamp today-datestamp content properties current-page-name activity-card-uuid current-page-uuid icon
+					    :in $ ?today-datestamp ?current-page-name
+					  
+					    :where
+					    [?b :block/properties ?props]
+					    [(get ?props :activity) ?activity]
+					    [(get ?props :event) ?event]
+					    [(get ?props :date) ?date]
+					  
+					    [(get ?props :scheduling "") ?scheduling]
+					    (not [(contains? ?scheduling "CANCELED")])
+					  
+					    ;; :date
+					    [?d :block/original-name ?bn]
+					    [(contains? ?date ?bn)]
+					    [?d :block/journal-day ?activity-datestamp]
+					    [(>= ?activity-datestamp ?today-datestamp)]
+					  
+					    [?b :block/content ?content]
+					    [?b :block/uuid ?activity-uuid]
+					  
+					    [?p :block/name ?current-page-name]
+					    [?p :block/uuid ?current-page-uuid]
+					  
+					    [?a :block/name ?activity-page]
+					    [(contains? ?activity ?activity-page)]
+					    (or-join [?a ?icon]
+					             (and
+					              [?a :block/properties ?activity-props]
+					              [(get ?activity-props :-icon "0000") ?icon])
+					             (and
+					              [(missing? $ ?a :block/properties)]
+					              [(identity "0000") ?icon]))]
+					  
+					  :view
+					  (fn [results]
+					    (letfn [(format-event-string [event-name person-names]
+					              (if (seq person-names)
+					                (str event-name " with " (clojure.string/join ", " person-names))
+					                (str event-name)))]
+					      (let [current-page-uuid (str (get-in (first results) [:current-page-uuid]))
+					            first-activity-datestamp (get-in (first results) [:first-activity-datestamp])
+					            dates-set (get-in (first results) [:date])
+					            date-str (if (set? dates-set)
+					                       (first dates-set)
+					                       dates-set)
+					            today (get-in (first results) [:today-datestamp])
+					            difference (- first-activity-datestamp today)
+					  
+					            next-events
+					            (vec
+					             (keep (fn [result]
+					                     (when (= (get-in result [:activity-datestamp]) first-activity-datestamp)
+					                       result))
+					                   results))
+					  
+					            formatted-events
+					            (map
+					             (fn [result]
+					               (let [event-name (get-in result [:properties :event])
+					                     person-names (get-in result [:properties :with])
+					                     event-uuid (str (get-in result [:activity-card-uuid]))
+					                     current-page-uuid (str (get-in (first results) [:current-page-uuid]))
+					                     event-icon (first (get-in result [:icon]))]
+					                 {:name (format-event-string event-name person-names)
+					                  :uuid event-uuid
+					                  :current-page-uuid current-page-uuid
+					                  :icon event-icon}))
+					             next-events)]
+					  
+					  
+					  
+					  
+					        (cond (empty? next-events) "no events"
+					              :else (for [event formatted-events]
+					                      [:div {:class "quick-view-container left-spacing"}
+					                       [:span {:class "ti"} (read-string (str "\"\\u" (:icon event) "\""))]
+					                      ;; [:span {:class "ti"} (read-string (str "\"\\u" icon "\""))]
+					                       [:span {:class "content-slot"}
+					                        [:a {:on-click (fn []
+					                                         (call-api "append_block_in_page" (:current-page-uuid event)
+					                                                   (str "{{i eb6d}} note for {{i f621}} [" (:name event)
+					                                                        "](((" (:uuid event) ")))")))}
+					                         (:name event)]]])))))
+					  
+					  :result-transform (fn [result]
+					                      (map (fn [r] (update r :icons (fn [icons] (if icons (set icons) #{})))))
+					                      (sort-by (fn [r] (get-in r [:activity-datestamp])) (fn [a b] (compare a b)) result))
+					  :inputs [:today :current-page]
+					  
+					  }
+					   
+					  #+END_QUERY
+					  ```
+				- v2.3 excluding `scheduling:: [[CANCELED]]` cards.
+					- ```cljs
+					  #+BEGIN_QUERY
+					  {:query
+					   [:find (min ?datestamp) ?date ?datestamp ?today-datestamp ?content ?props ?current-page-name ?activity-uuid ?current-page-uuid (distinct ?icon)
+					    :keys first-activity-datestamp date datestamp today-datestamp content properties current-page-name activity-card-uuid current-page-uuid icon
+					    :in $ ?today-datestamp ?current-page-name
+					  
+					    :where
+					    [?b :block/properties ?props]
+					    [(get ?props :activity) ?activity]
+					    [(get ?props :event) ?event]
+					    [(get ?props :date) ?date]
+					    [(get ?props :scheduling "") ?scheduling]
+					    (not [(contains? ?scheduling "CANCELED")])
+					  
+					    [?b :block/refs ?refs]
+					    [?refs :block/journal-day ?datestamp]
+					    [(>= ?datestamp ?today-datestamp)]
+					  
+					    [?b :block/content ?content]
+					    [?b :block/uuid ?activity-uuid]
+					  
+					    [?p :block/name ?current-page-name]
+					    [?p :block/uuid ?current-page-uuid]
+					  
+					    [?a :block/name ?activity-page]
+					    [(contains? ?activity ?activity-page)]
+					  
+					    (or-join [?a ?icon]
+					             (and
+					              [?a :block/properties ?activity-props]
+					              [(get ?activity-props :-icon "0000") ?icon])
+					             (and
+					              [(missing? $ ?a :block/properties)]
+					              [(identity "0000") ?icon]))]
+					  
+					  :view
+					  (fn [results]
+					    (letfn [(format-event-string [event-name person-names]
+					              (if (seq person-names)
+					                (str event-name " with " (clojure.string/join ", " person-names))
+					                (str event-name)))]
+					      (let [current-page-uuid (str (get-in (first results) [:current-page-uuid]))
+					            first-activity-datestamp (get-in (first results) [:first-activity-datestamp])
+					            dates-set (get-in (first results) [:date])
+					            date-str (if (set? dates-set)
+					                       (first dates-set)
+					                       dates-set)
+					            today (get-in (first results) [:today-datestamp])
+					            difference (- first-activity-datestamp today)
+					  
+					            next-events
+					            (vec
+					             (keep (fn [result]
+					                     (when (= (get-in result [:datestamp]) first-activity-datestamp)
+					                       result))
+					                   results))
+					  
+					            formatted-events
+					            (map
+					             (fn [result]
+					               (let [event-name (get-in result [:properties :event])
+					                     person-names (get-in result [:properties :with])
+					                     event-uuid (str (get-in result [:activity-card-uuid]))
+					                     current-page-uuid (str (get-in (first results) [:current-page-uuid]))
+					                     event-icon (first (get-in result [:icon]))]
+					                 {:name (format-event-string event-name person-names)
+					                  :uuid event-uuid
+					                  :current-page-uuid current-page-uuid
+					                  :icon event-icon}))
+					             next-events)]
+					  
+					  
+					  
+					  
+					        (cond (empty? next-events) "no events"
+					              :else (for [event formatted-events]
+					                      [:div {:class "quick-view-container left-spacing"}
+					                       [:span {:class "ti"} (read-string (str "\"\\u" (:icon event) "\""))]
+					                      ;; [:span {:class "ti"} (read-string (str "\"\\u" icon "\""))]
+					                       [:span {:class "content-slot"}
+					                        [:a {:on-click (fn []
+					                                         (call-api "append_block_in_page" (:current-page-uuid event)
+					                                                   (str "{{i eb6d}} note for {{i f621}} [" (:name event)
+					                                                        "](((" (:uuid event) ")))")))}
+					                         (:name event)]]])))))
+					  
+					  :result-transform (fn [result]
+					                      (map (fn [r] (update r :icons (fn [icons] (if icons (set icons) #{})))))
+					                      (sort-by (fn [r] (get-in r [:datestamp])) (fn [a b] (compare a b)) result))
+					  :inputs [:today :current-page]
+					  
+					  }
+					   
+					  #+END_QUERY
+					  ```
+				- v.2.2 formatted event with activity icons
+				  ![image.png](../assets/image_1724503316662_0.png){:height 30, :width 245}
+					- ```cljs
+					  #+BEGIN_QUERY
+					  {:query
+					   [:find (min ?datestamp) ?date ?datestamp ?today-datestamp ?content ?props ?current-page-name ?activity-uuid ?current-page-uuid (distinct ?icon)
+					    :keys first-activity-datestamp date datestamp today-datestamp content properties current-page-name activity-card-uuid current-page-uuid icon
+					    :in $ ?today-datestamp ?current-page-name
+					  
+					    :where
+					    [?b :block/properties ?props]
+					    [(get ?props :activity) ?activity]
+					    [(get ?props :event) ?event]
+					    [(get ?props :date) ?date]
+					  
+					    [?b :block/refs ?refs]
+					    [?refs :block/journal-day ?datestamp]
+					    [(>= ?datestamp ?today-datestamp)]
+					  
+					    [?b :block/content ?content]
+					    [?b :block/uuid ?activity-uuid]
+					  
+					    [?p :block/name ?current-page-name]
+					    [?p :block/uuid ?current-page-uuid]
+					  
+					    [?a :block/name ?activity-page]
+					    [(contains? ?activity ?activity-page)]
+					  
+					    (or-join [?a ?icon]
+					             (and
+					              [?a :block/properties ?activity-props]
+					              [(get ?activity-props :-icon "0000") ?icon])
+					             (and
+					              [(missing? $ ?a :block/properties)]
+					              [(identity "0000") ?icon])
+					             )
+					  
+					    ]
+					  
+					  :view 
+					   (fn [results]
+					     (letfn [(format-event-string [event-name person-names]
+					               (if (seq person-names)
+					                 (str event-name " with " (clojure.string/join ", " person-names))
+					                 (str event-name)))]
+					       (let [current-page-uuid (str (get-in (first results) [:current-page-uuid]))
+					             first-activity-datestamp (get-in (first results) [:first-activity-datestamp])
+					             dates-set (get-in (first results) [:date])
+					             date-str (if (set? dates-set)
+					                        (first dates-set)
+					                        dates-set)
+					             today (get-in (first results) [:today-datestamp])
+					             difference (- first-activity-datestamp today)
+					  
+					             next-events
+					             (vec
+					              (keep (fn [result]
+					                      (when (= (get-in result [:datestamp]) first-activity-datestamp)
+					                        result))
+					                    results))
+					  
+					             formatted-events
+					             (map
+					              (fn [result]
+					                (let [event-name (get-in result [:properties :event])
+					                      person-names (get-in result [:properties :with])
+					                      event-uuid (str (get-in result [:activity-card-uuid]))
+					                      current-page-uuid (str (get-in (first results) [:current-page-uuid]))
+					                      event-icon (first (get-in result [:icon]))]
+					                  {:name (format-event-string event-name person-names)
+					                   :uuid event-uuid
+					                   :current-page-uuid current-page-uuid
+					                   :icon event-icon}))
+					              next-events)]
+					  
+					  
+					         
+					  
+					       (cond (empty? next-events) "no events"
+					             :else (for [event formatted-events]
+					                     [:div {:class "quick-view-container left-spacing"}
+					                      [:span {:class "ti"} (read-string (str "\"\\u" (:icon event) "\""))]
+					                      ;; [:span {:class "ti"} (read-string (str "\"\\u" icon "\""))]
+					                      [:span {:class "content-slot"}
+					                       [:a {:on-click (fn []
+					                                        (call-api "append_block_in_page" (:current-page-uuid event)
+					                                                  (str "{{i eb6d}} note for {{i f621}} [" (:name event)
+					                                                       "](((" (:uuid event) ")))")))}
+					                        (:name event)]]])))))
+					  
+					   :result-transform (fn [result]
+					                       (map (fn [r] (update r :icons (fn [icons] (if icons (set icons) #{})))))
+					                       (sort-by (fn [r] (get-in r [:datestamp])) (fn [a b] (compare a b)) result))
+					   :inputs [:today :current-page]}
+					   
+					  #+END_QUERY
+					  ```
 				- v2.1 slightly more formatted event.
 				  ![image.png](../assets/image_1724361343098_0.png){:height 38, :width 240}
 					- ```
@@ -1401,8 +1633,11 @@ repository:: DeadBranches/logseq-queries-and-scripts
 					  }
 					  #+END_QUERY
 					  ```
-		- #### {{i ee20}} future appointments list
+		- {{i ee20}} **future appointments** list
 		  id:: 66415c9e-ff58-4281-8007-160cb44fb8b3
+			- ### {{i f6ef}}  depreciation warning
+			      this block is no longer in use
+				- {{i ea0b}} *depreciated on* *[[Saturday, Aug 24th, 2024]]*
 			- [:small "upcoming appointments"]
 			  id:: 66415ca6-d397-4fc1-97f1-95f7b516e6d1
 			  #+BEGIN_QUERY
@@ -1462,7 +1697,7 @@ repository:: DeadBranches/logseq-queries-and-scripts
 			   :children? false
 			   :group-by-page? false}
 			  #+END_QUERY
-		- ####  {{i ec44}} current medication list
+		- {{i ec44}} **current medication** list
 		  id:: 667a53af-9c93-4a1d-a01b-7e8b8fd22b53
 		      ![image.png](../assets/image_1719766132026_0.png){:height 107, :width 337}
 			- id:: 664cb068-64bb-4dc5-aa7e-b0678b63a6fe
@@ -1571,10 +1806,10 @@ repository:: DeadBranches/logseq-queries-and-scripts
 				                   ]])}
 				  #+END_QUERY
 				  ```
-		- #### {{i f21c}} grocery list quick-ref (journal widget)
+		- {{i f21c}} *grocery list* quick-ref (journal widget)
 		  id:: 6666f9ad-2b57-4f34-b088-41e5b3e5bd53
 		      ![image.png](../assets/image_1719765985169_0.png){:height 30, :width 214}
-		- #### {{i eaff}} online orders (journal widget)
+		- {{i eaff}} online orders (journal widget)
 		      ![image.png](../assets/image_1719766180275_0.png){:height 31, :width 135}
 			- id:: 663f79d8-20d7-4027-9ff5-500ae36ff757
 			  #+BEGIN_QUERY
@@ -1658,7 +1893,7 @@ repository:: DeadBranches/logseq-queries-and-scripts
 			  )
 			  }
 			  #+END_QUERY
-		- #### {{i eafd}} logseq graph news
+		- {{i eafd}} logseq graph news
 			- jump to: info  embed, history
 			- id:: 66415d9e-5591-4219-bc68-eb54393bccff
 			  #+BEGIN_QUERY
@@ -1723,6 +1958,69 @@ repository:: DeadBranches/logseq-queries-and-scripts
 			  #+END_QUERY
 			  #[[advanced query]]
 			  ```
+		- Nutritional facts (vitamins)
+		  id:: 666f7716-c32e-40e0-8b10-8f93fc591165
+			- id:: 666f7733-1891-45d3-8bbb-8f32dd4631e1
+			  #+BEGIN_QUERY
+			   {:inputs [:current-page]
+			   :query
+			   [:find ?current-page ?nutrient ?amount ?unit
+			    :keys current-page nutrient amount unit
+			    :in $ ?current-page
+			    :where
+			    [?f :block/name ?current-page]
+			    [?b :block/page ?f]
+			    [?b :block/path-refs [:block/name "vitamins"]]
+			    [?b :block/properties ?props]
+			    [(get ?props :nutrient) ?nutrient]
+			  
+			    [(get ?props :per-100g) ?amount]
+			  [(not= ?amount 0)]
+			    [(get ?props :unit) ?unit]]
+			   :view (fn [query-results]
+			           [:div {:class "mdc-grid-list button-bunny"}
+			            [:md-list  
+			            (map (fn [{:keys [nutrient amount unit]}]
+			                   [:div
+			                    [:md-list-item
+			                    [:div {:slot "headline" :class "list-item"} (str (first nutrient))]
+			                    [:div {:slot "supporting-text" :class "list-item"} (str amount " " unit)]]]
+			                   )
+			                 query-results)]])}
+			  
+			  #+END_QUERY
+			-
+		- Nutritional facts (minerals)
+		  id:: 666f7726-4350-45b0-b0fd-4cdd2b75497c
+			- id:: 666f7747-d031-4ef7-8a4e-faaadde102c4
+			  #+BEGIN_QUERY
+			   {:inputs [:current-page]
+			   :query
+			   [:find ?current-page ?nutrient ?amount ?unit
+			    :keys current-page nutrient amount unit
+			    :in $ ?current-page
+			    :where
+			    [?f :block/name ?current-page]
+			    [?b :block/page ?f]
+			    [?b :block/path-refs [:block/name "minerals"]]
+			    [?b :block/properties ?props]
+			    [(get ?props :nutrient) ?nutrient]
+			  
+			    [(get ?props :per-100g) ?amount]
+			  [(not= ?amount 0)]
+			    [(get ?props :unit) ?unit]]
+			   :view (fn [query-results]
+			           [:div {:class "mdc-grid-list button-bunny"}
+			            [:md-list  
+			            (map (fn [{:keys [nutrient amount unit]}]
+			                   [:div
+			                    [:md-list-item
+			                    [:div {:slot "headline" :class "list-item"} (str (first nutrient))]
+			                    [:div {:slot "supporting-text" :class "list-item"} (str amount " " unit)]]]
+			                   )
+			                 query-results)]])}
+			  
+			  #+END_QUERY
 	- ## Reusable queries
 	  *that need to be manually added to a block*
 	  #+BEGIN_QUERY
@@ -3704,11 +4002,3 @@ repository:: DeadBranches/logseq-queries-and-scripts
 - ### {{I eade}} resources
 	- https://charleschiugit.github.io/page/logseq/queries/
 	- https://www.reddit.com/r/logseq/comments/15yib2v/advanced_query_bootstrap_please_check_and_comment/
-- {{i eb6d}} note for {{i f621}} [GP follow-up appointment with @Dr Teplitsky](((66ab9503-33ee-47da-a6b5-2c5f98e20f42)))
-- {{i eb6d}} note for {{i f621}} [GP follow-up appointment with @Dr Teplitsky](((66ab9503-33ee-47da-a6b5-2c5f98e20f42)))
-- {{i eb6d}} note for {{i f621}} [GP follow-up appointment with @Dr Teplitsky](((66ab9503-33ee-47da-a6b5-2c5f98e20f42)))
-- {{i eb6d}} note for {{i f621}} [GP follow-up appointment with @Dr Teplitsky](((66ab9503-33ee-47da-a6b5-2c5f98e20f42)))
-- {{i eb6d}} note for {{i f621}} [GP follow-up appointment with @Dr Teplitsky](((66ab9503-33ee-47da-a6b5-2c5f98e20f42)))
-- {{i eb6d}} note for {{i f621}} [Ocrevus (fall 2024) 6-wk pre-infusion bloodwork](((6682d243-e508-49f4-b29d-010c43c4ef6d)))
-- {{i eb6d}} note for {{i f621}} [Ocrevus (fall 2024) 6-wk pre-infusion bloodwork](((6682d243-e508-49f4-b29d-010c43c4ef6d)))
-- {{i eb6d}} note for {{i f621}} [GP follow-up appointment with @Dr Teplitsky](((66ab9503-33ee-47da-a6b5-2c5f98e20f42)))
