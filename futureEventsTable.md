@@ -31,6 +31,8 @@ kit:: futureEventsTable
   [?e :block/properties ?props]
   [(get ?props :event) ?event]
   [(get ?props :date) ?date]
+    [(get ?props :scheduling "") ?scheduling]
+    (not [(contains? ?scheduling "CANCELED")])
   [?e :block/refs ?refs]
   [?e :block/content ?content]
   [?e :block/uuid ?uuid]
