@@ -81,7 +81,7 @@ kit:: futureEventsTable
             (nextActivityDate - earlierDate) / (1000 * 60 * 60 * 24)
           );
           //console.log(daysUntil);
-          activity.daysUntil = daysUntil;
+          activity.daysUntil = daysUntil + 1;
         });
         return activities;
       })();
