@@ -3,7 +3,6 @@ description:: kitButton [label] <kit-name> [icon] [positive-class | {-inline | -
 
 - ```javascript
   function daysUntilNextAppointment() {
-  
       const todaysDate = new Date();
       const appointmentsArrayPromise = (async (startDate = todaysDate) => {
   
@@ -30,7 +29,10 @@ description:: kitButton [label] <kit-name> [icon] [positive-class | {-inline | -
                   :where
                   [?e :block/properties ?props]
                   [(get ?props :event) ?event]
-                  [(get ?props :date) ?date] 
+                  [(get ?props :date) ?date]
+                  [(get ?props :scheduling "") ?scheduling]
+                  (not [(contains? ?scheduling "CANCELED")])
+                  
                   [?e :block/refs ?refs]
                   [?e :block/content ?content]
                   [?refs :block/journal-day ?day]
