@@ -4,6 +4,14 @@ description:: `/template`s with boilerplate for collector blocks, page tags, dai
 - ## {{i fab5}} block templates
   for repeatable structures that could go anywhere.
 	- #### {{i ef91}} project management
+		- {{i f3f3}} idea helper
+			- **
+			- ### {{i-example}} samples
+			- ### {{i-template}} template
+			  template:: block - idea helper 
+			  template-including-parent:: false
+				- {{kitButton idea helper,collapseBlock,ea76,-button-style full-width small-caps}}
+					- {{embed ((66ccdccf-f9e2-4028-b867-a7b5406fd634))}}
 		- {{i ee21}} expecting *<something>*
 			- ### {{i-example}} samples
 				- [[~autism assessment]]

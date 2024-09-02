@@ -291,8 +291,30 @@ repository:: DeadBranches/logseq-queries-and-scripts
 		  ```
 -
 - ### Things from other users
+	- #### Pages tagged auto-hide
+	  {{il eb54,collapse the list of pages tagged with by default,https://discuss.logseq.com/t/collapse-the-list-of-pages-tagged-with-x-by-default/28698/2}}
+		- > Is there a way to hide the list of of pages which are tagged with a page property, ie the ‘Pages tagged with X’ list? I’m trying to set up course pages in Logseq for my uni notes. I have a page where all the courses are combined, let’s call it ‘All courses’. On that page, there is the list of "Pages tagged with “All courses”. Those would be the courses (pages): Test course 1, Test course 2. I want to collapse that list, because I can just use page references to create a list which I can access and manipulate more easily than that list of page properties (see screenshot
+		- custom.js
+		  
+		  ```js
+		  const taggedpages = document.getElementsByClassName("page-tags");
+		  const taggedpagesObserver = new MutationObserver(function onMutated(){
+		      Array.prototype.map.call(taggedpages, (div)=>{
+		          if (div.dataset.initialized) return
+		  
+		          const classList = div.querySelector(".content .initial").classList
+		          classList.remove("initial")
+		          classList.add("hidden")
+		  
+		          div.dataset.initialized = "true"
+		      })
+		  });
+		  taggedpagesObserver.observe(document.getElementById("app-container"), {
+		      childList: true, subtree: true
+		  });
+		  ```
 	- #### Labels macro
-	  {{il eb02,status labels macro,https://discuss.logseq.com/t/macros-and-commands-lets-share/9565/4?u=deadbranch}}
+	  {{il eb54,status labels macro,https://discuss.logseq.com/t/macros-and-commands-lets-share/9565/4?u=deadbranch}}
 		- > I am brand new to macro and commands. But I really wanted status labels and this post helped me achieve that.
 		  > ```
 		  {{pill grey,inactive}} {{pill blue,info}} {{pill green,success}} {{pill yellow,warning}} {{pill red,important}}
@@ -359,7 +381,7 @@ repository:: DeadBranches/logseq-queries-and-scripts
 		  > **Note:** The last rule for `span.inline div` is because Logseq will wrap the macros in divs that are blocks, otherwise forcing each label onto a new line.
 	- #### Logseq kits
 	  id:: 6612c2d3-809e-46f8-836c-ad132a528707
-	  {{il eb02,Edit and run javascript code inside Logseq itself,https://discuss.logseq.com/t/edit-and-run-javascript-code-inside-logseq-itself/20763}}
+	  {{il eb54,Edit and run javascript code inside Logseq itself,https://discuss.logseq.com/t/edit-and-run-javascript-code-inside-logseq-itself/20763}}
 		- #+BEGIN_QUOTE
 		   The theoretical background and discussion is [here](https://discuss.logseq.com/t/logseq-for-code-management/20743).
 		   A specific implementation and its discussion is below.
@@ -752,7 +774,7 @@ repository:: DeadBranches/logseq-queries-and-scripts
 		  #+END_QUOTE
 	- #### Logseq code buttons
 	  id:: 6612c529-4236-427f-8021-772cd7757bed
-	  {{il eb02,Code buttons - simple way to execute JavaScript inside Markdown codeblock,https://discuss.logseq.com/t/code-buttons-simple-way-to-execute-javascript-inside-markdown-codeblock/21035}}
+	  {{il eb54,Code buttons - simple way to execute JavaScript inside Markdown codeblock,https://discuss.logseq.com/t/code-buttons-simple-way-to-execute-javascript-inside-markdown-codeblock/21035}}
 		- #+BEGIN_QUOTE
 		  The topic about interactive programming  and mini apps inside Logseq seems super exciting nowadays.
 		  
@@ -925,7 +947,7 @@ repository:: DeadBranches/logseq-queries-and-scripts
 		  ```
 	- #### Self-replacing macros
 	  *implemented at* [[scheduleDateToday]] *via*  `logseq.kits.setStatic(function expandmacro(div)` 
-	  {{il eb02,Make custom macros that replace themselves with their value on first run,https://discuss.logseq.com/t/make-custom-macros-that-replace-themselves-with-their-value-on-first-run/20967}}
+	  {{il eb54,Make custom macros that replace themselves with their value on first run,https://discuss.logseq.com/t/make-custom-macros-that-replace-themselves-with-their-value-on-first-run/20967}}
 		- Create a relatively simple kit like this:
 		  
 		  Add [kits](https://discuss.logseq.com/t/edit-and-run-javascript-code-inside-logseq-itself/20763) to file `custom.js` if not already there.
@@ -959,7 +981,7 @@ repository:: DeadBranches/logseq-queries-and-scripts
 		  
 		  Consider posting here your case of using this functionality, to inspire other users.
 	- #### Childless block embeds
-	  {{il eb02,Embed blocks without their children,https://discuss.logseq.com/t/embed-blocks-without-their-children/21713}}
+	  {{il eb54,Embed blocks without their children,https://discuss.logseq.com/t/embed-blocks-without-their-children/21713}}
 		- Preparation:
 			- Add a macro inside file `config.edn` , inside `macros{}` :
 			  
@@ -997,7 +1019,7 @@ repository:: DeadBranches/logseq-queries-and-scripts
 					- This should simply **hide** the children.
 	- #### Properties that generate explicit hierarchies
 	  id:: 662ba9dc-01e8-4db6-a469-1171e82f912e
-	  {{il eb02,Generate explicit hierarchy out of properties,https://discuss.logseq.com/t/generate-explicit-hierarchy-out-of-properties/}}
+	  {{il eb54,Generate explicit hierarchy out of properties,https://discuss.logseq.com/t/generate-explicit-hierarchy-out-of-properties/}}
 		- ## Introduction
 			- **Hierarchies** in Logseq have been a hot topic (e.g. [here 47](https://discuss.logseq.com/t/would-a-rich-commitment-to-hierarchies-and-classification-be-an-anathema-to-logseq-culture/8327)).
 				- This is also the case for **namespaces**, as they have been used to model hierarchies (e.g. [here 26](https://discuss.logseq.com/t/the-most-legit-use-of-namespaces/17685)).

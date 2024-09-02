@@ -112,4 +112,55 @@ repository:: DeadBranches/logseq-queries-and-scripts
 	   :breadcrumb-show? false
 	  }
 	  #+END_QUERY
--
+- #### admin
+	- Full list of every purchased item
+		- {{i fdaa}} search string
+			- cat food
+			  id:: 66d5df7f-7228-469c-b845-a5a74067efb4
+		- Results
+			- #+BEGIN_QUERY
+			  ;; original
+			   {:inputs ["grocery" :today "66d5df7f-7228-469c-b845-a5a74067efb4" "cat food"]
+			    :query
+			    [:find (pull ?b [*])
+			     ;;:keys content journal-day today-journal-day today today-journal-uuid marker
+			  
+			     :in $ ?macro-name ?today-journal-day ?query-block-uuid ?manual-search-string %
+			  
+			     :where
+			     [?b :block/marker ?marker]
+			     ;;[(contains? #{"DONE"} ?marker)]
+			     (using-macro ?b ?macro-name)
+			  
+			     [?b :block/content ?content]
+			     ;; Return only a subset of grocery items.
+			     ;;
+			     ;; - Return only items where a substring is in :block/content
+			     ;; - Dynamically fetch the substring from a block in the graph
+			     ;;   - Identify the substring-containing block via UUID hardcoded
+			     ;;     in the query inputs.
+			     ;;
+			     ;; ?q represents the query string block.
+			    [?q :block/uuid "66d5df7f-7228-469c-b845-a5a74067efb4"]
+			     ;;[?q :block/content ?search-string]
+			     ;;[(clojure.string/includes? ?content ?search-string)]
+			  
+			     [?b :block/page ?p]
+			     [?p :block/journal-day ?journal-day]
+			  
+			     [?j :block/journal-day ?today-journal-day]
+			     [?j :block/name ?today]
+			     [?j :block/uuid ?today-journal-uuid]]
+			  
+			  
+			    :rules
+			    [[(using-macro ?b ?macro-name)
+			      [?b :block/macros ?m]
+			      [?m :block/properties ?props]
+			      [(get ?props :logseq.macro-name) ?macros]
+			      [(= ?macros ?macro-name)]]]
+			   :view :pprint
+			                 
+			  
+			    :breadcrumb-show? false}
+			  #+END_QUERY

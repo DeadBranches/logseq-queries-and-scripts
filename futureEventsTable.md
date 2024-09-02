@@ -5,7 +5,7 @@ kit:: futureEventsTable
     // Start counting from startDate date into the future. You probably want
     // to start from today
     const fromDate = new Date();
-    fromDate.setDate(fromDate.getDate() +1);
+    fromDate.setDate(fromDate.getDate() +1); // Don't show events for today
     const futureEventsPromise = (async (startDate = fromDate) => {
   
       // Logseq's :journal-day uses the format date YYYYMMDD.
@@ -157,8 +157,8 @@ kit:: futureEventsTable
             .map(
               (event, index) => {
                 // Since the first event is already displayed in the upcoming events
-                // journal widget, don't repeat it in the table.
-                if (event.day === result[0].day) return ''; 
+                // journal widget, don't repeat it in the table. (nevermind)
+                // if (event.day === result[0].day) return ''; 
                 return `
               <tr>
                   <td rowspan="2" class="days-until"
