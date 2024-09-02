@@ -57,6 +57,7 @@ repository:: DeadBranches/logseq-queries-and-scripts
    }
   
   #+END_QUERY
+- See: [[:result-transform]] for interactive REPL
 - ## {{i eff2}} Query library
   query:: ((65f7767a-9fe3-4b51-a564-c36be58ce5fa))
   *Advanced queries I reuse*
@@ -115,6 +116,126 @@ repository:: DeadBranches/logseq-queries-and-scripts
   #+END_QUERY
 	- ## Embedding queries
 	  *for `{{embedding}}`*
+		- idea workshop
+			- id:: 66ccdccf-f9e2-4028-b867-a7b5406fd634
+			  #+BEGIN_QUERY
+			  {:inputs [:current-page "idea"]
+			   :query
+			   [:find ?uuid ?content ?idea-type ?marker (pull ?r [*]) 
+			    :keys uuid content idea-type idea-state block-content
+			    :in $ ?current-page ?idea-type
+			    :where
+			    [?p :block/name ?current-page]
+			    [?r :block/refs ?p]
+			  
+			    (or-join [?r ?marker]
+			     (and 
+			      [?r :block/marker ?marker])
+			     (and 
+			      [(missing? $ ?r :block/marker)]
+			      [(identity "UNINITIALIZED") ?marker]))
+			    ;;(not [?r :block/marker ?marker])
+			  
+			    [?r :block/macros ?m]
+			    [?m :block/properties ?props]
+			    [(get ?props :logseq.macro-name) ?macros]
+			    [(= ?macros ?idea-type)]
+			  
+			    ;; info we want, now that we have a match
+			    [?r :block/uuid ?uuid]
+			    [?r :block/content ?content]]
+			  
+			  
+			  
+			   :result-transform
+			   (letfn [(first-line [block-content]
+			                       (first (clojure.string/split-lines block-content)))
+			  
+			           (strip-idea-type [line idea-type]
+			                            (clojure.string/replace line (re-pattern (str "(?:TODO\\s|DONE\\s)?{{" idea-type "}}\\s")) ""))
+			  
+			           (format-idea-state [block-marker]
+			                              (case block-marker
+			                                "UNINITIALIZED" "new"
+			                                "TODO" "open"
+			                                "DONE" "realized"))
+			           
+			           (structure-result [result]
+			                             (let [content (get-in result [:content])
+			                                   block-uuid (get-in result [:uuid])
+			                                   idea-type (get-in result [:idea-type])
+			                                   idea-state (get-in result [:idea-state])]
+			                               {:block/content content
+			                                :uuid block-uuid
+			                                :idea-type idea-type
+			                                :idea-state (format-idea-state idea-state)
+			                                :display-text (strip-idea-type (first-line content)
+			                                                               idea-type)}))] 
+			  
+			     (fn [results]
+			       (->> results
+			            (map structure-result)
+			            (group-by :idea-state)
+			            ))
+			     
+			     )
+			       
+			  
+			   
+			   :view
+			   (letfn
+			    [(make-link [text destination]
+			       [:a {:on-click
+			            (fn []
+			              (call-api "push_state"
+			                        "page"
+			                        {:name destination}))}
+			        text])
+			  
+			     (make-marker-box [uuid content macro-name]
+			       [:button {:on-click
+			                 (fn []
+			                   (call-api "update_block"
+			                             uuid
+			                             (str (clojure.string/replace
+			                                   content
+			                                   (re-pattern (str "{{" macro-name "}}\\s"))
+			                                   (str "TODO {{" macro-name "}} ")))))}
+			        ])
+			  
+			     (make-initialization-link [uuid content macro-name]
+			       [:button {:on-click
+			                 (fn []
+			                   (call-api "update_block"
+			                             uuid
+			                             (clojure.string/replace
+			                              content
+			                              (re-pattern (str "{{" macro-name "}}\\s"))
+			                              (str "TODO {{" macro-name "}} "))))}
+			        "initialize"])]
+			  
+			     (fn [results]
+			       (for [[state items] results]
+			         (let [idea-type (-> items
+			                             first :idea-type)]
+			           [:div
+			            [:table {:class "future-appointments"}
+			             [:caption state " " idea-type "s"]
+			             [:thead [:tr
+			                      [:th {:width "80"} "Status"] [:th idea-type]]]
+			             [:tbody (for [result items] [:tr
+			                                            [:td (make-initialization-link
+			                                                  (get-in result [:uuid])
+			                                                  (get-in result [:block/content])
+			                                                  idea-type)]
+			                                            [:td (make-link
+			                                                  (get-in result [:display-text]) ;;(convert-bold )
+			                                                  (get-in result [:uuid]))]])]]])) 
+			         )
+			     )}
+			   
+			   
+			  #+END_QUERY
 		- Previous grocery purchases
 		  ![image.png](../assets/image_1724109056266_0.png){:height 190, :width 181}
 			- current query (v2). Now shows if items are in the basket or not lol
@@ -878,6 +999,7 @@ repository:: DeadBranches/logseq-queries-and-scripts
 			- {{i f635}} information
 				- for related {{i ef91}} project see [[:logseq-events-and-appointments]]
 			- ### {{i eb89}} current query
+			  version: **v2.4.2**
 				- id:: 664e4055-3b72-4ba1-ac8b-48e34544629c
 				  #+BEGIN_QUERY
 				  {:query
@@ -885,11 +1007,11 @@ repository:: DeadBranches/logseq-queries-and-scripts
 				    :keys first-activity-datestamp date activity-datestamp today-datestamp content properties current-page-name activity-card-uuid current-page-uuid icon
 				    :in $ ?today-datestamp ?current-page-name
 				    :where
+				  
 				    [?b :block/properties ?props]
 				    [(get ?props :activity) ?activity]
 				    [(get ?props :event) ?event]
 				    [(get ?props :date) ?date]
-				  
 				    [(get ?props :scheduling "") ?scheduling]
 				    (not [(contains? ?scheduling "CANCELED")])
 				  
@@ -914,19 +1036,28 @@ repository:: DeadBranches/logseq-queries-and-scripts
 				              [(some? ?icon)]) ;; :-icon exists and is not nil
 				             (and
 				              [?a :block/properties ?activity-props]
-				              [(get ?activity-props :-icon) ?icon]
-				              [(nil? ?icon)] ;; :block/properties, but nil icon
+				              [(get ?activity-props :-icon :not-found) ?icon-or-not-found]
+				              [(= ?icon-or-not-found :not-found)] ;; :block/properties, but nil icon
 				              [(identity "0000") ?icon])
 				             (and ;; no block properties
 				              [(missing? $ ?a :block/properties)] ;; no :bp
 				              [(identity "0000") ?icon]))]
-				   
+				  
 				  
 				   :result-transform
 				   (letfn [(format-event-string [event-name person-names]
 				             (if (seq person-names)
 				               (str event-name " with " (clojure.string/join ", " person-names))
 				               (str event-name)))
+				  
+				           (sort-by-activity-datestamp [results]
+				             (sort-by (fn [r] (get-in r [:activity-datestamp])) compare results))
+				  
+				           (filter-next-events [results]
+				             (let [first-activity-datestamp (get-in (first results) [:first-activity-datestamp])]
+				               (filter (fn [result]
+				                         (= (get-in result [:activity-datestamp]) first-activity-datestamp))
+				                       results)))
 				  
 				           (format-event [result]
 				             (let [event-name (get-in result [:properties :event])
@@ -937,22 +1068,14 @@ repository:: DeadBranches/logseq-queries-and-scripts
 				               {:name (format-event-string event-name person-names)
 				                :uuid event-uuid
 				                :current-page-uuid current-page-uuid
-				                :icon event-icon}))
+				                :icon event-icon}))]
 				  
-				           (filter-next-events [results]
-				             (let [first-activity-datestamp (get-in (first results) [:first-activity-datestamp])]
-				               (filter (fn [result]
-				                         (= (get-in result [:activity-datestamp]) first-activity-datestamp))
-				                       results)))
-				  
-				           (sort-by-activity-datestamp [results]
-				             (sort-by (fn [r] (get-in r [:activity-datestamp])) compare results))]
 				  
 				     (fn [results]
-				       (as-> results $
-				         (sort-by-activity-datestamp $)
-				         (filter-next-events $)
-				         (map format-event $))))
+				       (->> results
+				            (sort-by-activity-datestamp)
+				            (filter-next-events)
+				            (map format-event))))
 				  
 				   :view
 				   (fn [formatted-events]
@@ -972,7 +1095,196 @@ repository:: DeadBranches/logseq-queries-and-scripts
 				  #+END_QUERY
 			- {{i ea0b}} *version archive*
 			  *older stuff*
-				- v2.4.1 fix: Show icon if at least one :activity :-icon exists. (current)
+				- v2.4.2 fix: Do not skip results where :block/properties exists but is empty.
+					- See workspace: ((66d5be14-15cf-4d64-8fbf-ca561c6c4084))
+					- ```cljs
+					  {:query
+					   [:find (min ?activity-datestamp) ?date ?activity-datestamp ?today-datestamp ?content ?props ?current-page-name ?activity-uuid ?current-page-uuid (distinct ?icon)
+					    :keys first-activity-datestamp date activity-datestamp today-datestamp content properties current-page-name activity-card-uuid current-page-uuid icon
+					    :in $ ?today-datestamp ?current-page-name
+					    :where
+					  
+					    [?b :block/properties ?props]
+					    [(get ?props :activity) ?activity]
+					    [(get ?props :event) ?event]
+					    [(get ?props :date) ?date]
+					    [(get ?props :scheduling "") ?scheduling]
+					    (not [(contains? ?scheduling "CANCELED")])
+					  
+					    ;; :date
+					    [?d :block/original-name ?bn]
+					    [(contains? ?date ?bn)]
+					    [?d :block/journal-day ?activity-datestamp]
+					    [(>= ?activity-datestamp ?today-datestamp)]
+					  
+					    [?b :block/content ?content]
+					    [?b :block/uuid ?activity-uuid]
+					  
+					    [?p :block/name ?current-page-name]
+					    [?p :block/uuid ?current-page-uuid]
+					  
+					    [?a :block/name ?activity-page]
+					    [(contains? ?activity ?activity-page)]
+					    (or-join [?a ?icon]
+					             (and
+					              [?a :block/properties ?activity-props]
+					              [(get ?activity-props :-icon) ?icon]
+					              [(some? ?icon)]) ;; :-icon exists and is not nil
+					             (and
+					              [?a :block/properties ?activity-props]
+					              [(get ?activity-props :-icon :not-found) ?icon-or-not-found]
+					              [(= ?icon-or-not-found :not-found)] ;; :block/properties, but nil icon
+					              [(identity "0000") ?icon])
+					             (and ;; no block properties
+					              [(missing? $ ?a :block/properties)] ;; no :bp
+					              [(identity "0000") ?icon]))]
+					  
+					  
+					   :result-transform
+					   (letfn [(format-event-string [event-name person-names]
+					             (if (seq person-names)
+					               (str event-name " with " (clojure.string/join ", " person-names))
+					               (str event-name)))
+					  
+					           (sort-by-activity-datestamp [results]
+					             (sort-by (fn [r] (get-in r [:activity-datestamp])) compare results))
+					  
+					           (filter-next-events [results]
+					             (let [first-activity-datestamp (get-in (first results) [:first-activity-datestamp])]
+					               (filter (fn [result]
+					                         (= (get-in result [:activity-datestamp]) first-activity-datestamp))
+					                       results)))
+					  
+					           (format-event [result]
+					             (let [event-name (get-in result [:properties :event])
+					                   person-names (get-in result [:properties :with])
+					                   event-uuid (str (get-in result [:activity-card-uuid]))
+					                   current-page-uuid (str (get-in result [:current-page-uuid]))
+					                   event-icon (first (get-in result [:icon]))]
+					               {:name (format-event-string event-name person-names)
+					                :uuid event-uuid
+					                :current-page-uuid current-page-uuid
+					                :icon event-icon}))]
+					  
+					  
+					     (fn [results]
+					       (->> results
+					            (sort-by-activity-datestamp)
+					            (filter-next-events)
+					            (map format-event))))
+					  
+					   :view
+					   (fn [formatted-events]
+					     (if (empty? formatted-events)
+					       "no events"
+					       (for [event formatted-events]
+					         [:div {:class "quick-view-container left-spacing"}
+					          [:span {:class "ti"} (read-string (str "\"\\u" (:icon event) "\""))]
+					          [:span {:class "content-slot"}
+					           [:a {:on-click (fn []
+					                            (call-api "append_block_in_page" (:current-page-uuid event)
+					                                      (str "{{i eb6d}} note for {{i f621}} [" (:name event)
+					                                           "](((" (:uuid event) ")))")))}
+					            (:name event)]]])))
+					  
+					   :inputs [:today :current-page]}
+					  ```
+				- v2.4.2 change: Use thread-last macro instead of thread-as
+					- ```cljs
+					  #+BEGIN_QUERY
+					  {:query
+					   [:find (min ?activity-datestamp) ?date ?activity-datestamp ?today-datestamp ?content ?props ?current-page-name ?activity-uuid ?current-page-uuid (distinct ?icon)
+					    :keys first-activity-datestamp date activity-datestamp today-datestamp content properties current-page-name activity-card-uuid current-page-uuid icon
+					    :in $ ?today-datestamp ?current-page-name
+					    :where
+					  
+					    [?b :block/properties ?props]
+					    [(get ?props :activity) ?activity]
+					    [(get ?props :event) ?event]
+					    [(get ?props :date) ?date]
+					    [(get ?props :scheduling "") ?scheduling]
+					    (not [(contains? ?scheduling "CANCELED")])
+					  
+					    ;; :date
+					    [?d :block/original-name ?bn]
+					    [(contains? ?date ?bn)]
+					    [?d :block/journal-day ?activity-datestamp]
+					    [(>= ?activity-datestamp ?today-datestamp)]
+					  
+					    [?b :block/content ?content]
+					    [?b :block/uuid ?activity-uuid]
+					  
+					    [?p :block/name ?current-page-name]
+					    [?p :block/uuid ?current-page-uuid]
+					  
+					    [?a :block/name ?activity-page]
+					    [(contains? ?activity ?activity-page)]
+					    (or-join [?a ?icon]
+					             (and
+					              [?a :block/properties ?activity-props]
+					              [(get ?activity-props :-icon) ?icon]
+					              [(some? ?icon)]) ;; :-icon exists and is not nil
+					             (and
+					              [?a :block/properties ?activity-props]
+					              [(get ?activity-props :-icon) ?icon]
+					              [(nil? ?icon)] ;; :block/properties, but nil icon
+					              [(identity "0000") ?icon])
+					             (and ;; no block properties
+					              [(missing? $ ?a :block/properties)] ;; no :bp
+					              [(identity "0000") ?icon]))]
+					   
+					  
+					   :result-transform
+					   (letfn [(format-event-string [event-name person-names]
+					             (if (seq person-names)
+					               (str event-name " with " (clojure.string/join ", " person-names))
+					               (str event-name)))
+					  
+					           (sort-by-activity-datestamp [results]
+					             (sort-by (fn [r] (get-in r [:activity-datestamp])) compare results))   
+					           
+					           (filter-next-events [results]
+					             (let [first-activity-datestamp (get-in (first results) [:first-activity-datestamp])]
+					               (filter (fn [result]
+					                         (= (get-in result [:activity-datestamp]) first-activity-datestamp))
+					                       results)))
+					           
+					           (format-event [result]
+					             (let [event-name (get-in result [:properties :event])
+					                   person-names (get-in result [:properties :with])
+					                   event-uuid (str (get-in result [:activity-card-uuid]))
+					                   current-page-uuid (str (get-in result [:current-page-uuid]))
+					                   event-icon (first (get-in result [:icon]))]
+					               {:name (format-event-string event-name person-names)
+					                :uuid event-uuid
+					                :current-page-uuid current-page-uuid
+					                :icon event-icon}))]
+					           
+					  
+					     (fn [results]
+					       (->> results
+					         (sort-by-activity-datestamp)
+					         (filter-next-events)
+					         (map format-event))))
+					  
+					   :view
+					   (fn [formatted-events]
+					     (if (empty? formatted-events)
+					       "no events"
+					       (for [event formatted-events]
+					         [:div {:class "quick-view-container left-spacing"}
+					          [:span {:class "ti"} (read-string (str "\"\\u" (:icon event) "\""))]
+					          [:span {:class "content-slot"}
+					           [:a {:on-click (fn []
+					                            (call-api "append_block_in_page" (:current-page-uuid event)
+					                                      (str "{{i eb6d}} note for {{i f621}} [" (:name event)
+					                                           "](((" (:uuid event) ")))")))}
+					            (:name event)]]])))
+					  
+					   :inputs [:today :current-page]}
+					  #+END_QUERY
+					  ```
+				- v2.4.1 fix: Show icon if at least one :activity :-icon exists.
 					- ```cljs
 					  #+BEGIN_QUERY
 					  {:query
@@ -2934,6 +3246,106 @@ repository:: DeadBranches/logseq-queries-and-scripts
 	- ### {{i eead}} query concept inbox
 	  id:: 66ae786c-0e7c-4d19-a94a-a1ae04fa3f19
 	  *check here for unsorted saved queries*
+		- #+BEGIN_QUERY
+		  {:inputs [:parent-block]
+		  :query
+		  [:find (pull ?b [*])
+		  :in $ ?pb
+		  :where
+		  [?b :block/refs ?pb]
+		  ]
+		  }
+		  #+END_QUERY
+		- Question: what does :today return?
+			- #+BEGIN_QUERY
+			  {:inputs [:today]
+			  :query
+			  [:find ?today
+			  :in $ ?today
+			  :where
+			  [_ :block/name _]
+			  ]
+			  }
+			  #+END_QUERY
+		- Dealing with days in :where clauses
+			- ```
+			  from https://discuss.logseq.com/t/add-query-input-or-function-day-of-week/18361/22?u=deadbranch
+			  #+BEGIN_QUERY
+			  {
+			   :inputs [:today :+7d :+13d]
+			   :query [:find (pull ?b [*])
+			   :in $ ?today ?next7 ?next13 %
+			   :where
+			     (or
+			       (and [(+ ?today 1) ?weekBegin] (isWeekDay ?weekBegin 1))
+			       (and [(+ ?today 2) ?weekBegin] (isWeekDay ?weekBegin 1))
+			       (and [(+ ?today 3) ?weekBegin] (isWeekDay ?weekBegin 1))
+			       (and [(+ ?today 4) ?weekBegin] (isWeekDay ?weekBegin 1))
+			       (and [(+ ?today 5) ?weekBegin] (isWeekDay ?weekBegin 1))
+			       (and [(+ ?today 6) ?weekBegin] (isWeekDay ?weekBegin 1))
+			       (and [(+ ?today 7) ?weekBegin] (isWeekDay ?weekBegin 1))
+			       (and [(- ?next7 6) ?weekBegin] (isWeekDay ?weekBegin 1))
+			       (and [(- ?next7 5) ?weekBegin] (isWeekDay ?weekBegin 1))
+			       (and [(- ?next7 4) ?weekBegin] (isWeekDay ?weekBegin 1))
+			       (and [(- ?next7 3) ?weekBegin] (isWeekDay ?weekBegin 1))
+			       (and [(- ?next7 2) ?weekBegin] (isWeekDay ?weekBegin 1))
+			       (and [(- ?next7 1) ?weekBegin] (isWeekDay ?weekBegin 1))
+			       (and [(- ?next7 0) ?weekBegin] (isWeekDay ?weekBegin 1))
+			     )
+			  
+			     (or
+			       (and [(+ ?next7 0) ?weekEnd] (isWeekDay ?weekEnd 0))
+			       (and [(+ ?next7 1) ?weekEnd] (isWeekDay ?weekEnd 0))
+			       (and [(+ ?next7 2) ?weekEnd] (isWeekDay ?weekEnd 0))
+			       (and [(+ ?next7 3) ?weekEnd] (isWeekDay ?weekEnd 0))
+			       (and [(+ ?next7 4) ?weekEnd] (isWeekDay ?weekEnd 0))
+			       (and [(+ ?next7 5) ?weekEnd] (isWeekDay ?weekEnd 0))
+			       (and [(+ ?next7 6) ?weekEnd] (isWeekDay ?weekEnd 0))
+			       (and [(- ?next13 6) ?weekEnd] (isWeekDay ?weekEnd 0))
+			       (and [(- ?next13 5) ?weekEnd] (isWeekDay ?weekEnd 0))
+			       (and [(- ?next13 4) ?weekEnd] (isWeekDay ?weekEnd 0))
+			       (and [(- ?next13 3) ?weekEnd] (isWeekDay ?weekEnd 0))
+			       (and [(- ?next13 2) ?weekEnd] (isWeekDay ?weekEnd 0))
+			       (and [(- ?next13 1) ?weekEnd] (isWeekDay ?weekEnd 0))
+			       (and [(- ?next13 0) ?weekEnd] (isWeekDay ?weekEnd 0))
+			     )
+			  
+			     (task ?b #{"TODO"})
+			     (or
+			       [?b :block/scheduled ?date]
+			       [?b :block/deadline ?date]
+			     )
+			     [(>= ?date ?weekBegin)]
+			     [(<= ?date ?weekEnd)]
+			   ]
+			  
+			   :rules [
+			     [(isWeekDay ?date ?num)
+			       [(mod ?date 100) ?monthday]
+			       [(mod ?date 10000) ?mod]
+			       [(quot ?mod 100) ?month]
+			       [(- ?month 8) ?month8]
+			       [(quot ?month8 6) ?month6]
+			       [(* ?month6 12) ?month12]
+			       [(- ?month ?month12) ?monthnum]
+			       [(inc ?monthnum) ?monthinc]
+			       [(* 13 ?monthinc) ?month13]
+			       [(quot ?month13 5) ?month5]
+			       [(quot ?date 10000) ?year]
+			       [(+ ?year ?month6) ?year6]
+			       [(mod ?year6 100) ?yearnum]
+			       [(quot ?yearnum 4) ?year4]
+			       [(quot ?year6 100) ?century]
+			       [(quot ?century 4) ?century4]
+			       [(* 5 ?century) ?century5]
+			       [(+ ?monthday ?month5 ?yearnum ?year4 ?century4 ?century5) ?sum]
+			       [(mod ?sum 7) ?d]
+			       [(= ?d ?num)]
+			     ]
+			   ]
+			  }
+			  #+END_QUERY
+			  ```
 	- ### :rules
 	  *clause expressions*
 		- show query **results only**
