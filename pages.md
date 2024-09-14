@@ -124,45 +124,52 @@ repository:: DeadBranches/logseq-queries-and-scripts
 		  
 		  #+END_QUERY
 		  ```
+- ### {{i-cloud}} Idea trackers
+	- {{kitButton issues,collapseBlock,ea06,-button-style full-width small-caps}}
+		- {{embed ((66ccdccf-f9e2-4028-b867-a7b5406fd634))}}
+	- {{kitButton ideas,collapseBlock,ea76,-button-style full-width small-caps}}
+		- {{embed ((66df909d-79a2-4532-917e-94d3bd8b32a8))}}
+	- {{kitButton questions,collapseBlock,ea76,-button-style full-width small-caps}}
+		- {{embed ((66df90b1-ccba-494b-94c9-76f3194e0963))}}
 - # {{i edef}} Pages
   {{I eac5}} *Pages help me remember where things go.*
 	- #+BEGIN_QUERY
 	  {:query
-	      [:find (pull ?p [*])
-	          :where
-	          (page-tags ?p #{"page"})
-	      ]
-	      :result-transform (fn [result] 
-	          (sort-by 
-	          (fn [r] (get r :block/name))
-	          result
-	          )
-	      )
-	      :view 
-	      (fn [result]
-	              [:table {:class "future-appointments"}
-	               [:thead
-	                [:tr
-	                 [:th {:width "120px" :class "wrap-at-spaces"} "Page"]
-	                 [:th "Description"]]]
-	               [:tbody
-	          (for [r result]
-	                 [:tr {:class "wrap-at-spaces" :max-width "50%"} [:td
-	                  [:a 
-	                   {:class "tag" :href (str "#/page/" (get-in r [:block/original-name]))}
-	                   (str "#" (get r :block/name))
-	                   ]] 
-	                  [:td 
-	                  (str " " (get-in r [:block/properties :description]))
-	                  ]]
-	                 )
-	           ]]
-	      )
-	  :collapsed? false
-	      :breadcrumb-show? false
-	      :group-by-page? false
-	  }
+	   [:find (pull ?p [*])
+	    :where
+	    [?p :block/tags ?t]
+	    [?t :block/name ?tag]
+	    [(contains? #{"page"} ?tag)]
+	   ;; (page-tags ?p #{"page"})
+	  ;;   [(page-tags ?p ?tags)
+	  ;;    [?p :block/tags ?t]
+	  ;;    [?t :block/name ?tag]
+	  ;;    [(contains? ?tags ?tag)]]
+	   ]
+	   :result-transform (fn [result]
+	                       (sort-by
+	                        (fn [r] (get r :block/name))
+	                        result))
+	   :view
+	   (fn [result]
+	     [:table.future-appointments.compact.stop-click
+	      [:thead
+	       [:tr
+	        [:th.wrap-at-spaces {:max-width "50%"} "Page"]
+	        [:th "Description"]]]
+	      [:tbody
+	       (for [r result]
+	         [:tr [:td.wrap-at-spaces
+	               [:a.tag
+	                {:on-click (fn [] (call-api "push_state" "page" {:name (get-in r [:block/original-name])}))}
+	                (str "#" (get r :block/name))]]
+	          [:td
+	           (str " " (get-in r [:block/properties :description]))]])]])
+	   :collapsed? false
+	   :breadcrumb-show? false
+	   :group-by-page? false}
 	  #+END_QUERY
+	-
 	- {{i eb6d}} *The philosophy of Pages*
 		- Create a page: `tags:: page`
 		- Pages help me remember...

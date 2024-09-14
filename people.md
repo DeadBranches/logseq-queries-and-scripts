@@ -1,7 +1,7 @@
 tags:: page
 
 - # people
-	- #+BEGIN_QUERY
+	  #+BEGIN_QUERY
 	  {
 	   :query [:find (pull ?page [* ])
 	   :where

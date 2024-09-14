@@ -5,6 +5,13 @@ repository:: DeadBranches/logseq-queries-and-scripts
 
 - #### {{i-inbox}} Logseq inbox
   id:: 660c8b4b-be82-4019-943b-dfabdb2c7161
+- ## Idea trackers
+	- {{kitButton issues,collapseBlock,ea06,-button-style full-width small-caps}}
+		- {{embed ((66ccdccf-f9e2-4028-b867-a7b5406fd634))}}
+	- {{kitButton ideas,collapseBlock,ea76,-button-style full-width small-caps}}
+		- {{embed ((66df909d-79a2-4532-917e-94d3bd8b32a8))}}
+	- {{kitButton questions,collapseBlock,ea76,-button-style full-width small-caps}}
+		- {{embed ((66df90b1-ccba-494b-94c9-76f3194e0963))}}
 - ## Useful things
 	- Logseq config.edn template -> {{i-github}} [logseq/logseq](https://github.com/logseq/logseq/blob/4374741afd9add1716da62b3bf6466cffa5be082/src/resources/templates/config.edn#L4)
 		- My local version last drawn from commit [`26d255d`](https://github.com/logseq/logseq/commit/26d255d0b1a065fa66c135b0fbe4d7270b55e1b5)
@@ -23,7 +30,7 @@ repository:: DeadBranches/logseq-queries-and-scripts
 	- ### {{i ea06}} Idea helper
 	  Issue/idea/question tracker
 		- {{i f313}} *Initiated,* [July 3rd, 2024](((66a015d2-1f08-4b33-bcba-84207b76eeda)))
-		- {{i ee1d}} *Project,* [[:logseq-project-management-2024.8]]
+		- {{i ee1d}} *Project,* [[:logseq-ideas-assistant]]
 		- {{i eac6}}  Info ->
 			- {{embed ((66a015d2-1f08-4b33-bcba-84207b76eeda))}}
 		- Related
@@ -291,6 +298,291 @@ repository:: DeadBranches/logseq-queries-and-scripts
 		  ```
 -
 - ### Things from other users
+	- #### File explorer
+	  {{i eb54}} [File Explorer from within Logseq](https://discuss.logseq.com/t/file-explorer-from-within-logseq/21703)
+		- ### Introduction
+			- This is:
+			- a safe subset of [File management from within Logseq, proof-of-concept 159](https://discuss.logseq.com/t/file-management-from-within-logseq-proof-of-concept/21388)
+				- it doesn’t depend on it
+				- the unsecure now builds on top of the safe
+			- to either:
+				- use as it is for:
+					- exploring folder hierarchies
+					- opening files or folders in external applications
+				- build custom functionality on top of it
+					- this is the real feature, not to replace other explorers
+		- ### Current Features
+			- Use a simple **macro** to turn any block into a node **about** your file system, e.g.:
+				- `{{foldername C:/pathto/parentfolder}}`
+				- Such blocks can be safely:
+					- deleted:
+						- no changes to the file system
+					- moved:
+						- position is irrelevant
+					- copied:
+						- no changes to the file system
+						- each copy is **independent**
+			- **Hover** to show the available buttons.
+				- Here only one and only for folders, but custom buttons are supported.
+			- Simple `click` on the name of an entry to ask the operating system to **open** that folder or file.
+			- Simple `click` on button `Read` to see if that path currently exists in the file system.
+			- `Alt + click` on button `Read` to **auto-generate blocks** in a hierarchy that matches the one currently on the drive.
+				- This may take some **time** for big trees.
+					- Try first with a small one.
+				- Repeat to **refresh**:
+					- The blocks are **not synced** with the file system.
+					- Any outdated blocks get **deleted**.
+						- **Copies** don’t get affected.
+							- Can use this feature for **comparisons**.
+			- **Expand** a folder-block to show its contents.
+				- **Nested** blocks don’t get affected by expanding/collapsing.
+					- They maintain their values since the last `Read` of any of their ancestor blocks.
+			- **Zoom** on a block to focus as usually.
+			  
+			  ---
+		- ### Code
+			- At the end of file `preload.js`, normally inside `...\Logseq\app-0.9.18\resources\app\js`:
+			  
+			  ```
+			  contextBridge.exposeInMainWorld('getfs', ()=>({
+			  access: fs.access,
+			  readdir: fs.readdir,
+			  readdirSync: fs.readdirSync
+			  }))
+			  ```
+				- This needs to be **re-added** after every **update** of Logseq.
+			- Inside file `config.edn`, inside `macros{}`:
+			  
+			  ```
+			  :filename "<div class='kit filesystem' data-kit='filesystem' data-type='file' data-name='$1'></div>"
+			  :foldername "<div class='kit filesystem' data-kit='filesystem' data-type='folder' data-name='$1'></div>"
+			  ```
+			- Inside file `custom.css`:
+			  
+			  ```
+			  button.filesystem {
+			  font-size: 12px;
+			  line-height: 14px;
+			  margin: 0px 8px 0px 8px;
+			  padding: 2px 4px 2px 4px;
+			  }
+			  button.filesystem.read {
+			  background: #ff9900;
+			  }
+			  div.block-content button.filesystem {
+			    visibility: hidden;
+			  }
+			  div.block-content:hover button.filesystem {
+			    visibility: visible;
+			  }
+			  a.external-link.file-link {
+			    border-bottom-style: none;
+			  }
+			  ```
+			- The code below requires having [kits  13](https://discuss.logseq.com/t/edit-and-run-javascript-code-inside-logseq-itself/20763) inside file `custom.js` .
+			- Inside page `FileSystem` in Logseq, put the following code in a javascript code-block:
+			- ```
+			  const LS = logseq.api
+			  const Module = logseq.Module
+			  const Kits = Module.Kits
+			  - function statusMsg(status, msg){
+			    Module.Msg.ofStatus(msg, status)
+			  }
+			  const error = statusMsg.bind(null, "error")
+			  const info = statusMsg.bind(null, "info")
+			  const success = statusMsg.bind(null, "success")
+			   const fs = window.getfs && getfs()
+			  if (!fs) return error("missing fs")
+			  - const Block = (Module.Block || Module.setChild("Block"))
+			  .setStatic(function forEachChild(block, cb){
+			    block.children.find( (arr)=>{
+			        const child = LS.get_block(arr[1])
+			        if (child) return cb(child)
+			    })
+			  })
+			  .setStatic(function parentOf(block){
+			    return LS.get_block(block.parent.id)
+			  })
+			  
+			   const FS = Module.setChild("FileSystem")
+			  .setStatic(function appendButtonsForBlock(div, block){
+			    const blockId = block.uuid
+			    if (block.properties.foldername) div.append(
+			        FS.button("Read", FS.onReadClicked, blockId)
+			    )
+			  })
+			  .setStatic(function button(name, handler, arg){
+			    const btn = Kits.createElementOfClass("button", "filesystem", name)
+			    btn.classList.add(name.toLowerCase().replaceAll(" ", "-"))
+			    Kits.addClickEventToButton(handler.bind(null, arg), btn)
+			    return btn
+			  })
+			  .setStatic(function deleteMissingBlockChildren(block, cb){
+			    const rest = []
+			    var rem = 0
+			    Block.forEachChild(block, (child)=>{
+			        rem += 1
+			        fs.access(FS.fullPathOfBlock(child), (err)=>{
+			            if (err) {
+			                LS.remove_block(child.uuid)
+			                console.log("DELETED BLOCK: " + FS.nameOfBlock(child))
+			            } else {
+			                rest.push(child)
+			            }
+			            if (!--rem) cb(rest)
+			        })
+			    })
+			    if (!rem) cb(rest)
+			  })
+			  .setStatic(function fullPathOfBlock(block){
+			    const name = FS.nameOfBlock(block)
+			    return (!name) ? "" : FS.pathOfBlock(Block.parentOf(block)) + name
+			  })
+			  .setStatic(function iconForBlock(block){
+			    const props = block.properties
+			    return (props.foldername) ? "&#xeaad" : FS.iconForFilename(props.filename)
+			  })
+			  .setStatic(function iconForFilename(filename){
+			    return "&#xeaa2"
+			  })
+			  .setStatic(function insertChildBlock(parentBlock, path, name){
+			    const property = FS.isFolder(path + "/" + name) ? "foldername" : "filename"
+			    const nameblock = {properties: {[property]: name}}
+			  
+			  var found
+			    Block.forEachChild(parentBlock, (sibling)=>{
+			        if (FS.nameCompare(sibling, nameblock) > -1) return found = sibling
+			    })
+			    if (found && !FS.nameCompare(found, nameblock)) return found.uuid
+			  
+			  const customUUID = LS.new_block_uuid()
+			    const properties = {[property]: name}
+			    const options = {customUUID, properties}
+			    if (found) {
+			        options.before = true
+			        options.sibling = true
+			    }
+			    const content = "{{" + property + " " + name + "}}"
+			    const uuid = (found || parentBlock).uuid
+			    LS.insert_block(uuid, content, options)
+			  })
+			  .setStatic(function isFolder(path){
+			    try { fs.readdirSync(path) }
+			    catch { return false }
+			    return true
+			  })
+			  .setStatic(function nameCompare(a, b){
+			    const aprops = a.properties
+			    const bprops = b.properties
+			  - const aname = aprops.filename
+			    const bname = bprops.filename
+			    if (aname && !bname) return 1
+			    if (!aname && bname) return -1
+			  - const prop = (aname) ? "filename" : "foldername"
+			    return aprops[prop].toLowerCase().localeCompare(bprops[prop].toLowerCase())
+			  })
+			  .setStatic(function nameOfBlock(block){
+			    const properties = block.properties
+			    return properties.foldername || properties.filename
+			  })
+			  .setStatic(function nameOfErr(err){
+			  return err.message.slice(0, err.message.indexOf(":"))
+			  })
+			  .setStatic(function onReadClicked(blockId, e){
+			    const block = LS.get_block(blockId)
+			    fs.access(FS.fullPathOfBlock(block), (err)=>{
+			        if (err) return info("doesn't exist")
+			  
+			  if (e.altKey) FS.updateTreeBlock(block)
+			        else info("Alt to read")
+			    })
+			  })
+			  .setStatic(function onTreeBlockUpdated(spanIcon, iconHtml, res){
+			    spanIcon.innerHTML = iconHtml
+			    if (res === "done") success("done")
+			    else error(res)
+			  })
+			  .setStatic(function pathOfBlock(block){
+			    const foldername = block && block.properties.foldername
+			    return (!foldername) ? "" : pathOfBlock(Block.parentOf(block)) + foldername + "/"
+			  })
+			  .setStatic(function sortBlocks(blocks){
+			    blocks.sort(FS.nameCompare)
+			  
+			  var previous
+			    const options = {sibling: true}
+			    blocks.forEach( (block)=>{
+			        if (previous) {
+			            LS.move_block(block.uuid, previous.uuid, options)
+			        }
+			        previous = block
+			    })
+			  })
+			  .setStatic(function updateChildren(parentBlock, cb){
+			    var rem = 0
+			    Block.forEachChild(parentBlock, (child)=>{
+			        if (!child.properties.foldername) return;
+			  - rem += 1
+			        FS.updateFolderBlock(child, ()=>{ if (!--rem) cb("done") } )
+			    })
+			    if (!rem) cb("done")
+			  })
+			  .setStatic(function updateDiv(div, blockId){
+			    const divParent = div.closest(".block-content")
+			    divParent.querySelector(".block-content-inner").remove()
+			    const divProps = divParent.querySelector(".block-properties div")
+			  
+			  const block = LS.get_block(blockId)
+			    const spanIcon = Kits.createElementOfClass("span", "ti")
+			    spanIcon.innerHTML = FS.iconForBlock(block)
+			  
+			  const link = Kits.createElementOfClass("a", "external-link", FS.nameOfBlock(block))
+			    link.href = "file:///" + FS.fullPathOfBlock(block)
+			    link.target = '_blank'
+			    link.classList.add("file-link")
+			  - divProps.firstChild.remove()
+			    divProps.firstChild.remove()
+			    divProps.firstChild.remove()
+			    divProps.prepend(spanIcon, " ", link)
+			    FS.appendButtonsForBlock(divProps, block)
+			  })
+			  .setStatic(function updateFolderBlock(block, cb){
+			    const path = FS.fullPathOfBlock(block)
+			    const uuidParent = block.uuid
+			    fs.readdir(path, (err, names)=>{
+			        if (err) return cb(FS.nameOfErr(err) + ": " + path)
+			  
+			  FS.deleteMissingBlockChildren(block, (rest)=>{
+			            if (!names.length) return cb("done");
+			  
+			  if (rest.length) FS.sortBlocks(rest)
+			            names.forEach( (name)=>{
+			                FS.insertChildBlock(block, path, name)
+			                block = LS.get_block(uuidParent)
+			            })
+			            if (!rest.length) LS.set_block_collapsed(uuidParent, true)
+			  - FS.updateChildren(block, cb)
+			        })
+			    })
+			  })
+			  .setStatic(function updateTreeBlock(block){
+			    const selector = "div.ls-block [blockid='" + block.uuid + "'] .ti"
+			    const spanIcon = document.querySelector(selector)
+			    const cb = FS.onTreeBlockUpdated.bind(null, spanIcon, spanIcon.innerHTML)
+			    spanIcon.innerHTML = "&#xeaae"
+			    FS.updateFolderBlock(block, cb)
+			  })
+			  
+			  logseq.kits.setStatic(function filesystem(div){
+			    const type = div.dataset.type
+			    const name = div.dataset.name
+			    const blockId = div.closest(".ls-block").getAttribute("blockid")
+			    LS.upsert_block_property(blockId, type + "name", name)
+			    setTimeout(FS.updateDiv, 0, div, blockId) // wait UI
+			  })
+			  
+			  FS.fs = fs
+			  ```
 	- #### Pages tagged auto-hide
 	  {{il eb54,collapse the list of pages tagged with by default,https://discuss.logseq.com/t/collapse-the-list-of-pages-tagged-with-x-by-default/28698/2}}
 		- > Is there a way to hide the list of of pages which are tagged with a page property, ie the ‘Pages tagged with X’ list? I’m trying to set up course pages in Logseq for my uni notes. I have a page where all the courses are combined, let’s call it ‘All courses’. On that page, there is the list of "Pages tagged with “All courses”. Those would be the courses (pages): Test course 1, Test course 2. I want to collapse that list, because I can just use page references to create a list which I can access and manipulate more easily than that list of page properties (see screenshot
