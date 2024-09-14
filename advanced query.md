@@ -1383,193 +1383,440 @@ repository:: DeadBranches/logseq-queries-and-scripts
 					  }
 					  #+END_QUERY
 					  ```
-		- {{i ef91}} **project waitlist** quick-view
+		- {{i ef91}} **project list** quick-view
 		        ![image.png](../assets/image_1719764401764_0.png){:height 38, :width 143}
 			- *see [[:logseq-project-manager-2024.5]]*
-			- **Current query**
-				- id:: 6654b591-49ea-4d3a-b9d9-1dc4f25bab0c
-				  #+BEGIN_QUERY
-				  {:query
-				   [:find ?current-page-id ?project-name ?manager-name ?project-properties
-				    :keys current-page-id project-name manager-name project-properties
-				    :in $ ?current-page
-				    :where
-				    ;; Step 1: Identify all project pages
-				    (page-tags ?project #{"project"})
-				  
-				      [?refs-project :block/refs ?project]
-				      ;; Ensure there is a parent block
-				  
-				      [?refs-project :block/parent ?ref-parent]
-				      ;; Check if the parent block references a manager
-				  
-				      [?ref-parent :block/refs ?managers]
-				      ;; Ensure the manager is one of the specified categories
-				  
-				      [?managers :block/name ?manager-name]
-				      [(contains? #{"next"} ?manager-name)]
-				    
-				    [?page :block/name ?current-page]
-				    [?page :block/uuid ?current-page-id]
-				    [?project :block/name ?project-name]
-				    [?project :block/properties ?project-properties]
-				  
-				  ]
-				  :result-transform (fn [results]
-				                      (let [sorted-results (sort-by (fn [r] (get r :block/name "none")) results)]
-				                        (map (fn [result]
-				                               (let [icon (get-in result [:block/properties :icon] "ef27")] ; Use fallback icon if none
-				                                 (assoc result :icon icon))) ; Associate the icon with the result
-				                             (if (empty? sorted-results)
-				                               [{:block/name "\uf4a5 none"}]
-				                               sorted-results))))
-				  
-				   :view (fn [results]
-				           [:div {:class "projects-list-container"}
-				            (map (fn [results]
-				                   (let [project-name (:project-name results)
-				                         uuid (str (:current-page-id results))
-				                         icon (:icon results)]
-				                                 ;inside let scope 
-				                      [:span {:class "project-item"}
-				                          [:a {:class "project-quick-add" 
-				                               :on-click (
-				                                          fn [] (call-api "append_block_in_page" uuid (
-				                                                                                       str "{{i " icon "}} #[[" project-name "]]")))
-				                               }
-				                           [:span {:class "project-leading-icon"} "\uf63f "] [:span {:class "project-name"} project-name]
-				                           ] [:a {
-				                                  :class "project-trailing-icon" 
-				                                  :on-click (fn [] (call-api "push_state" "page" {:name project-name}))
-				                                  } "\uea99 "
-				                              ]
-				                          ]
-				                     ))
-				                 results)
-				                                     ])
-				  :inputs [:current-page]
-				  }
-				  #+END_QUERY
-			- [:small "(older versions)"]
-				- version 1.2
-				  *introduces project icons & open page icon*
-					- #+BEGIN_QUERY
-					  {:query
+			- *next up list*
+				- **Current query**
+					- id:: 6654b591-49ea-4d3a-b9d9-1dc4f25bab0c
+					  #+BEGIN_QUERY
+					  {:inputs [:current-page #{"next"}]
+					   :query
 					   [:find ?current-page-id ?project-name ?manager-name ?project-properties
 					    :keys current-page-id project-name manager-name project-properties
-					    :in $ ?current-page
+					    :in $ ?current-page ?completion-category
 					    :where
 					    ;; Step 1: Identify all project pages
 					    (page-tags ?project #{"project"})
 					  
-					      [?refs-project :block/refs ?project]
+					    [?refs-project :block/refs ?project]
 					      ;; Ensure there is a parent block
 					  
-					      [?refs-project :block/parent ?ref-parent]
+					    [?refs-project :block/parent ?ref-parent]
 					      ;; Check if the parent block references a manager
 					  
-					      [?ref-parent :block/refs ?managers]
+					    [?ref-parent :block/refs ?managers]
 					      ;; Ensure the manager is one of the specified categories
 					  
-					      [?managers :block/name ?manager-name]
-					      [(contains? #{"next"} ?manager-name)]
-					    
+					    [?managers :block/name ?manager-name]
+					    [(contains? ?completion-category ?manager-name)]
+					  
+					  
 					    [?page :block/name ?current-page]
 					    [?page :block/uuid ?current-page-id]
 					    [?project :block/name ?project-name]
-					    [?project :block/properties ?project-properties]
+					    [?project :block/properties ?project-properties]]
 					  
-					  ]
-					  :result-transform (fn [results]
-					                      (let [sorted-results (sort-by (fn [r] (get r :block/name "none")) results)]
-					                        (map (fn [result]
-					                               (let [icon (get-in result [:block/properties :icon] "ef27")] ; Use fallback icon if none
-					                                 (assoc result :icon icon))) ; Associate the icon with the result
-					                             (if (empty? sorted-results)
-					                               [{:block/name "\uf4a5 none"}]
-					                               sorted-results))))
+					   :result-transform
+					   (fn [results]
+					     (let [sorted-results (sort-by
+					                           (fn [r]
+					                             (get r
+					                                  :block/name
+					                                  "none")) results)]
+					       (map (fn [result]
+					              (let [icon (get-in result
+					                                 [:project-properties :-icon]
+					                                 "ef27")] ; Use fallback icon if none
+					                (assoc result :icon icon))) ; Associate the icon with the result
+					            (if (empty? sorted-results)
+					              [{:block/name "\uf4a5 none"}]
+					              sorted-results))))
 					  
-					   :view (fn [results]
-					           [:div
-					            (map (fn [results]
-					                   (let [project-name (:project-name results)
-					                         uuid (str (:current-page-id results))
-					                         icon (:icon results)]
-					                                 ;inside let scope 
-					                     [:p [:span
-					                          [:a
-					                           {:class "tag"
-					                            :on-click (fn [] (call-api "append_block_in_page"
-					                                                       uuid
-					                                                       (str "{{i " icon "}} #[[" project-name "]]")))
-					                            }
-					                           [:span {:class "ti"} "\uf63f "] 
-					                           project-name] [:a {:class "ti"
-					                          :on-click (fn [] (call-api "push_state" "page" {:name project-name}))} 
-					                      "  \uea99 "
-					                      ] 
-					                          ]]
-					                     ))
-					                 results)
-					                                     ])
-					  :inputs [:current-page]
+					   :view
+					   (fn [results]
+					     [:div.projects-list-container
+					      (map (fn [results]
+					             (let [project-name (:project-name results)
+					                   uuid (str (:current-page-id results))
+					                   icon (:icon results)]
+					   
+					               [:span.project-item
+					                [:a.project-quick-add 
+					                 {:on-click
+					                  (fn [] (call-api
+					                          "append_block_in_page"
+					                          uuid
+					                          (str "{{i " icon "}} #[[" project-name "]]")))}
+					                 
+					                 [:span.project-leading-icon.lighter "\uf63f "] 
+					                 [:span.project-name  
+					                  [:span.ti 
+					                   (read-string (str "\" \\u" icon "\""))
+					                   ] project-name]] 
+					                
+					                [:a.project-trailing-icon 
+					                 {:on-click 
+					                  (fn [] 
+					                    (call-api 
+					                     "push_state" 
+					                     "page" {:name project-name}))}
+					                 "\uea99 "]]))
+					           results)])
 					  }
 					  #+END_QUERY
-					-
-				- version 1.1
-				  ![image.png](../assets/image_1717608526060_0.png)
-					- ```
+				- [:small "(older versions)"]
+					- version 1.4 (current)
+					  *introduces display icons & dynamic completion category specification*
+						- ```cljs
+						  #+BEGIN_QUERY
+						  {:inputs [:current-page #{"next"}]
+						   :query
+						   [:find ?current-page-id ?project-name ?manager-name ?project-properties
+						    :keys current-page-id project-name manager-name project-properties
+						    :in $ ?current-page ?completion-category
+						    :where
+						    ;; Step 1: Identify all project pages
+						    (page-tags ?project #{"project"})
+						  
+						    [?refs-project :block/refs ?project]
+						      ;; Ensure there is a parent block
+						  
+						    [?refs-project :block/parent ?ref-parent]
+						      ;; Check if the parent block references a manager
+						  
+						    [?ref-parent :block/refs ?managers]
+						      ;; Ensure the manager is one of the specified categories
+						  
+						    [?managers :block/name ?manager-name]
+						    ;; [(contains? #{"finished"} ?manager-name)]
+						    [(contains? ?completion-category ?manager-name)]
+						  
+						  
+						    [?page :block/name ?current-page]
+						    [?page :block/uuid ?current-page-id]
+						    [?project :block/name ?project-name]
+						    [?project :block/properties ?project-properties]]
+						  
+						   :result-transform
+						   (fn [results]
+						     (let [sorted-results (sort-by
+						                           (fn [r]
+						                             (get r
+						                                  :block/name
+						                                  "none")) results)]
+						       (map (fn [result]
+						              (let [icon (get-in result
+						                                 [:project-properties :-icon]
+						                                 "ef27")] ; Use fallback icon if none
+						                (assoc result :icon icon))) ; Associate the icon with the result
+						            (if (empty? sorted-results)
+						              [{:block/name "\uf4a5 none"}]
+						              sorted-results))))
+						  
+						   :view
+						   (fn [results]
+						     [:div.projects-list-container
+						      (map (fn [results]
+						             (let [project-name (:project-name results)
+						                   uuid (str (:current-page-id results))
+						                   icon (:icon results)]
+						   
+						               [:span.project-item
+						                [:a.project-quick-add 
+						                 {:on-click
+						                  (fn [] (call-api
+						                          "append_block_in_page"
+						                          uuid
+						                          (str "{{i " icon "}} #[[" project-name "]]")))}
+						                 
+						                 [:span.project-leading-icon.lighter "\uf63f "] 
+						                 [:span.project-name  
+						                  [:span.ti 
+						                   (read-string (str "\" \\u" icon "\""))
+						                   ] project-name]] 
+						                
+						                [:a.project-trailing-icon 
+						                 {:on-click 
+						                  (fn [] 
+						                    (call-api 
+						                     "push_state" 
+						                     "page" {:name project-name}))}
+						                 "\uea99 "]]))
+						           results)])
+						  }
+						  #+END_QUERY
+						  ```
+					- version 1.3
+					  *more compact*
+					  ![image.png](../assets/image_1726346493459_0.png){:height 178, :width 437}
+						- retired [[Saturday, Sep 14th, 2024]]
+						- ```cljs
+						  #+BEGIN_QUERY
+						  {:query
+						   [:find ?current-page-id ?project-name ?manager-name ?project-properties
+						    :keys current-page-id project-name manager-name project-properties
+						    :in $ ?current-page
+						    :where
+						    ;; Step 1: Identify all project pages
+						    (page-tags ?project #{"project"})
+						  
+						      [?refs-project :block/refs ?project]
+						      ;; Ensure there is a parent block
+						  
+						      [?refs-project :block/parent ?ref-parent]
+						      ;; Check if the parent block references a manager
+						  
+						      [?ref-parent :block/refs ?managers]
+						      ;; Ensure the manager is one of the specified categories
+						  
+						      [?managers :block/name ?manager-name]
+						      [(contains? #{"next"} ?manager-name)]
+						    
+						    [?page :block/name ?current-page]
+						    [?page :block/uuid ?current-page-id]
+						    [?project :block/name ?project-name]
+						    [?project :block/properties ?project-properties]
+						  
+						  ]
+						  :result-transform (fn [results]
+						                      (let [sorted-results (sort-by (fn [r] (get r :block/name "none")) results)]
+						                        (map (fn [result]
+						                               (let [icon (get-in result [:project-properties :-icon] "ef27")] ; Use fallback icon if none
+						                                 (assoc result :icon icon))) ; Associate the icon with the result
+						                             (if (empty? sorted-results)
+						                               [{:block/name "\uf4a5 none"}]
+						                               sorted-results))))
+						  
+						   :view (fn [results]
+						           [:div {:class "projects-list-container"}
+						            (map (fn [results]
+						                   (let [project-name (:project-name results)
+						                         uuid (str (:current-page-id results))
+						                         icon (:icon results)]
+						                                 ;inside let scope 
+						                      [:span {:class "project-item"}
+						                          [:a {:class "project-quick-add" 
+						                               :on-click (
+						                                          fn [] (call-api "append_block_in_page" uuid (
+						                                                                                       str "{{i " icon "}} #[[" project-name "]]")))
+						                               }
+						                           [:span {:class "project-leading-icon"} "\uf63f "] [:span {:class "project-name"} project-name]
+						                           ] [:a {
+						                                  :class "project-trailing-icon" 
+						                                  :on-click (fn [] (call-api "push_state" "page" {:name project-name}))
+						                                  } "\uea99 "
+						                              ]
+						                          ]
+						                     ))
+						                 results)
+						                                     ])
+						  :inputs [:current-page]
+						  }
+						  #+END_QUERY
+						  ```
+					- version 1.2
+					  *introduces project icons & open page icon*
+					  ![image.png](../assets/image_1726346531928_0.png){:height 216, :width 296}
+						- ```cljs
+						  #+BEGIN_QUERY
+						  {:query
+						   [:find ?current-page-id ?project-name ?manager-name ?project-properties
+						    :keys current-page-id project-name manager-name project-properties
+						    :in $ ?current-page
+						    :where
+						    ;; Step 1: Identify all project pages
+						    (page-tags ?project #{"project"})
+						  
+						      [?refs-project :block/refs ?project]
+						      ;; Ensure there is a parent block
+						  
+						      [?refs-project :block/parent ?ref-parent]
+						      ;; Check if the parent block references a manager
+						  
+						      [?ref-parent :block/refs ?managers]
+						      ;; Ensure the manager is one of the specified categories
+						  
+						      [?managers :block/name ?manager-name]
+						      [(contains? #{"next"} ?manager-name)]
+						    
+						    [?page :block/name ?current-page]
+						    [?page :block/uuid ?current-page-id]
+						    [?project :block/name ?project-name]
+						    [?project :block/properties ?project-properties]
+						  
+						  ]
+						  :result-transform (fn [results]
+						                      (let [sorted-results (sort-by (fn [r] (get r :block/name "none")) results)]
+						                        (map (fn [result]
+						                               (let [icon (get-in result [:block/properties :icon] "ef27")] ; Use fallback icon if none
+						                                 (assoc result :icon icon))) ; Associate the icon with the result
+						                             (if (empty? sorted-results)
+						                               [{:block/name "\uf4a5 none"}]
+						                               sorted-results))))
+						  
+						   :view (fn [results]
+						           [:div
+						            (map (fn [results]
+						                   (let [project-name (:project-name results)
+						                         uuid (str (:current-page-id results))
+						                         icon (:icon results)]
+						                                 ;inside let scope 
+						                     [:p [:span
+						                          [:a
+						                           {:class "tag"
+						                            :on-click (fn [] (call-api "append_block_in_page"
+						                                                       uuid
+						                                                       (str "{{i " icon "}} #[[" project-name "]]")))
+						                            }
+						                           [:span {:class "ti"} "\uf63f "] 
+						                           project-name] [:a {:class "ti"
+						                          :on-click (fn [] (call-api "push_state" "page" {:name project-name}))} 
+						                      "  \uea99 "
+						                      ] 
+						                          ]]
+						                     ))
+						                 results)
+						                                     ])
+						  :inputs [:current-page]
+						  }
+						  #+END_QUERY
+						  ```
+						-
+					- version 1.1
+					  ![image.png](../assets/image_1717608526060_0.png){:height 95, :width 182}
+						- ```
+						  #+BEGIN_QUERY
+						  {:query
+						   [:find ?current-page-id ?project-name
+						    :keys current-page-id project-name
+						    :in $ ?current-page
+						    :where
+						    ;; Step 1: Identify all project pages
+						    (page-tags ?project #{"project"})
+						  
+						      [?refs-project :block/refs ?project]
+						      ;; Ensure there is a parent block
+						  
+						      [?refs-project :block/parent ?ref-parent]
+						      ;; Check if the parent block references a manager
+						  
+						      [?ref-parent :block/refs ?managers]
+						      ;; Ensure the manager is one of the specified categories
+						  
+						      [?managers :block/name ?name]
+						      [(contains? #{"next"} ?name)]
+						    
+						    [?page :block/name ?current-page]
+						    [?page :block/uuid ?current-page-id]
+						    [?project :block/name ?project-name]
+						  ]
+						  
+						   :view (fn [results]
+						           [:div
+						            (map (fn [results]
+						                   (let [project-name (:project-name results)
+						                         uuid (str (:current-page-id results))]
+						                                 ;inside let scope 
+						                     [:p [:span
+						                          [:a
+						                           {:class "tag tag-like"
+						                            :on-click (fn [] (call-api "append_block_in_page"
+						                                                       uuid
+						                                                       (str "[[" project-name "]]")))
+						                            }
+						                           [:span {:class "ti"} "\uf63f "] 
+						                           project-name]
+						                          ]]
+						                     ))
+						                 results)
+						                    
+						  
+						                    ])
+						  :inputs [:current-page]
+						  }
+						  #+END_QUERY
+						  ```
+			- *finished list*
+				- *current query*
+					- id:: 66e5f125-a19b-444b-ba8c-733711e2cd0f
 					  #+BEGIN_QUERY
-					  {:query
-					   [:find ?current-page-id ?project-name
-					    :keys current-page-id project-name
-					    :in $ ?current-page
+					  {:inputs [:current-page #{"finished"}]
+					   :query
+					   [:find ?current-page-id ?project-name ?manager-name ?project-properties
+					    :keys current-page-id project-name manager-name project-properties
+					    :in $ ?current-page ?completion-category
 					    :where
 					    ;; Step 1: Identify all project pages
 					    (page-tags ?project #{"project"})
 					  
-					      [?refs-project :block/refs ?project]
+					    [?refs-project :block/refs ?project]
 					      ;; Ensure there is a parent block
 					  
-					      [?refs-project :block/parent ?ref-parent]
+					    [?refs-project :block/parent ?ref-parent]
 					      ;; Check if the parent block references a manager
 					  
-					      [?ref-parent :block/refs ?managers]
+					    [?ref-parent :block/refs ?managers]
 					      ;; Ensure the manager is one of the specified categories
 					  
-					      [?managers :block/name ?name]
-					      [(contains? #{"next"} ?name)]
-					    
+					    [?managers :block/name ?manager-name]
+					    ;; [(contains? #{"finished"} ?manager-name)]
+					    [(contains? ?completion-category ?manager-name)]
+					  
+					  
 					    [?page :block/name ?current-page]
 					    [?page :block/uuid ?current-page-id]
 					    [?project :block/name ?project-name]
-					  ]
+					    [?project :block/properties ?project-properties]]
 					  
-					   :view (fn [results]
-					           [:div
-					            (map (fn [results]
-					                   (let [project-name (:project-name results)
-					                         uuid (str (:current-page-id results))]
-					                                 ;inside let scope 
-					                     [:p [:span
-					                          [:a
-					                           {:class "tag tag-like"
-					                            :on-click (fn [] (call-api "append_block_in_page"
-					                                                       uuid
-					                                                       (str "[[" project-name "]]")))
-					                            }
-					                           [:span {:class "ti"} "\uf63f "] 
-					                           project-name]
-					                          ]]
-					                     ))
-					                 results)
-					                    
+					   :result-transform
+					   (fn [results]
+					     (let [sorted-results (sort-by
+					                           (fn [r]
+					                             (get r
+					                                  :block/name
+					                                  "none")) results)]
+					       (map (fn [result]
+					              (let [icon (get-in result
+					                                 [:project-properties :-icon]
+					                                 "ef27")] ; Use fallback icon if none
+					                (assoc result :icon icon))) ; Associate the icon with the result
+					            (if (empty? sorted-results)
+					              [{:block/name "\uf4a5 none"}]
+					              sorted-results))))
 					  
-					                    ])
-					  :inputs [:current-page]
+					   :view
+					   (fn [results]
+					     [:div.projects-list-container
+					      (map (fn [results]
+					             (let [project-name (:project-name results)
+					                   uuid (str (:current-page-id results))
+					                   icon (:icon results)]
+					   
+					               [:span.project-item
+					                [:a.project-quick-add 
+					                 {:on-click
+					                  (fn [] (call-api
+					                          "append_block_in_page"
+					                          uuid
+					                          (str "{{i " icon "}} #[[" project-name "]]")))}
+					                 
+					                 [:span.project-leading-icon.lighter "\uf63f "] 
+					                 [:span.project-name  
+					                  [:span.ti 
+					                   (read-string (str "\" \\u" icon "\""))
+					                   ] project-name]] 
+					                
+					                [:a.project-trailing-icon 
+					                 {:on-click 
+					                  (fn [] 
+					                    (call-api 
+					                     "push_state" 
+					                     "page" {:name project-name}))}
+					                 "\uea99 "]]))
+					           results)])
 					  }
 					  #+END_QUERY
-					  ```
 		- {{i ee21}} **next appointment** journal widget
 		  id:: 664ceeec-b343-4d67-94d5-4db82220f06f
 		    ![image.png](../assets/image_1724503316662_0.png){:height 30, :width 245}
@@ -5195,3 +5442,4 @@ repository:: DeadBranches/logseq-queries-and-scripts
 - ### {{I eade}} resources
 	- https://charleschiugit.github.io/page/logseq/queries/
 	- https://www.reddit.com/r/logseq/comments/15yib2v/advanced_query_bootstrap_please_check_and_comment/
+- {{i ef27}} #[[:logseq-journal-buddy-improvement-2024.6]]

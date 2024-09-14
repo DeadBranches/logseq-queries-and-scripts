@@ -1129,7 +1129,20 @@ description:: `/template`s with boilerplate for collector blocks, page tags, dai
 	- {{i eaad}}  organization blocks
 		- ### {{i eac9}} component
 		  id:: 66b0ead7-67ee-44fd-a324-bd5dd7602f39
-			-
+			- ### {{h-admin}} [[admin]]
+			  ((662e6daa-e7f1-489f-a8ae-d40add917aa1))
+			- ### {{h-resources}} [[resources]]
+			  ((662e6757-a3ce-4379-9519-52d6b6133dfb))
+			- ### {{h-research}} [[research]]
+			  ((662e691a-f289-4178-8828-d8d624de58c5))
+			- ### {{h-thoughts}} [[thoughts]]
+			  ((662e68bb-da7d-4c47-a248-71f8c4554969))
+			- ### {{h-notes}} [[notes]]
+			  ((662e67a8-8e34-4a89-b3f9-7d4fa65a47f7))
+			- ### {{h-writings}} [[writings]]
+			  ((662e696b-3d43-4201-acf5-76879c81cdc6))
+			- ### {{h-code}} [[code]]
+			  ((66841c96-4f60-4f38-9511-29506db47192))
 	- {{i ef49}}  purchase holder
 		- ### {{i eac9}} component
 		  id:: 66b0ed6f-714f-4e1f-9d4c-85cf15341259
@@ -1154,6 +1167,9 @@ description:: `/template`s with boilerplate for collector blocks, page tags, dai
 			  {{embed ((664f42a4-40eb-44ba-8e8c-89dba2c17a06))}}
 				- [:span {:class "small-caps"} "project queue"]
 				  {{embed ((6654b591-49ea-4d3a-b9d9-1dc4f25bab0c))}}
+				- {{kitButton completed projects,collapseBlock,ee1d,-button-style full-width small-caps}}
+					- [:span {:class "small-caps"} "fin!"]
+					  {{embed ((66e5f125-a19b-444b-ba8c-733711e2cd0f))}}
 			- {{kitButton next appointment: |nextAppointment| days,collapseBlock,ea53,-button-style full-width small-caps}}
 			  {{embed ((664e4055-3b72-4ba1-ac8b-48e34544629c))}}
 			  {{journal-container-insertion-point}}
