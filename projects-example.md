@@ -3,14 +3,10 @@ repository:: DeadBranches/logseq-queries-and-scripts
 
 - ## {{i eb4e}}  [[focus]]
   Let's do it!
-	- [[:logseq-events-and-appointments]]
+	- [[:project-name]]
 - ## {{i ef93}}  [[next]]
   *More aspirational than anything.*
-	- [[:Android quick tile manager]]
-	- [[logseq journal news feed]]
-	- [[:android handsfree note-taker]]
-	- [[:denim repair 2024]]
-	- [[:logseq-queries-and-scripts-repo]]
+	- [[:project-name-2]]
 - ## {{i f258}}  [[unmanaged]]
   *oh mah gawd*
 	- #+BEGIN_QUERY
@@ -52,21 +48,7 @@ repository:: DeadBranches/logseq-queries-and-scripts
 	  #+END_QUERY
 - ## {{i ef3a}}  [[finished]]
   *Hall of Glorious achievements*
-	- [[:semantic-icon-search-tool]]
-	- [[:home automation core 2024.5 update]]
-	- [[:logseq-project-manager-2024.5]]
-	- 2023 income tax filing
-		- {{i-inbox}} 2023 income tax filing inbox
-		-
-		- DONE Grab any documents from CRA
-		  destination: `F:\R\Record, Taxes 2023`
-		- DONE Contact WealthSimple by phone to recover my account
-		  SCHEDULED: <2024-04-15 Mon>
-		  [[Monday, Apr 15th, 2024]]
-		- ### Tax Slips
-			- **T5** *Statement of Investment Income*
-			  Alterna Savings
+	- [[:project-name-3]]
 - ## {{i f59c}}  [[sometime]]
   *abandoned or otherwise unfeasible.*
-	- [[cheeto]]
-	- [[android morning helper]]
+	- [[:project-name-4]]
