@@ -4,14 +4,172 @@ description:: `/template`s with boilerplate for collector blocks, page tags, dai
 - ## {{i fab5}} block templates
   for repeatable structures that could go anywhere.
 	- #### {{i ef91}} project management
-		- {{i f3f3}} idea helper
-			- **
+	  id:: 66b0fc6d-037d-4651-b081-f021d3ef06fa
+		- {{i f3f3}} issue/idea helpers
 			- ### {{i-example}} samples
 			- ### {{i-template}} template
 			  template:: block - idea helper 
 			  template-including-parent:: false
-				- {{kitButton idea helper,collapseBlock,ea76,-button-style full-width small-caps}}
+				- {{kitButton issues,collapseBlock,ea06,-button-style full-width small-caps}}
 					- {{embed ((66ccdccf-f9e2-4028-b867-a7b5406fd634))}}
+				- {{kitButton ideas,collapseBlock,ea76,-button-style full-width small-caps}}
+					- {{embed ((66df909d-79a2-4532-917e-94d3bd8b32a8))}}
+				- {{kitButton questions,collapseBlock,ea76,-button-style full-width small-caps}}
+					- {{embed ((66df90b1-ccba-494b-94c9-76f3194e0963))}}
+			- backup
+				- #+BEGIN_QUERY
+				  {:inputs [:query-page "idea"]
+				   :query
+				   [:find ?uuid ?content ?idea-type ?marker (pull ?r [*]) 
+				    :keys uuid content idea-type idea-state block-content
+				    :in $ ?current-page ?idea-type
+				    :where
+				    [?p :block/name ?current-page]
+				    [?r :block/refs ?p]
+				  
+				    (or-join [?r ?marker]
+				     (and 
+				      [?r :block/marker ?marker])
+				     (and 
+				      [(missing? $ ?r :block/marker)]
+				      [(identity "UNINITIALIZED") ?marker]))
+				    ;;(not [?r :block/marker ?marker])
+				  
+				    [?r :block/macros ?m]
+				    [?m :block/properties ?props]
+				    [(get ?props :logseq.macro-name) ?macros]
+				    [(= ?macros ?idea-type)]
+				  
+				    ;; info we want, now that we have a match
+				    [?r :block/uuid ?uuid]
+				    [?r :block/content ?content]]
+				  
+				   :result-transform
+				   (letfn 
+				    [(first-line [block-content]
+				      (first (clojure.string/split-lines block-content)))
+				     
+				     (strip-idea-type [line idea-type]
+				      (clojure.string/replace
+				       line
+				       (re-pattern (str "(?:TODO\\s|DONE\\s)?{{" idea-type "}}\\s"))
+				       ""))
+				     
+				     (format-idea-state [block-marker]
+				      (case block-marker
+				        "UNINITIALIZED" "new"
+				        "TODO" "open"
+				        "DONE" "realized"))
+				     
+				     (structure-result [result]
+				      (let [content (get-in result [:content])
+				            block-uuid (get-in result [:uuid])
+				            idea-type (get-in result [:idea-type])
+				            idea-state (get-in result [:idea-state])]
+				        {:block/content content
+				         :uuid block-uuid
+				         :idea-type idea-type
+				         :idea-state (format-idea-state idea-state)
+				         :display-text (strip-idea-type 
+				                        (first-line content)
+				                        idea-type)}))] 
+				  
+				    (fn [results]
+				      (->> results
+				           (map structure-result)
+				           (group-by :idea-state)
+				           (into (sorted-map)))))
+				     
+				   
+				   :view
+				   (letfn
+				    [(make-link [text destination]
+				      [:a {:on-click
+				           (fn []
+				             (call-api "push_state"
+				                       "page"
+				                       {:name destination}))}
+				       text])
+				  
+				  (make-icon-link [text destination]
+				                      [:a (merge
+				                          {:class "ti"}
+				                           
+				  
+				                           {:on-click
+				                            (fn []
+				                              (call-api "push_state"
+				                                        "page"
+				                                        {:name destination}))
+				                            })
+				                       text])
+				  
+				     (make-marker-box [uuid state content]
+				      [:input
+				       {:type "checkbox"
+				        ;; checked attribute takes a boolean value
+				        :checked (= state "realized")
+				        :on-click
+				        (fn []
+				          (call-api
+				           "update_block"
+				           uuid
+				           (str (if (= state "realized")
+				                  "TODO"
+				                  "DONE")
+				                " "
+				                (clojure.string/replace
+				                 content
+				                 (re-pattern "(TODO|DONE)\\s")
+				                 ""))))}])
+				  
+				     (make-initialization-link [uuid content macro-name]
+				      [:button 
+				       {:on-click
+				        (fn []
+				          (call-api "update_block"
+				                    uuid
+				                    (clojure.string/replace
+				                     content
+				                     (re-pattern (str "{{" macro-name "}}\\s"))
+				                     (str "TODO {{" macro-name "}} "))))}
+				       "initialize"])]
+				  
+				    (fn [results]
+				      (for [[state items] results]
+				        (let [idea-type (-> items
+				                            first :idea-type)]
+				          [:div
+				           [:table {:class "future-event-table stop-click compact"}
+				            [:caption state " " idea-type "s"]
+				            [:thead [:tr
+				                     [:th {:width "80"} "Status"] [:th idea-type] [:th]]]
+				            [:tbody
+				             (for [result items]
+				               [:tr
+				                [:td.touch-screen (case (get-in result [:idea-state])
+				                       "new" (make-initialization-link
+				                              (get-in result [:uuid])
+				                              (get-in result [:block/content])
+				                              idea-type)
+				                       "open" (make-marker-box
+				                               (get-in result [:uuid])
+				                               (get-in result [:idea-state])
+				                               (get-in result [:block/content]))
+				                       "realized" (make-marker-box
+				                                   (get-in result [:uuid])
+				                                   (get-in result [:idea-state])
+				                                   (get-in result [:block/content]))
+				                       "other")]
+				                [:td (get-in result [:display-text]) ]
+				                [:td.touch-screen (make-icon-link
+				                      "\uea99"
+				                      (get-in result [:uuid]))]
+				                
+				                ])]]]))))} 
+				  
+				  #+END_QUERY
+				  {{idea-identifier}}
 		- {{i ee21}} expecting *<something>*
 			- ### {{i-example}} samples
 				- [[~autism assessment]]
@@ -260,6 +418,44 @@ description:: `/template`s with boilerplate for collector blocks, page tags, dai
 					-
 - ## {{i ed2b}} page templates
   *w/* common {{i-properties}} property sets & {{i ef94}} block structure
+	- {{i fea0}} full :with page
+		- *Use on any :with linked reference*
+		- ### {{i-example}} samples
+		- ### {{i-template}} template
+		  template:: page, :with - common template collection 
+		  template-including-parent:: false
+			-
+			- \/template page, calendar event summary
+			- \/template page, topics
+	- {{i fec4}} topics of discussion
+		- *Often used on :with pages*
+		- ### {{i-example}} samples
+		- ### {{i-template}} template
+		  template:: page, :with - topics of discussion 
+		  template-including-parent:: false
+			- # {{i eb6c}} Topics
+			  *use the \#topics tag to show content here*
+				- ### Open topics
+					- {{embed ((66e5e078-e59c-4064-91cf-2c3eec36af87))}}
+					- {{kitButton export,exportquery,'',squat}}
+				- Covered topics
+					- {{embed ((66e5e0c4-d1cc-4598-8e00-07f0abad84b0))}}
+					- {{kitButton export,exportquery,'',squat}}
+	- {{i fd1f}} appointment summary
+		- *Use on :with pages*
+		- ### {{i-example}} samples
+			- [[@Dr Teplitsky]]
+		- ### {{i-template}} template
+		  template:: page, :with - calendar event summary
+		  template-including-parent:: false
+			- # {{i f621}} appointment summary
+				- ## {{i fad2}} future appointments
+					- {{embed }}
+					  id:: 66e5dda7-4ff1-47a8-aab5-059310859898
+					- {{embed ((66e5dcc2-148a-4f77-88fc-bad898a3fdde))}}
+				- ## {{i f824}} previous appointments
+					- {{embed ((66e5dcb2-1960-4c28-9fe3-45371b023f0e))}}
+					- {{embed ((66e5dcbc-31a8-4e66-a0b3-2b393d3b4919))}}
 	- {{i ef91}} project page
 	  id:: 0698280a-d53c-457e-81a1-03b231ac6d11
 		- stuff
