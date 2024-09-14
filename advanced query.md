@@ -58,9 +58,16 @@ repository:: DeadBranches/logseq-queries-and-scripts
   
   #+END_QUERY
 - See: [[:result-transform]] for interactive REPL
-- ## {{i eff2}} Query library
+- ### {{i-cloud}} idea trackers
+	- {{kitButton issues,collapseBlock,ea06,-button-style full-width small-caps}}
+		- {{embed ((66ccdccf-f9e2-4028-b867-a7b5406fd634))}}
+	- {{kitButton ideas,collapseBlock,ea76,-button-style full-width small-caps}}
+		- {{embed ((66df909d-79a2-4532-917e-94d3bd8b32a8))}}
+	- {{kitButton questions,collapseBlock,ea76,-button-style full-width small-caps}}
+		- {{embed ((66df90b1-ccba-494b-94c9-76f3194e0963))}}
+- # {{i eff2}} Query library
   query:: ((65f7767a-9fe3-4b51-a564-c36be58ce5fa))
-  *Advanced queries I reuse*
+  *for re-use*
   #+BEGIN_QUERY
   {:inputs [:current-block #{1 2 3 4 5}]
    :query [:find (pull ?children [*])
@@ -114,128 +121,698 @@ repository:: DeadBranches/logseq-queries-and-scripts
    }
   
   #+END_QUERY
-	- ## Embedding queries
-	  *for `{{embedding}}`*
+	- ## Embedable queries
+	  {{i f635}} *`{{embed }}` these queries*
+		- {{i eb6c}} discussion topics
+			- open topics
+				- id:: 66e5e078-e59c-4064-91cf-2c3eec36af87
+				  #+BEGIN_QUERY
+				  {:inputs [:current-page]
+				  :query
+				  [:find (pull ?b [*])
+				  :in $ ?cp
+				  :where
+				  
+				  [?p :block/name ?cp]
+				  [?t :block/name "topics"]
+				  [?b :block/refs ?p]
+				  [?b :block/refs ?t]
+				  
+				  [?b :block/marker ?m]
+				  [(contains? #{"TODO"} ?m)]
+				  ]
+				  }
+				  #+END_QUERY
+			- covered topics
+				- id:: 66e5e0c4-d1cc-4598-8e00-07f0abad84b0
+				  #+BEGIN_QUERY
+				  {:inputs [:current-page]
+				  :query
+				  [:find (pull ?b [*])
+				  :in $ ?cp
+				  :where
+				  
+				  [?p :block/name ?cp]
+				  [?t :block/name "topics"]
+				  [?b :block/refs ?p]
+				  [?b :block/refs ?t]
+				  
+				  [?b :block/marker ?m]
+				  [(contains? #{"DONE"} ?m)]
+				  ]
+				  }
+				  #+END_QUERY
+		- {{i fd1f}} appointment summary
+			- previous appointment summary
+				- id:: 66e5dcb2-1960-4c28-9fe3-45371b023f0e
+				  #+BEGIN_QUERY
+				  {:inputs [:current-page :today]
+				  :query
+				  [:find (pull ?b [*]) 
+				  ;;:keys block cp ;;with-name
+				  :in $ ?cp ?today-datestamp
+				  :where
+				  
+				  
+				  [?b :block/properties ?props]
+				    [(get ?props :activity) ?activity]
+				    [(get ?props :event "") ?event]
+				    [(get ?props :date) ?date]
+				    [(get ?props :with "") ?with]
+				  
+				  
+				  ;; I want to use :current-page as the input for the `:with` field.
+				  ;; However, :current-page and :with cannot be directly compared.
+				  ;; 
+				  ;; {:current-page "@dr teplitsky"} ;; :block/name format
+				  ;; {:with  #{"@Dr Teplitsky"}}         ;; :block/original-name format
+				  ;; 
+				  ;; :current-page returns in :block/name format (lower case)
+				  ;; :with is in original case.
+				  ;;
+				  ;; Therefore, I need to convert :current-page to :block/original-name
+				  ;; 
+				  [?w :block/name ?cp]
+				  [?w :block/original-name ?original-name]
+				  [(contains? ?with ?original-name)]
+				    ;; (pr-ln ?cp) => "@dr teplitsky"
+				    ;; (pr-ln ?original-name) => "@Dr Teplitsky"
+				  
+				  ;; :journal-day for :date
+				   [?d :block/original-name ?bn]
+				   [(contains? ?date ?bn)]
+				   [?d :block/journal-day ?activity-datestamp]
+				   [(< ?activity-datestamp ?today-datestamp)]
+				  
+				  ]
+				  
+				  
+				  :result-transform
+				    (fn [result] 
+				      (sort-by (comp - (fn [r] (get-in r [:block/page :block/journal-day]))) result)
+				      )
+				  
+				  :view (fn [results]
+				        [:div [:table.future-event-table.stop-click.compact
+				               [:caption "Past appointments"]
+				               [:thead [:tr
+				                        [:th "date"] [:th "details"]]]
+				               [:tbody
+				                (for [item results]
+				                  [:tr
+				                  [:td (str (get-in item [:block/properties :date]))]
+				                  [:td (str (get-in item [:block/properties-text-values :event]))]]
+				                  )
+				                
+				                ]]]
+				          )
+				  
+				  
+				  :children? true
+				  :breadcrumb-show? true
+				  :group-by-page? true
+				  }
+				  #+END_QUERY
+			- previous appointment table
+				- id:: 66e5dcbc-31a8-4e66-a0b3-2b393d3b4919
+				  #+BEGIN_QUERY
+				  {:inputs [:current-page :today]
+				  :query
+				  [:find (pull ?b [*]) 
+				  ;;:keys block cp ;;with-name
+				  :in $ ?cp ?today-datestamp
+				  :where
+				  
+				  
+				  [?b :block/properties ?props]
+				    [(get ?props :activity) ?activity]
+				    [(get ?props :event "") ?event]
+				    [(get ?props :date) ?date]
+				    [(get ?props :with "") ?with]
+				  
+				  
+				  ;; I want to use :current-page as the input for the `:with` field.
+				  ;; However, :current-page and :with cannot be directly compared.
+				  ;; 
+				  ;; {:current-page "@dr teplitsky"} ;; :block/name format
+				  ;; {:with  #{"@Dr Teplitsky"}}         ;; :block/original-name format
+				  ;; 
+				  ;; :current-page returns in :block/name format (lower case)
+				  ;; :with is in original case.
+				  ;;
+				  ;; Therefore, I need to convert :current-page to :block/original-name
+				  ;; 
+				  [?w :block/name ?cp]
+				  [?w :block/original-name ?original-name]
+				  [(contains? ?with ?original-name)]
+				    ;; (pr-ln ?cp) => "@dr teplitsky"
+				    ;; (pr-ln ?original-name) => "@Dr Teplitsky"
+				  
+				  ;; :journal-day for :date
+				   [?d :block/original-name ?bn]
+				   [(contains? ?date ?bn)]
+				   [?d :block/journal-day ?activity-datestamp]
+				   [(< ?activity-datestamp ?today-datestamp)]
+				  
+				  ]
+				  
+				  
+				  :result-transform
+				    (fn [result] 
+				      (sort-by (comp - (fn [r] (get-in r [:block/page :block/journal-day]))) result)
+				      )
+				  ;;:view :pprint
+				  
+				  
+				  :children? true
+				  :breadcrumb-show? true
+				  :group-by-page? true
+				  }
+				  #+END_QUERY
+			- future appointments summary
+				-
+			- future appointments table
+				- id:: 66e5dcc2-148a-4f77-88fc-bad898a3fdde
+				  #+BEGIN_QUERY
+				  {:inputs [:current-page :today]
+				  :query
+				  [:find (pull ?b [*]) 
+				  ;;:keys block cp ;;with-name
+				  :in $ ?cp ?today-datestamp
+				  :where
+				  
+				  
+				  [?b :block/properties ?props]
+				    [(get ?props :activity) ?activity]
+				    [(get ?props :event "") ?event]
+				    [(get ?props :date) ?date]
+				    [(get ?props :with "") ?with]
+				  
+				  
+				  ;; I want to use :current-page as the input for the `:with` field.
+				  ;; However, :current-page and :with cannot be directly compared.
+				  ;; 
+				  ;; {:current-page "@dr teplitsky"} ;; :block/name format
+				  ;; {:with  #{"@Dr Teplitsky"}}         ;; :block/original-name format
+				  ;; 
+				  ;; :current-page returns in :block/name format (lower case)
+				  ;; :with is in original case.
+				  ;;
+				  ;; Therefore, I need to convert :current-page to :block/original-name
+				  ;; 
+				  [?w :block/name ?cp]
+				  [?w :block/original-name ?original-name]
+				  [(contains? ?with ?original-name)]
+				    ;; (pr-ln ?cp) => "@dr teplitsky"
+				    ;; (pr-ln ?original-name) => "@Dr Teplitsky"
+				  
+				  ;; :journal-day for :date
+				   [?d :block/original-name ?bn]
+				   [(contains? ?date ?bn)]
+				   [?d :block/journal-day ?activity-datestamp]
+				   [(>= ?activity-datestamp ?today-datestamp)]
+				  
+				  ]
+				  
+				  
+				  :result-transform
+				    (fn [result] 
+				      (sort-by (comp - (fn [r] (get-in r [:block/page :block/journal-day]))) result)
+				      )
+				  ;;:view :pprint
+				  
+				  
+				  :children? true
+				  :breadcrumb-show? true
+				  :group-by-page? true
+				  }
+				  #+END_QUERY
 		- idea workshop
-			- id:: 66ccdccf-f9e2-4028-b867-a7b5406fd634
-			  #+BEGIN_QUERY
-			  {:inputs [:current-page "idea"]
-			   :query
-			   [:find ?uuid ?content ?idea-type ?marker (pull ?r [*]) 
-			    :keys uuid content idea-type idea-state block-content
-			    :in $ ?current-page ?idea-type
-			    :where
-			    [?p :block/name ?current-page]
-			    [?r :block/refs ?p]
-			  
-			    (or-join [?r ?marker]
-			     (and 
-			      [?r :block/marker ?marker])
-			     (and 
-			      [(missing? $ ?r :block/marker)]
-			      [(identity "UNINITIALIZED") ?marker]))
-			    ;;(not [?r :block/marker ?marker])
-			  
-			    [?r :block/macros ?m]
-			    [?m :block/properties ?props]
-			    [(get ?props :logseq.macro-name) ?macros]
-			    [(= ?macros ?idea-type)]
-			  
-			    ;; info we want, now that we have a match
-			    [?r :block/uuid ?uuid]
-			    [?r :block/content ?content]]
-			  
-			  
-			  
-			   :result-transform
-			   (letfn [(first-line [block-content]
-			                       (first (clojure.string/split-lines block-content)))
-			  
-			           (strip-idea-type [line idea-type]
-			                            (clojure.string/replace line (re-pattern (str "(?:TODO\\s|DONE\\s)?{{" idea-type "}}\\s")) ""))
-			  
-			           (format-idea-state [block-marker]
-			                              (case block-marker
-			                                "UNINITIALIZED" "new"
-			                                "TODO" "open"
-			                                "DONE" "realized"))
-			           
-			           (structure-result [result]
-			                             (let [content (get-in result [:content])
-			                                   block-uuid (get-in result [:uuid])
-			                                   idea-type (get-in result [:idea-type])
-			                                   idea-state (get-in result [:idea-state])]
-			                               {:block/content content
-			                                :uuid block-uuid
-			                                :idea-type idea-type
-			                                :idea-state (format-idea-state idea-state)
-			                                :display-text (strip-idea-type (first-line content)
-			                                                               idea-type)}))] 
-			  
-			     (fn [results]
-			       (->> results
-			            (map structure-result)
-			            (group-by :idea-state)
-			            ))
-			     
-			     )
-			       
-			  
-			   
-			   :view
-			   (letfn
-			    [(make-link [text destination]
-			       [:a {:on-click
-			            (fn []
-			              (call-api "push_state"
-			                        "page"
-			                        {:name destination}))}
-			        text])
-			  
-			     (make-marker-box [uuid content macro-name]
-			       [:button {:on-click
-			                 (fn []
-			                   (call-api "update_block"
-			                             uuid
-			                             (str (clojure.string/replace
-			                                   content
-			                                   (re-pattern (str "{{" macro-name "}}\\s"))
-			                                   (str "TODO {{" macro-name "}} ")))))}
-			        ])
-			  
-			     (make-initialization-link [uuid content macro-name]
-			       [:button {:on-click
-			                 (fn []
-			                   (call-api "update_block"
-			                             uuid
-			                             (clojure.string/replace
-			                              content
-			                              (re-pattern (str "{{" macro-name "}}\\s"))
-			                              (str "TODO {{" macro-name "}} "))))}
-			        "initialize"])]
-			  
-			     (fn [results]
-			       (for [[state items] results]
-			         (let [idea-type (-> items
-			                             first :idea-type)]
-			           [:div
-			            [:table {:class "future-appointments"}
-			             [:caption state " " idea-type "s"]
-			             [:thead [:tr
-			                      [:th {:width "80"} "Status"] [:th idea-type]]]
-			             [:tbody (for [result items] [:tr
-			                                            [:td (make-initialization-link
-			                                                  (get-in result [:uuid])
-			                                                  (get-in result [:block/content])
-			                                                  idea-type)]
-			                                            [:td (make-link
-			                                                  (get-in result [:display-text]) ;;(convert-bold )
-			                                                  (get-in result [:uuid]))]])]]])) 
-			         )
-			     )}
-			   
-			   
-			  #+END_QUERY
+			- Issues query
+				- id:: 66ccdccf-f9e2-4028-b867-a7b5406fd634
+				  #+BEGIN_QUERY
+				  {:inputs [:current-page "issue"]
+				   :query
+				   [:find ?uuid ?content ?idea-type ?marker (pull ?r [*]) 
+				    :keys uuid content idea-type idea-state block-content
+				    :in $ ?current-page ?idea-type
+				    :where
+				    [?p :block/name ?current-page]
+				    [?r :block/refs ?p]
+				  
+				    (or-join [?r ?marker]
+				     (and 
+				      [?r :block/marker ?marker])
+				     (and 
+				      [(missing? $ ?r :block/marker)]
+				      [(identity "UNINITIALIZED") ?marker]))
+				    ;;(not [?r :block/marker ?marker])
+				  
+				    [?r :block/macros ?m]
+				    [?m :block/properties ?props]
+				    [(get ?props :logseq.macro-name) ?macros]
+				    [(= ?macros ?idea-type)]
+				  
+				    ;; info we want, now that we have a match
+				    [?r :block/uuid ?uuid]
+				    [?r :block/content ?content]]
+				  
+				   :result-transform
+				   (letfn 
+				    [(first-line [block-content]
+				      (first (clojure.string/split-lines block-content)))
+				     
+				     (strip-idea-type [line idea-type]
+				      (clojure.string/replace
+				       line
+				       (re-pattern (str "(?:TODO\\s|DONE\\s)?{{" idea-type "}}\\s"))
+				       ""))
+				     
+				     (format-idea-state [block-marker]
+				      (case block-marker
+				        "UNINITIALIZED" "new"
+				        "TODO" "open"
+				        "DONE" "realized"))
+				     
+				     (structure-result [result]
+				      (let [content (get-in result [:content])
+				            block-uuid (get-in result [:uuid])
+				            idea-type (get-in result [:idea-type])
+				            idea-state (get-in result [:idea-state])]
+				        {:block/content content
+				         :uuid block-uuid
+				         :idea-type idea-type
+				         :idea-state (format-idea-state idea-state)
+				         :display-text (strip-idea-type 
+				                        (first-line content)
+				                        idea-type)}))] 
+				  
+				    (fn [results]
+				      (->> results
+				           (map structure-result)
+				           (group-by :idea-state)
+				           (into (sorted-map)))))
+				     
+				   
+				   :view
+				   (letfn
+				    [(make-link [text destination]
+				      [:a {:on-click
+				           (fn []
+				             (call-api "push_state"
+				                       "page"
+				                       {:name destination}))}
+				       text])
+				  
+				  (make-icon-link [text destination]
+				                      [:a (merge
+				                          {:class "ti"}
+				                           
+				  
+				                           {:on-click
+				                            (fn []
+				                              (call-api "push_state"
+				                                        "page"
+				                                        {:name destination}))
+				                            })
+				                       text])
+				  
+				     (make-marker-box [uuid state content]
+				      [:input
+				       {:type "checkbox"
+				        ;; checked attribute takes a boolean value
+				        :checked (= state "realized")
+				        :on-click
+				        (fn []
+				          (call-api
+				           "update_block"
+				           uuid
+				           (str (if (= state "realized")
+				                  "TODO"
+				                  "DONE")
+				                " "
+				                (clojure.string/replace
+				                 content
+				                 (re-pattern "(TODO|DONE)\\s")
+				                 ""))))}])
+				  
+				     (make-initialization-link [uuid content macro-name]
+				      [:button 
+				       {:on-click
+				        (fn []
+				          (call-api "update_block"
+				                    uuid
+				                    (clojure.string/replace
+				                     content
+				                     (re-pattern (str "{{" macro-name "}}\\s"))
+				                     (str "TODO {{" macro-name "}} "))))}
+				       "initialize"])]
+				  
+				    (fn [results]
+				      (for [[state items] results]
+				        (let [idea-type (-> items
+				                            first :idea-type)]
+				          [:div
+				           [:table {:class "future-event-table stop-click compact"}
+				            [:caption state " " idea-type "s"]
+				            [:thead [:tr
+				                     [:th {:width "80"} "Status"] [:th idea-type] [:th]]]
+				            [:tbody
+				             (for [result items]
+				               [:tr
+				                [:td.touch-screen (case (get-in result [:idea-state])
+				                       "new" (make-initialization-link
+				                              (get-in result [:uuid])
+				                              (get-in result [:block/content])
+				                              idea-type)
+				                       "open" (make-marker-box
+				                               (get-in result [:uuid])
+				                               (get-in result [:idea-state])
+				                               (get-in result [:block/content]))
+				                       "realized" (make-marker-box
+				                                   (get-in result [:uuid])
+				                                   (get-in result [:idea-state])
+				                                   (get-in result [:block/content]))
+				                       "other")]
+				                [:td (get-in result [:display-text]) ]
+				                [:td.touch-screen (make-icon-link
+				                      "\uea99"
+				                      (get-in result [:uuid]))]
+				                
+				                ])]]]))))} 
+				  
+				  #+END_QUERY
+				  {{issue-identifier}}
+			- Ideas query
+				- id:: 66df909d-79a2-4532-917e-94d3bd8b32a8
+				  #+BEGIN_QUERY
+				  {:inputs [:current-page "idea"]
+				   :query
+				   [:find ?uuid ?content ?idea-type ?marker (pull ?r [*]) 
+				    :keys uuid content idea-type idea-state block-content
+				    :in $ ?current-page ?idea-type
+				    :where
+				    [?p :block/name ?current-page]
+				    [?r :block/refs ?p]
+				  
+				    (or-join [?r ?marker]
+				     (and 
+				      [?r :block/marker ?marker])
+				     (and 
+				      [(missing? $ ?r :block/marker)]
+				      [(identity "UNINITIALIZED") ?marker]))
+				    ;;(not [?r :block/marker ?marker])
+				  
+				    [?r :block/macros ?m]
+				    [?m :block/properties ?props]
+				    [(get ?props :logseq.macro-name) ?macros]
+				    [(= ?macros ?idea-type)]
+				  
+				    ;; info we want, now that we have a match
+				    [?r :block/uuid ?uuid]
+				    [?r :block/content ?content]]
+				  
+				   :result-transform
+				   (letfn 
+				    [(first-line [block-content]
+				      (first (clojure.string/split-lines block-content)))
+				     
+				     (strip-idea-type [line idea-type]
+				      (clojure.string/replace
+				       line
+				       (re-pattern (str "(?:TODO\\s|DONE\\s)?{{" idea-type "}}\\s"))
+				       ""))
+				     
+				     (format-idea-state [block-marker]
+				      (case block-marker
+				        "UNINITIALIZED" "new"
+				        "TODO" "open"
+				        "DONE" "realized"))
+				     
+				     (structure-result [result]
+				      (let [content (get-in result [:content])
+				            block-uuid (get-in result [:uuid])
+				            idea-type (get-in result [:idea-type])
+				            idea-state (get-in result [:idea-state])]
+				        {:block/content content
+				         :uuid block-uuid
+				         :idea-type idea-type
+				         :idea-state (format-idea-state idea-state)
+				         :display-text (strip-idea-type 
+				                        (first-line content)
+				                        idea-type)}))] 
+				  
+				    (fn [results]
+				      (->> results
+				           (map structure-result)
+				           (group-by :idea-state)
+				           (into (sorted-map)))))
+				     
+				   
+				   :view
+				   (letfn
+				    [(make-link [text destination]
+				      [:a {:on-click
+				           (fn []
+				             (call-api "push_state"
+				                       "page"
+				                       {:name destination}))}
+				       text])
+				  
+				  (make-icon-link [text destination]
+				                      [:a (merge
+				                          {:class "ti"}
+				                           
+				  
+				                           {:on-click
+				                            (fn []
+				                              (call-api "push_state"
+				                                        "page"
+				                                        {:name destination}))
+				                            })
+				                       text])
+				  
+				     (make-marker-box [uuid state content]
+				      [:input
+				       {:type "checkbox"
+				        ;; checked attribute takes a boolean value
+				        :checked (= state "realized")
+				        :on-click
+				        (fn []
+				          (call-api
+				           "update_block"
+				           uuid
+				           (str (if (= state "realized")
+				                  "TODO"
+				                  "DONE")
+				                " "
+				                (clojure.string/replace
+				                 content
+				                 (re-pattern "(TODO|DONE)\\s")
+				                 ""))))}])
+				  
+				     (make-initialization-link [uuid content macro-name]
+				      [:button 
+				       {:on-click
+				        (fn []
+				          (call-api "update_block"
+				                    uuid
+				                    (clojure.string/replace
+				                     content
+				                     (re-pattern (str "{{" macro-name "}}\\s"))
+				                     (str "TODO {{" macro-name "}} "))))}
+				       "initialize"])]
+				  
+				    (fn [results]
+				      (for [[state items] results]
+				        (let [idea-type (-> items
+				                            first :idea-type)]
+				          [:div
+				           [:table {:class "future-event-table stop-click compact"}
+				            [:caption state " " idea-type "s"]
+				            [:thead [:tr
+				                     [:th {:width "80"} "Status"] [:th idea-type] [:th]]]
+				            [:tbody
+				             (for [result items]
+				               [:tr
+				                [:td.touch-screen (case (get-in result [:idea-state])
+				                       "new" (make-initialization-link
+				                              (get-in result [:uuid])
+				                              (get-in result [:block/content])
+				                              idea-type)
+				                       "open" (make-marker-box
+				                               (get-in result [:uuid])
+				                               (get-in result [:idea-state])
+				                               (get-in result [:block/content]))
+				                       "realized" (make-marker-box
+				                                   (get-in result [:uuid])
+				                                   (get-in result [:idea-state])
+				                                   (get-in result [:block/content]))
+				                       "other")]
+				                [:td (get-in result [:display-text]) ]
+				                [:td.touch-screen (make-icon-link
+				                      "\uea99"
+				                      (get-in result [:uuid]))]
+				                
+				                ])]]]))))} 
+				  
+				  #+END_QUERY
+				  {{idea-identifier}}
+			- Questions query
+				- id:: 66df90b1-ccba-494b-94c9-76f3194e0963
+				  #+BEGIN_QUERY
+				  {:inputs [:current-page "question"]
+				   :query
+				   [:find ?uuid ?content ?idea-type ?marker (pull ?r [*]) 
+				    :keys uuid content idea-type idea-state block-content
+				    :in $ ?current-page ?idea-type
+				    :where
+				    [?p :block/name ?current-page]
+				    [?r :block/refs ?p]
+				  
+				    (or-join [?r ?marker]
+				     (and 
+				      [?r :block/marker ?marker])
+				     (and 
+				      [(missing? $ ?r :block/marker)]
+				      [(identity "UNINITIALIZED") ?marker]))
+				    ;;(not [?r :block/marker ?marker])
+				  
+				    [?r :block/macros ?m]
+				    [?m :block/properties ?props]
+				    [(get ?props :logseq.macro-name) ?macros]
+				    [(= ?macros ?idea-type)]
+				  
+				    ;; info we want, now that we have a match
+				    [?r :block/uuid ?uuid]
+				    [?r :block/content ?content]]
+				  
+				   :result-transform
+				   (letfn 
+				    [(first-line [block-content]
+				      (first (clojure.string/split-lines block-content)))
+				     
+				     (strip-idea-type [line idea-type]
+				      (clojure.string/replace
+				       line
+				       (re-pattern (str "(?:TODO\\s|DONE\\s)?{{" idea-type "}}\\s"))
+				       ""))
+				     
+				     (format-idea-state [block-marker]
+				      (case block-marker
+				        "UNINITIALIZED" "new"
+				        "TODO" "open"
+				        "DONE" "realized"))
+				     
+				     (structure-result [result]
+				      (let [content (get-in result [:content])
+				            block-uuid (get-in result [:uuid])
+				            idea-type (get-in result [:idea-type])
+				            idea-state (get-in result [:idea-state])]
+				        {:block/content content
+				         :uuid block-uuid
+				         :idea-type idea-type
+				         :idea-state (format-idea-state idea-state)
+				         :display-text (strip-idea-type 
+				                        (first-line content)
+				                        idea-type)}))] 
+				  
+				    (fn [results]
+				      (->> results
+				           (map structure-result)
+				           (group-by :idea-state)
+				           (into (sorted-map)))))
+				     
+				   
+				   :view
+				   (letfn
+				    [(make-link [text destination]
+				      [:a {:on-click
+				           (fn []
+				             (call-api "push_state"
+				                       "page"
+				                       {:name destination}))}
+				       text])
+				  
+				  (make-icon-link [text destination]
+				                      [:a (merge
+				                          {:class "ti"}
+				                           
+				  
+				                           {:on-click
+				                            (fn []
+				                              (call-api "push_state"
+				                                        "page"
+				                                        {:name destination}))
+				                            })
+				                       text])
+				  
+				     (make-marker-box [uuid state content]
+				      [:input
+				       {:type "checkbox"
+				        ;; checked attribute takes a boolean value
+				        :checked (= state "realized")
+				        :on-click
+				        (fn []
+				          (call-api
+				           "update_block"
+				           uuid
+				           (str (if (= state "realized")
+				                  "TODO"
+				                  "DONE")
+				                " "
+				                (clojure.string/replace
+				                 content
+				                 (re-pattern "(TODO|DONE)\\s")
+				                 ""))))}])
+				  
+				     (make-initialization-link [uuid content macro-name]
+				      [:button 
+				       {:on-click
+				        (fn []
+				          (call-api "update_block"
+				                    uuid
+				                    (clojure.string/replace
+				                     content
+				                     (re-pattern (str "{{" macro-name "}}\\s"))
+				                     (str "TODO {{" macro-name "}} "))))}
+				       "initialize"])]
+				  
+				    (fn [results]
+				      (for [[state items] results]
+				        (let [idea-type (-> items
+				                            first :idea-type)]
+				          [:div
+				           [:table {:class "future-event-table stop-click compact"}
+				            [:caption state " " idea-type "s"]
+				            [:thead [:tr
+				                     [:th {:width "80"} "Status"] [:th idea-type] [:th]]]
+				            [:tbody
+				             (for [result items]
+				               [:tr
+				                [:td.touch-screen (case (get-in result [:idea-state])
+				                       "new" (make-initialization-link
+				                              (get-in result [:uuid])
+				                              (get-in result [:block/content])
+				                              idea-type)
+				                       "open" (make-marker-box
+				                               (get-in result [:uuid])
+				                               (get-in result [:idea-state])
+				                               (get-in result [:block/content]))
+				                       "realized" (make-marker-box
+				                                   (get-in result [:uuid])
+				                                   (get-in result [:idea-state])
+				                                   (get-in result [:block/content]))
+				                       "other")]
+				                [:td (get-in result [:display-text]) ]
+				                [:td.touch-screen (make-icon-link
+				                      "\uea99"
+				                      (get-in result [:uuid]))]
+				                
+				                ])]]]))))} 
+				  
+				  #+END_QUERY
+				  {{question-identifier}}
 		- Previous grocery purchases
 		  ![image.png](../assets/image_1724109056266_0.png){:height 190, :width 181}
 			- current query (v2). Now shows if items are in the basket or not lol
@@ -367,7 +944,7 @@ repository:: DeadBranches/logseq-queries-and-scripts
 				                   query-results (get-in results [:query-results])]
 				                  
 				               [:div
-				                [:table {:class "future-appointments compact more-compact"}
+				                [:table {:class "future-appointments compact more-compact stop-click"}
 				                 [:thead
 				                  [:tr
 				                   [:th ""]
@@ -377,7 +954,7 @@ repository:: DeadBranches/logseq-queries-and-scripts
 				                    (let [class-addition (if (:in-basket item-data) "strikethrough" "")]
 				                     [:tr
 				                      [:td [:span {:class "bti bigger" :dangerouslySetInnerHTML {:__html (make-icon grocery-item)}}]]
-				                      [:td (make-link grocery-item (get-in query-data [:today-journal-uuid]) class-addition)]]))]]])))
+				                      [:td.touch-screen (make-link grocery-item (get-in query-data [:today-journal-uuid]) class-addition)]]))]]])))
 				                   
 				                 
 				  
@@ -2511,7 +3088,7 @@ repository:: DeadBranches/logseq-queries-and-scripts
 			  
 			  #+END_QUERY
 	- ## Reusable queries
-	  *that need to be manually added to a block*
+	  {{i f635}} *for manual addition to a block*
 	  #+BEGIN_QUERY
 	  {:inputs [:current-block #{1 2 3 4 5}]
 	    :query [:find (pull ?children [*])
@@ -2536,11 +3113,11 @@ repository:: DeadBranches/logseq-queries-and-scripts
 	                                             result)]
 	                        first-lines))
 	  :view (fn [items]
-	          [:div [:span {:class "ti"} "   \uf019 "]
+	          [:div [:span.bti "   \uf019 "]
 	           (for [[idx {:keys [text uuid]}] (map-indexed vector items)]
 	             (if (= idx (dec (count items)))
-	               [:a {:href (str "logseq://graph/main?block-id=" uuid)} text]
-	               [:span [:a {:href (str "logseq://graph/main?block-id=" uuid)} text] ", "]))])
+	               [:a.tag {:href (str "logseq://graph/main?block-id=" uuid)} text]
+	               [:span [:a.tag {:href (str "logseq://graph/main?block-id=" uuid)} text] ", "]))])
 	  }
 	  #+END_QUERY
 		- #### Macro-based tracker (for blocks)
@@ -3185,8 +3762,9 @@ repository:: DeadBranches/logseq-queries-and-scripts
 			  }
 			  #+END_QUERY
 			  ```
-	- ## Previous page-queries
-	  *Queries located on a page, but versioned here*
+	- ## Single-use queries
+	  {{i f635}} *And archive*
+		- *Queries and historical versions that appear on only one page*
 		- ### Shopping list -> In basket
 			- **version 1.2** {{code-inside}}
 			  id:: 669137d3-3f99-4931-9dff-3c584e43c00d
@@ -3241,11 +3819,11 @@ repository:: DeadBranches/logseq-queries-and-scripts
 				  }
 				  #+END_QUERY
 				  ```
-- ## {{i eb6d}}  concepts
-  advanced queries labeled by use case
+- # {{i eb6d}}  query concepts
+  *by use case*
 	- ### {{i eead}} query concept inbox
 	  id:: 66ae786c-0e7c-4d19-a94a-a1ae04fa3f19
-	  *check here for unsorted saved queries*
+	        {{i f635}} *unsorted saved queries*
 		- #+BEGIN_QUERY
 		  {:inputs [:parent-block]
 		  :query
@@ -3346,16 +3924,7 @@ repository:: DeadBranches/logseq-queries-and-scripts
 			  }
 			  #+END_QUERY
 			  ```
-	- ### :rules
-	  *clause expressions*
-		- show query **results only**
-			- ```
-			   :breadcrumb-show? false
-			   :children? false
-			   :group-by-page? false
-			  ```
-				-
-	- ### :where
+	- ## :where
 	  *clause expressions*
 		- blocks **without property** *:property-name*
 			- Exclude blocks with property value *x*
@@ -3380,19 +3949,6 @@ repository:: DeadBranches/logseq-queries-and-scripts
 			  ```
 		- blocks **with a given \{\{macro}}**
 		  id:: 6638f4e8-101f-4d66-8aa5-0782d73d32f7
-		   ```datalog
-		   {:inputs ["grocery"]
-		    :query
-		    [:find (pull ?b [*])
-		     :in $ ?macro
-		     :where
-		     [?m :block/properties ?props]
-		     [(get ?props :logseq.macro-name) ?macros]
-		     [(= ?macros ?macro)]
-		     [?b :block/macros ?m]
-		    ]
-		    }
-		   ```
 			- news!!!
 			  #+BEGIN_QUERY
 			  {:inputs ["news"]
@@ -3412,7 +3968,170 @@ repository:: DeadBranches/logseq-queries-and-scripts
 			    :children? false
 			    :group-by-page? false}
 			  #+END_QUERY
-	- ### :view
+			- ```datalog
+			   {:inputs ["grocery"]
+			    :query
+			    [:find (pull ?b [*])
+			     :in $ ?macro
+			     :where
+			     [?m :block/properties ?props]
+			     [(get ?props :logseq.macro-name) ?macros]
+			     [(= ?macros ?macro)]
+			     [?b :block/macros ?m]
+			    ]
+			    }
+			   ```
+		- or-join
+			- ```cljs
+			    [?a :block/name ?activity-page]
+			    [(contains? ?activity ?activity-page)]
+			    (or-join [?a ?icon]
+			             (and
+			              [?a :block/properties ?activity-props]
+			              [(get ?activity-props :-icon) ?icon]
+			              [(some? ?icon)]) ;; :-icon exists and is not nil
+			             (and
+			              [?a :block/properties ?activity-props]
+			              [(get ?activity-props :-icon :not-found) ?icon-or-not-found]
+			              [(= ?icon-or-not-found :not-found)] ;; :block/properties, but nil icon
+			              [(identity "0000") ?icon])
+			             (and ;; no block properties
+			              [(missing? $ ?a :block/properties)] ;; no :bp
+			              [(identity "0000") ?icon]))]
+			  ```
+	- ## :result-transform
+	  *function*
+		- Sort by result [:block/page **:journal-day**]
+			- ```datalog
+			  :result-transform
+			    (fn [result] 
+			      (sort-by (comp - (fn [r] (get-in r [:block/page :block/journal-day]))) result)
+			      )
+			  ```
+		- **Sort by date created** (or failing that, date last modified)
+			- {{nested-code-block}}
+				- copy_second_sibling:
+				  ```js
+				  const second_child = logseq.api.get_next_sibling_block(this.nestedMacroUuid);
+				  const pattern = new RegExp("```(?:[a-zA-Z\\d_-]*)*\\n(.+?)\\n```", "usgm");
+				  const match = pattern.exec(second_child.content);
+				  const clipboard = `${match[1]}\n\n[source](((${second_child.uuid})))`;
+				  navigator.clipboard.writeText(clipboard);
+				  ```
+			- ```datalog
+			   :result-transform 
+			    (fn [result]
+			      (sort-by 
+			        (fn [r] 
+			          (let [journal-day (get-in r [:block/page :block/journal-day])
+			                created-at (get r :block/created-at)]
+			            (- (or journal-day created-at))))
+			        result))
+			   :breadcrumb-show? false
+			  ```
+			- {{il eb6c,Bing: sort by date created,https://sl.bing.net/4TV8A6wblI}}
+		- Click to complete TODO blocks via **call-api**
+		    `:result-transform` `:view`
+		  {{button copy,copy_second_sibling,ea6f,long squat}}
+			- {{nested-code-block}}
+				- copy_second_sibling:
+				  ```js
+				  const second_child = logseq.api.get_next_sibling_block(this.nestedMacroUuid);
+				  const pattern = new RegExp("```(?:[a-zA-Z\\d_-]*)*\\n(.+?)\\n```", "usgm");
+				  const match = pattern.exec(second_child.content);
+				  const clipboard = `${match[1]}\n\n[source](((${second_child.uuid})))`;
+				  navigator.clipboard.writeText(clipboard);
+				  ```
+			- ```datalog
+			  {
+			   :query [:find (pull ?b [*])
+			           :in $ ?current
+			           :where
+			           [?p :block/name ?current]
+			           [?b :block/page ?p]
+			           (task ?b #{"TODO" "DONE"})
+			         ]
+			   :inputs [:current-page]
+			   :table-view? true
+			   :view (fn [r] 
+			     [:table 
+			       [:thead 
+			         [:tr [:td "task"] [:td "marker"]]
+			       ]
+			       [:tbody
+			         (map (fn [m] 
+			           (let [marker (get m :block/marker)
+			                   content (clojure.string/replace (get m :block/content) (re-pattern "(TODO|LATER|DONE|DOING)\\s") "")] 
+			            [:tr 
+			              [:td content] 
+			              [:td [:a {:on-click (fn [_] (call-api "update_block" (str (:block/uuid m)) (if (= marker "TODO") (str "DONE" " " content) (str "TODO" " " content))))} marker]]
+			           ])
+			          ) r)
+			       ]
+			     ]
+			   )
+			  }
+			  ```
+			- > it can be done with latest call-api ability (logseq nightly)
+			- source: https://discord.com/channels/725182569297215569/743139225746145311/1047314074930782308
+			- via https://discuss.logseq.com/t/show-todo-toggle-in-query-table-view/12720/5
+		- Clickable **links** using `call-api` and `push_state()`
+		    `:result-transform` `:view`
+		  {{button copy,copy_second_sibling,ea6f,long squat}}
+			- {{nested-code-block}}
+				- copy_second_sibling:
+				  ```js
+				  const second_child = logseq.api.get_next_sibling_block(this.nestedMacroUuid);
+				  const pattern = new RegExp("```(?:[a-zA-Z\\d_-]*)*\\n(.+?)\\n```", "usgm");
+				  const match = pattern.exec(second_child.content);
+				  const clipboard = `${match[1]}\n\n[source](((${second_child.uuid})))`;
+				  navigator.clipboard.writeText(clipboard);
+				  ```
+			- ### new way
+			- ```
+			  :view (letfn [(make-link [text destination]
+			                  [:a {:on-click
+			                       (fn []
+			                         (call-api "push_state" "page" {:name destination}))} text])]
+			  
+			          (fn [results]
+			            (make-link
+			             (get-in result [:first-line])
+			             (get-in result [:uuid]))))
+			  
+			  ```
+			- #### Old way
+			- ```
+			  {:view (fn
+			           ; the query will return an array with one item, so [[count]] will destructure the number
+			           [[count]]
+			           [:div
+			            {:style {:color "#b1b1b1"}}
+			            "There are "
+			            [:span count]
+			            " notes in the "
+			            [:a {:data-ref "pile"
+			                 :style {:color "#797979"}
+			                 :on-click
+			                 ; call-api is a magical call that allows you to call any API available
+			                 ; in this case, it navigates to the "pile" page if you click the link
+			                 (fn [] (call-api "push_state" "page" {:name "pile"}))} "pile"]
+			            "."])
+			   :query
+			   [:find (count ?b)         ; return a single item - the total count of blocks
+			    :where
+			    [?pb :block/name "pile"] ; where pb is the block for a page named "pile"
+			    [?b :block/refs ?pb]]}   ; and blocks reference it
+			  ```
+	- ## :view
+	  *function*
+		- style a **compact** ***table***
+			- `[:table.compact]`
+			- `[:table.compact.more-compact]`
+		- construct a **clickable** ***table***
+			- `[:table.stop-click]`
+		- make a table ***cell*** **link**
+			- `[:td.touch-screen [:a ]]`
 		- construct an **unordered list**
 			- {{nested-code-block}}
 				- copy_second_sibling:
@@ -3669,129 +4388,14 @@ repository:: DeadBranches/logseq-queries-and-scripts
 							  #+END_QUERY
 						- *UI/UX* designs
 							- Here's some stuff I'm working on
-	- ### :result-transform
-		- Sort by result [:block/page **:journal-day**]
-			- ```datalog
-			  :result-transform
-			    (fn [result] 
-			      (sort-by (comp - (fn [r] (get-in r [:block/page :block/journal-day]))) result)
-			      )
-			  ```
-		- **Sort by date created** (or failing that, date last modified)
-			- {{nested-code-block}}
-				- copy_second_sibling:
-				  ```js
-				  const second_child = logseq.api.get_next_sibling_block(this.nestedMacroUuid);
-				  const pattern = new RegExp("```(?:[a-zA-Z\\d_-]*)*\\n(.+?)\\n```", "usgm");
-				  const match = pattern.exec(second_child.content);
-				  const clipboard = `${match[1]}\n\n[source](((${second_child.uuid})))`;
-				  navigator.clipboard.writeText(clipboard);
-				  ```
-			- ```datalog
-			   :result-transform 
-			    (fn [result]
-			      (sort-by 
-			        (fn [r] 
-			          (let [journal-day (get-in r [:block/page :block/journal-day])
-			                created-at (get r :block/created-at)]
-			            (- (or journal-day created-at))))
-			        result))
+	- ## :rules
+		- show query **results only**
+			- ```
 			   :breadcrumb-show? false
+			   :children? false
+			   :group-by-page? false
 			  ```
-			- {{il eb6c,Bing: sort by date created,https://sl.bing.net/4TV8A6wblI}}
-		- Click to complete TODO blocks via **call-api**
-		    `:result-transform` `:view`
-		  {{button copy,copy_second_sibling,ea6f,long squat}}
-			- {{nested-code-block}}
-				- copy_second_sibling:
-				  ```js
-				  const second_child = logseq.api.get_next_sibling_block(this.nestedMacroUuid);
-				  const pattern = new RegExp("```(?:[a-zA-Z\\d_-]*)*\\n(.+?)\\n```", "usgm");
-				  const match = pattern.exec(second_child.content);
-				  const clipboard = `${match[1]}\n\n[source](((${second_child.uuid})))`;
-				  navigator.clipboard.writeText(clipboard);
-				  ```
-			- ```datalog
-			  {
-			   :query [:find (pull ?b [*])
-			           :in $ ?current
-			           :where
-			           [?p :block/name ?current]
-			           [?b :block/page ?p]
-			           (task ?b #{"TODO" "DONE"})
-			         ]
-			   :inputs [:current-page]
-			   :table-view? true
-			   :view (fn [r] 
-			     [:table 
-			       [:thead 
-			         [:tr [:td "task"] [:td "marker"]]
-			       ]
-			       [:tbody
-			         (map (fn [m] 
-			           (let [marker (get m :block/marker)
-			                   content (clojure.string/replace (get m :block/content) (re-pattern "(TODO|LATER|DONE|DOING)\\s") "")] 
-			            [:tr 
-			              [:td content] 
-			              [:td [:a {:on-click (fn [_] (call-api "update_block" (str (:block/uuid m)) (if (= marker "TODO") (str "DONE" " " content) (str "TODO" " " content))))} marker]]
-			           ])
-			          ) r)
-			       ]
-			     ]
-			   )
-			  }
-			  ```
-			- > it can be done with latest call-api ability (logseq nightly)
-			- source: https://discord.com/channels/725182569297215569/743139225746145311/1047314074930782308
-			- via https://discuss.logseq.com/t/show-todo-toggle-in-query-table-view/12720/5
-		- Clickable **links** using `call-api` and `push_state()`
-		    `:result-transform` `:view`
-		  {{button copy,copy_second_sibling,ea6f,long squat}}
-			- {{nested-code-block}}
-				- copy_second_sibling:
-				  ```js
-				  const second_child = logseq.api.get_next_sibling_block(this.nestedMacroUuid);
-				  const pattern = new RegExp("```(?:[a-zA-Z\\d_-]*)*\\n(.+?)\\n```", "usgm");
-				  const match = pattern.exec(second_child.content);
-				  const clipboard = `${match[1]}\n\n[source](((${second_child.uuid})))`;
-				  navigator.clipboard.writeText(clipboard);
-				  ```
-			- ### new way
-			- ```
-			  :view (letfn [(make-link [text destination]
-			                  [:a {:on-click
-			                       (fn []
-			                         (call-api "push_state" "page" {:name destination}))} text])]
-			  
-			          (fn [results]
-			            (make-link
-			             (get-in result [:first-line])
-			             (get-in result [:uuid]))))
-			  
-			  ```
-			- #### Old way
-			- ```
-			  {:view (fn
-			           ; the query will return an array with one item, so [[count]] will destructure the number
-			           [[count]]
-			           [:div
-			            {:style {:color "#b1b1b1"}}
-			            "There are "
-			            [:span count]
-			            " notes in the "
-			            [:a {:data-ref "pile"
-			                 :style {:color "#797979"}
-			                 :on-click
-			                 ; call-api is a magical call that allows you to call any API available
-			                 ; in this case, it navigates to the "pile" page if you click the link
-			                 (fn [] (call-api "push_state" "page" {:name "pile"}))} "pile"]
-			            "."])
-			   :query
-			   [:find (count ?b)         ; return a single item - the total count of blocks
-			    :where
-			    [?pb :block/name "pile"] ; where pb is the block for a page named "pile"
-			    [?b :block/refs ?pb]]}   ; and blocks reference it
-			  ```
+				-
 - ## {{i efc5}} datalog language reference
   cateloguing advanced query syntax elements
   #+BEGIN_QUERY
