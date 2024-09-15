@@ -135,8 +135,13 @@ repository:: DeadBranches/logseq-queries-and-scripts
 				  
 				  [?p :block/name ?cp]
 				  [?t :block/name "topics"]
+				  [?ta :block/alias ?t]
+				  
 				  [?b :block/refs ?p]
-				  [?b :block/refs ?t]
+				  (or 
+				    [?b :block/refs ?t]
+				    [?b :block/refs ?ta])
+				  
 				  
 				  [?b :block/marker ?m]
 				  [(contains? #{"TODO"} ?m)]
@@ -154,8 +159,13 @@ repository:: DeadBranches/logseq-queries-and-scripts
 				  
 				  [?p :block/name ?cp]
 				  [?t :block/name "topics"]
+				  [?ta :block/alias ?t]
+				  
 				  [?b :block/refs ?p]
-				  [?b :block/refs ?t]
+				  (or 
+				    [?b :block/refs ?t]
+				    [?b :block/refs ?ta])
+				  
 				  
 				  [?b :block/marker ?m]
 				  [(contains? #{"DONE"} ?m)]
