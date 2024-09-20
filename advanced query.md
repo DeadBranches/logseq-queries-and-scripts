@@ -123,19 +123,181 @@ repository:: DeadBranches/logseq-queries-and-scripts
   #+END_QUERY
 	- ## Embedable queries
 	  {{i f635}} *`{{embed }}` these queries*
+		- page tags or aliases
+			- template
+			  template:: query, page tags or aliases
+			  template-including-parent:: false
+				- {{embed ((66e9df6d-b316-46a7-9593-ce2abcd174b1))}}
+			- query
+				- id:: 66e9df6d-b316-46a7-9593-ce2abcd174b1
+				  #+BEGIN_QUERY
+				  {:inputs [:current-page]
+				   :query
+				   [:find  (pull ?t [:db/id :block/uuid :block/properties :block/tags :block/name])
+				  ;;(pull ?t [*])
+				    :in $ ?current-page
+				    :where
+				  
+				  ;; Capture all aliases to this page in ?pa
+				    [?cp :block/name ?current-page]
+				    [?cp :block/alias ?pa]
+				  
+				  ;; Show all pages tagged with either this page's id or one of the pages with an alias to this page.
+				    (or
+				     [?t :block/tags ?pa]
+				     [?t :block/tags ?cp])]
+				   :result-transform
+				   (letfn [(create-groups [property-value block-data]
+				             (group-by (fn [item]
+				                         (get-in item [:block/properties property-value]))
+				                       block-data))
+				           (alphabetize-maps [maps]
+				             (into {}
+				                   (map (fn [[k v]]
+				                          [k (sort-by :block/name v)])
+				                        maps)))]
+				     (fn [results]
+				       (->> results
+				  
+				            (create-groups :tags)
+				          ;;(into (sorted-map-by (fn [a b] (compare (first a) (first b)))))
+				         ;; (alphabetize-maps)
+				            )))
+				   :view
+				   (fn [results]
+				     [:div
+				      (for [[group-name blocks] results]
+				        [:div
+				         [:b (str "Pages taged with " (apply str group-name))]
+				         [:ul
+				          (for [item blocks]
+				            [:li [:a {:on-click (fn [_] 
+				                                  (call-api "push_state" "page" {:name (:block/name item)} ))} (:block/name item)]])]])])
+				   
+				   }
+				  #+END_QUERY
+		- show blocks with ref to linked reference in parent block
+			- template:: query, show references to link in parent
+			  template-including-parent:: false
+				- #+BEGIN_QUERY
+				  {:inputs [:current-block :query-page]
+				   :query
+				   [:find (pull ?b [*])
+				    :in $ ?current-block ?qp
+				    :where
+				    [?current-block :block/parent ?parent]
+				    [?parent :block/refs ?ability-limitation]
+				    [?b :block/refs ?ability-limitation]
+				  
+				  ;; Exclude current page from results
+				    [?b :block/page ?ref-page]
+				    [?ref-page :block/name ?ref-page-name]
+				    [(not= ?ref-page-name ?qp)]]
+				   :result-transform (fn [result]
+				                       (if (empty? result)
+				                         [[]]
+				                         (sort-by (comp - (fn [r] (get-in r [:block/page :block/journal-day]))) result)))
+				  
+				   :view (fn [results]
+				           (if (= results [[]]) 
+				             "no results"
+				             result))
+				   
+				   :group-by-page? true
+				   }
+				  #+END_QUERY
+		- see number of references
+			- to linked reference in parent block
+			  template:: query, count of references in parent block
+			  template-including-parent:: false
+				- #+BEGIN_QUERY
+				  
+				  {:inputs [:current-block :current-page]
+				   :query
+				   [:find ?b
+				    :in $ ?current-block ?qp
+				    :where
+				  
+				    ;; target block is the block containing a linked reference for which
+				    ;; we want to find other blocks who reference it
+				     [?current-block :block/parent ?parent-block]
+				     [(identity ?parent-block) ?target-block]
+				    ;; [(identity ?current-block) ?target-block]
+				  
+				    [?target-block :block/refs ?ability-limitation]
+				    [?b :block/refs ?ability-limitation]
+				  
+				    ;; Exclude current page from results
+				    [?b :block/page ?ref-page]
+				    [?ref-page :block/name ?ref-page-name]
+				    [(not= ?ref-page-name ?qp)]]
+				  
+				   :result-transform (fn [result]
+				                       (if (empty? result)
+				                         [[]]
+				                         result))
+				   :view ;;:pprint 
+				    (fn [results]
+				            (let [result-count (count results)]
+				              
+				                           (if (= results [[]]) 
+				                 "" 
+				                 [:div [:small.italic (str "  see " result-count " references ->")]])))
+				   }
+				  
+				  #+END_QUERY
+			- to linked reference in current block
+			  template:: query, count of references in current block
+			  template-including-parent:: false
+				- id:: 66e74343-77eb-4199-93ab-1d22b36e158d
+				  #+BEGIN_QUERY
+				  
+				  {:inputs [:current-block :current-page]
+				   :query
+				   [:find ?b
+				    :in $ ?current-block ?qp
+				    :where
+				  
+				    ;; target block is the block containing a linked reference for which
+				    ;; we want to find other blocks who reference it
+				    ;; [?current-block :block/parent ?parent-block]
+				    ;; [(identity ?parent-block) ?target-block]
+				    [(identity ?current-block) ?target-block]
+				  
+				    [?target-block :block/refs ?ability-limitation]
+				    [?b :block/refs ?ability-limitation]
+				  
+				    ;; Exclude current page from results
+				    [?b :block/page ?ref-page]
+				    [?ref-page :block/name ?ref-page-name]
+				    [(not= ?ref-page-name ?qp)]]
+				  
+				   :result-transform (fn [result]
+				                       (if (empty? result)
+				                         [[]]
+				                         result))
+				   :view ;;:pprint 
+				    (fn [results]
+				            (let [result-count (count results)]
+				              
+				                           (if (= results [[]]) 
+				                 "" 
+				                 [:div [:small.italic (str "  see " result-count " references ->")]])))
+				   }
+				  #+END_QUERY
 		- {{i eb6c}} discussion topics
 			- open topics
 				- id:: 66e5e078-e59c-4064-91cf-2c3eec36af87
 				  #+BEGIN_QUERY
-				  {:inputs [:current-page]
+				  {:inputs [:current-page "topic"]
 				  :query
 				  [:find (pull ?b [*])
-				  :in $ ?cp
+				  :in $ ?cp ?tag
 				  :where
 				  
 				  [?p :block/name ?cp]
-				  [?t :block/name "topics"]
-				  [?ta :block/alias ?t]
+				  [?t :block/name ?tag]
+				  [?t :block/alias ?ta]
 				  
 				  [?b :block/refs ?p]
 				  (or 
@@ -146,7 +308,15 @@ repository:: DeadBranches/logseq-queries-and-scripts
 				  [?b :block/marker ?m]
 				  [(contains? #{"TODO"} ?m)]
 				  ]
+				  
+				  :result-transform
+				    (fn [result] 
+				      (sort-by (comp - (fn [r] (get-in r [:block/page :block/journal-day]))) result)
+				      )
+				  
+				  :group-by-page? true
 				  }
+				  
 				  #+END_QUERY
 			- covered topics
 				- id:: 66e5e0c4-d1cc-4598-8e00-07f0abad84b0
@@ -170,6 +340,8 @@ repository:: DeadBranches/logseq-queries-and-scripts
 				  [?b :block/marker ?m]
 				  [(contains? #{"DONE"} ?m)]
 				  ]
+				  
+				  :group-by-page? true
 				  }
 				  #+END_QUERY
 		- {{i fd1f}} appointment summary
@@ -4081,7 +4253,7 @@ repository:: DeadBranches/logseq-queries-and-scripts
 	- ### {{i eead}} query concept inbox
 	  id:: 66ae786c-0e7c-4d19-a94a-a1ae04fa3f19
 	        {{i f635}} *unsorted saved queries*
-		- #+BEGIN_QUERY
+		  #+BEGIN_QUERY
 		  {:inputs [:parent-block]
 		  :query
 		  [:find (pull ?b [*])
@@ -4101,6 +4273,31 @@ repository:: DeadBranches/logseq-queries-and-scripts
 			  [_ :block/name _]
 			  ]
 			  }
+			  #+END_QUERY
+		- Return `:today` or other inputs from `datascript_query()`
+			- ```javascript
+			  const result = logseq.api.datascript_query(`
+			  [:find ?today
+			  :in $ ?today
+			  :where
+			  [_ :block/name _]
+			  ]`, `:today`);
+			  return result;
+			  ```
+				- {{evalparent}}
+		- Use **(call-api datascript_query)** inside an advanced query to get the current date!!!
+			- #+BEGIN_QUERY
+			  {:inputs [:today]
+			   :query
+			   [:find ?today
+			    :in $ ?today
+			    :where
+			    [_ :block/name _]]
+			   :view (fn []
+			           [:div
+			            (call-api "datascript_query"
+			                      "[:find ?today :in $ ?today :where [_ :block/name _]]"
+			                      ":today")])}
 			  #+END_QUERY
 		- Dealing with days in :where clauses
 			- ```
@@ -4225,7 +4422,7 @@ repository:: DeadBranches/logseq-queries-and-scripts
 			    :children? false
 			    :group-by-page? false}
 			  #+END_QUERY
-			- ```datalog
+			  ```datalog
 			   {:inputs ["grocery"]
 			    :query
 			    [:find (pull ?b [*])
@@ -4382,6 +4579,14 @@ repository:: DeadBranches/logseq-queries-and-scripts
 			  ```
 	- ## :view
 	  *function*
+		- define a **function**
+			- ```cljs
+			   :view 
+			   (letfn [(today [] (str "do nothing"))]
+			           (fn [result]
+			             [:div "hi " (today)])
+			     )
+			  ```
 		- style a **compact** ***table***
 			- `[:table.compact]`
 			- `[:table.compact.more-compact]`
@@ -4653,6 +4858,84 @@ repository:: DeadBranches/logseq-queries-and-scripts
 			   :group-by-page? false
 			  ```
 				-
+- query language reference
+	- alphe
+		- type:: demo
+		  #+BEGIN_QUERY
+		  {
+		  :title "find"
+		  :result-transform (fn [result]
+		                      (sort-by (fn [r]
+		                                 [(str (ns-name (:ns r)))
+		                                  (str (:name r))])
+		                               result))
+		  :view (fn [result]
+		          [:div.flex.flex-wrap.gap-4
+		           (for [[ns-name items] (group-by :ns result)]
+		             [:div
+		              [:h2 (str ns-name)]
+		              [:div.grid.grid-cols-4.gap-4
+		               (for [item items]
+		                 [:a {:href (str "https://clojuredocs.org/" (str ns-name) "/" (str (:name item)))}
+		                  (str (:name item))])]])])
+		  :query [
+		    :find (pull ?b [*])
+		    :where
+		        [?b :block/properties ?p]
+		        [(get ?p :type) ?t]
+		        [(= ?t "demo")]
+		  ]
+		  }
+		  #+END_QUERY
+		- type:: demo
+		  #+BEGIN_QUERY
+		  {
+		  :title "find"
+		  :view (fn [r] [:div.flex.flex-wrap.gap-4
+		      (for [ns (sort (all-ns))]
+		           [:div [
+		                  [:h2 (str ns)] 
+		                  [:div.grid.grid-cols-4.gap-4 
+		                   (for [name (sort (keys (ns-publics ns)))] 
+		                       [:a {:href (str "https://clojuredocs.org/" (str ns) "/" (str name))} (str name)])
+		                  ]
+		                 ]]
+		        )]
+		  )
+		  :query [
+		    :find (pull ?b [*]) 
+		    :where
+		        [?b :block/properties ?p ]
+		        [(get ?p :type) ?t]
+		        [(= ?t "demo")]
+		  ]
+		  }
+		  #+END_QUERY
+	- Namespaces available
+		- type:: demo
+		  #+BEGIN_QUERY
+		  {
+		  :title "find"
+		  :view (fn [r] [:div.flex.flex-wrap.gap-4
+		      (for [ns (all-ns)]
+		           [:div [
+		                  [:h2 (str ns)] 
+		                  [:div.grid.grid-cols-4.gap-4 (for 
+		                         [name (keys (ns-publics ns))] 
+		                         [:a {:href (str "https://clojuredocs.org/" (str ns) "/" (str name) ) } (str name)])
+		                  ]
+		                 ]]
+		        )]
+		  )
+		  :query [
+		    :find (pull ?b [*]) 
+		    :where
+		        [?b :block/properties ?p ]
+		        [(get ?p :type) ?t]
+		        [(= ?t "demo")]
+		  ]
+		  }
+		  #+END_QUERY
 - ## {{i efc5}} datalog language reference
   cateloguing advanced query syntax elements
   #+BEGIN_QUERY
