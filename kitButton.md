@@ -80,6 +80,7 @@ description:: kitButton [label] <kit-name> [icon] [positive-class | {-inline | -
   };
   
   logseq.kits.setStatic(async function kitButton(div) {
+    console.log("kitButton triggered.");
       (async function () {
         while (typeof logseq.kits !== "object") {
           await new Promise((resolve) => setTimeout(resolve, 100)); // Wait for 100 milliseconds
@@ -248,8 +249,6 @@ description:: kitButton [label] <kit-name> [icon] [positive-class | {-inline | -
       div.innerHTML = `<button class="${buttonClassValue}" data-kit='runpage' data-kit-macro="kitButton" data-page-name='${kitPage}' ${iconDataAttribute} ${buttonTextDataAttribute} ${dataAttributes} type="button">${buttonText}</button>`;
     
     });
-    
-    
   ```
 	- {{evalparent}}
 - # Ideas

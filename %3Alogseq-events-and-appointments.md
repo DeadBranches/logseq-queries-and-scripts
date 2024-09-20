@@ -2,6 +2,12 @@ tags:: project
 -icon:: f830
 
 - [[Friday, Jun 14th, 2024]] Renamed page from `[[logseq-appointments-journal-widget]]` to `[[logseq-events-and-appointments]]` to reflect the fact that the MS-journal, medical appointments, and journal widget are all an overlapping concern.
+- {{kitButton issues,collapseBlock,ea06,-button-style full-width small-caps}}
+	- {{embed ((66ccdccf-f9e2-4028-b867-a7b5406fd634))}}
+- {{kitButton ideas,collapseBlock,ea76,-button-style full-width small-caps}}
+	- {{embed ((66df909d-79a2-4532-917e-94d3bd8b32a8))}}
+- {{kitButton questions,collapseBlock,ea76,-button-style full-width small-caps}}
+	- {{embed ((66df90b1-ccba-494b-94c9-76f3194e0963))}}
 - {{kitButton issue tracker,collapseBlock,ea06,-button-style full-width small-caps}}
 	- #+BEGIN_QUERY
 	  {:inputs [:query-page "issue"]
@@ -3190,17 +3196,17 @@ tags:: project
 	- Current code base:
 		- ((a0d265c5-7615-4121-b89a-61085e877fea))
 - # {{objective}} objectives
-	- Journal widget
-		- DONE {{i f73a}} **Appointment countdown** feature. 
+	- ### [journal widget]([[:logseq-events-and-appointments/journal-widget]])
+		- #### DONE {{i f73a}}  [Next appointment countdown]([[:logseq-events-and-appointments/journal-widget/next-appointment-countdown]]). 
 		  id:: 66817c36-1781-4f29-9095-b1268113d128
-		  Shows days until next appointment at-a-glance
-		- DONE **Next appointment data at-a-glance**. 
+		  Show days until next appointment.
+		- #### DONE [Next appointment feed]([[:logseq-events-and-appointments/journal-widget/next-appointment-feed]]). 
 		  id:: 66817c41-f589-4d66-8f65-be55d49e1ea9
-		  Event data for next upcoming appointment(s) always displayed
-		- DONE **Next appointment quick-note**
+		  Display next appointment information at-a-glance.
+		- ### DONE [Appointment quick-note]([[:logseq-events-and-appointments/journal-widget/appointment-quick-note]]) links.
 		  id:: 66817c6f-8f3e-4f44-9ed3-d54d95b98cc7
-		  Clicking appointment data adds a new block to journal
-		- {{i fd1e}} **future appointments reference**
+		  Click an appointment to add a journal note and reference to journal page.
+		- #### TODO {{i fd1e}} [future activity quick-reference]([[:logseq-events-and-appointments/journal-widget/future-activity-quickview]])
 		  id:: 6681a908-134d-4fa7-aa61-ecd42788634b
 		  Future appointments hidden in a child block.
 			- *issue tracker*
@@ -3293,4 +3299,5 @@ tags:: project
 			- ### {{i f240}} components
 				- [`{{nextAppointment}}`]([[nextAppointment]]) replace-macro
 				-
+-
 -

@@ -180,6 +180,7 @@ repository:: DeadBranches/logseq-queries-and-scripts
 			- template:: query, show references to link in parent
 			  template-including-parent:: false
 				- #+BEGIN_QUERY
+				  ;; show blocks with ref to linked reference in parent block v1
 				  {:inputs [:current-block :query-page]
 				   :query
 				   [:find (pull ?b [*])
@@ -206,12 +207,13 @@ repository:: DeadBranches/logseq-queries-and-scripts
 				   :group-by-page? true
 				   }
 				  #+END_QUERY
-		- see number of references
+		- {{i f015}}  count of references to block
+		        ![image.png](../assets/image_1726792772149_0.png){:height 36, :width 191}
 			- to linked reference in parent block
 			  template:: query, count of references in parent block
 			  template-including-parent:: false
 				- #+BEGIN_QUERY
-				  
+				  ;; see number of references to linked reference in parent block
 				  {:inputs [:current-block :current-page]
 				   :query
 				   [:find ?b
@@ -285,7 +287,8 @@ repository:: DeadBranches/logseq-queries-and-scripts
 				                 [:div [:small.italic (str "  see " result-count " references ->")]])))
 				   }
 				  #+END_QUERY
-		- {{i eb6c}} discussion topics
+		- {{i eb6c}}  discussion topics
+		  ![image.png](../assets/image_1726792556144_0.png){:height 162, :width 299}
 			- open topics
 				- id:: 66e5e078-e59c-4064-91cf-2c3eec36af87
 				  #+BEGIN_QUERY
@@ -344,7 +347,7 @@ repository:: DeadBranches/logseq-queries-and-scripts
 				  :group-by-page? true
 				  }
 				  #+END_QUERY
-		- {{i fd1f}} appointment summary
+		- {{i fd1f}}  appointment summary
 			- previous appointment summary
 				- id:: 66e5dcb2-1960-4c28-9fe3-45371b023f0e
 				  #+BEGIN_QUERY
@@ -529,7 +532,8 @@ repository:: DeadBranches/logseq-queries-and-scripts
 				  :group-by-page? true
 				  }
 				  #+END_QUERY
-		- idea workshop
+		- {{i ea51}}  idea workshop
+		  ![image.png](../assets/image_1726792618253_0.png){:height 199, :width 336}
 			- Issues query
 				- id:: 66ccdccf-f9e2-4028-b867-a7b5406fd634
 				  #+BEGIN_QUERY
@@ -995,13 +999,13 @@ repository:: DeadBranches/logseq-queries-and-scripts
 				  
 				  #+END_QUERY
 				  {{question-identifier}}
-		- Previous grocery purchases
-		  ![image.png](../assets/image_1724109056266_0.png){:height 190, :width 181}
+		- {{i f287}}  Previous **grocery purchases**
+		    ![image.png](../assets/image_1726792654601_0.png){:height 149, :width 150}
 			- current query (v2). Now shows if items are in the basket or not lol
 			  id:: 66c12455-c198-452e-9dd4-e23c642bf78e
 				- id:: 66c12458-4744-4f60-bc2b-8396c7bd3819
 				  #+BEGIN_QUERY
-				  ;; original
+				  ;; query v3
 				   {:inputs ["grocery" :today]
 				    :query
 				    [:find ?content ?journal-day ?today-journal-day ?today ?today-journal-uuid ?marker
@@ -1031,53 +1035,292 @@ repository:: DeadBranches/logseq-queries-and-scripts
 				  
 				  
 				    :result-transform
-				    (fn [results]
-				      (let [first-line (fn [item]
-				                         (if (clojure.string/index-of item "\n")
-				                           (subs item 0 (clojure.string/index-of item "\n"))
-				                           item))
-				            query-data (first results)
-				            query-results (map (fn [result]
-				                                 (dissoc result :today-journal-day :today :today-journal-uuid))
-				                               results)
-				            transformed-results (->> query-results
-				                                     (map (fn [result]
-				                                            (update result :content
-				                                                    (fn [item]
-				                                                      (-> item
-				                                                          first-line
-				                                                          clojure.string/lower-case
-				                                                          (clojure.string/replace
-				                                                           (re-pattern "(?:done|todo) \\{\\{grocery\\}\\} ") "")
-				                                                          (clojure.string/replace (re-pattern "x\\d$") "")
-				                                                          clojure.string/trim)))))
+				    (letfn
+				     [(convert-range [value [old-range-min old-range-max] [new-range-min new-range-max]]
+				        ^{:doc "Given a value within a range, converts the value to a different range"
+				          :example "(convert-range -4 [-30 0] [0 255]) ;; => 221"}
+				        (+
+				         (/
+				          (*
+				           (- value
+				              old-range-min)
+				                        ;; * 
+				           (- new-range-max
+				              new-range-min))
+				                       ;;----------------
+				          (- old-range-max
+				             old-range-min))
+				                       ;; +
+				         new-range-min))
 				  
 				  
-				                                     (group-by :content)
 				  
-				                                     (sort-by (fn [[_ entries]] (count entries)) >)
+				      (integer-floor
+				        [number]
+				        ^{:doc "Returns the largest double less than or equal to number,
+				              and equal to a mathematical integer. Equivalent to clojure.math/floor"
+				          :example "(integer-floor 11.1) => ;; => 11"}
+				        (if (>= number 0)
+				          (int number)
+				          (dec (int number))))
 				  
-				                                     (map (fn [[grocery-item entries]]
-				                                            [grocery-item (map (fn [entry] (dissoc entry :content)) entries)]))
 				  
-				                                     (map (fn [[grocery-item purchase-data]]
-				                                            [grocery-item {:purchase-count (count purchase-data)
-				                                                           :first-purchase (->> purchase-data
-				                                                                                (map :journal-day)
-				                                                                                (apply min))
-				                                                           :last-purchase (->> purchase-data
-				                                                                               (map :journal-day)
-				                                                                               (apply max))
-				                                                           :in-basket (some (fn [entry] (= (:marker entry) "TODO")) purchase-data)
-				                                                           :purchase-data purchase-data}])))]
 				  
-				        (assoc {}
-				               :query-data (select-keys query-data [:today-journal-day :today :today-journal-uuid])
-				               :query-results transformed-results)))
+				      (number-absolute
+				        [number]
+				        ^{:doc "Returns the absolute value of a number. Equivalent to abs."
+				          :example "(number-absolute -10) ;; => 10"}
+				        (if (>= number 0)
+				          number
+				          (- number)))
 				  
-				    :view (letfn [(make-link [text journal-uuid class-addition]
-				                   [:a {:class class-addition :on-click (fn [] (call-api "append_block_in_page" (str journal-uuid) (str "TODO {{grocery}} " text)))}
-				                    text])
+				  
+				  
+				      (date/today
+				        []
+				        ^{:doc "Returns today's date as an integer in the format YYYYMMDD.
+				              Uses the datascript_query API to fetch the current date."
+				          :example "(date/today) ; => 20240918"}
+				        (let [query-result (call-api "datascript_query"
+				                                     "[:find ?today :in $ ?today :where [_ :block/name _]]"
+				                                     ":today")
+				  
+				              date-integer (read-string (apply
+				                                         str
+				                                         query-result))]
+				          date-integer))
+				  
+				  
+				  
+				      (date/journal-day->julian-day
+				        [year month day]
+				        ^{:doc "Converts a Gregorian calendar date to a Julian day number.
+				              This function is used for date calculations.
+				              Parameters:
+				                year: Integer representing the year
+				                month: Integer representing the month (1-12)
+				                day: Integer representing the day of the month
+				              Returns: Integer representing the Julian day number"
+				          :example "(date/journal-day->julian-day 2024 9 18) ; => 2460211"}
+				        (let [adjustment (integer-floor (/ (- month
+				                                              14)
+				                                           12))
+				  
+				              adjusted-year (+ year
+				                               4800
+				                               adjustment)
+				  
+				              adjusted-month (+ month
+				                                (* 12
+				                                   adjustment)
+				                                -3)]
+				  
+				          (+ (integer-floor (+ (* 365.25
+				                                  adjusted-year)
+				                               0.5))
+				             (integer-floor (+ (* 30.6001
+				                                  (+ adjusted-month
+				                                     1))
+				                               0.5))
+				             day
+				             -32075)))
+				  
+				  
+				  
+				      (date/get-difference
+				        ([journal-day] (date/get-difference journal-day (date/today)))
+				        ^{:doc "Calculates the absolute difference in days between a date and today.
+				              Parameters:
+				                journal-day: Integer representing a date in YYYYMMDD format."}
+				        ([journal-day1 journal-day2]
+				         ^{:doc "Calculates the absolute difference in days between two dates.
+				              Parameters:
+				                journal-day1: Integer representing a date in YYYYMMDD format
+				                journal-day2: Integer representing a date in YYYYMMDD format
+				              Returns: Integer representing the number of days between the two dates"
+				           :example "(date/get-difference 20240918 20240610) ; => 100"}
+				  
+				         (let [extract-date (fn [date]
+				                              [(quot date 10000)
+				                               (rem (quot date 100) 100)
+				                               (rem date 100)])
+				               [year1 month1 day1] (extract-date
+				                                    journal-day1)
+				               [year2 month2 day2] (extract-date
+				                                    journal-day2)
+				               julian-day-number1 (date/journal-day->julian-day
+				                                   year1
+				                                   month1
+				                                   day1)
+				               julian-day-number2 (date/journal-day->julian-day
+				                                   year2
+				                                   month2
+				                                   day2)]
+				           (number-absolute (- julian-day-number1
+				                               julian-day-number2)))))]
+				  
+				      (fn [results]
+				        (let [first-line (fn [item]
+				                           (if (clojure.string/index-of item "\n")
+				                             (subs item 0 (clojure.string/index-of item "\n"))
+				                             item))
+				              query-data (first results)
+				              query-results (map (fn [result]
+				                                   (dissoc result :today-journal-day :today :today-journal-uuid))
+				                                 results)
+				              transformed-results
+				              (->> query-results
+				                   (map (fn [result]
+				                          (update result :content
+				                                  (fn [item]
+				                                    (-> item
+				                                        first-line
+				                                        clojure.string/lower-case
+				                                        (clojure.string/replace
+				                                         (re-pattern "(?:done|todo) \\{\\{grocery\\}\\} ") "")
+				                                        (clojure.string/replace (re-pattern "x\\d$") "")
+				                                        clojure.string/trim)))))
+				                   (group-by :content)
+				  
+				                   (sort-by (fn [[_ entries]]
+				                              (count entries))
+				                            >)
+				  
+				                   (map (fn [[grocery-item entries]]
+				                          [grocery-item (map (fn [entry]
+				                                               (dissoc entry :content))
+				                                             entries)]))
+				  
+				                   (map (fn [[grocery-item purchase-data]]
+				                          (let [in-basket?
+				                                (some (fn [entry]
+				                                        (=
+				                                         (:marker entry)
+				                                         "TODO"))
+				                                      purchase-data)
+				  
+				                                first-purchase-date
+				                                (->> purchase-data
+				                                     (map :journal-day)
+				                                     (apply min))
+				  
+				                                days-from-first-purchase ;;first-purchase-days
+				                                (date/get-difference first-purchase-date)
+				  
+				                                last-purchase-date
+				                                (->> purchase-data
+				                                     (filter (fn [m]
+				                                               (= (:marker m) "DONE")))
+				                                     (map :journal-day)
+				                                     (apply max))
+				  
+				                                days-from-last-purchase ;;last-purchase-days
+				                                (date/get-difference last-purchase-date)
+				  
+				                                purchase-count
+				                                (count purchase-data)
+				  
+				                               ;; Don't count items on the list for purchase
+				                               ;; because that's cheating.
+				                                adjusted-purchase-count
+				                                (if in-basket?
+				                                  (dec purchase-count)
+				                                  purchase-count)
+				  
+				                               ;; Average number of days between purchases beginning from
+				                               ;; the first purchase and until the last purchase.
+				                                average-purchase-in-days
+				                                (integer-floor
+				                                 (/ (- days-from-first-purchase
+				                                       days-from-last-purchase)
+				                                    adjusted-purchase-count))
+				  
+				                                expected-purchase-in-days (- average-purchase-in-days
+				                                                             days-from-last-purchase)
+				  
+				                                overdue-purchase? (< expected-purchase-in-days 1)
+				  
+				                               ;; Go from red to black over -1 to -30 days of overdue
+				                               ;; purchase time
+				                               ;; -1 = 88% 58%
+				                               ;; -30 = 53% 29%
+				                                text-color {:hue-degrees (integer-floor
+				                                                                 (convert-range
+				                                                                  expected-purchase-in-days
+				                                                                  [-30 -1]
+				                                                                  [203 0])) ;; blue: 203 82 35
+				                                            :saturation-percent (integer-floor
+				                                                                 (convert-range
+				                                                                  expected-purchase-in-days
+				                                                                  [-30 -1]
+				                                                                  [82 52])) ;;82 ;; dest start
+				                                            :lightness-percent (integer-floor (convert-range
+				                                                                               expected-purchase-in-days
+				                                                                               [-30 -1]
+				                                                                               [45 71]))}] ;;35
+				  
+				  
+				                            [grocery-item {:purchase-count adjusted-purchase-count
+				                                           :first-purchase-date first-purchase-date
+				                                           :last-purchase-date last-purchase-date
+				                                           :days-from-first-purchase days-from-first-purchase
+				                                           :days-from-last-purchase days-from-last-purchase
+				                                           :average-purchase-days average-purchase-in-days
+				                                           :expected-purchase-in-days expected-purchase-in-days
+				                                           :purchase-overdue? overdue-purchase?
+				                                           :in-basket in-basket?
+				                                           :text-color text-color
+				                                           :purchase-data purchase-data}]))))]
+				  
+				  
+				          (assoc {}
+				                 :query-data (select-keys query-data
+				                                          [:today-journal-day
+				                                           :today
+				                                           :today-journal-uuid])
+				                 :query-results transformed-results))))
+				  
+				  
+				    ;;  :view :pprint
+				  
+				    :view (letfn [(sanitize-string [s] (-> s
+				                                           (clojure.string/replace " " "-")
+				                                           (clojure.string/replace (re-pattern "\\[\\[") "")
+				                                           (clojure.string/replace (re-pattern "\\]\\]") "")
+				                                           (clojure.string/replace (re-pattern "[\\(\\)]") "")))
+				                  (make-link ([text journal-uuid class-addition]
+				                    [:a
+				                     {:class class-addition
+				                      :on-click (fn []
+				                                  (call-api
+				                                   "append_block_in_page"
+				                                   (str journal-uuid)
+				                                   (str "TODO {{grocery}} " text)))}
+				                     text])
+				                             ([text journal-uuid class-addition hsl-map]
+				                              [:a
+				                               {:class class-addition
+				                                :style  {;;:font-weight "bold" ;;idea: use a font-weight gradient
+				                                         :color (str "hsl(203 "
+				                                                     ;;(:hue-degrees hsl-map) " "
+				                                                     (:saturation-percent hsl-map) "% "
+				                                                     (:lightness-percent hsl-map) "%)")
+				                                         
+				                                        ;;  :color (str "hsl(0, "
+				                                        ;;              (:saturation-percent hsl-map)
+				                                        ;;              "%, "
+				                                        ;;              (:lightness-percent hsl-map)
+				                                        ;;              "%);")
+				                                        ;;  :color "hsl(1 88% 55%)"
+				                                         }
+				                                :on-click (fn []
+				                                            (call-api
+				                                             "append_block_in_page"
+				                                             (str journal-uuid)
+				                                             (str "TODO {{grocery}} " text)))}
+				                               ;; (str (:saturation-percent hsl-map) (:lightness-percent hsl-map) text) ;; debug
+				                               text])
+				                             )
 				                  (make-icon [item-name]
 				                    (let [icon-table {:cream "ef13"
 				                                      :frozen-berries "f511"
@@ -1114,167 +1357,1289 @@ repository:: DeadBranches/logseq-queries-and-scripts
 				                                      :downy-rinse-and-refresh-laundry-stripper "f311"
 				                                      :borax-laundry-booster "f311"
 				                                      :little-tissues "f4c9"}
-				            
+				    
 				                          sanitized-item-name (-> item-name
 				                                                  (clojure.string/replace " " "-")
+				                                                  (clojure.string/replace (re-pattern "\\[\\[") "")
+				                                                  (clojure.string/replace (re-pattern "\\]\\]") "")
 				                                                  (clojure.string/replace (re-pattern "[\\(\\)]") ""))
-				                          icon-code (get icon-table (keyword sanitized-item-name) "0000")]
+				                          icon-code (get icon-table
+				                                         (keyword sanitized-item-name)
+				                                         "0000")]
 				                      (str "&#x" icon-code ";")))]
-				  
-				           (fn [results]
-				             (let [query-data (get-in results [:query-data])
-				                   query-results (get-in results [:query-results])]
-				                  
-				               [:div
-				                [:table {:class "future-appointments compact more-compact stop-click"}
-				                 [:thead
-				                  [:tr
-				                   [:th ""]
-				                   [:th "Item"]]]
-				                 [:tbody
-				                  (for [[grocery-item item-data] query-results]
-				                    (let [class-addition (if (:in-basket item-data) "strikethrough" "")]
-				                     [:tr
-				                      [:td [:span {:class "bti bigger" :dangerouslySetInnerHTML {:__html (make-icon grocery-item)}}]]
-				                      [:td.touch-screen (make-link grocery-item (get-in query-data [:today-journal-uuid]) class-addition)]]))]]])))
-				                   
-				                 
-				  
-				    :breadcrumb-show? false}
-				  #+END_QUERY
-			- query v1
-				- ![image.png](../assets/image_1723933819675_0.png){:height 161, :width 240}
-				- No way to indicate if an item is in the basket
-				- ```cljs
-				  #+BEGIN_QUERY
-				  ;; [[grocery list]] query
-				   {:inputs ["grocery" :today]
-				    :query
-				    [:find ?content ?journal-day ?today-journal-day ?today ?today-journal-uuid
-				     :keys content journal-day today-journal-day today today-journal-uuid
-				     :in $ ?macro-name ?today-journal-day %
-				  
-				     :where
-				     [?b :block/marker ?marker]
-				     [(contains? #{"DONE"} ?marker)]
-				     (using-macro ?b ?macro-name)
-				  
-				     [?b :block/content ?content]
-				     [?b :block/page ?p]
-				     [?p :block/journal-day ?journal-day]
-				  
-				     [?j :block/journal-day ?today-journal-day]
-				     [?j :block/name ?today]
-				     [?j :block/uuid ?today-journal-uuid]]
-				  
-				  
-				    :rules
-				    [[(using-macro ?b ?macro-name)
-				      [?b :block/macros ?m]
-				      [?m :block/properties ?props]
-				      [(get ?props :logseq.macro-name) ?macros]
-				      [(= ?macros ?macro-name)]]]
-				  
-				  
-				    :result-transform
-				    (fn [results]
-				      (let [query-data (first results)
-				            query-results (map (fn [result]
-				                                 (dissoc result :today-journal-day :today :today-journal-uuid))
-				                               results)
-				            transformed-results (->> query-results
-				                                     (map (fn [result]
-				                                            (update result :content
-				                                                    (fn [item]
-				                                                      (-> item
-				                                                          clojure.string/lower-case
-				                                                          (clojure.string/replace
-				                                                           (re-pattern "done \\{\\{grocery\\}\\} ") "")
-				                                                          (clojure.string/replace (re-pattern "x\\d$") "")
-				                                                          clojure.string/trim)))))
-				  
-				  
-				                                     (group-by :content)
-				  
-				                                     (sort-by (fn [[_ entries]] (count entries)) >)
-				  
-				                                     (map (fn [[grocery-item entries]]
-				                                            [grocery-item (map (fn [entry] (dissoc entry :content)) entries)]))
-				  
-				                                     (map (fn [[grocery-item purchase-data]]
-				                                            [grocery-item {:purchase-count (count purchase-data)
-				                                                           :first-purchase (->> purchase-data
-				                                                                                (map :journal-day)
-				                                                                                (apply min))
-				                                                           :last-purchase (->> purchase-data
-				                                                                               (map :journal-day)
-				                                                                               (apply max))
-				                                                           :purchase-data purchase-data}])))]
-				  
-				        (assoc {}
-				               :query-data (select-keys query-data [:today-journal-day :today :today-journal-uuid])
-				               :query-results transformed-results)))
-				  
-				    :view (letfn [(make-link [text journal-uuid]
-				                    [:a {:on-click (fn [] (call-api "append_block_in_page" (str journal-uuid) (str "TODO {{grocery}} " text)))}
-				                     text])
-				                  (make-icon [item-name]
-				                    (let [icon-table {:cream "ef13"
-				                                      :frozen-berries "f511"
-				                                      :yogurt "f4c8"
-				                                      :cat-food "f287"
-				                                      :naan "efa3"
-				                                      :patties "feb5"
-				                                      :eggs "f500"
-				                                      :water "ef0b"
-				                                      :sour-cream "ee9f"
-				                                      :milk "ef13"
-				                                      :cheese "ef26"
-				                                      :cheese-powder "ee92"
-				                                      :cat-litter "f65b"
-				                                      :salad "f50a"
-				                                      :tomato-sauce "edbb"
-				                                      :automatic-toilet-bowl-cleaner-pucks "efd3"
-				                                      :fries "fae9"
-				                                      :detergent "f30e"
-				                                      :wax-paper "eb2f"
-				                                      :perogies "feb5"
-				                                      :potatoes "eb8a"
-				                                      :sapporo-ramen-noodle "fd90"
-				                                      :frozen-vegetables "f21c"
-				                                      :butter "fab5"
-				                                      :berries "f511"
-				                                      :sodium-bicarbonate "ef16"
-				                                      :peanut-oil "ef60"
-				                                      :pizza-meat "ef17"
-				                                      :garbage-bags "f02f"
-				                                      :downy-rinse-and-refresh "f311"
-				                                      :little-tissues "f4c9"}
-				                          icon-code (get icon-table (keyword (clojure.string/replace item-name " " "-")) "0000")]
-				                      (str "&#x" icon-code ";")))]
-				  
+				    
 				            (fn [results]
 				              (let [query-data (get-in results [:query-data])
 				                    query-results (get-in results [:query-results])]
+				    
 				                [:div
-				                 [:table {:class "future-appointments compact"}
+				                 [:table.display-table.compact.more-compact.needs-disclosure-listener
 				                  [:thead
 				                   [:tr
-				                    [:th ""]
+				                    [:th.left-column ""]
 				                    [:th "Item"]
-				                    ]]
+				                    [:th.disclosure]]]
 				                  [:tbody
-				                   (for [[grocery-item _] query-results]
-				                     [:tr
-				                      [:td [:span {:class "bti bigger" :dangerouslySetInnerHTML {:__html (make-icon grocery-item)}} ]]
-				                      [:td (make-link grocery-item (get-in query-data [:today-journal-uuid]))]
-				                      
-				                      ])]]])))
+				                   (for [[grocery-item item-data] query-results]
+				                     (let [table-name (str "grocery-purchases")
+				                           class-addition (if (:in-basket item-data)
+				                                            "strikethrough"
+				                                            "")
+				                           sanitized-id (sanitize-string grocery-item)]
+				                       [:<>
+				                        [:tr
+				                         [:td.left-column {:rowspan "2"}
+				                          [:span {:class "bti bigger"
+				                                  :dangerouslySetInnerHTML
+				                                  {:__html (make-icon grocery-item)}}]]
+				    
+				                         [:td.touch-screen
+				                          (if (and
+				                               (< (:expected-purchase-in-days item-data) 0)
+				                               (> (:expected-purchase-in-days item-data) -30))
+				  
+				                            (make-link grocery-item
+				                                       (get-in query-data
+				                                               [:today-journal-uuid])
+				                                       class-addition
+				                                       (:text-color item-data))
+				                            (make-link grocery-item
+				                                       (get-in query-data
+				                                               [:today-journal-uuid])
+				                                       class-addition)
+				                            ;; (str "expected purchase in days:" (:expected-purchase-in-days item-data))
+				                            )
+				                          ]
+				    
+				                         [:td.touch-screen.ti
+				                          [:a.disclosure-trigger
+				                           {:id (str table-name
+				                                     "-disclosure-trigger-"
+				                                     sanitized-id)
+				                            :data-target (str table-name
+				                                              "-secondary-content-"
+				                                              sanitized-id)}
+				                           (str "▼")]]]
+				    
+				                        [:tr
+				                         [:td.closed.event-info.secondary-content
+				                          {:colspan "2"
+				                           :id (str table-name
+				                                    "-secondary-content-"
+				                                    sanitized-id)}
+				                          [:div.quick-view-container
+				                           [:span.content-slot
+				                            (str "Purchased "
+				                                 (sanitize-string grocery-item)
+				                                 " "
+				                                 (:purchase-count item-data)
+				                                 " times.")
+				                            [:br]
+				                            (str "on average every "
+				                                 (:average-purchase-days item-data)
+				                                 " days,")
+				                            [:br]
+				                            (str "last "
+				                                 (:days-from-last-purchase item-data)
+				                                 " days ago.")
+				                            [:br][:br]
+				                            (str "expected purchase in (days): "
+				                                 (:expected-purchase-in-days item-data))
+				                            
+				                            ]]]]]))]]])))
+				  
+				  
+				  
 				  
 				    :breadcrumb-show? false}
 				  #+END_QUERY
-				  ```
-		- **Related page** linked references
+			- past queries
+				- query v3 (with stats)
+				  ![image.png](../assets/image_1724109056266_0.png){:height 190, :width 181}
+					- [[Thursday, Sep 19th, 2024]]
+					- ```cljs
+					  #+BEGIN_QUERY
+					  ;; original ()not working)
+					   {:inputs ["grocery" :today]
+					    :query
+					    [:find ?content ?journal-day ?today-journal-day ?today ?today-journal-uuid ?marker
+					     :keys content journal-day today-journal-day today today-journal-uuid marker
+					     :in $ ?macro-name ?today-journal-day %
+					  
+					     :where
+					     [?b :block/marker ?marker]
+					     ;;[(contains? #{"DONE"} ?marker)]
+					     (using-macro ?b ?macro-name)
+					  
+					     [?b :block/content ?content]
+					     [?b :block/page ?p]
+					     [?p :block/journal-day ?journal-day]
+					  
+					     [?j :block/journal-day ?today-journal-day]
+					     [?j :block/name ?today]
+					     [?j :block/uuid ?today-journal-uuid]]
+					  
+					  
+					    :rules
+					    [[(using-macro ?b ?macro-name)
+					      [?b :block/macros ?m]
+					      [?m :block/properties ?props]
+					      [(get ?props :logseq.macro-name) ?macros]
+					      [(= ?macros ?macro-name)]]]
+					  
+					  
+					    :result-transform
+					    (letfn
+					     [(convert-range [value [old-range-min old-range-max] [new-range-min new-range-max]]
+					        ^{:doc "Given a value within a range, converts the value to a different range"
+					          :example "(convert-range -4 [-30 0] [0 255]) ;; => 221"}
+					        (+
+					         (/
+					          (*
+					           (- value
+					              old-range-min)
+					                        ;; * 
+					           (- new-range-max
+					              new-range-min))
+					                       ;;----------------
+					          (- old-range-max
+					             old-range-min))
+					                       ;; +
+					         new-range-min))
+					  
+					  
+					  
+					      (integer-floor
+					        [number]
+					        ^{:doc "Returns the largest double less than or equal to number,
+					              and equal to a mathematical integer. Equivalent to clojure.math/floor"
+					          :example "(integer-floor 11.1) => ;; => 11"}
+					        (if (>= number 0)
+					          (int number)
+					          (dec (int number))))
+					  
+					  
+					  
+					      (number-absolute
+					        [number]
+					        ^{:doc "Returns the absolute value of a number. Equivalent to abs."
+					          :example "(number-absolute -10) ;; => 10"}
+					        (if (>= number 0)
+					          number
+					          (- number)))
+					  
+					  
+					  
+					      (date/today
+					        []
+					        ^{:doc "Returns today's date as an integer in the format YYYYMMDD.
+					              Uses the datascript_query API to fetch the current date."
+					          :example "(date/today) ; => 20240918"}
+					        (let [query-result (call-api "datascript_query"
+					                                     "[:find ?today :in $ ?today :where [_ :block/name _]]"
+					                                     ":today")
+					  
+					              date-integer (read-string (apply
+					                                         str
+					                                         query-result))]
+					          date-integer))
+					  
+					  
+					  
+					      (date/journal-day->julian-day
+					        [year month day]
+					        ^{:doc "Converts a Gregorian calendar date to a Julian day number.
+					              This function is used for date calculations.
+					              Parameters:
+					                year: Integer representing the year
+					                month: Integer representing the month (1-12)
+					                day: Integer representing the day of the month
+					              Returns: Integer representing the Julian day number"
+					          :example "(date/journal-day->julian-day 2024 9 18) ; => 2460211"}
+					        (let [adjustment (integer-floor (/ (- month
+					                                              14)
+					                                           12))
+					  
+					              adjusted-year (+ year
+					                               4800
+					                               adjustment)
+					  
+					              adjusted-month (+ month
+					                                (* 12
+					                                   adjustment)
+					                                -3)]
+					  
+					          (+ (integer-floor (+ (* 365.25
+					                                  adjusted-year)
+					                               0.5))
+					             (integer-floor (+ (* 30.6001
+					                                  (+ adjusted-month
+					                                     1))
+					                               0.5))
+					             day
+					             -32075)))
+					  
+					  
+					  
+					      (date/get-difference
+					        ([journal-day] (date/get-difference journal-day (date/today)))
+					        ^{:doc "Calculates the absolute difference in days between a date and today.
+					              Parameters:
+					                journal-day: Integer representing a date in YYYYMMDD format."}
+					        ([journal-day1 journal-day2]
+					         ^{:doc "Calculates the absolute difference in days between two dates.
+					              Parameters:
+					                journal-day1: Integer representing a date in YYYYMMDD format
+					                journal-day2: Integer representing a date in YYYYMMDD format
+					              Returns: Integer representing the number of days between the two dates"
+					           :example "(date/get-difference 20240918 20240610) ; => 100"}
+					  
+					         (let [extract-date (fn [date]
+					                              [(quot date 10000)
+					                               (rem (quot date 100) 100)
+					                               (rem date 100)])
+					               [year1 month1 day1] (extract-date
+					                                    journal-day1)
+					               [year2 month2 day2] (extract-date
+					                                    journal-day2)
+					               julian-day-number1 (date/journal-day->julian-day
+					                                   year1
+					                                   month1
+					                                   day1)
+					               julian-day-number2 (date/journal-day->julian-day
+					                                   year2
+					                                   month2
+					                                   day2)]
+					           (number-absolute (- julian-day-number1
+					                               julian-day-number2)))))]
+					  
+					      (fn [results]
+					        (let [first-line (fn [item]
+					                           (if (clojure.string/index-of item "\n")
+					                             (subs item 0 (clojure.string/index-of item "\n"))
+					                             item))
+					              query-data (first results)
+					              query-results (map (fn [result]
+					                                   (dissoc result :today-journal-day :today :today-journal-uuid))
+					                                 results)
+					              transformed-results
+					              (->> query-results
+					                   (map (fn [result]
+					                          (update result :content
+					                                  (fn [item]
+					                                    (-> item
+					                                        first-line
+					                                        clojure.string/lower-case
+					                                        (clojure.string/replace
+					                                         (re-pattern "(?:done|todo) \\{\\{grocery\\}\\} ") "")
+					                                        (clojure.string/replace (re-pattern "x\\d$") "")
+					                                        clojure.string/trim)))))
+					                   (group-by :content)
+					  
+					                   (sort-by (fn [[_ entries]]
+					                              (count entries))
+					                            >)
+					  
+					                   (map (fn [[grocery-item entries]]
+					                          [grocery-item (map (fn [entry]
+					                                               (dissoc entry :content))
+					                                             entries)]))
+					  
+					                   (map (fn [[grocery-item purchase-data]]
+					                          (let [in-basket?
+					                                (some (fn [entry]
+					                                        (=
+					                                         (:marker entry)
+					                                         "TODO"))
+					                                      purchase-data)
+					  
+					                                first-purchase-date
+					                                (->> purchase-data
+					                                     (map :journal-day)
+					                                     (apply min))
+					  
+					                                days-from-first-purchase ;;first-purchase-days
+					                                (date/get-difference first-purchase-date)
+					  
+					                                last-purchase-date
+					                                (->> purchase-data
+					                                     (filter (fn [m]
+					                                               (= (:marker m) "DONE")))
+					                                     (map :journal-day)
+					                                     (apply max))
+					  
+					                                days-from-last-purchase ;;last-purchase-days
+					                                (date/get-difference last-purchase-date)
+					  
+					                                purchase-count
+					                                (count purchase-data)
+					  
+					                               ;; Don't count items on the list for purchase
+					                               ;; because that's cheating.
+					                                adjusted-purchase-count
+					                                (if in-basket?
+					                                  (dec purchase-count)
+					                                  purchase-count)
+					  
+					                               ;; Average number of days between purchases beginning from
+					                               ;; the first purchase and until the last purchase.
+					                                average-purchase-in-days
+					                                (integer-floor
+					                                 (/ (- days-from-first-purchase
+					                                       days-from-last-purchase)
+					                                    adjusted-purchase-count))
+					  
+					                                expected-purchase-in-days (- average-purchase-in-days
+					                                                             days-from-last-purchase)
+					  
+					                                overdue-purchase? (< expected-purchase-in-days 1)
+					  
+					                               ;; Go from red to black over -1 to -30 days of overdue
+					                               ;; purchase time
+					                               ;; -1 = 88% 58%
+					                               ;; -30 = 53% 29%
+					                                text-color {:hue-degrees (integer-floor
+					                                                                 (convert-range
+					                                                                  expected-purchase-in-days
+					                                                                  [-30 -1]
+					                                                                  [203 0])) ;; blue: 203 82 35
+					                                            :saturation-percent (integer-floor
+					                                                                 (convert-range
+					                                                                  expected-purchase-in-days
+					                                                                  [-30 -1]
+					                                                                  [82 52])) ;;82 ;; dest start
+					                                            :lightness-percent (integer-floor (convert-range
+					                                                                               expected-purchase-in-days
+					                                                                               [-30 -1]
+					                                                                               [45 71]))}] ;;35
+					  
+					  
+					                            [grocery-item {:purchase-count adjusted-purchase-count
+					                                           :first-purchase-date first-purchase-date
+					                                           :last-purchase-date last-purchase-date
+					                                           :days-from-first-purchase days-from-first-purchase
+					                                           :days-from-last-purchase days-from-last-purchase
+					                                           :average-purchase-days average-purchase-in-days
+					                                           :expected-purchase-in-days expected-purchase-in-days
+					                                           :purchase-overdue? overdue-purchase?
+					                                           :in-basket in-basket?
+					                                           :text-color text-color
+					                                           :purchase-data purchase-data}]))))]
+					  
+					  
+					          (assoc {}
+					                 :query-data (select-keys query-data
+					                                          [:today-journal-day
+					                                           :today
+					                                           :today-journal-uuid])
+					                 :query-results transformed-results))))
+					  
+					  
+					    ;;  :view :pprint
+					  
+					    :view (letfn [(sanitize-string [s] (-> s
+					                                           (clojure.string/replace " " "-")
+					                                           (clojure.string/replace (re-pattern "\\[\\[") "")
+					                                           (clojure.string/replace (re-pattern "\\]\\]") "")
+					                                           (clojure.string/replace (re-pattern "[\\(\\)]") "")))
+					                  (make-link ([text journal-uuid class-addition]
+					                    [:a
+					                     {:class class-addition
+					                      :on-click (fn []
+					                                  (call-api
+					                                   "append_block_in_page"
+					                                   (str journal-uuid)
+					                                   (str "TODO {{grocery}} " text)))}
+					                     text])
+					                             ([text journal-uuid class-addition hsl-map]
+					                              [:a
+					                               {:class class-addition
+					                                :style  {;;:font-weight "bold" ;;idea: use a font-weight gradient
+					                                         :color (str "hsl(203 "
+					                                                     ;;(:hue-degrees hsl-map) " "
+					                                                     (:saturation-percent hsl-map) "% "
+					                                                     (:lightness-percent hsl-map) "%)")
+					                                         
+					                                        ;;  :color (str "hsl(0, "
+					                                        ;;              (:saturation-percent hsl-map)
+					                                        ;;              "%, "
+					                                        ;;              (:lightness-percent hsl-map)
+					                                        ;;              "%);")
+					                                        ;;  :color "hsl(1 88% 55%)"
+					                                         }
+					                                :on-click (fn []
+					                                            (call-api
+					                                             "append_block_in_page"
+					                                             (str journal-uuid)
+					                                             (str "TODO {{grocery}} " text)))}
+					                               ;; (str (:saturation-percent hsl-map) (:lightness-percent hsl-map) text) ;; debug
+					                               text])
+					                             )
+					                  (make-icon [item-name]
+					                    (let [icon-table {:cream "ef13"
+					                                      :frozen-berries "f511"
+					                                      :yogurt "f4c8"
+					                                      :cat-food "f287"
+					                                      :naan "efa3"
+					                                      :patties "feb5"
+					                                      :eggs "f500"
+					                                      :water "ef0b"
+					                                      :sour-cream "ee9f"
+					                                      :milk "ef13"
+					                                      :cheese "ef26"
+					                                      :cheese-powder "ee92"
+					                                      :cat-litter "f65b"
+					                                      :salad "f50a"
+					                                      :tomato-sauce "edbb"
+					                                      :automatic-toilet-bowl-cleaner-pucks "efd3"
+					                                      :fries "fae9"
+					                                      :detergent "f30e"
+					                                      :wax-paper "eb2f"
+					                                      :perogies "feb5"
+					                                      :potatoes "eb8a"
+					                                      :sapporo-ramen-noodle "fd90"
+					                                      :frozen-veg "f21c"
+					                                      :butter "fab5"
+					                                      :berries "f511"
+					                                      :sodium-bicarbonate "ef16"
+					                                      :peanut-oil "ef60"
+					                                      :dried-meat "ef17"
+					                                      :smokies "ef17"
+					                                      :brioche-hotdog-buns "f3a5"
+					                                      :sodium-bicarbonate-laundry-booster "f311"
+					                                      :garbage-bags "f02f"
+					                                      :downy-rinse-and-refresh-laundry-stripper "f311"
+					                                      :borax-laundry-booster "f311"
+					                                      :little-tissues "f4c9"}
+					    
+					                          sanitized-item-name (-> item-name
+					                                                  (clojure.string/replace " " "-")
+					                                                  (clojure.string/replace (re-pattern "\\[\\[") "")
+					                                                  (clojure.string/replace (re-pattern "\\]\\]") "")
+					                                                  (clojure.string/replace (re-pattern "[\\(\\)]") ""))
+					                          icon-code (get icon-table
+					                                         (keyword sanitized-item-name)
+					                                         "0000")]
+					                      (str "&#x" icon-code ";")))]
+					    
+					            (fn [results]
+					              (let [query-data (get-in results [:query-data])
+					                    query-results (get-in results [:query-results])]
+					    
+					                [:div
+					                 [:table.display-table.compact.more-compact.needs-disclosure-listener
+					                  [:thead
+					                   [:tr
+					                    [:th.left-column ""]
+					                    [:th "Item"]
+					                    [:th.disclosure]]]
+					                  [:tbody
+					                   (for [[grocery-item item-data] query-results]
+					                     (let [table-name (str "grocery-purchases")
+					                           class-addition (if (:in-basket item-data)
+					                                            "strikethrough"
+					                                            "")
+					                           sanitized-id (sanitize-string grocery-item)]
+					                       [:<>
+					                        [:tr
+					                         [:td.left-column {:rowspan "2"}
+					                          [:span {:class "bti bigger"
+					                                  :dangerouslySetInnerHTML
+					                                  {:__html (make-icon grocery-item)}}]]
+					    
+					                         [:td.touch-screen
+					                          (if (and
+					                               (< (:expected-purchase-in-days item-data) 0)
+					                               (> (:expected-purchase-in-days item-data) -30))
+					  
+					                            (make-link grocery-item
+					                                       (get-in query-data
+					                                               [:today-journal-uuid])
+					                                       class-addition
+					                                       (:text-color item-data))
+					                            (make-link grocery-item
+					                                       (get-in query-data
+					                                               [:today-journal-uuid])
+					                                       class-addition)
+					                            ;; (str "expected purchase in days:" (:expected-purchase-in-days item-data))
+					                            )
+					                          ]
+					    
+					                         [:td.touch-screen.ti
+					                          [:a.disclosure-trigger
+					                           {:id (str table-name
+					                                     "-disclosure-trigger-"
+					                                     sanitized-id)
+					                            :data-target (str table-name
+					                                              "-secondary-content-"
+					                                              sanitized-id)}
+					                           (str "▼")]]]
+					    
+					                        [:tr
+					                         [:td.closed.event-info.secondary-content
+					                          {:colspan "2"
+					                           :id (str table-name
+					                                    "-secondary-content-"
+					                                    sanitized-id)}
+					                          [:div.quick-view-container
+					                           [:span.content-slot
+					                            (str "Purchased "
+					                                 (sanitize-string grocery-item)
+					                                 " "
+					                                 (:purchase-count item-data)
+					                                 " times.")
+					                            [:br]
+					                            (str "on average every "
+					                                 (:average-purchase-days item-data)
+					                                 " days,")
+					                            [:br]
+					                            (str "last "
+					                                 (:days-from-last-purchase item-data)
+					                                 " days ago.")
+					                            [:br][:br]
+					                            (str "expected purchase in (days): "
+					                                 (:expected-purchase-in-days item-data))
+					                            
+					                            ]]]]]))]]])))
+					  
+					  
+					  
+					  
+					    :breadcrumb-show? false}
+					  #+END_QUERY
+					  ```
+					- memoized
+					- #+BEGIN_QUERY
+					  ;; original ()not working)
+					   {:inputs ["grocery" :today]
+					    :query
+					    [:find ?content ?journal-day ?today-journal-day ?today ?today-journal-uuid ?marker
+					     :keys content journal-day today-journal-day today today-journal-uuid marker
+					     :in $ ?macro-name ?today-journal-day %
+					  
+					     :where
+					     [?b :block/marker ?marker]
+					     ;;[(contains? #{"DONE"} ?marker)]
+					     (using-macro ?b ?macro-name)
+					  
+					     [?b :block/content ?content]
+					     [?b :block/page ?p]
+					     [?p :block/journal-day ?journal-day]
+					  
+					     [?j :block/journal-day ?today-journal-day]
+					     [?j :block/name ?today]
+					     [?j :block/uuid ?today-journal-uuid]]
+					  
+					  
+					    :rules
+					    [[(using-macro ?b ?macro-name)
+					      [?b :block/macros ?m]
+					      [?m :block/properties ?props]
+					      [(get ?props :logseq.macro-name) ?macros]
+					      [(= ?macros ?macro-name)]]]
+					  
+					  
+					    :result-transform 
+					    (letfn
+					     [(convert-range [value [old-range-min old-range-max] [new-range-min new-range-max]]
+					        ^{:doc "Given a value within a range, converts the value to a different range"
+					          :example "(convert-range -4 [-30 0] [0 255]) ;; => 221"}
+					        (+
+					         (/
+					          (*
+					           (- value
+					              old-range-min)
+					                        ;; * 
+					           (- new-range-max
+					              new-range-min))
+					                       ;;----------------
+					          (- old-range-max
+					             old-range-min))
+					                       ;; +
+					         new-range-min))
+					  
+					  
+					  
+					      (integer-floor
+					        [number]
+					        ^{:doc "Returns the largest double less than or equal to number,
+					              and equal to a mathematical integer. Equivalent to clojure.math/floor"
+					          :example "(integer-floor 11.1) => ;; => 11"}
+					        (if (>= number 0)
+					          (int number)
+					          (dec (int number))))
+					  
+					  
+					  
+					      (number-absolute
+					        [number]
+					        ^{:doc "Returns the absolute value of a number. Equivalent to abs."
+					          :example "(number-absolute -10) ;; => 10"}
+					        (if (>= number 0)
+					          number
+					          (- number)))
+					  
+					  
+					  
+					      (date/today
+					       []
+					       ^{:doc "Returns today's date as an integer in the format YYYYMMDD.
+					              Uses the datascript_query API to fetch the current date."
+					         :example "(date/today) ; => 20240918"}
+					       (defn get-today [] (let [query-result (call-api "datascript_query"
+					                                                       "[:find ?today :in $ ?today :where [_ :block/name _]]"
+					                                                       ":today")
+					  
+					                                date-integer (read-string (apply
+					                                                           str
+					                                                           query-result))]
+					                            date-integer))
+					       (def get-cached-date (memoize get-today))
+					       
+					       (get-cached-date))
+					  
+					  
+					  
+					      (date/journal-day->julian-day
+					        [year month day]
+					        ^{:doc "Converts a Gregorian calendar date to a Julian day number.
+					              This function is used for date calculations.
+					              Parameters:
+					                year: Integer representing the year
+					                month: Integer representing the month (1-12)
+					                day: Integer representing the day of the month
+					              Returns: Integer representing the Julian day number"
+					          :example "(date/journal-day->julian-day 2024 9 18) ; => 2460211"}
+					        (let [adjustment (integer-floor (/ (- month
+					                                              14)
+					                                           12))
+					  
+					              adjusted-year (+ year
+					                               4800
+					                               adjustment)
+					  
+					              adjusted-month (+ month
+					                                (* 12
+					                                   adjustment)
+					                                -3)]
+					  
+					          (+ (integer-floor (+ (* 365.25
+					                                  adjusted-year)
+					                               0.5))
+					             (integer-floor (+ (* 30.6001
+					                                  (+ adjusted-month
+					                                     1))
+					                               0.5))
+					             day
+					             -32075)))
+					  
+					  
+					  
+					      (date/get-difference
+					        ([journal-day] (date/get-difference journal-day (date/today)))
+					        ^{:doc "Calculates the absolute difference in days between a date and today.
+					              Parameters:
+					                journal-day: Integer representing a date in YYYYMMDD format."}
+					        ([journal-day1 journal-day2]
+					         ^{:doc "Calculates the absolute difference in days between two dates.
+					              Parameters:
+					                journal-day1: Integer representing a date in YYYYMMDD format
+					                journal-day2: Integer representing a date in YYYYMMDD format
+					              Returns: Integer representing the number of days between the two dates"
+					           :example "(date/get-difference 20240918 20240610) ; => 100"}
+					  
+					         (let [extract-date (fn [date]
+					                              [(quot date 10000)
+					                               (rem (quot date 100) 100)
+					                               (rem date 100)])
+					               [year1 month1 day1] (extract-date
+					                                    journal-day1)
+					               [year2 month2 day2] (extract-date
+					                                    journal-day2)
+					               julian-day-number1 (date/journal-day->julian-day
+					                                   year1
+					                                   month1
+					                                   day1)
+					               julian-day-number2 (date/journal-day->julian-day
+					                                   year2
+					                                   month2
+					                                   day2)]
+					           (number-absolute (- julian-day-number1
+					                               julian-day-number2)))))]
+					      (def date/today (memoize today))
+					      (fn [results]
+					  
+					        (let [first-line (fn [item]
+					                           (if (clojure.string/index-of item "\n")
+					                             (subs item 0 (clojure.string/index-of item "\n"))
+					                             item))
+					              query-data (first results)
+					              query-results (map (fn [result]
+					                                   (dissoc result :today-journal-day :today :today-journal-uuid))
+					                                 results)
+					              transformed-results
+					              (->> query-results
+					                   (map (fn [result]
+					                          (update result :content
+					                                  (fn [item]
+					                                    (-> item
+					                                        first-line
+					                                        clojure.string/lower-case
+					                                        (clojure.string/replace
+					                                         (re-pattern "(?:done|todo) \\{\\{grocery\\}\\} ") "")
+					                                        (clojure.string/replace (re-pattern "x\\d$") "")
+					                                        clojure.string/trim)))))
+					                   (group-by :content)
+					  
+					                   (sort-by (fn [[_ entries]]
+					                              (count entries))
+					                            >)
+					  
+					                   (map (fn [[grocery-item entries]]
+					                          [grocery-item (map (fn [entry]
+					                                               (dissoc entry :content))
+					                                             entries)]))
+					  
+					                   (map (fn [[grocery-item purchase-data]]
+					                          (let [in-basket?
+					                                (some (fn [entry]
+					                                        (=
+					                                         (:marker entry)
+					                                         "TODO"))
+					                                      purchase-data)
+					  
+					                                first-purchase-date
+					                                (->> purchase-data
+					                                     (map :journal-day)
+					                                     (apply min))
+					  
+					                                days-from-first-purchase ;;first-purchase-days
+					                                (date/get-difference first-purchase-date)
+					  
+					                                last-purchase-date
+					                                (->> purchase-data
+					                                     (filter (fn [m]
+					                                               (= (:marker m) "DONE")))
+					                                     (map :journal-day)
+					                                     (apply max))
+					  
+					                                days-from-last-purchase ;;last-purchase-days
+					                                (date/get-difference last-purchase-date)
+					  
+					                                purchase-count
+					                                (count purchase-data)
+					  
+					                               ;; Don't count items on the list for purchase
+					                               ;; because that's cheating.
+					                                adjusted-purchase-count
+					                                (if in-basket?
+					                                  (dec purchase-count)
+					                                  purchase-count)
+					  
+					                               ;; Average number of days between purchases beginning from
+					                               ;; the first purchase and until the last purchase.
+					                                average-purchase-in-days
+					                                (integer-floor
+					                                 (/ (- days-from-first-purchase
+					                                       days-from-last-purchase)
+					                                    adjusted-purchase-count))
+					  
+					                                expected-purchase-in-days (- average-purchase-in-days
+					                                                             days-from-last-purchase)
+					  
+					                                overdue-purchase? (< expected-purchase-in-days 1)
+					  
+					                               ;; Go from red to black over -1 to -30 days of overdue
+					                               ;; purchase time
+					                               ;; -1 = 88% 58%
+					                               ;; -30 = 53% 29%
+					                                text-color {:hue-degrees (integer-floor
+					                                                          (convert-range
+					                                                           expected-purchase-in-days
+					                                                           [-30 -1]
+					                                                           [203 0])) ;; blue: 203 82 35
+					                                            :saturation-percent (integer-floor
+					                                                                 (convert-range
+					                                                                  expected-purchase-in-days
+					                                                                  [-30 -1]
+					                                                                  [82 52])) ;;82 ;; dest start
+					                                            :lightness-percent (integer-floor (convert-range
+					                                                                               expected-purchase-in-days
+					                                                                               [-30 -1]
+					                                                                               [45 71]))}] ;;35
+					  
+					  
+					                            [grocery-item {:purchase-count adjusted-purchase-count
+					                                           :first-purchase-date first-purchase-date
+					                                           :last-purchase-date last-purchase-date
+					                                           :days-from-first-purchase days-from-first-purchase
+					                                           :days-from-last-purchase days-from-last-purchase
+					                                           :average-purchase-days average-purchase-in-days
+					                                           :expected-purchase-in-days expected-purchase-in-days
+					                                           :purchase-overdue? overdue-purchase?
+					                                           :in-basket in-basket?
+					                                           :text-color text-color
+					                                           :purchase-data purchase-data}]))))]
+					  
+					  
+					          (assoc {}
+					                 :query-data (select-keys query-data
+					                                          [:today-journal-day
+					                                           :today
+					                                           :today-journal-uuid])
+					                 :query-results transformed-results))))
+					  
+					  
+					    ;;  :view :pprint
+					  
+					    :view (letfn [(sanitize-string [s] (-> s
+					                                           (clojure.string/replace " " "-")
+					                                           (clojure.string/replace (re-pattern "\\[\\[") "")
+					                                           (clojure.string/replace (re-pattern "\\]\\]") "")
+					                                           (clojure.string/replace (re-pattern "[\\(\\)]") "")))
+					                  (make-link ([text journal-uuid class-addition]
+					                    [:a
+					                     {:class class-addition
+					                      :on-click (fn []
+					                                  (call-api
+					                                   "append_block_in_page"
+					                                   (str journal-uuid)
+					                                   (str "TODO {{grocery}} " text)))}
+					                     text])
+					                             ([text journal-uuid class-addition hsl-map]
+					                              [:a
+					                               {:class class-addition
+					                                :style  {;;:font-weight "bold" ;;idea: use a font-weight gradient
+					                                         :color (str "hsl(203 "
+					                                                     ;;(:hue-degrees hsl-map) " "
+					                                                     (:saturation-percent hsl-map) "% "
+					                                                     (:lightness-percent hsl-map) "%)")
+					                                         
+					                                        ;;  :color (str "hsl(0, "
+					                                        ;;              (:saturation-percent hsl-map)
+					                                        ;;              "%, "
+					                                        ;;              (:lightness-percent hsl-map)
+					                                        ;;              "%);")
+					                                        ;;  :color "hsl(1 88% 55%)"
+					                                         }
+					                                :on-click (fn []
+					                                            (call-api
+					                                             "append_block_in_page"
+					                                             (str journal-uuid)
+					                                             (str "TODO {{grocery}} " text)))}
+					                               ;; (str (:saturation-percent hsl-map) (:lightness-percent hsl-map) text) ;; debug
+					                               text])
+					                             )
+					                  (make-icon [item-name]
+					                    (let [icon-table {:cream "ef13"
+					                                      :frozen-berries "f511"
+					                                      :yogurt "f4c8"
+					                                      :cat-food "f287"
+					                                      :naan "efa3"
+					                                      :patties "feb5"
+					                                      :eggs "f500"
+					                                      :water "ef0b"
+					                                      :sour-cream "ee9f"
+					                                      :milk "ef13"
+					                                      :cheese "ef26"
+					                                      :cheese-powder "ee92"
+					                                      :cat-litter "f65b"
+					                                      :salad "f50a"
+					                                      :tomato-sauce "edbb"
+					                                      :automatic-toilet-bowl-cleaner-pucks "efd3"
+					                                      :fries "fae9"
+					                                      :detergent "f30e"
+					                                      :wax-paper "eb2f"
+					                                      :perogies "feb5"
+					                                      :potatoes "eb8a"
+					                                      :sapporo-ramen-noodle "fd90"
+					                                      :frozen-veg "f21c"
+					                                      :butter "fab5"
+					                                      :berries "f511"
+					                                      :sodium-bicarbonate "ef16"
+					                                      :peanut-oil "ef60"
+					                                      :dried-meat "ef17"
+					                                      :smokies "ef17"
+					                                      :brioche-hotdog-buns "f3a5"
+					                                      :sodium-bicarbonate-laundry-booster "f311"
+					                                      :garbage-bags "f02f"
+					                                      :downy-rinse-and-refresh-laundry-stripper "f311"
+					                                      :borax-laundry-booster "f311"
+					                                      :little-tissues "f4c9"}
+					    
+					                          sanitized-item-name (-> item-name
+					                                                  (clojure.string/replace " " "-")
+					                                                  (clojure.string/replace (re-pattern "\\[\\[") "")
+					                                                  (clojure.string/replace (re-pattern "\\]\\]") "")
+					                                                  (clojure.string/replace (re-pattern "[\\(\\)]") ""))
+					                          icon-code (get icon-table
+					                                         (keyword sanitized-item-name)
+					                                         "0000")]
+					                      (str "&#x" icon-code ";")))]
+					    
+					            (fn [results]
+					              (let [query-data (get-in results [:query-data])
+					                    query-results (get-in results [:query-results])]
+					    
+					                [:div
+					                 [:table.display-table.compact.more-compact.needs-disclosure-listener
+					                  [:thead
+					                   [:tr
+					                    [:th.left-column ""]
+					                    [:th "Item"]
+					                    [:th.disclosure]]]
+					                  [:tbody
+					                   (for [[grocery-item item-data] query-results]
+					                     (let [table-name (str "grocery-purchases")
+					                           class-addition (if (:in-basket item-data)
+					                                            "strikethrough"
+					                                            "")
+					                           sanitized-id (sanitize-string grocery-item)]
+					                       [:<>
+					                        [:tr
+					                         [:td.left-column {:rowspan "2"}
+					                          [:span {:class "bti bigger"
+					                                  :dangerouslySetInnerHTML
+					                                  {:__html (make-icon grocery-item)}}]]
+					    
+					                         [:td.touch-screen
+					                          (if (and
+					                               (< (:expected-purchase-in-days item-data) 0)
+					                               (> (:expected-purchase-in-days item-data) -30))
+					  
+					                            (make-link grocery-item
+					                                       (get-in query-data
+					                                               [:today-journal-uuid])
+					                                       class-addition
+					                                       (:text-color item-data))
+					                            (make-link grocery-item
+					                                       (get-in query-data
+					                                               [:today-journal-uuid])
+					                                       class-addition)
+					                            ;; (str "expected purchase in days:" (:expected-purchase-in-days item-data))
+					                            )
+					                          ]
+					    
+					                         [:td.touch-screen.ti
+					                          [:a.disclosure-trigger
+					                           {:id (str table-name
+					                                     "-disclosure-trigger-"
+					                                     sanitized-id)
+					                            :data-target (str table-name
+					                                              "-secondary-content-"
+					                                              sanitized-id)}
+					                           (str "▼")]]]
+					    
+					                        [:tr
+					                         [:td.closed.event-info.secondary-content
+					                          {:colspan "2"
+					                           :id (str table-name
+					                                    "-secondary-content-"
+					                                    sanitized-id)}
+					                          [:div.quick-view-container
+					                           [:span.content-slot
+					                            (str "Purchased "
+					                                 (sanitize-string grocery-item)
+					                                 " "
+					                                 (:purchase-count item-data)
+					                                 " times.")
+					                            [:br]
+					                            (str "on average every "
+					                                 (:average-purchase-days item-data)
+					                                 " days,")
+					                            [:br]
+					                            (str "last "
+					                                 (:days-from-last-purchase item-data)
+					                                 " days ago.")
+					                            [:br][:br]
+					                            (str "expected purchase in (days): "
+					                                 (:expected-purchase-in-days item-data))
+					                            
+					                            ]]]]]))]]])))
+					  
+					  
+					  
+					  
+					    :breadcrumb-show? false}
+					  #+END_QUERY
+				- query v2
+					- ```cljs
+					  #+BEGIN_QUERY
+					  ;; query v2
+					   {:inputs ["grocery" :today]
+					    :query
+					    [:find ?content ?journal-day ?today-journal-day ?today ?today-journal-uuid ?marker
+					     :keys content journal-day today-journal-day today today-journal-uuid marker
+					     :in $ ?macro-name ?today-journal-day %
+					  
+					     :where
+					     [?b :block/marker ?marker]
+					     ;;[(contains? #{"DONE"} ?marker)]
+					     (using-macro ?b ?macro-name)
+					  
+					     [?b :block/content ?content]
+					     [?b :block/page ?p]
+					     [?p :block/journal-day ?journal-day]
+					  
+					     [?j :block/journal-day ?today-journal-day]
+					     [?j :block/name ?today]
+					     [?j :block/uuid ?today-journal-uuid]]
+					  
+					  
+					    :rules
+					    [[(using-macro ?b ?macro-name)
+					      [?b :block/macros ?m]
+					      [?m :block/properties ?props]
+					      [(get ?props :logseq.macro-name) ?macros]
+					      [(= ?macros ?macro-name)]]]
+					  
+					  
+					    :result-transform
+					    (fn [results]
+					      (let [first-line (fn [item]
+					                         (if (clojure.string/index-of item "\n")
+					                           (subs item 0 (clojure.string/index-of item "\n"))
+					                           item))
+					            query-data (first results)
+					            query-results (map (fn [result]
+					                                 (dissoc result :today-journal-day :today :today-journal-uuid))
+					                               results)
+					            transformed-results (->> query-results
+					                                     (map (fn [result]
+					                                            (update result :content
+					                                                    (fn [item]
+					                                                      (-> item
+					                                                          first-line
+					                                                          clojure.string/lower-case
+					                                                          (clojure.string/replace
+					                                                           (re-pattern "(?:done|todo) \\{\\{grocery\\}\\} ") "")
+					                                                          (clojure.string/replace (re-pattern "x\\d$") "")
+					                                                          clojure.string/trim)))))
+					  
+					  
+					                                     (group-by :content)
+					  
+					                                     (sort-by (fn [[_ entries]] (count entries)) >)
+					  
+					                                     (map (fn [[grocery-item entries]]
+					                                            [grocery-item (map (fn [entry] (dissoc entry :content)) entries)]))
+					  
+					                                     (map (fn [[grocery-item purchase-data]]
+					                                            [grocery-item {:purchase-count (count purchase-data)
+					                                                           :first-purchase (->> purchase-data
+					                                                                                (map :journal-day)
+					                                                                                (apply min))
+					                                                           :last-purchase (->> purchase-data
+					                                                                               (map :journal-day)
+					                                                                               (apply max))
+					                                                           :in-basket (some (fn [entry] (= (:marker entry) "TODO")) purchase-data)
+					                                                           :purchase-data purchase-data}])))]
+					  
+					        (assoc {}
+					               :query-data (select-keys query-data [:today-journal-day :today :today-journal-uuid])
+					               :query-results transformed-results)))
+					  
+					    :view (letfn [(make-link [text journal-uuid class-addition]
+					                   [:a {:class class-addition :on-click (fn [] (call-api "append_block_in_page" (str journal-uuid) (str "TODO {{grocery}} " text)))}
+					                    text])
+					                  (make-icon [item-name]
+					                    (let [icon-table {:cream "ef13"
+					                                      :frozen-berries "f511"
+					                                      :yogurt "f4c8"
+					                                      :cat-food "f287"
+					                                      :naan "efa3"
+					                                      :patties "feb5"
+					                                      :eggs "f500"
+					                                      :water "ef0b"
+					                                      :sour-cream "ee9f"
+					                                      :milk "ef13"
+					                                      :cheese "ef26"
+					                                      :cheese-powder "ee92"
+					                                      :cat-litter "f65b"
+					                                      :salad "f50a"
+					                                      :tomato-sauce "edbb"
+					                                      :automatic-toilet-bowl-cleaner-pucks "efd3"
+					                                      :fries "fae9"
+					                                      :detergent "f30e"
+					                                      :wax-paper "eb2f"
+					                                      :perogies "feb5"
+					                                      :potatoes "eb8a"
+					                                      :sapporo-ramen-noodle "fd90"
+					                                      :frozen-veg "f21c"
+					                                      :butter "fab5"
+					                                      :berries "f511"
+					                                      :sodium-bicarbonate "ef16"
+					                                      :peanut-oil "ef60"
+					                                      :dried-meat "ef17"
+					                                      :smokies "ef17"
+					                                      :brioche-hotdog-buns "f3a5"
+					                                      :sodium-bicarbonate-laundry-booster "f311"
+					                                      :garbage-bags "f02f"
+					                                      :downy-rinse-and-refresh-laundry-stripper "f311"
+					                                      :borax-laundry-booster "f311"
+					                                      :little-tissues "f4c9"}
+					            
+					                          sanitized-item-name (-> item-name
+					                                                  (clojure.string/replace " " "-")
+					                                                  (clojure.string/replace (re-pattern "[\\(\\)]") ""))
+					                          icon-code (get icon-table (keyword sanitized-item-name) "0000")]
+					                      (str "&#x" icon-code ";")))]
+					  
+					           (fn [results]
+					             (let [query-data (get-in results [:query-data])
+					                   query-results (get-in results [:query-results])]
+					                  
+					               [:div
+					                [:table {:class "future-appointments compact more-compact stop-click"}
+					                 [:thead
+					                  [:tr
+					                   [:th ""]
+					                   [:th "Item"]]]
+					                 [:tbody
+					                  (for [[grocery-item item-data] query-results]
+					                    (let [class-addition (if (:in-basket item-data) "strikethrough" "")]
+					                     [:tr
+					                      [:td [:span {:class "bti bigger" :dangerouslySetInnerHTML {:__html (make-icon grocery-item)}}]]
+					                      [:td.touch-screen (make-link grocery-item (get-in query-data [:today-journal-uuid]) class-addition)]]))]]])))
+					                   
+					                 
+					  
+					    :breadcrumb-show? false}
+					  #+END_QUERY
+					  ```
+				- query v1
+					- ![image.png](../assets/image_1723933819675_0.png){:height 161, :width 240}
+					- No way to indicate if an item is in the basket
+					- ```cljs
+					  #+BEGIN_QUERY
+					  ;; [[grocery list]] query
+					   {:inputs ["grocery" :today]
+					    :query
+					    [:find ?content ?journal-day ?today-journal-day ?today ?today-journal-uuid
+					     :keys content journal-day today-journal-day today today-journal-uuid
+					     :in $ ?macro-name ?today-journal-day %
+					  
+					     :where
+					     [?b :block/marker ?marker]
+					     [(contains? #{"DONE"} ?marker)]
+					     (using-macro ?b ?macro-name)
+					  
+					     [?b :block/content ?content]
+					     [?b :block/page ?p]
+					     [?p :block/journal-day ?journal-day]
+					  
+					     [?j :block/journal-day ?today-journal-day]
+					     [?j :block/name ?today]
+					     [?j :block/uuid ?today-journal-uuid]]
+					  
+					  
+					    :rules
+					    [[(using-macro ?b ?macro-name)
+					      [?b :block/macros ?m]
+					      [?m :block/properties ?props]
+					      [(get ?props :logseq.macro-name) ?macros]
+					      [(= ?macros ?macro-name)]]]
+					  
+					  
+					    :result-transform
+					    (fn [results]
+					      (let [query-data (first results)
+					            query-results (map (fn [result]
+					                                 (dissoc result :today-journal-day :today :today-journal-uuid))
+					                               results)
+					            transformed-results (->> query-results
+					                                     (map (fn [result]
+					                                            (update result :content
+					                                                    (fn [item]
+					                                                      (-> item
+					                                                          clojure.string/lower-case
+					                                                          (clojure.string/replace
+					                                                           (re-pattern "done \\{\\{grocery\\}\\} ") "")
+					                                                          (clojure.string/replace (re-pattern "x\\d$") "")
+					                                                          clojure.string/trim)))))
+					  
+					  
+					                                     (group-by :content)
+					  
+					                                     (sort-by (fn [[_ entries]] (count entries)) >)
+					  
+					                                     (map (fn [[grocery-item entries]]
+					                                            [grocery-item (map (fn [entry] (dissoc entry :content)) entries)]))
+					  
+					                                     (map (fn [[grocery-item purchase-data]]
+					                                            [grocery-item {:purchase-count (count purchase-data)
+					                                                           :first-purchase (->> purchase-data
+					                                                                                (map :journal-day)
+					                                                                                (apply min))
+					                                                           :last-purchase (->> purchase-data
+					                                                                               (map :journal-day)
+					                                                                               (apply max))
+					                                                           :purchase-data purchase-data}])))]
+					  
+					        (assoc {}
+					               :query-data (select-keys query-data [:today-journal-day :today :today-journal-uuid])
+					               :query-results transformed-results)))
+					  
+					    :view (letfn [(make-link [text journal-uuid]
+					                    [:a {:on-click (fn [] (call-api "append_block_in_page" (str journal-uuid) (str "TODO {{grocery}} " text)))}
+					                     text])
+					                  (make-icon [item-name]
+					                    (let [icon-table {:cream "ef13"
+					                                      :frozen-berries "f511"
+					                                      :yogurt "f4c8"
+					                                      :cat-food "f287"
+					                                      :naan "efa3"
+					                                      :patties "feb5"
+					                                      :eggs "f500"
+					                                      :water "ef0b"
+					                                      :sour-cream "ee9f"
+					                                      :milk "ef13"
+					                                      :cheese "ef26"
+					                                      :cheese-powder "ee92"
+					                                      :cat-litter "f65b"
+					                                      :salad "f50a"
+					                                      :tomato-sauce "edbb"
+					                                      :automatic-toilet-bowl-cleaner-pucks "efd3"
+					                                      :fries "fae9"
+					                                      :detergent "f30e"
+					                                      :wax-paper "eb2f"
+					                                      :perogies "feb5"
+					                                      :potatoes "eb8a"
+					                                      :sapporo-ramen-noodle "fd90"
+					                                      :frozen-vegetables "f21c"
+					                                      :butter "fab5"
+					                                      :berries "f511"
+					                                      :sodium-bicarbonate "ef16"
+					                                      :peanut-oil "ef60"
+					                                      :pizza-meat "ef17"
+					                                      :garbage-bags "f02f"
+					                                      :downy-rinse-and-refresh "f311"
+					                                      :little-tissues "f4c9"}
+					                          icon-code (get icon-table (keyword (clojure.string/replace item-name " " "-")) "0000")]
+					                      (str "&#x" icon-code ";")))]
+					  
+					            (fn [results]
+					              (let [query-data (get-in results [:query-data])
+					                    query-results (get-in results [:query-results])]
+					                [:div
+					                 [:table {:class "future-appointments compact"}
+					                  [:thead
+					                   [:tr
+					                    [:th ""]
+					                    [:th "Item"]
+					                    ]]
+					                  [:tbody
+					                   (for [[grocery-item _] query-results]
+					                     [:tr
+					                      [:td [:span {:class "bti bigger" :dangerouslySetInnerHTML {:__html (make-icon grocery-item)}} ]]
+					                      [:td (make-link grocery-item (get-in query-data [:today-journal-uuid]))]
+					                      
+					                      ])]]])))
+					  
+					    :breadcrumb-show? false}
+					  #+END_QUERY
+					  ```
+		- {{i ecd0}}  Related page *linked reference count*
 			- On a given page with the `:related` page property,
 				- Find all blocks with linked references to pages included in `:related`
 			- Linked references to pages in `:related` advanced query:
@@ -1298,9 +2663,9 @@ repository:: DeadBranches/logseq-queries-and-scripts
 			  }
 			  #+END_QUERY
 			  ```
-		- {{i ef91}} **projects** journal widget
+		- {{i ef91}}  **projects** journal widget
 		  id:: 6666f9ad-7589-4721-a459-d7d18591c09e
-		      ![image.png](../assets/image_1719764465551_0.png){:height 30, :width 183}
+		      ![image.png](../assets/image_1719764465551_0.png){:height 32, :width 210}
 			- {{i f635}} information
 				- for related {{i ef91}} project see [[:logseq-project-manager-2024.5]]
 			- ### {{i eb89}} current query
@@ -1565,7 +2930,7 @@ repository:: DeadBranches/logseq-queries-and-scripts
 					  }
 					  #+END_QUERY
 					  ```
-		- {{i ef91}} **project list** quick-view
+		- {{i ef91}}  **project list** quick-view
 		        ![image.png](../assets/image_1719764401764_0.png){:height 38, :width 143}
 			- *see [[:logseq-project-manager-2024.5]]*
 			- *next up list*
@@ -1999,9 +3364,9 @@ repository:: DeadBranches/logseq-queries-and-scripts
 					           results)])
 					  }
 					  #+END_QUERY
-		- {{i ee21}} **next appointment** journal widget
+		- {{i ee21}}  **next appointment** journal widget
 		  id:: 664ceeec-b343-4d67-94d5-4db82220f06f
-		    ![image.png](../assets/image_1724503316662_0.png){:height 30, :width 245}
+		       ![image.png](../assets/image_1724503316662_0.png){:height 30, :width 245}
 			- {{i f635}} information
 				- for related {{i ef91}} project see [[:logseq-events-and-appointments]]
 			- ### {{i eb89}} current query
@@ -3128,73 +4493,9 @@ repository:: DeadBranches/logseq-queries-and-scripts
 					  }
 					  #+END_QUERY
 					  ```
-		- {{i ee20}} **future appointments** list
-		  id:: 66415c9e-ff58-4281-8007-160cb44fb8b3
-			- ### {{i f6ef}}  depreciation warning
-			      this block is no longer in use
-				- {{i ea0b}} *depreciated on* *[[Saturday, Aug 24th, 2024]]*
-			- [:small "upcoming appointments"]
-			  id:: 66415ca6-d397-4fc1-97f1-95f7b516e6d1
-			  #+BEGIN_QUERY
-			  {:query
-			   [:find (min ?journal-day) ?date ?journal-day ?content ?props ?today ?activity ?event ?uuid ?current-page
-			    :keys min-day date journal-day content properties today activity event uuid current-page
-			    :in $ ?today ?current-page
-			    :where
-			    [?b :block/properties ?props]
-			    [(get
-			      ?props :activity) ?activity]
-			  ;[(contains? ?activity "ocrevus infusion")] 
-			    [?e :block/properties ?props]
-			    [(get ?props :event) ?event]
-			    [(get ?props :date) ?date]
-			    [?e :block/refs ?refs]
-			    [?e :block/content ?content]
-			    [?refs :block/journal-day ?journal-day]
-			    [(> ?journal-day ?today)]
-			  
-			   [?e :block/uuid ?uuid] 
-			    ]
-			  
-			   :result-transform  (fn [result] (sort-by (fn [r] (get-in r [:journal-day])) (fn [a b] (compare a b)) result))
-			  
-			   :view (letfn [(make-append-link [page block-content link-text]
-			                                   [:a {:on-click
-			                                        (fn [] (call-api "append_block_in_page"
-			                                                         page
-			                                                         block-content))}
-			                                    link-text])
-			                 (make-link [text destination]
-			                   [:a {:on-click
-			                        (fn []
-			                          (call-api "push_state" "page" {:name destination}))} text])]
-			           (fn [results]
-			             [:div
-			              [:table {:class "future-appointments stop-click"}
-			               [:thead
-			                [:tr
-			                 [:th {:width "120px"} "Date"]
-			                 [:th "Event"]]]
-			               [:tbody
-			                (for [result results]
-			                  [:tr
-			                   [:td (get-in result [:date])]
-			                   [:td (make-append-link
-			                         (get-in result [:current-page])
-			                          (str "{{i-note}} text \n{{i-event}} [" (get-in result [:event]) "](" (get-in result [:uuid])")")
-			                          (get-in result [:event]))        
-			                   ]])]]])
-			   )
-			  
-			          
-			   :inputs [:today :current-page]
-			   :breadcrumb-show? false
-			   :children? false
-			   :group-by-page? false}
-			  #+END_QUERY
-		- {{i ec44}} **current medication** list
+		- {{i ec44}}  **current medication** list
 		  id:: 667a53af-9c93-4a1d-a01b-7e8b8fd22b53
-		      ![image.png](../assets/image_1719766132026_0.png){:height 107, :width 337}
+		       ![image.png](../assets/image_1719766132026_0.png){:height 107, :width 337}
 			- id:: 664cb068-64bb-4dc5-aa7e-b0678b63a6fe
 			  #+BEGIN_QUERY
 			  {:query
@@ -3301,10 +4602,10 @@ repository:: DeadBranches/logseq-queries-and-scripts
 				                   ]])}
 				  #+END_QUERY
 				  ```
-		- {{i f21c}} *grocery list* quick-ref (journal widget)
+		- {{i f21c}}  *grocery list* quick-ref (journal widget)
 		  id:: 6666f9ad-2b57-4f34-b088-41e5b3e5bd53
 		      ![image.png](../assets/image_1719765985169_0.png){:height 30, :width 214}
-		- {{i eaff}} online orders (journal widget)
+		- {{i eaff}}  online orders (journal widget)
 		      ![image.png](../assets/image_1719766180275_0.png){:height 31, :width 135}
 			- id:: 663f79d8-20d7-4027-9ff5-500ae36ff757
 			  #+BEGIN_QUERY
@@ -3388,7 +4689,71 @@ repository:: DeadBranches/logseq-queries-and-scripts
 			  )
 			  }
 			  #+END_QUERY
-		- {{i eafd}} logseq graph news
+		- {{i ee20}}  ~~future appointments list~~
+		  id:: 66415c9e-ff58-4281-8007-160cb44fb8b3
+			- ### {{i f6ef}}  depreciation warning
+			      this block is no longer in use
+				- {{i ea0b}} *depreciated on* *[[Saturday, Aug 24th, 2024]]*
+			- [:small "upcoming appointments"]
+			  id:: 66415ca6-d397-4fc1-97f1-95f7b516e6d1
+			  #+BEGIN_QUERY
+			  {:query
+			   [:find (min ?journal-day) ?date ?journal-day ?content ?props ?today ?activity ?event ?uuid ?current-page
+			    :keys min-day date journal-day content properties today activity event uuid current-page
+			    :in $ ?today ?current-page
+			    :where
+			    [?b :block/properties ?props]
+			    [(get
+			      ?props :activity) ?activity]
+			  ;[(contains? ?activity "ocrevus infusion")] 
+			    [?e :block/properties ?props]
+			    [(get ?props :event) ?event]
+			    [(get ?props :date) ?date]
+			    [?e :block/refs ?refs]
+			    [?e :block/content ?content]
+			    [?refs :block/journal-day ?journal-day]
+			    [(> ?journal-day ?today)]
+			  
+			   [?e :block/uuid ?uuid] 
+			    ]
+			  
+			   :result-transform  (fn [result] (sort-by (fn [r] (get-in r [:journal-day])) (fn [a b] (compare a b)) result))
+			  
+			   :view (letfn [(make-append-link [page block-content link-text]
+			                                   [:a {:on-click
+			                                        (fn [] (call-api "append_block_in_page"
+			                                                         page
+			                                                         block-content))}
+			                                    link-text])
+			                 (make-link [text destination]
+			                   [:a {:on-click
+			                        (fn []
+			                          (call-api "push_state" "page" {:name destination}))} text])]
+			           (fn [results]
+			             [:div
+			              [:table {:class "future-appointments stop-click"}
+			               [:thead
+			                [:tr
+			                 [:th {:width "120px"} "Date"]
+			                 [:th "Event"]]]
+			               [:tbody
+			                (for [result results]
+			                  [:tr
+			                   [:td (get-in result [:date])]
+			                   [:td (make-append-link
+			                         (get-in result [:current-page])
+			                          (str "{{i-note}} text \n{{i-event}} [" (get-in result [:event]) "](" (get-in result [:uuid])")")
+			                          (get-in result [:event]))        
+			                   ]])]]])
+			   )
+			  
+			          
+			   :inputs [:today :current-page]
+			   :breadcrumb-show? false
+			   :children? false
+			   :group-by-page? false}
+			  #+END_QUERY
+		- {{i eafd}}  ~~logseq graph news~~
 			- jump to: info  embed, history
 			- id:: 66415d9e-5591-4219-bc68-eb54393bccff
 			  #+BEGIN_QUERY
@@ -4914,27 +6279,25 @@ repository:: DeadBranches/logseq-queries-and-scripts
 	- Namespaces available
 		- type:: demo
 		  #+BEGIN_QUERY
-		  {
-		  :title "find"
-		  :view (fn [r] [:div.flex.flex-wrap.gap-4
-		      (for [ns (all-ns)]
-		           [:div [
-		                  [:h2 (str ns)] 
-		                  [:div.grid.grid-cols-4.gap-4 (for 
-		                         [name (keys (ns-publics ns))] 
-		                         [:a {:href (str "https://clojuredocs.org/" (str ns) "/" (str name) ) } (str name)])
-		                  ]
-		                 ]]
-		        )]
-		  )
-		  :query [
-		    :find (pull ?b [*]) 
-		    :where
-		        [?b :block/properties ?p ]
-		        [(get ?p :type) ?t]
-		        [(= ?t "demo")]
-		  ]
-		  }
+		  
+		  {:title "find"
+		   :query [:find (pull ?b [*])
+		           :where
+		           [?b :block/properties ?p]
+		           [(get ?p :type) ?t]
+		           [(= ?t "demo")]]
+		   :view (fn [r] [:div.flex.flex-wrap.gap-4
+		                  (for [ns (all-ns)]
+		                    [:div [[:h2 (str ns)]
+		                           [:div.grid.grid-cols-4
+		                            (for
+		                             [name (sort (keys (ns-publics ns)))]
+		                              [:a {:href (str "https://clojuredocs.org/" 
+		                                              (str ns) 
+		                                              "/" 
+		                                              (str name))
+		                                   } (str name)])]]])])}
+		  
 		  #+END_QUERY
 - ## {{i efc5}} datalog language reference
   cateloguing advanced query syntax elements

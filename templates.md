@@ -1178,6 +1178,10 @@ description:: `/template`s with boilerplate for collector blocks, page tags, dai
 		  id:: 65fb3d58-f121-4f03-a702-fbc3e6e5c98c
 		  template:: logseq, daily journal pre-2024.8
 		  template-including-parent:: false
+		  
+		  {{i f6ef}}  **depreciation warning**
+		    this block is no longer in use
+				- {{i ea0b}} *depreciated on* *[[Sunday, Sep 15th, 2024]]*
 			- ### {{journalBuddy}} Journal buddies
 			  id:: 669bc80f-ccbb-4be3-8144-ad79decd7ee9
 				- {{kitButton '',doingWidget,ec45}}  {{kitButton '',journalOrganizationBlocks,eaad}}  {{kitButton '',purchaseHolderComponent,eb25 f21c}}

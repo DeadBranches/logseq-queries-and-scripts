@@ -14,22 +14,17 @@ description:: (formerly journalGroceryWidget). Add a purchase manager to the cur
   }
   
   async function purchaseHolderComponent(el, mode = "process") {
+    console.log("purchaseHolderComponent kit triggered.");
     const me = event.target.closest(".ls-block");
   
     /**
-     * Container identification
+     * Constants
      */
-    const CONTAINER_IDENTIFIER = "purchase-holder";
   
-    /**
-     * Container content
-     */
-    const TEMPLATE_UUID = "66b0edf9-37ba-4756-8421-c60cbd44b334";
-    const BATCH_BLOCK_CONTENT = [
-      {
-        content: `${await get_block_content(TEMPLATE_UUID)}`,
-      },
-    ];
+    const CONTAINER_IDENTIFIER = "purchase-holder";
+    // insertion content:
+    const CONTENT_TEMPLATE_UUID = "66b0edf9-37ba-4756-8421-c60cbd44b334";
+    const INSERTION_IDENTIFIER = "journal-container-insertion-point"; // macro name
   
     /**
      * Don't add the container if one already exists on the page. Check for the
@@ -70,10 +65,10 @@ description:: (formerly journalGroceryWidget). Add a purchase manager to the cur
     /**
      * Insert block
      */
-  
-    const INSERTION_IDENTIFIER = "journal-container-insertion-point"  // macro name
+    const batch_block_content = [
+      { content: `${await get_block_content(CONTENT_TEMPLATE_UUID)}` },
+    ];
     const journalRoot = me.closest(".journal-item.content");
-  
     const targetBlockUUID = journalRoot
       .querySelector(`[data-macro-name="${INSERTION_IDENTIFIER}"]`)
       .closest(".ls-block")
@@ -82,12 +77,11 @@ description:: (formerly journalGroceryWidget). Add a purchase manager to the cur
     try {
       const insertedBlocks = await logseq.api.insert_batch_block(
         targetBlockUUID,
-        BATCH_BLOCK_CONTENT,
-        {before: false, sibling: true}
+        batch_block_content,
+        { before: false, sibling: true }
       );
       await new Promise((resolve) => setTimeout(resolve, 400));
       await logseq.api.exit_editing_mode();
-  
     } catch (error) {
       console.log(
         `Inserting blocks via \`insert_batch_block()\` failed.\ntargetBlockUUID: ${targetBlockUUID}\n${error}`
@@ -98,14 +92,14 @@ description:: (formerly journalGroceryWidget). Add a purchase manager to the cur
     return null;
   }
   
-  purchaseHolderComponent(null, "plaintext");
-  
+  purchaseHolderComponent(null);
   
   ```
 	- {{evalparent}}
-- #### {{kitButton purchase list,collapseBlock,ef49,-button-style full-width +bold-nth-word}}
-  {{kitButton '',insertListItem,eb0b eb25,squat,template='shopping'}}   {{kitButton '',insertListItem,eb0b f21c,squat,template='grocery'}}
-  {{purchase-holder}}
+-
+- {{kitButton '',purchaseHolderComponent,eb25 f21c,squat half-long dark-gray gray-border}}
+- insertion
+	- {{journal-container-insertion-point}}
 -
 - # UI Elements
   {{i ec9e}} *[[:logseq-journal-buddy-improvement-2024.6]]* *(live embed)*

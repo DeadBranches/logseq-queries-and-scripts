@@ -1,7 +1,8 @@
 kit:: scheduleDateToday collapse[Optional]
 description:: A replace-macro that when evaluated on a journal page, creates a scheduled-date org-mode tag. Optionally collapses the containing parent block by passing any value as the first macro argument. E.g. `{{scheduleDateToday collapse}}`
 
-- ```javascript
+- id:: 6682d244-247e-4fa9-9a6e-df88b5f981ab
+  ```javascript
   logseq.kits.setStatic(function scheduleDateToday(div){
     const blockId = div.closest(".ls-block").getAttribute("blockid");
     const block = logseq.api.get_block(blockId);

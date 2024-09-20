@@ -1,5 +1,6 @@
 tags:: project
 description:: Converting code-button blocks to logseq kits `{{evalpage}}` buttons
+completed-on:: [[Saturday, Sep 14th, 2024]] 
 -icon:: ec9e
 
 - # {{i f51a}} goal
@@ -26,6 +27,12 @@ description:: Converting code-button blocks to logseq kits `{{evalpage}}` button
 		- DONE **Appointment helper**, show next appointments at a glance. Click appoinment to add a note. Block hides future appointment list
 		- DONE **Organization blocks**. That appear below the journal buddy when invoked
 		  id:: 66897945-7f07-4e76-8574-fd8d6fb4d9d5
+- ## Features
+	- DONE ((6691330c-322f-4eb8-b311-e508d156b1fc))
+	- DONE ((668d8204-e490-4d23-8d14-1c8f167c9edb))
+	- DONE ((66b0fa0d-fc79-4711-902a-ebcb3a411f96))
+	- DONE ((668bfa16-f000-4381-80b7-155ed5ebe7f1))
+	  id:: 66e5f003-8734-429c-ab98-d77ee48fdd4f
 - # Documentation
 	- ## {{i eac9}} ui components
 		- ### {{i ec9e}} **Journal buddies** component
@@ -275,6 +282,7 @@ description:: Converting code-button blocks to logseq kits `{{evalpage}}` button
 				  {{i ea06}} this component may not appear correctly in preview
 				- {{embed ((66b0ead7-2d9d-4e05-a21e-da5d98e1d9b8))}}
 		- ### {{i eaad}} **organization blocks** component
+		  id:: 66b0fa0d-fc79-4711-902a-ebcb3a411f96
 			- {{kitButton issue tracker,collapseBlock,ea76,-button-style full-width small-caps}}
 			- *documentation*
 				- in-graph location & address
