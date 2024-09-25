@@ -1,6 +1,7 @@
 kit:: nextAppointment
 repository:: DeadBranches/logseq-queries-and-scripts
 description:: Replace-macro that returns the number of days until the next appointment.
+created-on:: [[Wednesday, Jun 26th, 2024]]
 
 - ```javascript
   logseq.kits.nextAppointment = nextAppointment;

@@ -1,5 +1,6 @@
 kit:: daysUntilNextAppointment
 description:: replacement for nextAppointment. Can be called from `logseq.kits.daysUntilNextAppointment`
+created-on:: [[Saturday, Jul 27th, 2024]]
 
 - ```javascript
   logseq.kits.setStatic(function daysUntilNextAppointment() {

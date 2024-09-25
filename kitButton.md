@@ -1,5 +1,7 @@
 kit:: kitButton [label] <kit-name> [icon] [positive-class | {-inline | -button-style | -button-shape | -hover | -active}] | [arguments]
 description:: kitButton [label] <kit-name> [icon] [positive-class | {-inline | -button-style | -button-shape | -hover | -active}] | [arguments]
+created-on:: [[Sunday, Jul 7th, 2024]]
+-icon:: fc5b
 
 - ```javascript
   function daysUntilNextAppointment() {

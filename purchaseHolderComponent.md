@@ -1,5 +1,6 @@
 kit:: kitButton purchaseHolderComponent
 description:: (formerly journalGroceryWidget). Add a purchase manager to the current journal page.
+created-on:: [[Monday, Aug 5th, 2024]]
 
 - ```javascript
   logseq.kits.purchaseHolderComponent = purchaseHolderComponent;

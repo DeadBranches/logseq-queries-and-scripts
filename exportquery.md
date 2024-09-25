@@ -1,5 +1,6 @@
 kit:: runpage exportquery
 description:: Runpage kit that exports a parent block as HTML to the clipboard (experimental)
+created-on:: [[Sunday, Jun 23rd, 2024]]
 
 - ```javascript
   logseq.kits.exportquery = exportquery;

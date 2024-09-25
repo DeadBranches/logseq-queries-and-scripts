@@ -1,4 +1,5 @@
 kit:: runpage journalOrganizationBlocks
+created-on:: [[Saturday, Jul 6th, 2024]]
 
 - ```javascript
   logseq.kits.journalOrganizationBlocks = journalOrganizationBlocks;

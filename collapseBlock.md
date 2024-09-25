@@ -1,4 +1,5 @@
 kit:: kitButton collapseBlock [collapse?]
+created-on:: [[Saturday, Jul 6th, 2024]]
 
 - ```javascript
   logseq.kits.collapseBlock = collapseBlock;

@@ -1,5 +1,7 @@
 kit:: kitButton [label], insertListItem, [icon], [classes], [grocery | buy]
 description:: Inserts either a grocery or shopping list item under the purchase list container on the same page. Takes one positional argument, either grocery or buy.
+created-on:: [[Thursday, Aug 15th, 2024]]
+-icon:: f2da
 
 - ```javascript
   logseq.kits.insertListItem = insertListItem;

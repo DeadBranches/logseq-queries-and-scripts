@@ -1,5 +1,7 @@
 kit:: runpage journalGroceryWidget
 description:: (depreciated). invoke from a button press to add a new grocery item to the current journal page.
+created-on:: [[Sunday, Jun 30th, 2024]] 
+depreciated?:: [[Friday, Aug 9th, 2024]]
 
 - ### {{i f6ef}}  depreciation warning
       this block is no longer in use.

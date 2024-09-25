@@ -1,5 +1,6 @@
 kit:: openOrderCount [prefix] [suffix]
 details:: Show the number of open orders. Prefix and suffix are optional, e.g. `{{openOrderCount (,)}}`.
+created-on:: [[Thursday, Jul 18th, 2024]]
 
 - ```javascript
   logseq.kits.setStatic(function openOrderCount(div){

@@ -1,4 +1,5 @@
 kit:: futureEventsTable
+created-on:: [[Saturday, Aug 10th, 2024]]
 
 - ```javascript
   logseq.kits.setStatic(async function futureEventsTable(div) {

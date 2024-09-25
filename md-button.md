@@ -1,4 +1,5 @@
 kit:: md-button
+created-on:: [[Monday, Sep 9th, 2024]]
 
 - ```javascript
   logseq.kits.setStatic(function md-button(div){

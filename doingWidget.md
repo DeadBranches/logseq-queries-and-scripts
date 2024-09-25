@@ -1,5 +1,7 @@
 kit:: kitbutton doingWidget
 description:: Adds a doing block set to the page if one doesn't already exist
+created-on:: [[Monday, Aug 5th, 2024]]
+-icon:: f2da
 
 - ```javascript
   logseq.kits.doingWidget = doingWidget;

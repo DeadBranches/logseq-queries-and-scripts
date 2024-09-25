@@ -1,3 +1,6 @@
+kit:: youtubeIconLinker
+created-on:: [[Saturday, Jul 6th, 2024]]
+
 - ```javascript
   logseq.kits.setStatic(function youtubeIconLinker(div){
     // Automatically fetch the title of a youtube video.

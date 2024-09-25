@@ -1,4 +1,5 @@
 kit:: newKitButton
+description:: This kit never fully implemented.
 
 - ```javascript
   logseq.kits.setStatic(async function newKitButton(div) {

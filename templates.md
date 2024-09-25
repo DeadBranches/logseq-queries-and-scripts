@@ -1,14 +1,48 @@
 tags:: page
 description:: `/template`s with boilerplate for collector blocks, page tags, daily journal, queries
+-icon:: f204
 
+- {{kitButton issues,collapseBlock,ea06,-button-style full-width small-caps}}
+	- {{embed ((66ccdccf-f9e2-4028-b867-a7b5406fd634))}}
+- {{kitButton ideas,collapseBlock,ea76,-button-style full-width small-caps}}
+	- {{embed ((66df909d-79a2-4532-917e-94d3bd8b32a8))}}
+- {{kitButton questions,collapseBlock,ea76,-button-style full-width small-caps}}
+	- {{embed ((66df90b1-ccba-494b-94c9-76f3194e0963))}}
 - ## {{i fab5}} block templates
   for repeatable structures that could go anywhere.
-	- #### {{i ef91}} project management
+	- keyword guide
+		- **keywords**
+			- *event*
+				- an occurance in time. NOT a calendar activity
+			- *activity*
+				- an agenda item, calendar (appointment)
+			- appointment
+				- a synonym for *activity* that doesn't trigger the activity card
+			- *helper*
+				- project goals + tasks
+			- tracker
+			- *assistant* - A thing that I interact with to change the state of other things
+			- *tracker* - A tool that shows me relevant contextual information
+		- **namespaces**
+			- */card*
+				- A properties block
+			- */tool*
+				- something with advanced queries
+				  id:: 66f0544c-d179-4185-a00f-c13e7722a8c0
+			- */block*
+				- Just basic block structures.
+			- */data*
+				- Input data
+					- online order
+			- */logseq*
+				- Meta shit
+					- depreciate block
+	- ##### {{i ef91}}  tools
 	  id:: 66b0fc6d-037d-4651-b081-f021d3ef06fa
-		- {{i f3f3}} issue/idea helpers
-			- ### {{i-example}} samples
+		- {{i ea76}}  ideas, issues, questions
+		        {{templateSlashCommand}}
 			- ### {{i-template}} template
-			  template:: block - idea helper 
+			  template:: tool, thought assistant
 			  template-including-parent:: false
 				- {{kitButton issues,collapseBlock,ea06,-button-style full-width small-caps}}
 					- {{embed ((66ccdccf-f9e2-4028-b867-a7b5406fd634))}}
@@ -170,11 +204,12 @@ description:: `/template`s with boilerplate for collector blocks, page tags, dai
 				  
 				  #+END_QUERY
 				  {{idea-identifier}}
-		- {{i ee21}} expecting *<something>*
+		- {{i ee21}}  expected event
+		       {{templateSlashCommand}}
 			- ### {{i-example}} samples
 				- [[~autism assessment]]
 			- ### {{i-template}} template
-			  template:: project, expecting section 
+			  template:: tool, expecting event assistant
 			  template-including-parent:: false
 				- ## {{i ee21}} Expecting
 					- ### {{i ed07}} Take Action
@@ -246,107 +281,92 @@ description:: `/template`s with boilerplate for collector blocks, page tags, dai
 						  #+END_QUERY
 					- *example usage*
 						- TODO **[[EXPECT]]** some things \/schedule
-		- [:small "older stuff"]
-			- ##### project management
-			  Goals, task management
-				- ### Project goals
-					- TODO One
-					  id:: 65ff0036-59cf-40a6-b461-3d3e5f73f9eb
-					- TODO Two
-					  id:: 65ff003b-d777-4c98-b18c-66a963b8be43
-					- TODO Three
-				- ### Task management
-					- ### Goal ((65ff0036-59cf-40a6-b461-3d3e5f73f9eb))
-						- TODO Task a
-						- TODO Task b
-						- TODO Task c
-					- ### Goal ((65ff003b-d777-4c98-b18c-66a963b8be43))
-						- TODO Task 60% a
-						- TODO Task 60% b
-						- TODO Task 60% c
-			- ##### for pages
-			  see implemented example: ((65bcf5d6-660a-4dff-b086-d5cb795540c7))
-				- #### current template
-				  template:: project management - goals and tasks
-				  template-including-parent:: false
-					- ## [[Goals]]
-						- TODO This is a goal
-						  id:: 65fb267e-8199-4ada-95e3-2232fa2d2190
-						  **tip** reference me
-							- #+BEGIN_QUERY
-							  {:query
-							  [:find (pull ?c [*])
-							  ;:keys tasks
-							  :in $ ?current-page
-							  :where
-							  [?e :block/name ?current-page]
-							  [?t :block/name "tasks"]
-							  [?b :block/refs ?t]
-							  [?b :block/page ?e]
-							  (?c :block/parent ?b)
-							  [?c :block/marker ?marker]
-							  [(= "TODO" ?marker)]
-							  [?c :block/content ?tasks]
-							  ]
-							  
-							  :result-transform (fn [r] (map (fn [m] (assoc m :block/collapsed? true)) r))
-							  :breadcrumb-show? false
-							  :inputs [:current-page]
-							  }
-							  #+END_QUERY
-					- ## [[Tasks]]
-						- TODO This is a task
-							- I like mushrooms
-						- TODO This is another task
-						- lol
-						-
-				- #### current template notes
-					- ref to: ((65fb267e-8199-4ada-95e3-2232fa2d2190))
-					-
-	- {{i ebba}} appointment agenda card
-		- *for appointments and events*
-		- ### {{i-example}} examples
-		- ### {{i-template}} template
-		  template:: block, appointment/activity/event agenda card
-		  template-including-parent:: false
-			- event :: 
-			  activity :: 
-			  with :: 
-			  location ::
-			  date ::
-			  time ::
-			  scheduling ::
-			  related ::
-	- {{i eb25}} online order
-		- ### {{i-template}} template
-		  template:: logseq, online order 
-		  template-including-parent:: false
-			- TODO ^_^
-			  {{i eb25}} [[online order]] with **retailer**:
-				- {{i ee20}} Est. delivery:
-				- {{il ebc4,0000,http://}}
-				- {{i eaff}} Date shipped:
-				- {{i eb67}} Order number: [\#]()
-				- {{i eb6b}} Bill of goods:
-				  | Item | Qty |
-				  |---|---|
-				-
-	- [:small "specialist stuff"]
-		- #### {{I f499}} collector blocks
-			- {{i ef11}} Numbered list
-				- ### {{i-example}} examples
-				- ### {{i-template}} template
-				  template:: block, numbered list
-				  template-including-parent:: false
-					- *list name*
-					  {{i ef11}} #list
-						- logseq.order-list-type:: number
+		- {{i f51a}}  project goals, task state
+		       {{templateSlashCommand}}
+			- #### {{i-example}} samples
+				- ((65bcf5d6-660a-4dff-b086-d5cb795540c7))
+			- ### {{i-template}} template
+			  template:: tool, project goal + task assistant
+			  template-including-parent:: false
+				- ## [[Goals]]
+					- TODO This is a goal
+					  id:: 65fb267e-8199-4ada-95e3-2232fa2d2190
+					  **tip** reference me
+						- #+BEGIN_QUERY
+						  {:query
+						  [:find (pull ?c [*])
+						  ;:keys tasks
+						  :in $ ?current-page
+						  :where
+						  [?e :block/name ?current-page]
+						  [?t :block/name "tasks"]
+						  [?b :block/refs ?t]
+						  [?b :block/page ?e]
+						  (?c :block/parent ?b)
+						  [?c :block/marker ?marker]
+						  [(= "TODO" ?marker)]
+						  [?c :block/content ?tasks]
+						  ]
+						  
+						  :result-transform (fn [r] (map (fn [m] (assoc m :block/collapsed? true)) r))
+						  :breadcrumb-show? false
+						  :inputs [:current-page]
+						  }
+						  #+END_QUERY
+				- ## [[Tasks]]
+					- TODO This is a task
+						- I like mushrooms
+					- TODO This is another task
+					- lol
+			- #### current template notes
+				- ref to: ((65fb267e-8199-4ada-95e3-2232fa2d2190))
+		- {{i fec4}} discussion \#topics
+		  id:: 66e5df7d-d9af-4c1f-966f-b684ff55b400
+		  project:: [[:logseq-discussion-topic-assistant]]
+		  project-component:: template
+		  +hide-all:: true
+		       {{templateSlashCommand}}
+			- *Often used on @people pages*
+			- {{i ee1d}} *project*
+				- [[:logseq-discussion-topic-assistant]]
+			- {{i-example}} samples
+				- [[@Dr Teplitsky]]
+			- ### {{i-template}} template
+			  template:: tool, @ discussion topic assistant
+			  template-including-parent:: false
+				- # {{i eb6c}} Topics
+				  *use the \#topics tag to show content here*
+					- ### Open topics
+						- {{embed ((66e5e078-e59c-4064-91cf-2c3eec36af87))}}
+						- {{kitButton export,exportquery,'',squat}}
+					- Covered topics
+						- {{embed ((66e5e0c4-d1cc-4598-8e00-07f0abad84b0))}}
+						- {{kitButton export,exportquery,'',squat}}
+		- {{i fd1f}} future & past appointments
+		       {{templateSlashCommand}}
+			- *Use on :with pages*
+			- ### {{i-example}} samples
+				- [[@Dr Teplitsky]]
+			- ### {{i-template}} template
+			  template:: tool, @ appointment tracker
+			  template-including-parent:: false
+				- # {{i f621}} appointment summary
+					- ## {{i fad2}} future appointments
+						- {{embed }}
+						  id:: 66e5dda7-4ff1-47a8-aab5-059310859898
+						- {{embed ((66e5dcc2-148a-4f77-88fc-bad898a3fdde))}}
+					- ## {{i f824}} previous appointments
+						- {{embed ((66e5dcb2-1960-4c28-9fe3-45371b023f0e))}}
+						- {{embed ((66e5dcbc-31a8-4e66-a0b3-2b393d3b4919))}}
+	-
+	- ##### {{i fab5}}  blocks
 		- {{i-conversation}} advanced query conversation
+		       {{templateSlashCommand}}
 			- **w/ prompt & response**
 			- ### {{i-example}} samples
 				- ((6678932d-b247-4894-af50-3c3161cfbec4))
 			- ### {{i-template}} template
-			  template:: block, advanced query conversation
+			  template:: block, llm coding iteration
 			  template-including-parent:: false
 				- {{chat with,http://}}
 					- **Result**: 
@@ -365,19 +385,13 @@ description:: `/template`s with boilerplate for collector blocks, page tags, dai
 						- ```clojure
 						  
 						  ```
-		- {{i eafd}} news
-			- ### {{i-example}} samples
-			- ### {{i-template}} template
-			  template :: 
-			  template-including-parent :: false
-				- ##### {{i eafd}}  news
-					- {{embed ((66415d9e-5591-4219-bc68-eb54393bccff))}}
 		- {{i-coding}} coding iteration
 		  id:: 66818163-8a53-447b-a959-0ae93dde245f
+		       {{templateSlashCommand}}
+			- ![image.png](../assets/image_1719949398805_0.png){:height 178, :width 216}
 			- *w/ feature goal, scope, result, final code*
-			    ![image.png](../assets/image_1719949398805_0.png){:height 178, :width 216}
 			- ### {{i-template}} template
-			  template:: project, coding iteration
+			  template:: block, code iteration
 			  template-including-parent:: false
 				- ### {{i f6af}} iteration: title of work
 					- {{i f51a}} feature goal
@@ -395,69 +409,79 @@ description:: `/template`s with boilerplate for collector blocks, page tags, dai
 						- ```
 						  
 						  ```
-	- #### Logseq-related
-	- {{i f6ef}} depreciate logseq block
-		- ![image.png](../assets/image_1719951269675_0.png){:height 76, :width 307}
-		- ### {{i-template}} template
-		  template:: logseq, depreciate content
-		  template-including-parent:: false
-			- ### {{i f6ef}}  depreciation warning
-			      this block is no longer in use
-				- {{i ea0b}} *depreciated on* *<% today %>*
-	- {{i-template}} logseq *template page* structure
-		- *template & examples headers*
-		- ### {{i-template}} template
-		  template:: logseq, logseq template template
-		  template-including-parent:: false
-			- {{i }} title
-				- **
-				- ### {{i-example}} samples
-				- ### {{i-template}} template
-				  template :: 
-				  template-including-parent :: false
+		- {{i-template}} *template page* structure
+		       {{templateSlashCommand}}
+			- *template & examples headers*
+			- ### {{i-template}} template
+			  template:: block, templates-template
+			  template-including-parent:: false
+				- {{i }} title
+					- **
+					- ### {{i-example}} samples
+					- ### {{i-template}} template
+					  template :: 
+					  template-including-parent :: false
+						-
+	-
+	- ##### {{i f510}}  cards
+		- {{i ebba}} agenda item - appointment, event, activity
+		       {{templateSlashCommand}}
+			- *for appointments and events*
+			- ### {{i-example}} examples
+			- ### {{i-template}} template
+			  template:: card, activity
+			  template-including-parent:: false
+				- event :: 
+				  activity :: 
+				  with :: 
+				  location ::
+				  date ::
+				  time ::
+				  scheduling ::
+				  related ::
+	-
+	- ##### {{i f035}}  data
+		- {{i eb25}} online order
+		       {{templateSlashCommand}}
+			- ### {{i-template}} template
+			  template:: data, online order 
+			  template-including-parent:: false
+				- TODO ^_^
+				  {{i eb25}} [[online order]] with **retailer**:
+					- {{i ee20}} Est. delivery:
+					- {{il ebc4,0000,http://}}
+					- {{i eaff}} Date shipped:
+					- {{i eb67}} Order number: [\#]()
+					- {{i eb6b}} Bill of goods:
+					  | Item | Qty |
+					  |---|---|
 					-
+	-
+	- #### {{i f8b1}}  logseq
+		- {{i f6ef}} depreciate logseq block
+		       {{templateSlashCommand}}
+			- ![image.png](../assets/image_1719951269675_0.png){:height 76, :width 307}
+			- ### {{i-template}} template
+			  template:: logseq, depreciate
+			  template-including-parent:: false
+				- ### {{i f6ef}}  depreciation warning
+				      this block is no longer in use
+					- {{i ea0b}} *depreciated on* *<% today %>*
 - ## {{i ed2b}} page templates
   *w/* common {{i-properties}} property sets & {{i ef94}} block structure
-	- {{i fea0}} full :with page
+	- {{i fea0}}  full :with page
+	       {{templateSlashCommand}}
 		- *Use on any :with linked reference*
 		- ### {{i-example}} samples
 		- ### {{i-template}} template
-		  template:: page, :with - common template collection 
+		  template:: page, :with collection 
 		  template-including-parent:: false
 			-
 			- \/template page, calendar event summary
 			- \/template page, topics
-	- {{i fec4}} topics of discussion
-		- *Often used on :with pages*
-		- ### {{i-example}} samples
-		- ### {{i-template}} template
-		  template:: page, :with - topics of discussion 
-		  template-including-parent:: false
-			- # {{i eb6c}} Topics
-			  *use the \#topics tag to show content here*
-				- ### Open topics
-					- {{embed ((66e5e078-e59c-4064-91cf-2c3eec36af87))}}
-					- {{kitButton export,exportquery,'',squat}}
-				- Covered topics
-					- {{embed ((66e5e0c4-d1cc-4598-8e00-07f0abad84b0))}}
-					- {{kitButton export,exportquery,'',squat}}
-	- {{i fd1f}} appointment summary
-		- *Use on :with pages*
-		- ### {{i-example}} samples
-			- [[@Dr Teplitsky]]
-		- ### {{i-template}} template
-		  template:: page, :with - calendar event summary
-		  template-including-parent:: false
-			- # {{i f621}} appointment summary
-				- ## {{i fad2}} future appointments
-					- {{embed }}
-					  id:: 66e5dda7-4ff1-47a8-aab5-059310859898
-					- {{embed ((66e5dcc2-148a-4f77-88fc-bad898a3fdde))}}
-				- ## {{i f824}} previous appointments
-					- {{embed ((66e5dcb2-1960-4c28-9fe3-45371b023f0e))}}
-					- {{embed ((66e5dcbc-31a8-4e66-a0b3-2b393d3b4919))}}
-	- {{i ef91}} project page
+	- {{i ef91}}  project page
 	  id:: 0698280a-d53c-457e-81a1-03b231ac6d11
+	       {{templateSlashCommand}}
 		- stuff
 		  id:: 66a318c6-0bcc-4420-96c1-433bc497d1e8
 			- ### Objective
@@ -642,7 +666,12 @@ description:: `/template`s with boilerplate for collector blocks, page tags, dai
 		- ### {{i-template}} template
 		  template:: page, project 
 		  template-including-parent:: false
-			- / template expecting
+			- {{kitButton issues,collapseBlock,ea06,-button-style full-width small-caps}}
+				- {{embed ((66ccdccf-f9e2-4028-b867-a7b5406fd634))}}
+			- {{kitButton ideas,collapseBlock,ea76,-button-style full-width small-caps}}
+				- {{embed ((66df909d-79a2-4532-917e-94d3bd8b32a8))}}
+			- {{kitButton questions,collapseBlock,ea76,-button-style full-width small-caps}}
+				- {{embed ((66df90b1-ccba-494b-94c9-76f3194e0963))}}
 			- # {{i f51a}} Goal
 				- TODO something
 				  **tip** reference me
@@ -1022,11 +1051,12 @@ description:: `/template`s with boilerplate for collector blocks, page tags, dai
 								   }
 								  #+END_QUERY
 					- ### {{i f4e1}} advanced queries
-	- {{i f5a5}} location
+	- {{i f5a5}}  location
+	       {{templateSlashCommand}}
 		- ### {{i-example}} examples
 			- [[.Snowdon Pharmacy]]
 		- ### {{i-template}} template
-		  template:: page, contacts - location
+		  template:: page, . location
 		  template-including-parent:: false
 			- ### {{i ea70}} Business Hours
 				- *Mon-Fri*: am-pm
@@ -1042,10 +1072,10 @@ description:: `/template`s with boilerplate for collector blocks, page tags, dai
 			- ### {{i ebf2}} Contacts
 				- Name, *title*
 	- {{i }} organization
-		- **
+	       {{templateSlashCommand}}
 		- ### {{i-example}} samples
 		- ### {{i-template}} template
-		  template:: page, contacts - organization
+		  template:: page, % organization
 		  template-including-parent :: false
 			- # {{i ea4f}} organization
 			  details
@@ -1065,53 +1095,79 @@ description:: `/template`s with boilerplate for collector blocks, page tags, dai
 				  Research Coordinator I, Multiple Sclerosis Research Program
 					- {{i-phone}}  416.360.4000 x41750
 					- {{i-email}}  [Margot.Boucher@unityhealth.to](mailto:Margot.Boucher@unityhealth.to)
-	- [:small "disused templates"]
-		- {{i ef14}} food item
-			- *w/ nutritonal fact tool structure*
-			- ### {{i-example}} examples
-				- [[oat]]
-				- {{i ea9b}}#query-placeholder `:block/name` *:where* `[:block/properties [:tags "food item"]]`
-			- ### {{i-template}} template
-			  id:: 666f76e0-09c0-4695-b66d-42c727c5a003
-			  template:: page, food item
-			  template-including-parent:: false
-				- tags:: food-item
-				- # Nutritional facts
-					- ## Vitamins
-					  *per 100g portion*
-					  {{embed ((666f7733-1891-45d3-8bbb-8f32dd4631e1))}}
-					- ### Minerals
-					  *per 100g portion*
-					  {{embed ((666f7747-d031-4ef7-8a4e-faaadde102c4))}}
-				- # Nutritional data
-					- ## [[Vitamins]]
-						-
-					- ## [[Minerals]]
-						-
-		- {{i f4e6}} function documentation
-			- *syntax & examples*
+- [:small "depreciated stuff"]
+	- #### {{I f499}} collector blocks
+		- {{i ef11}} Numbered list
+		  {{templateSlashCommand}}
+		  
+		  {{i f6ef}}  **depreciation warning**
+		        this block is no longer in use
+			- {{i ea0b}} *depreciated on* *[[Sunday, Sep 22nd, 2024]]*
 			- ### {{i-example}} examples
 			- ### {{i-template}} template
-			  template:: page, code function documentation
-			  template-including-parent:: false
-				- *function*
-				- *macro*
-				- [ClojureScript documentation >]()
-				- ### Syntax
+			  template\:\: block, numbered list
+			  template-including-parent\:\: false
+				- *list name*
+				  {{i ef11}} #list
+					- logseq.order-list-type:: number
+	- {{i eafd}} news
+	       {{templateSlashCommand}}
+		- ### {{i-example}} samples
+		- ### {{i-template}} template
+		  template\:\: news  
+		  template-including-parent :: false
+			- ##### {{i eafd}}  news
+				- {{embed ((66415d9e-5591-4219-bc68-eb54393bccff))}}
+- [:small "disused templates"]
+	- {{i ef14}} food item
+	       {{templateSlashCommand}}
+		- *w/ nutritonal fact tool structure*
+		- ### {{i-example}} examples
+			- [[oat]]
+			- {{i ea9b}}#query-placeholder `:block/name` *:where* `[:block/properties [:tags "food item"]]`
+		- ### {{i-template}} template
+		  id:: 666f76e0-09c0-4695-b66d-42c727c5a003
+		  depreciated-template:: page, food item
+		  template-including-parent:: false
+			- tags:: food-item
+			- # Nutritional facts
+				- ## Vitamins
+				  *per 100g portion*
+				  {{embed ((666f7733-1891-45d3-8bbb-8f32dd4631e1))}}
+				- ### Minerals
+				  *per 100g portion*
+				  {{embed ((666f7747-d031-4ef7-8a4e-faaadde102c4))}}
+			- # Nutritional data
+				- ## [[Vitamins]]
 					-
-				- ### Details
+				- ## [[Minerals]]
 					-
-				- ### Examples
-					-
-				- ### See Also
-					-
-		- {{i ea47}} logseq collector
-			- *:tags "collector"*
-			- template:: page, logseq collector
-			  template-including-parent:: false
-				- tags:: collector
-				  description:: 
-				  collector:: [[]]
+	- {{i f4e6}} function documentation
+	       {{templateSlashCommand}}
+		- *syntax & examples*
+		- ### {{i-example}} examples
+		- ### {{i-template}} template
+		  depreciated-template:: block, code function documentation
+		  template-including-parent:: false
+			- *function*
+			- *macro*
+			- [ClojureScript documentation >]()
+			- ### Syntax
+				-
+			- ### Details
+				-
+			- ### Examples
+				-
+			- ### See Also
+				-
+	- {{i ea47}} logseq collector
+	       {{templateSlashCommand}}
+		- *:tags "collector"*
+		- depreciated-template:: page, logseq collector
+		  template-including-parent:: false
+			- tags:: collector
+			  description:: 
+			  collector:: [[]]
 - ---
 - # {{i eb96}} Daily journal
   id:: 6644f008-299c-43c2-9c36-d9ab220bd4f3
@@ -1120,7 +1176,7 @@ description:: `/template`s with boilerplate for collector blocks, page tags, dai
 	  id:: 66994976-991f-4e60-9c59-52c7fc8f4241
 		- ### {{i eac9}} component
 		  id:: 66b0ead7-2d9d-4e05-a21e-da5d98e1d9b8
-			- {{kitButton Doing today,testkit,ec45,-button-style small-caps full-width flex-grow-1 +bold-nth-word:1}}
+			- {{kitButton Doing today,collapseBlock,ec45,-button-style small-caps full-width flex-grow-1 +bold-nth-word:1}}
 			  id:: 66aaac57-179b-457a-8b06-3814ddbaa12b
 			  {{kitButton do,insertListItem,ec45,long dark-gray gray-border,template='do'}}
 			  

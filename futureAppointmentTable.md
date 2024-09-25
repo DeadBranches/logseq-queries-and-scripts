@@ -1,4 +1,7 @@
 kit:: futureAppointmentTable
+depreciated?:: true
+created-on:: [[Thursday, Aug 8th, 2024]]
+-icon:: f2da
 
 - ### {{i f6ef}}  depreciation warning
       this block is no longer in use

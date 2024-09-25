@@ -1,5 +1,7 @@
 kit:: scheduleDateToday collapse[Optional]
 description:: A replace-macro that when evaluated on a journal page, creates a scheduled-date org-mode tag. Optionally collapses the containing parent block by passing any value as the first macro argument. E.g. `{{scheduleDateToday collapse}}`
+created-on:: [[Sunday, Mar 3rd, 2024]]
+-icon:: f2da
 
 - id:: 6682d244-247e-4fa9-9a6e-df88b5f981ab
   ```javascript
