@@ -5,26 +5,36 @@
 !README.md
 
 # logseq kits
-!daysUntilNextAppointment.md
-!doingWidget.md
-!exportquery.md
-!futureAppointmentTable.md
-!futureEventsTable.md
-!groceryItemCount.md
-!infoBox.md
-!insertListItem.md
-!insertSomeBlocks.md
-!journalGroceryWidget.md
-!journalOrganizationBlocks.md
-!kitButton.md
+!refIcon.md
+!templateSlashCommand.md
+!referenceCountKit.md
+!embedQuery.md
 !md-button.md
-!newKitButton.md
-!nextAppointment.md
-!openOrderCount.md
-!openOrders.md
+!newActivityWizard.md # not done
+!futureEventsTable.md
+# DEPRECIATED
+!futureAppointmentTable.md
+
 !purchaseHolderComponent.md
-!scheduleDateToday.md
+!daysUntilNextAppointment.md
+# newKitButton.md # abandoned
+# !infobox.md # not ready yet
+!shoppingItemCount.md
+!openOrders.md
+!groceryItemCount.md
+!doingWidget.md
+!insertListItem.md
+!openorderCount.md
+# !insertSomeBlocks
+!collapseBlock.md
+!kitButton.md
+!journalOrganizationBlocks.md
+!journalGroceryWidget.md
+# ChildlessEmbed
+!nextAppointment.md
+!exportquery.md
 !youtubeIconLinker.md
+!scheduleDateToday.md
 
 
 # pages
