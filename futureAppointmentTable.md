@@ -1,5 +1,5 @@
-kit:: futureAppointmentTable
-depreciated?:: true
+kit:: DEPRECIATED
+depreciated?:: [[Wednesday, Jul 24th, 2024]] 
 created-on:: [[Thursday, Aug 8th, 2024]]
 -icon:: f2da
 

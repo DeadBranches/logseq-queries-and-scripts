@@ -155,26 +155,53 @@ alias:: kits
 		  ```
 - # {{i eb6b}}  Kits list
 	- #+BEGIN_QUERY
-	  {
-	    :query
-	  [:find ?kit-name ?macro ?display-name
-	   :keys kit-name macro display-name
-	   :where
-	   [?b :block/properties ?props]
-	   [(get ?props :kit) ?macro]
-	   [?b :block/name ?kit-name]
-	   [?b :block/original-name ?display-name]]
-	  :result-transform (fn [result]
-	                      (sort-by (fn [r] (get r :block/name)) result))
-	  :view (fn [results]
-	          [:div
+	  {:query
+	   [:find ?kit-name ?macro ?display-name (distinct ?journal-day) (min ?journal-day)
+	    :keys kit-name macro display-name journal-day min-day
+	    :where
+	    [?b :block/properties ?props]
+	    [(get ?props :kit) ?macro]
+	    [?b :block/name ?kit-name]
+	    [?b :block/original-name ?display-name]
+	  
+	    ;; Date the kit was made.
+	    (or-join [?b ?props ?journal-day]
+	  
+	             (and
+	              ;; There is a block in a journal page referncing the kit
+	              [?r :block/refs ?b]
+	              [?r :block/page ?rp]
+	              [?rp :block/journal-day ?journal-day]
+	              [(some? ?journal-day)])
+	  
+	             (and
+	              [(get ?props :created-on) ?created-on]
+	              [?cp :block/original-name ?all-page-names]
+	              [(contains? ?created-on ?all-page-names)]
+	              [?cp :block/journal-day ?journal-day]
+	              [(some? ?journal-day)]
+	              )
+	  
+	             )]
+	  
+	   :result-transform
+	   (fn [results]
+	       (->> results
+	            (sort-by (comp - :min-day)))
+	   )
+	  
+	   :view 
+	   (fn [results]
+	     (defn create-entry [result]
+	       (let [{:keys [kit-name macro display-name journal-days last-day]} result]
+	         [:article
+	          [:a {:data-ref kit-name
+	               :on-click (fn [] (call-api "push_state" "page" {:name kit-name}))}
+	           (str display-name)]
+	          [:span {:class "smaller italic enclosed"} macro]]))
+	     [:div
+	      (->> results
 	           (map (fn [result]
-	                  (let [{:keys [kit-name macro display-name]}
-	                        result] ; Correct destructuring syntax
-	                    [:article
-	                     [:a {:data-ref kit-name
-	                          :on-click (fn [] (call-api "push_state" "page" {:name kit-name}))}
-	                      (str display-name)]
-	                     [:span {:class "smaller italic enclosed"} macro]]))
-	                results)])}
+	                  (create-entry result))))])
+	   }
 	  #+END_QUERY

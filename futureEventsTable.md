@@ -166,7 +166,7 @@ created-on:: [[Saturday, Aug 10th, 2024]]
                       >${event.daysUntil}</td>
                   <td class="touch-screen"><a onclick="logseq.api.append_block_in_page('${todaysJournalUUID}', '{{i-note}}\u0020\\n{{i-event}} [${event.properties.event}](((${event.uuid})))')"
                           >${event.properties.event}</a></td>
-                  <td class="touch-screen ti disclosure"><a onclick="document.getElementById('event-info-${event.uuid}').classList.toggle('closed');">&#xea5f;</a></td>
+                  <td class="touch-screen ti disclosure" style="text-align: right"><a onclick="document.getElementById('event-info-${event.uuid}').classList.toggle('closed');">&#xea5f;  </a></td>
               </tr>
               <tr>
                   <td colspan="2" class="closed event-info" id="event-info-${event.uuid}" 

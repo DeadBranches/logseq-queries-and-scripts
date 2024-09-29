@@ -473,6 +473,7 @@ repository:: DeadBranches/logseq-queries-and-scripts
 				      (sort-by (comp - (fn [r] (get-in r [:block/page :block/journal-day]))) result)
 				      )
 				  
+				  ;; :view :pprint
 				  :view (fn [results]
 				        [:div [:table.future-event-table.stop-click.compact
 				               [:caption "Past appointments"]
@@ -481,13 +482,13 @@ repository:: DeadBranches/logseq-queries-and-scripts
 				               [:tbody
 				                (for [item results]
 				                  [:tr
-				                  [:td (str (get-in item [:block/properties :date]))]
-				                  [:td (str (get-in item [:block/properties-text-values :event]))]]
+				                  [:td (str (first (get-in item [:block/properties :date])))]
+				                  [:td (str (get-in item [:block/properties-text-values :event]))]
+				                  ]
 				                  )
 				                
 				                ]]]
 				          )
-				  
 				  
 				  :children? true
 				  :breadcrumb-show? true
@@ -6271,6 +6272,29 @@ repository:: DeadBranches/logseq-queries-and-scripts
 			  ```
 	- ## :where
 	  *clause expressions*
+		- :-icon value or fallback
+			- ```clj
+			  :where
+			   [?a :block/name ?activity-page]
+			   [(contains? ?activity ?activity-page)]
+			  
+			   (or-join [?a ?icon]
+			            (and
+			             [?a :block/properties ?activity-props]
+			             [(get ?activity-props :-icon) ?icon]
+			             [(some? ?icon)]) ;; :-icon exists and is not nil
+			            
+			            (and
+			             [?a :block/properties ?activity-props]
+			             [(get ?activity-props :-icon :not-found) ?icon-or-not-found]
+			             [(= ?icon-or-not-found :not-found)] ;; :block/properties, but nil icon
+			             [(identity "0000") ?icon])
+			            
+			            (and ;; no block properties
+			             [(missing? $ ?a :block/properties)] ;; no :bp
+			             [(identity "0000") ?icon])
+			   )
+			  ```
 		- references to page **or alias**
 			- ```
 			  [?t :block/name ?tag]
@@ -6813,6 +6837,199 @@ repository:: DeadBranches/logseq-queries-and-scripts
                [:span [:a {:href (str "logseq://graph/main?block-id=" uuid) :class "tag"} text] ", "]))])
   }
   #+END_QUERY
+	- #### query predicate functions
+	  id:: 6666f9ad-ef7d-455e-8319-906283ee8dcc
+	  (*for the* `:where` *clause*)
+	  {{il ec1c,datascript/built_ins.cljc:L81,https://https://github.com/tonsky/datascript/blob/9e3ad968ec6b25b53963f3f96c8f6cae6713d918/src/datascript/built_ins.cljc#L81}}
+		- concatinated list of functions
+			- ```clj
+			  =
+			  ==
+			  not=
+			  not=
+			  less
+			  greater
+			  less-equal
+			  greater-equal
+			  +
+			  -
+			  *
+			  /
+			  quot
+			  rem
+			  mod
+			  inc
+			  dec
+			  max
+			  min
+			  zero?
+			  pos?
+			  neg?
+			  even?
+			  odd?
+			  compare
+			  rand
+			  rand-int
+			  true?
+			  false?
+			  nil?
+			  some?
+			  not
+			  and-fn
+			  or-fn
+			  complement
+			  identical?
+			  identity
+			  keyword
+			  meta
+			  name
+			  namespace
+			  type
+			  vector
+			  list
+			  set
+			  hash-map
+			  array-map
+			  count
+			  range
+			  not-empty
+			  empty?
+			  contains?
+			  str
+			  subs
+			  get
+			  pr-str
+			  print-str
+			  println-str
+			  prn-str
+			  re-find
+			  re-matches
+			  re-seq
+			  re-pattern
+			  -differ?
+			  -get-else
+			  -get-some
+			  -missing?
+			  identity
+			  str/blank?
+			  str/includes?
+			  str/starts-with?
+			  str/ends-with?
+			  vector
+			  identity
+			  ```
+		- **raw list** of functions
+		  *from source*
+			- ```clj
+			  (def query-fns {
+			    '= =, 
+			    '== ==,
+			    'not= not=,
+			    '!= not=,
+			    '< less, 
+			    '> greater,
+			    '<= less-equal,
+			    '>= greater-equal,
+			    '+ +,
+			    '- -, 
+			    '* *, 
+			    '/ /,
+			    'quot quot, 
+			    'rem rem,
+			    'mod mod, 
+			    'inc inc,
+			    'dec dec, 
+			    'max max, 
+			    'min min, 
+			    'zero? zero?,
+			    'pos? pos?,
+			    'neg? neg?,
+			    'even? even?,
+			    'odd? odd?,
+			    'compare compare,
+			    'rand rand, 
+			    'rand-int rand-int,
+			    'true? true?, 
+			    'false? false?, 
+			    'nil? nil?, 
+			    'some? some?,
+			    'not not, 
+			    'and and-fn,
+			    'or or-fn,
+			    'complement complement,
+			    'identical? identical?,
+			    'identity identity,
+			    'keyword keyword, 
+			    'meta meta,
+			    'name name, 
+			    'namespace namespace,
+			    'type type,
+			    'vector vector,
+			    'list list, 
+			    'set set,
+			    'hash-map hash-map,
+			    'array-map array-map,
+			    'count count,
+			    'range range, 
+			    'not-empty not-empty,
+			    'empty? empty?, 
+			    'contains? contains?,
+			    'str str,
+			    'subs, subs,
+			    'get get, 
+			    'pr-str pr-str,
+			    'print-str print-str,
+			    'println-str println-str,
+			    'prn-str prn-str,
+			    're-find re-find, 
+			    're-matches re-matches,
+			    're-seq re-seq,
+			    're-pattern re-pattern,
+			    '-differ? -differ?,
+			    'get-else -get-else,
+			    'get-some -get-some,
+			    'missing? -missing?,
+			    'ground identity,
+			    'clojure.string/blank? str/blank?,
+			    'clojure.string/includes? str/includes?,
+			    'clojure.string/starts-with? str/starts-with?,
+			    'clojure.string/ends-with? str/ends-with?
+			    'tuple vector, 
+			    'untuple identity
+			  })
+			  ```
+		- function **explanation**
+		  *as a table*
+			- *note: use the `/page, code function documentation` template when adding new info*
+			- silly query attempt at automation
+			  id:: 66a2b92f-68a8-48fe-b9fa-921a4518ef4b
+				- ```
+				  #+BEGIN_QUERY
+				  {:query
+				  [:find ?doc-page ?details ?header ?b
+				  :keys doc-page details header b
+				  :where
+				  [?p :block/properties ?properties]
+				  [(get ?properties :datascript) ?datascript]
+				  [(= ?datascript "query predicate function")]
+				  [?p :block/page ?doc-page]
+				  
+				  
+				  [?d :block/name "details"]
+				  [?b :block/path-refs ?d]
+				  [?b :block/page ?doc-page]
+				  [?b :block/content ?details]
+				  
+				  [?header :block/refs ?d]
+				  ]
+				  :view :pprint
+				  }
+				  #+END_QUERY
+				  ```
+			- {{embed ((66785bca-acd2-4401-95e2-32efb961ccb3))}}
+		- Conversational analyses
+			- ((66749df3-627b-4ef6-8e5d-88f843e2ccbc))
+				- {{embed ((66749df3-627b-4ef6-8e5d-88f843e2ccbc))}}
 	- #### {{i f3f3}} Database utility functions
 	  id:: 65c59bb1-08f0-4e2f-bf0f-a7d9e5a4bb79
 	  Keywords for `:inputs`
@@ -7064,122 +7281,6 @@ repository:: DeadBranches/logseq-queries-and-scripts
 		  `(property ?p :type "Player")`
 		- get-children
 		  `(get-children ?parent ?child)`
-	- #### query predicate functions
-	  id:: 6666f9ad-ef7d-455e-8319-906283ee8dcc
-	  (*for the* `:where` *clause*)
-	  {{il ec1c,datascript/built_ins.cljc:L81,https://https://github.com/tonsky/datascript/blob/9e3ad968ec6b25b53963f3f96c8f6cae6713d918/src/datascript/built_ins.cljc#L81}}
-		- **raw list** of functions
-		  *from source*
-			- ```clj
-			  (def query-fns {
-			    '= =, 
-			    '== ==,
-			    'not= not=,
-			    '!= not=,
-			    '< less, 
-			    '> greater,
-			    '<= less-equal,
-			    '>= greater-equal,
-			    '+ +,
-			    '- -, 
-			    '* *, 
-			    '/ /,
-			    'quot quot, 
-			    'rem rem,
-			    'mod mod, 
-			    'inc inc,
-			    'dec dec, 
-			    'max max, 
-			    'min min, 
-			    'zero? zero?,
-			    'pos? pos?,
-			    'neg? neg?,
-			    'even? even?,
-			    'odd? odd?,
-			    'compare compare,
-			    'rand rand, 
-			    'rand-int rand-int,
-			    'true? true?, 
-			    'false? false?, 
-			    'nil? nil?, 
-			    'some? some?,
-			    'not not, 
-			    'and and-fn,
-			    'or or-fn,
-			    'complement complement,
-			    'identical? identical?,
-			    'identity identity,
-			    'keyword keyword, 
-			    'meta meta,
-			    'name name, 
-			    'namespace namespace,
-			    'type type,
-			    'vector vector,
-			    'list list, 
-			    'set set,
-			    'hash-map hash-map,
-			    'array-map array-map,
-			    'count count,
-			    'range range, 
-			    'not-empty not-empty,
-			    'empty? empty?, 
-			    'contains? contains?,
-			    'str str,
-			    'subs, subs,
-			    'get get, 
-			    'pr-str pr-str,
-			    'print-str print-str,
-			    'println-str println-str,
-			    'prn-str prn-str,
-			    're-find re-find, 
-			    're-matches re-matches,
-			    're-seq re-seq,
-			    're-pattern re-pattern,
-			    '-differ? -differ?,
-			    'get-else -get-else,
-			    'get-some -get-some,
-			    'missing? -missing?,
-			    'ground identity,
-			    'clojure.string/blank? str/blank?,
-			    'clojure.string/includes? str/includes?,
-			    'clojure.string/starts-with? str/starts-with?,
-			    'clojure.string/ends-with? str/ends-with?
-			    'tuple vector, 
-			    'untuple identity
-			  })
-			  ```
-		- function **explanation**
-		  *as a table*
-			- *note: use the `/page, code function documentation` template when adding new info*
-			- silly query attempt at automation
-			  id:: 66a2b92f-68a8-48fe-b9fa-921a4518ef4b
-				- ```
-				  #+BEGIN_QUERY
-				  {:query
-				  [:find ?doc-page ?details ?header ?b
-				  :keys doc-page details header b
-				  :where
-				  [?p :block/properties ?properties]
-				  [(get ?properties :datascript) ?datascript]
-				  [(= ?datascript "query predicate function")]
-				  [?p :block/page ?doc-page]
-				  
-				  
-				  [?d :block/name "details"]
-				  [?b :block/path-refs ?d]
-				  [?b :block/page ?doc-page]
-				  [?b :block/content ?details]
-				  
-				  [?header :block/refs ?d]
-				  ]
-				  :view :pprint
-				  }
-				  #+END_QUERY
-				  ```
-			- {{embed ((66785bca-acd2-4401-95e2-32efb961ccb3))}}
-		- Conversational analyses
-			- ((66749df3-627b-4ef6-8e5d-88f843e2ccbc))
-				- {{embed ((66749df3-627b-4ef6-8e5d-88f843e2ccbc))}}
 	- #### clojure functions
 	  available in `:result-transform` and `:view`
 		- ((66749df3-8843-473e-bfe7-d32bfce93215))

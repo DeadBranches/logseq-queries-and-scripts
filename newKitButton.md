@@ -1,5 +1,6 @@
-kit:: newKitButton
+kit:: DEPRECIATED
 description:: This kit never fully implemented.
+depreciated?:: [[Wednesday, Aug 14th, 2024]]
 
 - ```javascript
   logseq.kits.setStatic(async function newKitButton(div) {
