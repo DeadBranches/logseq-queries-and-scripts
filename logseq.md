@@ -1,6 +1,6 @@
 description:: JavaScript button library
 tags:: page
-icon-hex:: eb04
+-icon:: eb04
 repository:: DeadBranches/logseq-queries-and-scripts
 
 - #### {{i-inbox}} Logseq inbox

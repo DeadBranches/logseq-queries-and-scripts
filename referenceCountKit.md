@@ -1,14 +1,44 @@
 kit:: referenceCountKit
 
 - ```javascript
+  /**
+   * @file referenceCountKit.md
+   * @requires logseq-kits
+   * @see {@link https://discuss.logseq.com/t/edit-and-run-javascript-code-inside-logseq-itself/20763|Logseq Kits Setup}
+   *
+   * @description
+   * This script defines a Logseq kit function that displays the number of references to a block
+   * across the entire graph, excluding references on the current page.
+   *
+   * @function referenceCountKit
+   * @async
+   * @param {HTMLElement} div - The container element where the reference count will be displayed.
+   *
+   * @usage
+   * 1. Create a new page in your Logseq graph named "referenceCountKit".
+   * 2. Add this script to the page inside a JavaScript code block.
+   * 3. In your Logseq config.edn file, add the following macro under the :macros key:
+   *    :referenceCountKit "[:div {:class \"kit inline\" :data-kit \"referenceCountKit\" } ]"
+   * 4. Use the macro in your Logseq pages to display reference counts.
+   *
+   * @example
+   * {{referenceCountKit}}
+   *
+   * @returns {Promise<void>} - The function doesn't return a value, but appends the result to the provided div.
+   *
+   * @throws {Error} Throws an error if the block cannot be retrieved or if the query fails.
+   *
+   * @note This kit uses Logseq's DataScript query to find references. It excludes references on the current page.
+   *
+   * @todo Consider adding error handling for cases where the API calls might fail.
+   * @todo Explore options for customizing the output message or styling.
+   */
+  
   logseq.kits.setStatic(async function referenceCountKit(div) {
     const blockId = div.closest(".ls-block").getAttribute("blockid");
-  
-    //const blockId = "66e6f56f-3005-458a-b0cd-65502c9beef1";
     const block = logseq.api.get_block(blockId);
   
     // logic to specify parent
-  
     const targetBlock = block;
   
     const referenceCountPromise = (async () => {
@@ -32,7 +62,6 @@ kit:: referenceCountKit
       const results = await resultArray;
       if (!results) return 0;
       return results.length - 1;
-      //return await resultArray;
     })();
   
     const result = await referenceCountPromise;

@@ -2,6 +2,31 @@ kit:: futureEventsTable
 created-on:: [[Saturday, Aug 10th, 2024]]
 
 - ```javascript
+  /**
+   * @file futureEventsTable.md
+   * @description 
+   * This script generates a comprehensive table of future events in Logseq, providing users with a clear visualization of upcoming activities. It offers a quick overview of events, their dates, and the number of days until they occur, enhancing planning and time management within Logseq.
+   * 
+   * The script fetches future events from Logseq's database, sorts them chronologically, calculates the time until each event, and presents the information in an interactive HTML table. Users can easily add notes about events to their current journal page and view additional event details through a collapsible interface.
+   * 
+   * @function futureEventsTable
+   * @param {HTMLElement} div - The DOM element where the future events table will be inserted.
+   * 
+   * @requires logseq-kits
+   * @see {@link https://discuss.logseq.com/t/edit-and-run-javascript-code-inside-logseq-itself/20763|Logseq Kits Installation}
+   * 
+   * @example
+   * // To use this script:
+   * // 1. Create a page named "futureEventsTable" in your Logseq graph
+   * // 2. Add the script inside a JavaScript markdown code block on that page
+   * // 3. Add the following macro to your Logseq config.edn file:
+   * // :futureEventsTable ":futureEventsTable "[:div {:class \"kit inline\" :data-kit \"futureEventsTable\" } ]"
+   * // 4. Use the macro {{futureEventsTable}} where you want the table to appear
+   * 
+   * @returns {void} This function doesn't return a value but modifies the DOM by appending a table to the provided div.
+   */
+  
+  
   logseq.kits.setStatic(async function futureEventsTable(div) {
     // Start counting from startDate date into the future. You probably want
     // to start from today

@@ -3,6 +3,38 @@ description:: replacement for nextAppointment. Can be called from `logseq.kits.d
 created-on:: [[Saturday, Jul 27th, 2024]]
 
 - ```javascript
+  /**
+   * @file daysUntilNextAppointment.md
+   * @author DeadBranch
+   * @see {@link https://github.com/DeadBranches/logseq-queries-and-scripts/daysUntilNextAppointment.md|GitHub Repository}
+   * @see {@link https://discuss.logseq.com/t/edit-and-run-javascript-code-inside-logseq-itself/20763|Logseq Kits Installation}
+   * @description This Logseq Kits script calculates the number of days until 
+   * the next appointment or event in your Logseq graph. It's useful for quickly 
+   * seeing when your next scheduled activity is coming up, helping you stay on top 
+   * of your calendar. The script queries your Logseq database for future events, 
+   * sorts them, and returns the number of days until the nearest one.
+   * 
+   * Technically, it uses Logseq's advanced query system to find blocks with a :date 
+   * property, starting from today's date. It then sorts these events and calculates 
+   * the number of days until the earliest one.
+   * 
+   * @function daysUntilNextAppointment
+   * @returns {Promise<number>} A promise that resolves to the number of days until 
+   * the next appointment. Returns -1 if no future activities are found.
+   * 
+   * @example
+   * // Example usage with kitButton:
+   * {{kitButton upcoming appointment in |daysUntilNextAppointment| day,collapseBlock,ea53,-button-style full-width}}
+   * 
+   * @howto
+   * 1. Create a new page in your Logseq graph named "daysUntilNextAppointment"
+   * 2. Add this script to that page inside a JavaScript markdown code block
+   * 3. Use the kitButton macro or call `logseq.kits.daysUntilNextAppointment()` to
+   *  invoke the function
+   * 
+   * @requires Logseq Kits
+   */
+  
   logseq.kits.setStatic(function daysUntilNextAppointment() {
   
       const todaysDate = new Date();

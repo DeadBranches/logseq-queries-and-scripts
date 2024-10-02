@@ -3,8 +3,50 @@ description:: (formerly journalGroceryWidget). Add a purchase manager to the cur
 created-on:: [[Monday, Aug 5th, 2024]]
 
 - ```javascript
+  /**
+   * @file purchaseHolderComponent.md
+   * @description 
+   * This script provides functionality to insert a "purchase holder" 
+   * component into Logseq journal pages. It's designed to streamline the 
+   * process of adding structured purchase information to daily logs.
+   * The script checks for an existing holder, and if not present, inserts
+   * a predefined content templateat a specified location in the journal page.
+   * 
+   * The component insertion is triggered via a custom Logseq Kits button, 
+   * allowing for easy and consistent addition of purchase tracking elements
+   * across journal entries.
+   * 
+   * @requires Logseq Kits (https://discuss.logseq.com/t/edit-and-run-javascript-code-inside-logseq-itself/20763)
+   * 
+   * @function purchaseHolderComponent
+   * @param {Element} el - The DOM element that triggered the function (not used in the current implementation)
+   * @param {string} [mode="process"] - The mode of operation (default is "process", currently not utilized)
+   * @returns {Promise<null>} - Returns null after execution
+   * 
+   * @example
+   * // Usage in Logseq with kitButton:
+   * {{kitButton '',purchaseHolderComponent,eb25 f21c,squat half-long dark-gray gray-border}}
+   * 
+   * @note
+   * 1. Create a page named "purchaseHolderComponent" in your Logseq graph.
+   * 2. Add this entire script within a JavaScript markdown code block on that page.
+   * 3. No specific macro needs to be added to the Logseq config.edn file for this script.
+   * 
+   * @constant {string} CONTAINER_IDENTIFIER - Identifies the purchase holder container
+   * @constant {string} CONTENT_TEMPLATE_UUID - UUID of the block containing the template content
+   * @constant {string} INSERTION_IDENTIFIER - Name of the macro that marks the insertion point
+   */
+  
   logseq.kits.purchaseHolderComponent = purchaseHolderComponent;
   
+  
+  /**
+   * Retrieves and cleans the content of a specified block.
+   * @function get_block_content
+   * @async
+   * @param {string} uuid - The UUID of the block to retrieve
+   * @returns {Promise<string>} The cleaned content of the block
+   */
   async function get_block_content(uuid) {
     let component_uuid = uuid;
     let component_block = await logseq.api.get_block(component_uuid).content;
@@ -14,6 +56,15 @@ created-on:: [[Monday, Aug 5th, 2024]]
     return component;
   }
   
+  
+  /**
+   * Main function to insert the purchase holder component.
+   * @function purchaseHolderComponent
+   * @async
+   * @param {Element} el - The DOM element that triggered the function (not used)
+   * @param {string} [mode="process"] - The mode of operation (not used)
+   * @returns {Promise<null>} Resolves to null after execution
+   */
   async function purchaseHolderComponent(el, mode = "process") {
     console.log("purchaseHolderComponent kit triggered.");
     const me = event.target.closest(".ls-block");

@@ -1,6 +1,32 @@
 kit:: groceryItemCount [prefix] [suffix]
 
 - ```javascript
+  /**
+   * @file groceryItemCount.js
+   * @summary This script counts the number of grocery items in the Logseq graph
+   *          that are not marked as DONE and displays the count in a specified
+   *          block.
+   * @description This script is used to count the number of grocery items in the
+   *               Logseq graph that are not marked as DONE. The script must be
+   *               added to a page in the Logseq graph named [[groceryItemCount]].
+   *               In the new kits page, the script must be added inside a
+   *               JavaScript markdown code block. The script queries the Logseq
+   *               graph for blocks with the macro name "grocery" and counts the
+   *               number of such blocks that are not marked as DONE. The count is
+   *               then displayed in the specified block with optional prefix and
+   *               suffix.
+   * @author DeadBranch
+   * @license GNU Affero General Public License v3 or greater
+   * @example
+   * // Add the following macro to the :macros key of the logseq `config.edn` file:
+   * :groceryItemCount "[:div {:class \"kit inline\" :data-kit \"groceryItemCount\"
+   *                           :data-prefix \"$1\" :data-suffix \"$2\" } ]"
+   * @example
+   * // Sample Logseq graph block:
+   * TODO Buy milk
+   * grocery:: {{grocery}}
+   * @param {HTMLDivElement} div - The div element where the count will be displayed.
+   */
   logseq.kits.setStatic(function groceryItemCount(div){
    
     const blockId = div.closest(".ls-block").getAttribute("blockid");

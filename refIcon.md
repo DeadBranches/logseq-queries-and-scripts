@@ -25,6 +25,10 @@ kit:: refIcon
    *     ]
    *   }
    * });
+   *
+   * @usage
+   * Use with a logseq macro
+   *  :refIcon "[:div.kit.inline { :data-kit refIcon :data-arguments \"$1\"} ]"
    */
   const outputFormatter = (formatObject) => {
     // Case 1: String input
