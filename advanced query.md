@@ -195,858 +195,858 @@ repository:: DeadBranches/logseq-queries-and-scripts
 				  
 				  }
 				  #+END_QUERY
-				- show blocks with ref to linked reference in parent block
-				- template:: query, show references to link in parent
-				  template-including-parent:: false
-				- #+BEGIN_QUERY
-				  ;; show blocks with ref to linked reference in parent block v1
-				  {:inputs [:current-block :query-page]
-				  :query
-				  [:find (pull ?b [*])
-				   :in $ ?current-block ?qp
-				   :where
-				   [?current-block :block/parent ?parent]
-				   [?parent :block/refs ?ability-limitation]
-				   [?b :block/refs ?ability-limitation]
-				  
-				  ;; Exclude current page from results
-				   [?b :block/page ?ref-page]
-				   [?ref-page :block/name ?ref-page-name]
-				   [(not= ?ref-page-name ?qp)]]
-				  :result-transform (fn [result]
-				                      (if (empty? result)
-				                        [[]]
-				                        (sort-by (comp - (fn [r] (get-in r [:block/page :block/journal-day]))) result)))
-				  
-				  :view (fn [results]
-				          (if (= results [[]]) 
-				            "no results"
-				            result))
-				  
-				  :group-by-page? true
-				  }
-				  #+END_QUERY
-				- {{i f015}}  count of references to block
-				     ![image.png](../assets/image_1726792772149_0.png){:height 36, :width 191}
-				- to linked reference in parent block
-				  template:: query, count of references in parent block
-				  template-including-parent:: false
-				- #+BEGIN_QUERY
-				  ;; see number of references to linked reference in parent block
-				  {:inputs [:current-block :current-page]
-				  :query
-				  [:find ?b
-				   :in $ ?current-block ?qp
-				   :where
-				  
-				   ;; target block is the block containing a linked reference for which
-				   ;; we want to find other blocks who reference it
-				    [?current-block :block/parent ?parent-block]
-				    [(identity ?parent-block) ?target-block]
-				   ;; [(identity ?current-block) ?target-block]
-				  
-				   [?target-block :block/refs ?ability-limitation]
-				   [?b :block/refs ?ability-limitation]
-				  
-				   ;; Exclude current page from results
-				   [?b :block/page ?ref-page]
-				   [?ref-page :block/name ?ref-page-name]
-				   [(not= ?ref-page-name ?qp)]]
-				  
-				  :result-transform (fn [result]
-				                      (if (empty? result)
-				                        [[]]
-				                        result))
-				  :view ;;:pprint 
-				   (fn [results]
-				           (let [result-count (count results)]
-				             
-				                          (if (= results [[]]) 
-				                "" 
-				                [:div [:small.italic (str "  see " result-count " references ->")]])))
-				  }
-				  
-				  #+END_QUERY
-				- to linked reference in current block
-				  template:: query, count of references in current block
-				  template-including-parent:: false
-				- id:: 66e74343-77eb-4199-93ab-1d22b36e158d
-				  #+BEGIN_QUERY
-				  
-				  {:inputs [:current-block :current-page]
-				  :query
-				  [:find ?b
-				   :in $ ?current-block ?qp
-				   :where
-				  
-				   ;; target block is the block containing a linked reference for which
-				   ;; we want to find other blocks who reference it
-				   ;; [?current-block :block/parent ?parent-block]
-				   ;; [(identity ?parent-block) ?target-block]
-				   [(identity ?current-block) ?target-block]
-				  
-				   [?target-block :block/refs ?ability-limitation]
-				   [?b :block/refs ?ability-limitation]
-				  
-				   ;; Exclude current page from results
-				   [?b :block/page ?ref-page]
-				   [?ref-page :block/name ?ref-page-name]
-				   [(not= ?ref-page-name ?qp)]]
-				  
-				  :result-transform (fn [result]
-				                      (if (empty? result)
-				                        [[]]
-				                        result))
-				  :view ;;:pprint 
-				   (fn [results]
-				           (let [result-count (count results)]
-				             
-				                          (if (= results [[]]) 
-				                "" 
-				                [:div [:small.italic (str "  see " result-count " references ->")]])))
-				  }
-				  #+END_QUERY
-				- {{i eb6c}}  discussion topics
-				  ![image.png](../assets/image_1726792556144_0.png){:height 162, :width 299}
-				- open topics
-				- id:: 66e5e078-e59c-4064-91cf-2c3eec36af87
-				  #+BEGIN_QUERY
-				  {:inputs [:current-page "topic"]
-				  :query
-				  [:find (pull ?b [*])
-				  :in $ ?cp ?tag
-				  :where
-				  
-				  [?p :block/name ?cp]
-				  [?b :block/refs ?p]
-				  
-				  [?t :block/name ?tag]
-				  [?t :block/alias ?ta]
-				  (or 
-				   [?b :block/refs ?t]
-				   [?b :block/refs ?ta])
-				  
-				  
-				  [?b :block/marker ?m]
-				  [(contains? #{"TODO"} ?m)]
-				  
-				  [?b :block/properties ?props]
-				  (or-join [?b ?props ?journal-day]
-				           (and
-				            ;; The block is in a journal page
-				            [?b :block/page ?bp]
-				            [?bp :block/journal-day ?journal-day]
-				            [(some? ?journal-day)])
-				  
-				           (and
-				            ;; The block has a journal page ref in the property :created-on
-				            [(get ?props :created-on) ?created-on]
-				            [?cp :block/original-name ?all-page-names]
-				            [(contains? ?created-on ?all-page-names)]
-				            [?cp :block/journal-day ?journal-day]
-				            [(some? ?journal-day)])
-				  
-				           (and
-				            ;; There is a block in a journal page referencing ?b
-				            [?r :block/refs ?b]
-				            [?r :block/page ?rp]
-				            [?rp :block/journal-day ?journal-day]
-				            [(some? ?journal-day)])
-				            )
-				  ]
-				  
-				  :result-transform
-				   (fn [result] 
-				     (sort-by (comp - (fn [r] (get-in r [:block/page :block/journal-day]))) result)
-				     )
-				  
-				  :group-by-page? true
-				  }
-				  
-				  #+END_QUERY
-				- covered topics
-				- id:: 66e5e0c4-d1cc-4598-8e00-07f0abad84b0
-				  #+BEGIN_QUERY
-				  {:inputs [:current-page]
-				  :query
-				  [:find (pull ?b [*])
-				  :in $ ?cp
-				  :where
-				  
-				  [?p :block/name ?cp]
-				  [?t :block/name "topics"]
-				  [?ta :block/alias ?t]
-				  
-				  [?b :block/refs ?p]
-				  (or 
-				   [?b :block/refs ?t]
-				   [?b :block/refs ?ta])
-				  
-				  
-				  [?b :block/marker ?m]
-				  [(contains? #{"DONE"} ?m)]
-				  ]
-				  
-				  :group-by-page? true
-				  }
-				  #+END_QUERY
-				- {{i fd1f}}  appointment summary
-				- previous appointment summary
-				- id:: 66e5dcb2-1960-4c28-9fe3-45371b023f0e
-				  #+BEGIN_QUERY
-				  {:inputs [:current-page :today]
-				  :query
-				  [:find (pull ?b [*]) 
-				  ;;:keys block cp ;;with-name
-				  :in $ ?cp ?today-datestamp
-				  :where
-				  
-				  
-				  [?b :block/properties ?props]
-				   [(get ?props :activity) ?activity]
-				   [(get ?props :event "") ?event]
-				   [(get ?props :date) ?date]
-				   [(get ?props :with "") ?with]
-				  
-				  
-				  ;; I want to use :current-page as the input for the `:with` field.
-				  ;; However, :current-page and :with cannot be directly compared.
-				  ;; 
-				  ;; {:current-page "@dr teplitsky"} ;; :block/name format
-				  ;; {:with  #{"@Dr Teplitsky"}}         ;; :block/original-name format
-				  ;; 
-				  ;; :current-page returns in :block/name format (lower case)
-				  ;; :with is in original case.
-				  ;;
-				  ;; Therefore, I need to convert :current-page to :block/original-name
-				  ;; 
-				  [?w :block/name ?cp]
-				  [?w :block/original-name ?original-name]
-				  [(contains? ?with ?original-name)]
-				   ;; (pr-ln ?cp) => "@dr teplitsky"
-				   ;; (pr-ln ?original-name) => "@Dr Teplitsky"
-				  
-				  ;; :journal-day for :date
-				  [?d :block/original-name ?bn]
-				  [(contains? ?date ?bn)]
-				  [?d :block/journal-day ?activity-datestamp]
-				  [(< ?activity-datestamp ?today-datestamp)]
-				  
-				  ]
-				  
-				  
-				  :result-transform
-				   (fn [result] 
-				     (sort-by (comp - (fn [r] (get-in r [:block/page :block/journal-day]))) result)
-				     )
-				  
-				  ;; :view :pprint
-				  :view (fn [results]
-				       [:div [:table.future-event-table.stop-click.compact
-				              [:caption "Past appointments"]
-				              [:thead [:tr
-				                       [:th "date"] [:th "details"]]]
-				              [:tbody
-				               (for [item results]
-				                 [:tr
-				                 [:td (str (first (get-in item [:block/properties :date])))]
-				                 [:td (str (get-in item [:block/properties-text-values :event]))]
-				                 ]
-				                 )
-				               
-				               ]]]
-				         )
-				  
-				  :children? true
-				  :breadcrumb-show? true
-				  :group-by-page? true
-				  }
-				  #+END_QUERY
-				- previous appointment table
-				- id:: 66e5dcbc-31a8-4e66-a0b3-2b393d3b4919
-				  #+BEGIN_QUERY
-				  {:inputs [:current-page :today]
-				  :query
-				  [:find (pull ?b [*]) 
-				  ;;:keys block cp ;;with-name
-				  :in $ ?cp ?today-datestamp
-				  :where
-				  
-				  
-				  [?b :block/properties ?props]
-				   [(get ?props :activity) ?activity]
-				   [(get ?props :event "") ?event]
-				   [(get ?props :date) ?date]
-				   [(get ?props :with "") ?with]
-				  
-				  
-				  ;; I want to use :current-page as the input for the `:with` field.
-				  ;; However, :current-page and :with cannot be directly compared.
-				  ;; 
-				  ;; {:current-page "@dr teplitsky"} ;; :block/name format
-				  ;; {:with  #{"@Dr Teplitsky"}}         ;; :block/original-name format
-				  ;; 
-				  ;; :current-page returns in :block/name format (lower case)
-				  ;; :with is in original case.
-				  ;;
-				  ;; Therefore, I need to convert :current-page to :block/original-name
-				  ;; 
-				  [?w :block/name ?cp]
-				  [?w :block/original-name ?original-name]
-				  [(contains? ?with ?original-name)]
-				   ;; (pr-ln ?cp) => "@dr teplitsky"
-				   ;; (pr-ln ?original-name) => "@Dr Teplitsky"
-				  
-				  ;; :journal-day for :date
-				  [?d :block/original-name ?bn]
-				  [(contains? ?date ?bn)]
-				  [?d :block/journal-day ?activity-datestamp]
-				  [(< ?activity-datestamp ?today-datestamp)]
-				  
-				  ]
-				  
-				  
-				  :result-transform
-				   (fn [result] 
-				     (sort-by (comp - (fn [r] (get-in r [:block/page :block/journal-day]))) result)
-				     )
-				  ;;:view :pprint
-				  
-				  
-				  :children? true
-				  :breadcrumb-show? true
-				  :group-by-page? true
-				  }
-				  #+END_QUERY
-				- future appointments summary
-				-
-				- future appointments table
-				- id:: 66e5dcc2-148a-4f77-88fc-bad898a3fdde
-				  #+BEGIN_QUERY
-				  {:inputs [:current-page :today]
-				  :query
-				  [:find (pull ?b [*]) 
-				  ;;:keys block cp ;;with-name
-				  :in $ ?cp ?today-datestamp
-				  :where
-				  
-				  
-				  [?b :block/properties ?props]
-				   [(get ?props :activity) ?activity]
-				   [(get ?props :event "") ?event]
-				   [(get ?props :date) ?date]
-				   [(get ?props :with "") ?with]
-				  
-				  
-				  ;; I want to use :current-page as the input for the `:with` field.
-				  ;; However, :current-page and :with cannot be directly compared.
-				  ;; 
-				  ;; {:current-page "@dr teplitsky"} ;; :block/name format
-				  ;; {:with  #{"@Dr Teplitsky"}}         ;; :block/original-name format
-				  ;; 
-				  ;; :current-page returns in :block/name format (lower case)
-				  ;; :with is in original case.
-				  ;;
-				  ;; Therefore, I need to convert :current-page to :block/original-name
-				  ;; 
-				  [?w :block/name ?cp]
-				  [?w :block/original-name ?original-name]
-				  [(contains? ?with ?original-name)]
-				   ;; (pr-ln ?cp) => "@dr teplitsky"
-				   ;; (pr-ln ?original-name) => "@Dr Teplitsky"
-				  
-				  ;; :journal-day for :date
-				  [?d :block/original-name ?bn]
-				  [(contains? ?date ?bn)]
-				  [?d :block/journal-day ?activity-datestamp]
-				  [(>= ?activity-datestamp ?today-datestamp)]
-				  
-				  ]
-				  
-				  
-				  :result-transform
-				   (fn [result] 
-				     (sort-by (comp - (fn [r] (get-in r [:block/page :block/journal-day]))) result)
-				     )
-				  ;;:view :pprint
-				  
-				  
-				  :children? true
-				  :breadcrumb-show? true
-				  :group-by-page? true
-				  }
-				  #+END_QUERY
-				- {{i ea51}}  idea workshop
-				  ![image.png](../assets/image_1726792618253_0.png){:height 199, :width 336}
-				- Issues query
-				- id:: 66ccdccf-f9e2-4028-b867-a7b5406fd634
-				  #+BEGIN_QUERY
-				  {:inputs [:current-page "issue"]
-				  :query
-				  [:find ?uuid ?content ?idea-type ?marker (pull ?r [*]) 
-				   :keys uuid content idea-type idea-state block-content
-				   :in $ ?current-page ?idea-type
-				   :where
-				   [?p :block/name ?current-page]
-				   [?r :block/refs ?p]
-				  
-				   (or-join [?r ?marker]
-				    (and 
-				     [?r :block/marker ?marker])
-				    (and 
-				     [(missing? $ ?r :block/marker)]
-				     [(identity "UNINITIALIZED") ?marker]))
-				   ;;(not [?r :block/marker ?marker])
-				  
-				   [?r :block/macros ?m]
-				   [?m :block/properties ?props]
-				   [(get ?props :logseq.macro-name) ?macros]
-				   [(= ?macros ?idea-type)]
-				  
-				   ;; info we want, now that we have a match
-				   [?r :block/uuid ?uuid]
-				   [?r :block/content ?content]]
-				  
-				  :result-transform
-				  (letfn 
-				   [(first-line [block-content]
-				     (first (clojure.string/split-lines block-content)))
-				    
-				    (strip-idea-type [line idea-type]
-				     (clojure.string/replace
-				      line
-				      (re-pattern (str "(?:TODO\\s|DONE\\s)?{{" idea-type "}}\\s"))
-				      ""))
-				    
-				    (format-idea-state [block-marker]
-				     (case block-marker
-				       "UNINITIALIZED" "new"
-				       "TODO" "open"
-				       "DONE" "realized"))
-				    
-				    (structure-result [result]
-				     (let [content (get-in result [:content])
-				           block-uuid (get-in result [:uuid])
-				           idea-type (get-in result [:idea-type])
-				           idea-state (get-in result [:idea-state])]
-				       {:block/content content
-				        :uuid block-uuid
-				        :idea-type idea-type
-				        :idea-state (format-idea-state idea-state)
-				        :display-text (strip-idea-type 
-				                       (first-line content)
-				                       idea-type)}))] 
-				  
-				   (fn [results]
-				     (->> results
-				          (map structure-result)
-				          (group-by :idea-state)
-				          (into (sorted-map)))))
-				    
-				  
-				  :view
-				  (letfn
-				   [(make-link [text destination]
-				     [:a {:on-click
-				          (fn []
-				            (call-api "push_state"
-				                      "page"
-				                      {:name destination}))}
-				      text])
-				  
-				  (make-icon-link [text destination]
-				                     [:a (merge
-				                         {:class "ti"}
-				                          
-				  
-				                          {:on-click
-				                           (fn []
-				                             (call-api "push_state"
-				                                       "page"
-				                                       {:name destination}))
-				                           })
-				                      text])
-				  
-				    (make-marker-box [uuid state content]
-				     [:input
-				      {:type "checkbox"
-				       ;; checked attribute takes a boolean value
-				       :checked (= state "realized")
-				       :on-click
-				       (fn []
-				         (call-api
-				          "update_block"
-				          uuid
-				          (str (if (= state "realized")
-				                 "TODO"
-				                 "DONE")
-				               " "
-				               (clojure.string/replace
-				                content
-				                (re-pattern "(TODO|DONE)\\s")
-				                ""))))}])
-				  
-				    (make-initialization-link [uuid content macro-name]
-				     [:button 
-				      {:on-click
-				       (fn []
-				         (call-api "update_block"
-				                   uuid
-				                   (clojure.string/replace
-				                    content
-				                    (re-pattern (str "{{" macro-name "}}\\s"))
-				                    (str "TODO {{" macro-name "}} "))))}
-				      "initialize"])]
-				  
-				   (fn [results]
-				     (for [[state items] results]
-				       (let [idea-type (-> items
-				                           first :idea-type)]
-				         [:div
-				          [:table {:class "future-event-table stop-click compact"}
-				           [:caption state " " idea-type "s"]
-				           [:thead [:tr
-				                    [:th {:width "80"} "Status"] [:th idea-type] [:th]]]
-				           [:tbody
-				            (for [result items]
-				              [:tr
-				               [:td.touch-screen (case (get-in result [:idea-state])
-				                      "new" (make-initialization-link
-				                             (get-in result [:uuid])
-				                             (get-in result [:block/content])
-				                             idea-type)
-				                      "open" (make-marker-box
-				                              (get-in result [:uuid])
-				                              (get-in result [:idea-state])
-				                              (get-in result [:block/content]))
-				                      "realized" (make-marker-box
-				                                  (get-in result [:uuid])
-				                                  (get-in result [:idea-state])
-				                                  (get-in result [:block/content]))
-				                      "other")]
-				               [:td (get-in result [:display-text]) ]
-				               [:td.touch-screen (make-icon-link
-				                     "\uea99"
-				                     (get-in result [:uuid]))]
-				               
-				               ])]]]))))} 
-				  
-				  #+END_QUERY
-				  {{issue-identifier}}
-				- Ideas query
-				- id:: 66df909d-79a2-4532-917e-94d3bd8b32a8
-				  #+BEGIN_QUERY
-				  {:inputs [:current-page "idea"]
-				  :query
-				  [:find ?uuid ?content ?idea-type ?marker (pull ?r [*]) 
-				   :keys uuid content idea-type idea-state block-content
-				   :in $ ?current-page ?idea-type
-				   :where
-				   [?p :block/name ?current-page]
-				   [?r :block/refs ?p]
-				  
-				   (or-join [?r ?marker]
-				    (and 
-				     [?r :block/marker ?marker])
-				    (and 
-				     [(missing? $ ?r :block/marker)]
-				     [(identity "UNINITIALIZED") ?marker]))
-				   ;;(not [?r :block/marker ?marker])
-				  
-				   [?r :block/macros ?m]
-				   [?m :block/properties ?props]
-				   [(get ?props :logseq.macro-name) ?macros]
-				   [(= ?macros ?idea-type)]
-				  
-				   ;; info we want, now that we have a match
-				   [?r :block/uuid ?uuid]
-				   [?r :block/content ?content]]
-				  
-				  :result-transform
-				  (letfn 
-				   [(first-line [block-content]
-				     (first (clojure.string/split-lines block-content)))
-				    
-				    (strip-idea-type [line idea-type]
-				     (clojure.string/replace
-				      line
-				      (re-pattern (str "(?:TODO\\s|DONE\\s)?{{" idea-type "}}\\s"))
-				      ""))
-				    
-				    (format-idea-state [block-marker]
-				     (case block-marker
-				       "UNINITIALIZED" "new"
-				       "TODO" "open"
-				       "DONE" "realized"))
-				    
-				    (structure-result [result]
-				     (let [content (get-in result [:content])
-				           block-uuid (get-in result [:uuid])
-				           idea-type (get-in result [:idea-type])
-				           idea-state (get-in result [:idea-state])]
-				       {:block/content content
-				        :uuid block-uuid
-				        :idea-type idea-type
-				        :idea-state (format-idea-state idea-state)
-				        :display-text (strip-idea-type 
-				                       (first-line content)
-				                       idea-type)}))] 
-				  
-				   (fn [results]
-				     (->> results
-				          (map structure-result)
-				          (group-by :idea-state)
-				          (into (sorted-map)))))
-				    
-				  
-				  :view
-				  (letfn
-				   [(make-link [text destination]
-				     [:a {:on-click
-				          (fn []
-				            (call-api "push_state"
-				                      "page"
-				                      {:name destination}))}
-				      text])
-				  
-				  (make-icon-link [text destination]
-				                     [:a (merge
-				                         {:class "ti"}
-				                          
-				  
-				                          {:on-click
-				                           (fn []
-				                             (call-api "push_state"
-				                                       "page"
-				                                       {:name destination}))
-				                           })
-				                      text])
-				  
-				    (make-marker-box [uuid state content]
-				     [:input
-				      {:type "checkbox"
-				       ;; checked attribute takes a boolean value
-				       :checked (= state "realized")
-				       :on-click
-				       (fn []
-				         (call-api
-				          "update_block"
-				          uuid
-				          (str (if (= state "realized")
-				                 "TODO"
-				                 "DONE")
-				               " "
-				               (clojure.string/replace
-				                content
-				                (re-pattern "(TODO|DONE)\\s")
-				                ""))))}])
-				  
-				    (make-initialization-link [uuid content macro-name]
-				     [:button 
-				      {:on-click
-				       (fn []
-				         (call-api "update_block"
-				                   uuid
-				                   (clojure.string/replace
-				                    content
-				                    (re-pattern (str "{{" macro-name "}}\\s"))
-				                    (str "TODO {{" macro-name "}} "))))}
-				      "initialize"])]
-				  
-				   (fn [results]
-				     (for [[state items] results]
-				       (let [idea-type (-> items
-				                           first :idea-type)]
-				         [:div
-				          [:table {:class "future-event-table stop-click compact"}
-				           [:caption state " " idea-type "s"]
-				           [:thead [:tr
-				                    [:th {:width "80"} "Status"] [:th idea-type] [:th]]]
-				           [:tbody
-				            (for [result items]
-				              [:tr
-				               [:td.touch-screen (case (get-in result [:idea-state])
-				                      "new" (make-initialization-link
-				                             (get-in result [:uuid])
-				                             (get-in result [:block/content])
-				                             idea-type)
-				                      "open" (make-marker-box
-				                              (get-in result [:uuid])
-				                              (get-in result [:idea-state])
-				                              (get-in result [:block/content]))
-				                      "realized" (make-marker-box
-				                                  (get-in result [:uuid])
-				                                  (get-in result [:idea-state])
-				                                  (get-in result [:block/content]))
-				                      "other")]
-				               [:td (get-in result [:display-text]) ]
-				               [:td.touch-screen (make-icon-link
-				                     "\uea99"
-				                     (get-in result [:uuid]))]
-				               
-				               ])]]]))))} 
-				  
-				  #+END_QUERY
-				  {{idea-identifier}}
-				- Questions query
-				- id:: 66df90b1-ccba-494b-94c9-76f3194e0963
-				  #+BEGIN_QUERY
-				  {:inputs [:current-page "question"]
-				  :query
-				  [:find ?uuid ?content ?idea-type ?marker (pull ?r [*]) 
-				   :keys uuid content idea-type idea-state block-content
-				   :in $ ?current-page ?idea-type
-				   :where
-				   [?p :block/name ?current-page]
-				   [?r :block/refs ?p]
-				  
-				   (or-join [?r ?marker]
-				    (and 
-				     [?r :block/marker ?marker])
-				    (and 
-				     [(missing? $ ?r :block/marker)]
-				     [(identity "UNINITIALIZED") ?marker]))
-				   ;;(not [?r :block/marker ?marker])
-				  
-				   [?r :block/macros ?m]
-				   [?m :block/properties ?props]
-				   [(get ?props :logseq.macro-name) ?macros]
-				   [(= ?macros ?idea-type)]
-				  
-				   ;; info we want, now that we have a match
-				   [?r :block/uuid ?uuid]
-				   [?r :block/content ?content]]
-				  
-				  :result-transform
-				  (letfn 
-				   [(first-line [block-content]
-				     (first (clojure.string/split-lines block-content)))
-				    
-				    (strip-idea-type [line idea-type]
-				     (clojure.string/replace
-				      line
-				      (re-pattern (str "(?:TODO\\s|DONE\\s)?{{" idea-type "}}\\s"))
-				      ""))
-				    
-				    (format-idea-state [block-marker]
-				     (case block-marker
-				       "UNINITIALIZED" "new"
-				       "TODO" "open"
-				       "DONE" "realized"))
-				    
-				    (structure-result [result]
-				     (let [content (get-in result [:content])
-				           block-uuid (get-in result [:uuid])
-				           idea-type (get-in result [:idea-type])
-				           idea-state (get-in result [:idea-state])]
-				       {:block/content content
-				        :uuid block-uuid
-				        :idea-type idea-type
-				        :idea-state (format-idea-state idea-state)
-				        :display-text (strip-idea-type 
-				                       (first-line content)
-				                       idea-type)}))] 
-				  
-				   (fn [results]
-				     (->> results
-				          (map structure-result)
-				          (group-by :idea-state)
-				          (into (sorted-map)))))
-				    
-				  
-				  :view
-				  (letfn
-				   [(make-link [text destination]
-				     [:a {:on-click
-				          (fn []
-				            (call-api "push_state"
-				                      "page"
-				                      {:name destination}))}
-				      text])
-				  
-				  (make-icon-link [text destination]
-				                     [:a (merge
-				                         {:class "ti"}
-				                          
-				  
-				                          {:on-click
-				                           (fn []
-				                             (call-api "push_state"
-				                                       "page"
-				                                       {:name destination}))
-				                           })
-				                      text])
-				  
-				    (make-marker-box [uuid state content]
-				     [:input
-				      {:type "checkbox"
-				       ;; checked attribute takes a boolean value
-				       :checked (= state "realized")
-				       :on-click
-				       (fn []
-				         (call-api
-				          "update_block"
-				          uuid
-				          (str (if (= state "realized")
-				                 "TODO"
-				                 "DONE")
-				               " "
-				               (clojure.string/replace
-				                content
-				                (re-pattern "(TODO|DONE)\\s")
-				                ""))))}])
-				  
-				    (make-initialization-link [uuid content macro-name]
-				     [:button 
-				      {:on-click
-				       (fn []
-				         (call-api "update_block"
-				                   uuid
-				                   (clojure.string/replace
-				                    content
-				                    (re-pattern (str "{{" macro-name "}}\\s"))
-				                    (str "TODO {{" macro-name "}} "))))}
-				      "initialize"])]
-				  
-				   (fn [results]
-				     (for [[state items] results]
-				       (let [idea-type (-> items
-				                           first :idea-type)]
-				         [:div
-				          [:table {:class "future-event-table stop-click compact"}
-				           [:caption state " " idea-type "s"]
-				           [:thead [:tr
-				                    [:th {:width "80"} "Status"] [:th idea-type] [:th]]]
-				           [:tbody
-				            (for [result items]
-				              [:tr
-				               [:td.touch-screen (case (get-in result [:idea-state])
-				                      "new" (make-initialization-link
-				                             (get-in result [:uuid])
-				                             (get-in result [:block/content])
-				                             idea-type)
-				                      "open" (make-marker-box
-				                              (get-in result [:uuid])
-				                              (get-in result [:idea-state])
-				                              (get-in result [:block/content]))
-				                      "realized" (make-marker-box
-				                                  (get-in result [:uuid])
-				                                  (get-in result [:idea-state])
-				                                  (get-in result [:block/content]))
-				                      "other")]
-				               [:td (get-in result [:display-text]) ]
-				               [:td.touch-screen (make-icon-link
-				                     "\uea99"
-				                     (get-in result [:uuid]))]
-				               
-				               ])]]]))))} 
-				  
-				  #+END_QUERY
-				  {{question-identifier}}
-				- {{i f287}}  Previous **grocery purchases**
-				  ![image.png](../assets/image_1726792654601_0.png){:height 149, :width 150}
-				- query v4.5. Gets icon data from [[data]] block
-				  id:: 66f31002-f6e7-4656-b4a4-3721b3d9771d
+		- show blocks with ref to linked reference in parent block
+			- template:: query, show references to link in parent
+			  template-including-parent:: false
+			- #+BEGIN_QUERY
+			  ;; show blocks with ref to linked reference in parent block v1
+			  {:inputs [:current-block :query-page]
+			  :query
+			  [:find (pull ?b [*])
+			   :in $ ?current-block ?qp
+			   :where
+			   [?current-block :block/parent ?parent]
+			   [?parent :block/refs ?ability-limitation]
+			   [?b :block/refs ?ability-limitation]
+			  
+			  ;; Exclude current page from results
+			   [?b :block/page ?ref-page]
+			   [?ref-page :block/name ?ref-page-name]
+			   [(not= ?ref-page-name ?qp)]]
+			  :result-transform (fn [result]
+			                      (if (empty? result)
+			                        [[]]
+			                        (sort-by (comp - (fn [r] (get-in r [:block/page :block/journal-day]))) result)))
+			  
+			  :view (fn [results]
+			          (if (= results [[]]) 
+			            "no results"
+			            result))
+			  
+			  :group-by-page? true
+			  }
+			  #+END_QUERY
+			- {{i f015}}  count of references to block
+			     ![image.png](../assets/image_1726792772149_0.png){:height 36, :width 191}
+			- to linked reference in parent block
+			  template:: query, count of references in parent block
+			  template-including-parent:: false
+			- #+BEGIN_QUERY
+			  ;; see number of references to linked reference in parent block
+			  {:inputs [:current-block :current-page]
+			  :query
+			  [:find ?b
+			   :in $ ?current-block ?qp
+			   :where
+			  
+			   ;; target block is the block containing a linked reference for which
+			   ;; we want to find other blocks who reference it
+			    [?current-block :block/parent ?parent-block]
+			    [(identity ?parent-block) ?target-block]
+			   ;; [(identity ?current-block) ?target-block]
+			  
+			   [?target-block :block/refs ?ability-limitation]
+			   [?b :block/refs ?ability-limitation]
+			  
+			   ;; Exclude current page from results
+			   [?b :block/page ?ref-page]
+			   [?ref-page :block/name ?ref-page-name]
+			   [(not= ?ref-page-name ?qp)]]
+			  
+			  :result-transform (fn [result]
+			                      (if (empty? result)
+			                        [[]]
+			                        result))
+			  :view ;;:pprint 
+			   (fn [results]
+			           (let [result-count (count results)]
+			             
+			                          (if (= results [[]]) 
+			                "" 
+			                [:div [:small.italic (str "  see " result-count " references ->")]])))
+			  }
+			  
+			  #+END_QUERY
+			- to linked reference in current block
+			  template:: query, count of references in current block
+			  template-including-parent:: false
+			- id:: 66e74343-77eb-4199-93ab-1d22b36e158d
+			  #+BEGIN_QUERY
+			  
+			  {:inputs [:current-block :current-page]
+			  :query
+			  [:find ?b
+			   :in $ ?current-block ?qp
+			   :where
+			  
+			   ;; target block is the block containing a linked reference for which
+			   ;; we want to find other blocks who reference it
+			   ;; [?current-block :block/parent ?parent-block]
+			   ;; [(identity ?parent-block) ?target-block]
+			   [(identity ?current-block) ?target-block]
+			  
+			   [?target-block :block/refs ?ability-limitation]
+			   [?b :block/refs ?ability-limitation]
+			  
+			   ;; Exclude current page from results
+			   [?b :block/page ?ref-page]
+			   [?ref-page :block/name ?ref-page-name]
+			   [(not= ?ref-page-name ?qp)]]
+			  
+			  :result-transform (fn [result]
+			                      (if (empty? result)
+			                        [[]]
+			                        result))
+			  :view ;;:pprint 
+			   (fn [results]
+			           (let [result-count (count results)]
+			             
+			                          (if (= results [[]]) 
+			                "" 
+			                [:div [:small.italic (str "  see " result-count " references ->")]])))
+			  }
+			  #+END_QUERY
+		- {{i eb6c}}  discussion topics
+		  ![image.png](../assets/image_1726792556144_0.png){:height 162, :width 299}
+			- open topics
+			- id:: 66e5e078-e59c-4064-91cf-2c3eec36af87
+			  #+BEGIN_QUERY
+			  {:inputs [:current-page "topic"]
+			  :query
+			  [:find (pull ?b [*])
+			  :in $ ?cp ?tag
+			  :where
+			  
+			  [?p :block/name ?cp]
+			  [?b :block/refs ?p]
+			  
+			  [?t :block/name ?tag]
+			  [?t :block/alias ?ta]
+			  (or 
+			   [?b :block/refs ?t]
+			   [?b :block/refs ?ta])
+			  
+			  
+			  [?b :block/marker ?m]
+			  [(contains? #{"TODO"} ?m)]
+			  
+			  [?b :block/properties ?props]
+			  (or-join [?b ?props ?journal-day]
+			           (and
+			            ;; The block is in a journal page
+			            [?b :block/page ?bp]
+			            [?bp :block/journal-day ?journal-day]
+			            [(some? ?journal-day)])
+			  
+			           (and
+			            ;; The block has a journal page ref in the property :created-on
+			            [(get ?props :created-on) ?created-on]
+			            [?cp :block/original-name ?all-page-names]
+			            [(contains? ?created-on ?all-page-names)]
+			            [?cp :block/journal-day ?journal-day]
+			            [(some? ?journal-day)])
+			  
+			           (and
+			            ;; There is a block in a journal page referencing ?b
+			            [?r :block/refs ?b]
+			            [?r :block/page ?rp]
+			            [?rp :block/journal-day ?journal-day]
+			            [(some? ?journal-day)])
+			            )
+			  ]
+			  
+			  :result-transform
+			   (fn [result] 
+			     (sort-by (comp - (fn [r] (get-in r [:block/page :block/journal-day]))) result)
+			     )
+			  
+			  :group-by-page? true
+			  }
+			  
+			  #+END_QUERY
+			- covered topics
+			- id:: 66e5e0c4-d1cc-4598-8e00-07f0abad84b0
+			  #+BEGIN_QUERY
+			  {:inputs [:current-page]
+			  :query
+			  [:find (pull ?b [*])
+			  :in $ ?cp
+			  :where
+			  
+			  [?p :block/name ?cp]
+			  [?t :block/name "topics"]
+			  [?ta :block/alias ?t]
+			  
+			  [?b :block/refs ?p]
+			  (or 
+			   [?b :block/refs ?t]
+			   [?b :block/refs ?ta])
+			  
+			  
+			  [?b :block/marker ?m]
+			  [(contains? #{"DONE"} ?m)]
+			  ]
+			  
+			  :group-by-page? true
+			  }
+			  #+END_QUERY
+		- {{i fd1f}}  appointment summary
+			- previous appointment summary
+			- id:: 66e5dcb2-1960-4c28-9fe3-45371b023f0e
+			  #+BEGIN_QUERY
+			  {:inputs [:current-page :today]
+			  :query
+			  [:find (pull ?b [*]) 
+			  ;;:keys block cp ;;with-name
+			  :in $ ?cp ?today-datestamp
+			  :where
+			  
+			  
+			  [?b :block/properties ?props]
+			   [(get ?props :activity) ?activity]
+			   [(get ?props :event "") ?event]
+			   [(get ?props :date) ?date]
+			   [(get ?props :with "") ?with]
+			  
+			  
+			  ;; I want to use :current-page as the input for the `:with` field.
+			  ;; However, :current-page and :with cannot be directly compared.
+			  ;; 
+			  ;; {:current-page "@dr teplitsky"} ;; :block/name format
+			  ;; {:with  #{"@Dr Teplitsky"}}         ;; :block/original-name format
+			  ;; 
+			  ;; :current-page returns in :block/name format (lower case)
+			  ;; :with is in original case.
+			  ;;
+			  ;; Therefore, I need to convert :current-page to :block/original-name
+			  ;; 
+			  [?w :block/name ?cp]
+			  [?w :block/original-name ?original-name]
+			  [(contains? ?with ?original-name)]
+			   ;; (pr-ln ?cp) => "@dr teplitsky"
+			   ;; (pr-ln ?original-name) => "@Dr Teplitsky"
+			  
+			  ;; :journal-day for :date
+			  [?d :block/original-name ?bn]
+			  [(contains? ?date ?bn)]
+			  [?d :block/journal-day ?activity-datestamp]
+			  [(< ?activity-datestamp ?today-datestamp)]
+			  
+			  ]
+			  
+			  
+			  :result-transform
+			   (fn [result] 
+			     (sort-by (comp - (fn [r] (get-in r [:block/page :block/journal-day]))) result)
+			     )
+			  
+			  ;; :view :pprint
+			  :view (fn [results]
+			       [:div [:table.future-event-table.stop-click.compact
+			              [:caption "Past appointments"]
+			              [:thead [:tr
+			                       [:th "date"] [:th "details"]]]
+			              [:tbody
+			               (for [item results]
+			                 [:tr
+			                 [:td (str (first (get-in item [:block/properties :date])))]
+			                 [:td (str (get-in item [:block/properties-text-values :event]))]
+			                 ]
+			                 )
+			               
+			               ]]]
+			         )
+			  
+			  :children? true
+			  :breadcrumb-show? true
+			  :group-by-page? true
+			  }
+			  #+END_QUERY
+			- previous appointment table
+			- id:: 66e5dcbc-31a8-4e66-a0b3-2b393d3b4919
+			  #+BEGIN_QUERY
+			  {:inputs [:current-page :today]
+			  :query
+			  [:find (pull ?b [*]) 
+			  ;;:keys block cp ;;with-name
+			  :in $ ?cp ?today-datestamp
+			  :where
+			  
+			  
+			  [?b :block/properties ?props]
+			   [(get ?props :activity) ?activity]
+			   [(get ?props :event "") ?event]
+			   [(get ?props :date) ?date]
+			   [(get ?props :with "") ?with]
+			  
+			  
+			  ;; I want to use :current-page as the input for the `:with` field.
+			  ;; However, :current-page and :with cannot be directly compared.
+			  ;; 
+			  ;; {:current-page "@dr teplitsky"} ;; :block/name format
+			  ;; {:with  #{"@Dr Teplitsky"}}         ;; :block/original-name format
+			  ;; 
+			  ;; :current-page returns in :block/name format (lower case)
+			  ;; :with is in original case.
+			  ;;
+			  ;; Therefore, I need to convert :current-page to :block/original-name
+			  ;; 
+			  [?w :block/name ?cp]
+			  [?w :block/original-name ?original-name]
+			  [(contains? ?with ?original-name)]
+			   ;; (pr-ln ?cp) => "@dr teplitsky"
+			   ;; (pr-ln ?original-name) => "@Dr Teplitsky"
+			  
+			  ;; :journal-day for :date
+			  [?d :block/original-name ?bn]
+			  [(contains? ?date ?bn)]
+			  [?d :block/journal-day ?activity-datestamp]
+			  [(< ?activity-datestamp ?today-datestamp)]
+			  
+			  ]
+			  
+			  
+			  :result-transform
+			   (fn [result] 
+			     (sort-by (comp - (fn [r] (get-in r [:block/page :block/journal-day]))) result)
+			     )
+			  ;;:view :pprint
+			  
+			  
+			  :children? true
+			  :breadcrumb-show? true
+			  :group-by-page? true
+			  }
+			  #+END_QUERY
+			- future appointments summary
+			-
+			- future appointments table
+			- id:: 66e5dcc2-148a-4f77-88fc-bad898a3fdde
+			  #+BEGIN_QUERY
+			  {:inputs [:current-page :today]
+			  :query
+			  [:find (pull ?b [*]) 
+			  ;;:keys block cp ;;with-name
+			  :in $ ?cp ?today-datestamp
+			  :where
+			  
+			  
+			  [?b :block/properties ?props]
+			   [(get ?props :activity) ?activity]
+			   [(get ?props :event "") ?event]
+			   [(get ?props :date) ?date]
+			   [(get ?props :with "") ?with]
+			  
+			  
+			  ;; I want to use :current-page as the input for the `:with` field.
+			  ;; However, :current-page and :with cannot be directly compared.
+			  ;; 
+			  ;; {:current-page "@dr teplitsky"} ;; :block/name format
+			  ;; {:with  #{"@Dr Teplitsky"}}         ;; :block/original-name format
+			  ;; 
+			  ;; :current-page returns in :block/name format (lower case)
+			  ;; :with is in original case.
+			  ;;
+			  ;; Therefore, I need to convert :current-page to :block/original-name
+			  ;; 
+			  [?w :block/name ?cp]
+			  [?w :block/original-name ?original-name]
+			  [(contains? ?with ?original-name)]
+			   ;; (pr-ln ?cp) => "@dr teplitsky"
+			   ;; (pr-ln ?original-name) => "@Dr Teplitsky"
+			  
+			  ;; :journal-day for :date
+			  [?d :block/original-name ?bn]
+			  [(contains? ?date ?bn)]
+			  [?d :block/journal-day ?activity-datestamp]
+			  [(>= ?activity-datestamp ?today-datestamp)]
+			  
+			  ]
+			  
+			  
+			  :result-transform
+			   (fn [result] 
+			     (sort-by (comp - (fn [r] (get-in r [:block/page :block/journal-day]))) result)
+			     )
+			  ;;:view :pprint
+			  
+			  
+			  :children? true
+			  :breadcrumb-show? true
+			  :group-by-page? true
+			  }
+			  #+END_QUERY
+		- {{i ea51}}  idea workshop
+		  ![image.png](../assets/image_1726792618253_0.png){:height 199, :width 336}
+			- Issues query
+			- id:: 66ccdccf-f9e2-4028-b867-a7b5406fd634
+			  #+BEGIN_QUERY
+			  {:inputs [:current-page "issue"]
+			  :query
+			  [:find ?uuid ?content ?idea-type ?marker (pull ?r [*]) 
+			   :keys uuid content idea-type idea-state block-content
+			   :in $ ?current-page ?idea-type
+			   :where
+			   [?p :block/name ?current-page]
+			   [?r :block/refs ?p]
+			  
+			   (or-join [?r ?marker]
+			    (and 
+			     [?r :block/marker ?marker])
+			    (and 
+			     [(missing? $ ?r :block/marker)]
+			     [(identity "UNINITIALIZED") ?marker]))
+			   ;;(not [?r :block/marker ?marker])
+			  
+			   [?r :block/macros ?m]
+			   [?m :block/properties ?props]
+			   [(get ?props :logseq.macro-name) ?macros]
+			   [(= ?macros ?idea-type)]
+			  
+			   ;; info we want, now that we have a match
+			   [?r :block/uuid ?uuid]
+			   [?r :block/content ?content]]
+			  
+			  :result-transform
+			  (letfn 
+			   [(first-line [block-content]
+			     (first (clojure.string/split-lines block-content)))
+			    
+			    (strip-idea-type [line idea-type]
+			     (clojure.string/replace
+			      line
+			      (re-pattern (str "(?:TODO\\s|DONE\\s)?{{" idea-type "}}\\s"))
+			      ""))
+			    
+			    (format-idea-state [block-marker]
+			     (case block-marker
+			       "UNINITIALIZED" "new"
+			       "TODO" "open"
+			       "DONE" "realized"))
+			    
+			    (structure-result [result]
+			     (let [content (get-in result [:content])
+			           block-uuid (get-in result [:uuid])
+			           idea-type (get-in result [:idea-type])
+			           idea-state (get-in result [:idea-state])]
+			       {:block/content content
+			        :uuid block-uuid
+			        :idea-type idea-type
+			        :idea-state (format-idea-state idea-state)
+			        :display-text (strip-idea-type 
+			                       (first-line content)
+			                       idea-type)}))] 
+			  
+			   (fn [results]
+			     (->> results
+			          (map structure-result)
+			          (group-by :idea-state)
+			          (into (sorted-map)))))
+			    
+			  
+			  :view
+			  (letfn
+			   [(make-link [text destination]
+			     [:a {:on-click
+			          (fn []
+			            (call-api "push_state"
+			                      "page"
+			                      {:name destination}))}
+			      text])
+			  
+			  (make-icon-link [text destination]
+			                     [:a (merge
+			                         {:class "ti"}
+			                          
+			  
+			                          {:on-click
+			                           (fn []
+			                             (call-api "push_state"
+			                                       "page"
+			                                       {:name destination}))
+			                           })
+			                      text])
+			  
+			    (make-marker-box [uuid state content]
+			     [:input
+			      {:type "checkbox"
+			       ;; checked attribute takes a boolean value
+			       :checked (= state "realized")
+			       :on-click
+			       (fn []
+			         (call-api
+			          "update_block"
+			          uuid
+			          (str (if (= state "realized")
+			                 "TODO"
+			                 "DONE")
+			               " "
+			               (clojure.string/replace
+			                content
+			                (re-pattern "(TODO|DONE)\\s")
+			                ""))))}])
+			  
+			    (make-initialization-link [uuid content macro-name]
+			     [:button 
+			      {:on-click
+			       (fn []
+			         (call-api "update_block"
+			                   uuid
+			                   (clojure.string/replace
+			                    content
+			                    (re-pattern (str "{{" macro-name "}}\\s"))
+			                    (str "TODO {{" macro-name "}} "))))}
+			      "initialize"])]
+			  
+			   (fn [results]
+			     (for [[state items] results]
+			       (let [idea-type (-> items
+			                           first :idea-type)]
+			         [:div
+			          [:table {:class "future-event-table stop-click compact"}
+			           [:caption state " " idea-type "s"]
+			           [:thead [:tr
+			                    [:th {:width "80"} "Status"] [:th idea-type] [:th]]]
+			           [:tbody
+			            (for [result items]
+			              [:tr
+			               [:td.touch-screen (case (get-in result [:idea-state])
+			                      "new" (make-initialization-link
+			                             (get-in result [:uuid])
+			                             (get-in result [:block/content])
+			                             idea-type)
+			                      "open" (make-marker-box
+			                              (get-in result [:uuid])
+			                              (get-in result [:idea-state])
+			                              (get-in result [:block/content]))
+			                      "realized" (make-marker-box
+			                                  (get-in result [:uuid])
+			                                  (get-in result [:idea-state])
+			                                  (get-in result [:block/content]))
+			                      "other")]
+			               [:td (get-in result [:display-text]) ]
+			               [:td.touch-screen (make-icon-link
+			                     "\uea99"
+			                     (get-in result [:uuid]))]
+			               
+			               ])]]]))))} 
+			  
+			  #+END_QUERY
+			  {{issue-identifier}}
+			- Ideas query
+			- id:: 66df909d-79a2-4532-917e-94d3bd8b32a8
+			  #+BEGIN_QUERY
+			  {:inputs [:current-page "idea"]
+			  :query
+			  [:find ?uuid ?content ?idea-type ?marker (pull ?r [*]) 
+			   :keys uuid content idea-type idea-state block-content
+			   :in $ ?current-page ?idea-type
+			   :where
+			   [?p :block/name ?current-page]
+			   [?r :block/refs ?p]
+			  
+			   (or-join [?r ?marker]
+			    (and 
+			     [?r :block/marker ?marker])
+			    (and 
+			     [(missing? $ ?r :block/marker)]
+			     [(identity "UNINITIALIZED") ?marker]))
+			   ;;(not [?r :block/marker ?marker])
+			  
+			   [?r :block/macros ?m]
+			   [?m :block/properties ?props]
+			   [(get ?props :logseq.macro-name) ?macros]
+			   [(= ?macros ?idea-type)]
+			  
+			   ;; info we want, now that we have a match
+			   [?r :block/uuid ?uuid]
+			   [?r :block/content ?content]]
+			  
+			  :result-transform
+			  (letfn 
+			   [(first-line [block-content]
+			     (first (clojure.string/split-lines block-content)))
+			    
+			    (strip-idea-type [line idea-type]
+			     (clojure.string/replace
+			      line
+			      (re-pattern (str "(?:TODO\\s|DONE\\s)?{{" idea-type "}}\\s"))
+			      ""))
+			    
+			    (format-idea-state [block-marker]
+			     (case block-marker
+			       "UNINITIALIZED" "new"
+			       "TODO" "open"
+			       "DONE" "realized"))
+			    
+			    (structure-result [result]
+			     (let [content (get-in result [:content])
+			           block-uuid (get-in result [:uuid])
+			           idea-type (get-in result [:idea-type])
+			           idea-state (get-in result [:idea-state])]
+			       {:block/content content
+			        :uuid block-uuid
+			        :idea-type idea-type
+			        :idea-state (format-idea-state idea-state)
+			        :display-text (strip-idea-type 
+			                       (first-line content)
+			                       idea-type)}))] 
+			  
+			   (fn [results]
+			     (->> results
+			          (map structure-result)
+			          (group-by :idea-state)
+			          (into (sorted-map)))))
+			    
+			  
+			  :view
+			  (letfn
+			   [(make-link [text destination]
+			     [:a {:on-click
+			          (fn []
+			            (call-api "push_state"
+			                      "page"
+			                      {:name destination}))}
+			      text])
+			  
+			  (make-icon-link [text destination]
+			                     [:a (merge
+			                         {:class "ti"}
+			                          
+			  
+			                          {:on-click
+			                           (fn []
+			                             (call-api "push_state"
+			                                       "page"
+			                                       {:name destination}))
+			                           })
+			                      text])
+			  
+			    (make-marker-box [uuid state content]
+			     [:input
+			      {:type "checkbox"
+			       ;; checked attribute takes a boolean value
+			       :checked (= state "realized")
+			       :on-click
+			       (fn []
+			         (call-api
+			          "update_block"
+			          uuid
+			          (str (if (= state "realized")
+			                 "TODO"
+			                 "DONE")
+			               " "
+			               (clojure.string/replace
+			                content
+			                (re-pattern "(TODO|DONE)\\s")
+			                ""))))}])
+			  
+			    (make-initialization-link [uuid content macro-name]
+			     [:button 
+			      {:on-click
+			       (fn []
+			         (call-api "update_block"
+			                   uuid
+			                   (clojure.string/replace
+			                    content
+			                    (re-pattern (str "{{" macro-name "}}\\s"))
+			                    (str "TODO {{" macro-name "}} "))))}
+			      "initialize"])]
+			  
+			   (fn [results]
+			     (for [[state items] results]
+			       (let [idea-type (-> items
+			                           first :idea-type)]
+			         [:div
+			          [:table {:class "future-event-table stop-click compact"}
+			           [:caption state " " idea-type "s"]
+			           [:thead [:tr
+			                    [:th {:width "80"} "Status"] [:th idea-type] [:th]]]
+			           [:tbody
+			            (for [result items]
+			              [:tr
+			               [:td.touch-screen (case (get-in result [:idea-state])
+			                      "new" (make-initialization-link
+			                             (get-in result [:uuid])
+			                             (get-in result [:block/content])
+			                             idea-type)
+			                      "open" (make-marker-box
+			                              (get-in result [:uuid])
+			                              (get-in result [:idea-state])
+			                              (get-in result [:block/content]))
+			                      "realized" (make-marker-box
+			                                  (get-in result [:uuid])
+			                                  (get-in result [:idea-state])
+			                                  (get-in result [:block/content]))
+			                      "other")]
+			               [:td (get-in result [:display-text]) ]
+			               [:td.touch-screen (make-icon-link
+			                     "\uea99"
+			                     (get-in result [:uuid]))]
+			               
+			               ])]]]))))} 
+			  
+			  #+END_QUERY
+			  {{idea-identifier}}
+			- Questions query
+			- id:: 66df90b1-ccba-494b-94c9-76f3194e0963
+			  #+BEGIN_QUERY
+			  {:inputs [:current-page "question"]
+			  :query
+			  [:find ?uuid ?content ?idea-type ?marker (pull ?r [*]) 
+			   :keys uuid content idea-type idea-state block-content
+			   :in $ ?current-page ?idea-type
+			   :where
+			   [?p :block/name ?current-page]
+			   [?r :block/refs ?p]
+			  
+			   (or-join [?r ?marker]
+			    (and 
+			     [?r :block/marker ?marker])
+			    (and 
+			     [(missing? $ ?r :block/marker)]
+			     [(identity "UNINITIALIZED") ?marker]))
+			   ;;(not [?r :block/marker ?marker])
+			  
+			   [?r :block/macros ?m]
+			   [?m :block/properties ?props]
+			   [(get ?props :logseq.macro-name) ?macros]
+			   [(= ?macros ?idea-type)]
+			  
+			   ;; info we want, now that we have a match
+			   [?r :block/uuid ?uuid]
+			   [?r :block/content ?content]]
+			  
+			  :result-transform
+			  (letfn 
+			   [(first-line [block-content]
+			     (first (clojure.string/split-lines block-content)))
+			    
+			    (strip-idea-type [line idea-type]
+			     (clojure.string/replace
+			      line
+			      (re-pattern (str "(?:TODO\\s|DONE\\s)?{{" idea-type "}}\\s"))
+			      ""))
+			    
+			    (format-idea-state [block-marker]
+			     (case block-marker
+			       "UNINITIALIZED" "new"
+			       "TODO" "open"
+			       "DONE" "realized"))
+			    
+			    (structure-result [result]
+			     (let [content (get-in result [:content])
+			           block-uuid (get-in result [:uuid])
+			           idea-type (get-in result [:idea-type])
+			           idea-state (get-in result [:idea-state])]
+			       {:block/content content
+			        :uuid block-uuid
+			        :idea-type idea-type
+			        :idea-state (format-idea-state idea-state)
+			        :display-text (strip-idea-type 
+			                       (first-line content)
+			                       idea-type)}))] 
+			  
+			   (fn [results]
+			     (->> results
+			          (map structure-result)
+			          (group-by :idea-state)
+			          (into (sorted-map)))))
+			    
+			  
+			  :view
+			  (letfn
+			   [(make-link [text destination]
+			     [:a {:on-click
+			          (fn []
+			            (call-api "push_state"
+			                      "page"
+			                      {:name destination}))}
+			      text])
+			  
+			  (make-icon-link [text destination]
+			                     [:a (merge
+			                         {:class "ti"}
+			                          
+			  
+			                          {:on-click
+			                           (fn []
+			                             (call-api "push_state"
+			                                       "page"
+			                                       {:name destination}))
+			                           })
+			                      text])
+			  
+			    (make-marker-box [uuid state content]
+			     [:input
+			      {:type "checkbox"
+			       ;; checked attribute takes a boolean value
+			       :checked (= state "realized")
+			       :on-click
+			       (fn []
+			         (call-api
+			          "update_block"
+			          uuid
+			          (str (if (= state "realized")
+			                 "TODO"
+			                 "DONE")
+			               " "
+			               (clojure.string/replace
+			                content
+			                (re-pattern "(TODO|DONE)\\s")
+			                ""))))}])
+			  
+			    (make-initialization-link [uuid content macro-name]
+			     [:button 
+			      {:on-click
+			       (fn []
+			         (call-api "update_block"
+			                   uuid
+			                   (clojure.string/replace
+			                    content
+			                    (re-pattern (str "{{" macro-name "}}\\s"))
+			                    (str "TODO {{" macro-name "}} "))))}
+			      "initialize"])]
+			  
+			   (fn [results]
+			     (for [[state items] results]
+			       (let [idea-type (-> items
+			                           first :idea-type)]
+			         [:div
+			          [:table {:class "future-event-table stop-click compact"}
+			           [:caption state " " idea-type "s"]
+			           [:thead [:tr
+			                    [:th {:width "80"} "Status"] [:th idea-type] [:th]]]
+			           [:tbody
+			            (for [result items]
+			              [:tr
+			               [:td.touch-screen (case (get-in result [:idea-state])
+			                      "new" (make-initialization-link
+			                             (get-in result [:uuid])
+			                             (get-in result [:block/content])
+			                             idea-type)
+			                      "open" (make-marker-box
+			                              (get-in result [:uuid])
+			                              (get-in result [:idea-state])
+			                              (get-in result [:block/content]))
+			                      "realized" (make-marker-box
+			                                  (get-in result [:uuid])
+			                                  (get-in result [:idea-state])
+			                                  (get-in result [:block/content]))
+			                      "other")]
+			               [:td (get-in result [:display-text]) ]
+			               [:td.touch-screen (make-icon-link
+			                     "\uea99"
+			                     (get-in result [:uuid]))]
+			               
+			               ])]]]))))} 
+			  
+			  #+END_QUERY
+			  {{question-identifier}}
+		- {{i f287}}  Previous **grocery purchases**
+		  ![image.png](../assets/image_1726792654601_0.png){:height 149, :width 150}
+			- query v4.5. Gets icon data from [[data]] block
+			  id:: 66f31002-f6e7-4656-b4a4-3721b3d9771d
 				- id:: 66c12458-4744-4f60-bc2b-8396c7bd3819
 				  #+BEGIN_QUERY
 				  ;; query v3.1
@@ -1490,9 +1490,9 @@ repository:: DeadBranches/logseq-queries-and-scripts
 				  
 				  :breadcrumb-show? false}
 				  #+END_QUERY
-				- query v4. Now shows if items are in the basket or not lol
-				  id:: 66f31005-b902-4c75-a9f5-761cddb23eaa
-				- ![image.png](../assets/image_1727205936205_0.png)
+			- query v4. Now shows if items are in the basket or not lol
+			  id:: 66f31005-b902-4c75-a9f5-761cddb23eaa
+			  ![image.png](../assets/image_1727205936205_0.png)
 				- ```md
 				  #+BEGIN_QUERY
 				  			  ;; query v3
