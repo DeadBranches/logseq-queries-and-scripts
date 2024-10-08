@@ -5098,9 +5098,45 @@ repository:: DeadBranches/logseq-queries-and-scripts
 				  #+END_QUERY
 				  ```
 		- {{i f21c}}  *grocery list* quick-ref (journal widget)
-id:: 6666f9ad-2b57-4f34-b088-41e5b3e5bd53
 		      ![image.png](../assets/image_1719765985169_0.png){:height 30, :width 214}
-			-
+			- #+BEGIN_QUERY
+			  {:inputs ["grocery"]
+			    :query [:find (pull ?b [*])
+			            :in $ ?macro
+			            :where
+			     [?b :block/marker ?marker]
+			   (not [(contains? #{"DONE"} ?marker)])
+			   [?b :block/macros ?m]
+			   [?m :block/properties ?props]
+			   [(get ?props :logseq.macro-name) ?macros]
+			   [(= ?macros ?macro)]
+			            ]
+			  :result-transform 
+			   (fn [result]
+			     (let 
+			      [heading-pattern (re-pattern "^(TODO\\s\\{\\{grocery\\}\\}\\s+)")
+			       macro-pattern (re-pattern "\\{\\{[iI] ([a-fA-F0-9]{4})\\}\\}")
+			       replace-macro (fn [macro-match] (str "&#x" (second macro-match) ";"))
+			       first-lines (map (fn [r] (let [content (get-in r [:block/content])
+			                                      first-newline (str/index-of content "\n")
+			                                      line (if first-newline 
+			                                             (subs content 0 first-newline) content)             
+			                                      line-without-heading (clojure.string/replace line heading-pattern "")
+			                                      line-with-glyphs (clojure.string/replace line-without-heading macro-pattern replace-macro)]
+			                                  {:text line-with-glyphs }))
+			                        result)]
+			       first-lines))
+			  :view (fn [items]
+			  [:div {:class "journal-quickview"}
+			   [:div {:class "jq-icon-container"}
+			    [:a {:class "jq-icon-link" :href "#/page/grocery%20list"} "\uf21c"]
+			    [:span {:class "jq-label"} " grocery"]
+			  ]
+			   [:div {:class "jq-data"}
+			    [:span {:class "jq-items"} (interpose ", " (for [{:keys [text]} items] text))]]]
+			  )
+			  }
+			  #+END_QUERY
 		- {{i eaff}}  online orders (journal widget)
 		      ![image.png](../assets/image_1719766180275_0.png){:height 31, :width 135}
 			- id:: 663f79d8-20d7-4027-9ff5-500ae36ff757
@@ -5144,44 +5180,6 @@ id:: 6666f9ad-2b57-4f34-b088-41e5b3e5bd53
 			      
 			      [:span {:class "jq-items"} (interpose ", " (for [{:keys [text]} items] text))]]]
 			   )
-			  }
-			  #+END_QUERY
-			- #+BEGIN_QUERY
-			  {:inputs ["grocery"]
-			    :query [:find (pull ?b [*])
-			            :in $ ?macro
-			            :where
-			     [?b :block/marker ?marker]
-			   (not [(contains? #{"DONE"} ?marker)])
-			   [?b :block/macros ?m]
-			   [?m :block/properties ?props]
-			   [(get ?props :logseq.macro-name) ?macros]
-			   [(= ?macros ?macro)]
-			            ]
-			  :result-transform 
-			   (fn [result]
-			     (let 
-			      [heading-pattern (re-pattern "^(TODO\\s\\{\\{grocery\\}\\}\\s+)")
-			       macro-pattern (re-pattern "\\{\\{[iI] ([a-fA-F0-9]{4})\\}\\}")
-			       replace-macro (fn [macro-match] (str "&#x" (second macro-match) ";"))
-			       first-lines (map (fn [r] (let [content (get-in r [:block/content])
-			                                      first-newline (str/index-of content "\n")
-			                                      line (if first-newline 
-			                                             (subs content 0 first-newline) content)             
-			                                      line-without-heading (clojure.string/replace line heading-pattern "")
-			                                      line-with-glyphs (clojure.string/replace line-without-heading macro-pattern replace-macro)]
-			                                  {:text line-with-glyphs }))
-			                        result)]
-			       first-lines))
-			  :view (fn [items]
-			  [:div {:class "journal-quickview"}
-			   [:div {:class "jq-icon-container"}
-			    [:a {:class "jq-icon-link" :href "#/page/grocery%20list"} "\uf21c"]
-			    [:span {:class "jq-label"} " grocery"]
-			  ]
-			   [:div {:class "jq-data"}
-			    [:span {:class "jq-items"} (interpose ", " (for [{:keys [text]} items] text))]]]
-			  )
 			  }
 			  #+END_QUERY
 		- {{i ee20}}  ~~future appointments list~~
