@@ -199,219 +199,219 @@ repository:: DeadBranches/logseq-queries-and-scripts
 		- show blocks with ref to linked reference in parent block
 			- template:: query, show references to link in parent
 			  template-including-parent:: false
-			- #+BEGIN_QUERY
-			  ;; show blocks with ref to linked reference in parent block v1
-			  {:inputs [:current-block :query-page]
-			  :query
-			  [:find (pull ?b [*])
-			   :in $ ?current-block ?qp
-			   :where
-			   [?current-block :block/parent ?parent]
-			   [?parent :block/refs ?ability-limitation]
-			   [?b :block/refs ?ability-limitation]
-			  
-			  ;; Exclude current page from results
-			   [?b :block/page ?ref-page]
-			   [?ref-page :block/name ?ref-page-name]
-			   [(not= ?ref-page-name ?qp)]]
-			  :result-transform (fn [result]
-			                      (if (empty? result)
-			                        [[]]
-			                        (sort-by (comp - (fn [r] (get-in r [:block/page :block/journal-day]))) result)))
-			  
-			  :view (fn [results]
-			          (if (= results [[]]) 
-			            "no results"
-			            result))
-			  
-			  :group-by-page? true
-			  }
-			  #+END_QUERY
+				- #+BEGIN_QUERY
+				  ;; show blocks with ref to linked reference in parent block v1
+				  {:inputs [:current-block :query-page]
+				  :query
+				  [:find (pull ?b [*])
+				   :in $ ?current-block ?qp
+				   :where
+				   [?current-block :block/parent ?parent]
+				   [?parent :block/refs ?ability-limitation]
+				   [?b :block/refs ?ability-limitation]
+				  
+				  ;; Exclude current page from results
+				   [?b :block/page ?ref-page]
+				   [?ref-page :block/name ?ref-page-name]
+				   [(not= ?ref-page-name ?qp)]]
+				  :result-transform (fn [result]
+				                      (if (empty? result)
+				                        [[]]
+				                        (sort-by (comp - (fn [r] (get-in r [:block/page :block/journal-day]))) result)))
+				  
+				  :view (fn [results]
+				          (if (= results [[]]) 
+				            "no results"
+				            result))
+				  
+				  :group-by-page? true
+				  }
+				  #+END_QUERY
 			- {{i f015}}  count of references to block
 			     ![image.png](../assets/image_1726792772149_0.png){:height 36, :width 191}
 			- to linked reference in parent block
 			  template:: query, count of references in parent block
 			  template-including-parent:: false
-			- #+BEGIN_QUERY
-			  ;; see number of references to linked reference in parent block
-			  {:inputs [:current-block :current-page]
-			  :query
-			  [:find ?b
-			   :in $ ?current-block ?qp
-			   :where
-			  
-			   ;; target block is the block containing a linked reference for which
-			   ;; we want to find other blocks who reference it
-			    [?current-block :block/parent ?parent-block]
-			    [(identity ?parent-block) ?target-block]
-			   ;; [(identity ?current-block) ?target-block]
-			  
-			   [?target-block :block/refs ?ability-limitation]
-			   [?b :block/refs ?ability-limitation]
-			  
-			   ;; Exclude current page from results
-			   [?b :block/page ?ref-page]
-			   [?ref-page :block/name ?ref-page-name]
-			   [(not= ?ref-page-name ?qp)]]
-			  
-			  :result-transform (fn [result]
-			                      (if (empty? result)
-			                        [[]]
-			                        result))
-			  :view ;;:pprint 
-			   (fn [results]
-			           (let [result-count (count results)]
-			             
-			                          (if (= results [[]]) 
-			                "" 
-			                [:div [:small.italic (str "  see " result-count " references ->")]])))
-			  }
-			  
-			  #+END_QUERY
+				- #+BEGIN_QUERY
+				  ;; see number of references to linked reference in parent block
+				  {:inputs [:current-block :current-page]
+				  :query
+				  [:find ?b
+				   :in $ ?current-block ?qp
+				   :where
+				  
+				   ;; target block is the block containing a linked reference for which
+				   ;; we want to find other blocks who reference it
+				    [?current-block :block/parent ?parent-block]
+				    [(identity ?parent-block) ?target-block]
+				   ;; [(identity ?current-block) ?target-block]
+				  
+				   [?target-block :block/refs ?ability-limitation]
+				   [?b :block/refs ?ability-limitation]
+				  
+				   ;; Exclude current page from results
+				   [?b :block/page ?ref-page]
+				   [?ref-page :block/name ?ref-page-name]
+				   [(not= ?ref-page-name ?qp)]]
+				  
+				  :result-transform (fn [result]
+				                      (if (empty? result)
+				                        [[]]
+				                        result))
+				  :view ;;:pprint 
+				   (fn [results]
+				           (let [result-count (count results)]
+				             
+				                          (if (= results [[]]) 
+				                "" 
+				                [:div [:small.italic (str "  see " result-count " references ->")]])))
+				  }
+				  
+				  #+END_QUERY
 			- to linked reference in current block
 			  template:: query, count of references in current block
 			  template-including-parent:: false
-			- id:: 66e74343-77eb-4199-93ab-1d22b36e158d
-			  #+BEGIN_QUERY
-			  
-			  {:inputs [:current-block :current-page]
-			  :query
-			  [:find ?b
-			   :in $ ?current-block ?qp
-			   :where
-			  
-			   ;; target block is the block containing a linked reference for which
-			   ;; we want to find other blocks who reference it
-			   ;; [?current-block :block/parent ?parent-block]
-			   ;; [(identity ?parent-block) ?target-block]
-			   [(identity ?current-block) ?target-block]
-			  
-			   [?target-block :block/refs ?ability-limitation]
-			   [?b :block/refs ?ability-limitation]
-			  
-			   ;; Exclude current page from results
-			   [?b :block/page ?ref-page]
-			   [?ref-page :block/name ?ref-page-name]
-			   [(not= ?ref-page-name ?qp)]]
-			  
-			  :result-transform (fn [result]
-			                      (if (empty? result)
-			                        [[]]
-			                        result))
-			  :view ;;:pprint 
-			   (fn [results]
-			           (let [result-count (count results)]
-			             
-			                          (if (= results [[]]) 
-			                "" 
-			                [:div [:small.italic (str "  see " result-count " references ->")]])))
-			  }
-			  #+END_QUERY
+				- id:: 66e74343-77eb-4199-93ab-1d22b36e158d
+				  #+BEGIN_QUERY
+				  
+				  {:inputs [:current-block :current-page]
+				  :query
+				  [:find ?b
+				   :in $ ?current-block ?qp
+				   :where
+				  
+				   ;; target block is the block containing a linked reference for which
+				   ;; we want to find other blocks who reference it
+				   ;; [?current-block :block/parent ?parent-block]
+				   ;; [(identity ?parent-block) ?target-block]
+				   [(identity ?current-block) ?target-block]
+				  
+				   [?target-block :block/refs ?ability-limitation]
+				   [?b :block/refs ?ability-limitation]
+				  
+				   ;; Exclude current page from results
+				   [?b :block/page ?ref-page]
+				   [?ref-page :block/name ?ref-page-name]
+				   [(not= ?ref-page-name ?qp)]]
+				  
+				  :result-transform (fn [result]
+				                      (if (empty? result)
+				                        [[]]
+				                        result))
+				  :view ;;:pprint 
+				   (fn [results]
+				           (let [result-count (count results)]
+				             
+				                          (if (= results [[]]) 
+				                "" 
+				                [:div [:small.italic (str "  see " result-count " references ->")]])))
+				  }
+				  #+END_QUERY
 		- {{i eb6c}}  discussion topics
 		  ![image.png](../assets/image_1726792556144_0.png){:height 162, :width 299}
 			- open topics
-			- id:: 66e5e078-e59c-4064-91cf-2c3eec36af87
-			  #+BEGIN_QUERY
-			  {:inputs [:current-page "topic"]
-			  :query
-			  [:find (pull ?b [*])
-			  :in $ ?cp ?tag
-			  :where
-			  
-			  ;; Return #topic blocks that reference either
-			  ;; the current page, or an alias of the current page.
-			  [?p :block/name ?cp]
-			  (or-join [?b ?p]
-			           (and
-			            [?b :block/refs ?p])
-			           (and
-			            [?p :block/alias ?pa]
-			            [?b :block/refs ?pa]))
-			  
-			  ;; old working:
-			  ;; returns none when there is no tag
-			  ;; [?t :block/name ?tag]
-			  ;; [?t :block/alias ?ta]
-			  ;; (or
-			  ;;  [?b :block/refs ?t]
-			  ;;  [?b :block/refs ?ta])
-			  
-			  ;; Topic tag
-			  ;; Allow either references to #topic or aliases of #topic
-			  (or-join [?b ?tag]
-			           (and
-			            [?t :block/name ?tag]
-			            [?b :block/refs ?t]
-			            )
-			           (and
-			            [?t :block/name ?tag]
-			            [?t :block/alias ?ta]
-			            [?b :block/refs ?ta]
-			            ))
-			  
-			  [?b :block/marker ?m]
-			  [(contains? #{"TODO"} ?m)]
-			  
-			  [?b :block/properties ?props]
-			  (or-join [?b ?props ?journal-day]
-			           (and
-			            ;; The block is in a journal page
-			            [?b :block/page ?bp]
-			            [?bp :block/journal-day ?journal-day]
-			            [(some? ?journal-day)])
-			  
-			           (and
-			            ;; The block has a journal page ref in the property :created-on
-			            [(get ?props :created-on) ?created-on]
-			            [?cp :block/original-name ?all-page-names]
-			            [(contains? ?created-on ?all-page-names)]
-			            [?cp :block/journal-day ?journal-day]
-			            [(some? ?journal-day)])
-			  
-			           (and
-			            ;; There is a block in a journal page referencing ?b
-			            [?r :block/refs ?b]
-			            [?r :block/page ?rp]
-			            [?rp :block/journal-day ?journal-day]
-			            [(some? ?journal-day)])
-			            )
-			  ]
-			  
-			  :result-transform
-			   (fn [result] 
-			     (sort-by (comp - (fn [r] (get-in r [:block/page :block/journal-day]))) result)
-			     )
-			  
-			  :group-by-page? true
-			  }
-			  
-			  #+END_QUERY
+				- id:: 66e5e078-e59c-4064-91cf-2c3eec36af87
+				  #+BEGIN_QUERY
+				  {:inputs [:current-page "topic"]
+				  :query
+				  [:find (pull ?b [*])
+				  :in $ ?cp ?tag
+				  :where
+				  
+				  ;; Return #topic blocks that reference either
+				  ;; the current page, or an alias of the current page.
+				  [?p :block/name ?cp]
+				  (or-join [?b ?p]
+				           (and
+				            [?b :block/refs ?p])
+				           (and
+				            [?p :block/alias ?pa]
+				            [?b :block/refs ?pa]))
+				  
+				  ;; old working:
+				  ;; returns none when there is no tag
+				  ;; [?t :block/name ?tag]
+				  ;; [?t :block/alias ?ta]
+				  ;; (or
+				  ;;  [?b :block/refs ?t]
+				  ;;  [?b :block/refs ?ta])
+				  
+				  ;; Topic tag
+				  ;; Allow either references to #topic or aliases of #topic
+				  (or-join [?b ?tag]
+				           (and
+				            [?t :block/name ?tag]
+				            [?b :block/refs ?t]
+				            )
+				           (and
+				            [?t :block/name ?tag]
+				            [?t :block/alias ?ta]
+				            [?b :block/refs ?ta]
+				            ))
+				  
+				  [?b :block/marker ?m]
+				  [(contains? #{"TODO"} ?m)]
+				  
+				  [?b :block/properties ?props]
+				  (or-join [?b ?props ?journal-day]
+				           (and
+				            ;; The block is in a journal page
+				            [?b :block/page ?bp]
+				            [?bp :block/journal-day ?journal-day]
+				            [(some? ?journal-day)])
+				  
+				           (and
+				            ;; The block has a journal page ref in the property :created-on
+				            [(get ?props :created-on) ?created-on]
+				            [?cp :block/original-name ?all-page-names]
+				            [(contains? ?created-on ?all-page-names)]
+				            [?cp :block/journal-day ?journal-day]
+				            [(some? ?journal-day)])
+				  
+				           (and
+				            ;; There is a block in a journal page referencing ?b
+				            [?r :block/refs ?b]
+				            [?r :block/page ?rp]
+				            [?rp :block/journal-day ?journal-day]
+				            [(some? ?journal-day)])
+				            )
+				  ]
+				  
+				  :result-transform
+				   (fn [result] 
+				     (sort-by (comp - (fn [r] (get-in r [:block/page :block/journal-day]))) result)
+				     )
+				  
+				  :group-by-page? true
+				  }
+				  
+				  #+END_QUERY
 			- covered topics
-			- id:: 66e5e0c4-d1cc-4598-8e00-07f0abad84b0
-			  #+BEGIN_QUERY
-			  {:inputs [:current-page]
-			  :query
-			  [:find (pull ?b [*])
-			  :in $ ?cp
-			  :where
-			  
-			  [?p :block/name ?cp]
-			  [?t :block/name "topics"]
-			  [?ta :block/alias ?t]
-			  
-			  [?b :block/refs ?p]
-			  (or 
-			   [?b :block/refs ?t]
-			   [?b :block/refs ?ta])
-			  
-			  
-			  [?b :block/marker ?m]
-			  [(contains? #{"DONE"} ?m)]
-			  ]
-			  
-			  :group-by-page? true
-			  }
-			  #+END_QUERY
+				- id:: 66e5e0c4-d1cc-4598-8e00-07f0abad84b0
+				  #+BEGIN_QUERY
+				  {:inputs [:current-page]
+				  :query
+				  [:find (pull ?b [*])
+				  :in $ ?cp
+				  :where
+				  
+				  [?p :block/name ?cp]
+				  [?t :block/name "topics"]
+				  [?ta :block/alias ?t]
+				  
+				  [?b :block/refs ?p]
+				  (or 
+				   [?b :block/refs ?t]
+				   [?b :block/refs ?ta])
+				  
+				  
+				  [?b :block/marker ?m]
+				  [(contains? #{"DONE"} ?m)]
+				  ]
+				  
+				  :group-by-page? true
+				  }
+				  #+END_QUERY
 		- {{i fd1f}}  appointment summary
 			- previous appointment summary
 			- id:: 66e5dcb2-1960-4c28-9fe3-45371b023f0e
@@ -5098,7 +5098,47 @@ repository:: DeadBranches/logseq-queries-and-scripts
 				  #+END_QUERY
 				  ```
 		- {{i f21c}}  *grocery list* quick-ref (journal widget)
+id:: 6666f9ad-2b57-4f34-b088-41e5b3e5bd53
 		      ![image.png](../assets/image_1719765985169_0.png){:height 30, :width 214}
+			- id:: 663f8303-7fca-406d-83ed-d93002164105
+			  #+BEGIN_QUERY
+			  {:inputs ["grocery"]
+			  	:query [:find (pull ?b [*])
+			  					:in $ ?macro
+			  					:where
+			  		[?b :block/marker ?marker]
+			  	(not [(contains? #{"DONE"} ?marker)])
+			  	[?b :block/macros ?m]
+			  	[?m :block/properties ?props]
+			  	[(get ?props :logseq.macro-name) ?macros]
+			  	[(= ?macros ?macro)]
+			  					]
+			  :result-transform 
+			  	(fn [result]
+			  		(let 
+			  		[heading-pattern (re-pattern "^(TODO\\s\\{\\{grocery\\}\\}\\s+)")
+			  			macro-pattern (re-pattern "\\{\\{[iI] ([a-fA-F0-9]{4})\\}\\}")
+			  			replace-macro (fn [macro-match] (str "&#x" (second macro-match) ";"))
+			  			first-lines (map (fn [r] (let [content (get-in r [:block/content])
+			  																		first-newline (str/index-of content "\n")
+			  																		line (if first-newline 
+			  																						(subs content 0 first-newline) content)             
+			  																		line-without-heading (clojure.string/replace line heading-pattern "")
+			  																		line-with-glyphs (clojure.string/replace line-without-heading macro-pattern replace-macro)]
+			  																{:text line-with-glyphs }))
+			  											result)]
+			  			first-lines))
+			  :view (fn [items]
+			  [:div {:class "journal-quickview"}
+			  	[:div {:class "jq-icon-container"}
+			  	[:a {:class "jq-icon-link" :href "#/page/grocery%20list"} "\uf21c"]
+			  	[:span {:class "jq-label"} " grocery"]
+			  ]
+			  	[:div {:class "jq-data"}
+			  	[:span {:class "jq-items"} (interpose ", " (for [{:keys [text]} items] text))]]]
+			  )
+			  }
+			  #+END_QUERY
 		- {{i eaff}}  online orders (journal widget)
 		      ![image.png](../assets/image_1719766180275_0.png){:height 31, :width 135}
 			- id:: 663f79d8-20d7-4027-9ff5-500ae36ff757
