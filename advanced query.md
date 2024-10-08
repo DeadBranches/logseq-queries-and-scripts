@@ -59,7 +59,6 @@ repository:: DeadBranches/logseq-queries-and-scripts
   #+END_QUERY
 - See: [[:result-transform]] for interactive REPL
 - ### {{i-cloud}} idea trackers
-	- #### issues
 	- {{kitButton issues,collapseBlock,ea06,-button-style full-width small-caps}}
 		- {{embed ((66ccdccf-f9e2-4028-b867-a7b5406fd634))}}
 	- {{kitButton ideas,collapseBlock,ea76,-button-style full-width small-caps}}
