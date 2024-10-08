@@ -318,15 +318,36 @@ repository:: DeadBranches/logseq-queries-and-scripts
 			  :in $ ?cp ?tag
 			  :where
 			  
+			  ;; Return #topic blocks that reference either
+			  ;; the current page, or an alias of the current page.
 			  [?p :block/name ?cp]
-			  [?b :block/refs ?p]
+			  (or-join [?b ?p]
+			           (and
+			            [?b :block/refs ?p])
+			           (and
+			            [?p :block/alias ?pa]
+			            [?b :block/refs ?pa]))
 			  
-			  [?t :block/name ?tag]
-			  [?t :block/alias ?ta]
-			  (or 
-			   [?b :block/refs ?t]
-			   [?b :block/refs ?ta])
+			  ;; old working:
+			  ;; returns none when there is no tag
+			  ;; [?t :block/name ?tag]
+			  ;; [?t :block/alias ?ta]
+			  ;; (or
+			  ;;  [?b :block/refs ?t]
+			  ;;  [?b :block/refs ?ta])
 			  
+			  ;; Topic tag
+			  ;; Allow either references to #topic or aliases of #topic
+			  (or-join [?b ?tag]
+			           (and
+			            [?t :block/name ?tag]
+			            [?b :block/refs ?t]
+			            )
+			           (and
+			            [?t :block/name ?tag]
+			            [?t :block/alias ?ta]
+			            [?b :block/refs ?ta]
+			            ))
 			  
 			  [?b :block/marker ?m]
 			  [(contains? #{"TODO"} ?m)]
@@ -3149,8 +3170,8 @@ repository:: DeadBranches/logseq-queries-and-scripts
 				- for related {{i ef91}} project see [[:logseq-project-manager-2024.5]]
 			- ### {{i eb89}} current query
 			  *for use in embedding*
-				- #+BEGIN_QUERY
-id:: 664f42a4-40eb-44ba-8e8c-89dba2c17a06
+				- id:: 664f42a4-40eb-44ba-8e8c-89dba2c17a06
+				  #+BEGIN_QUERY
 				  {:query
 				   [:find ?current-page-id ?project-name ?project-properties
 				    :keys current-page-id project-name project-properties
@@ -3413,8 +3434,8 @@ id:: 664f42a4-40eb-44ba-8e8c-89dba2c17a06
 			- *see [[:logseq-project-manager-2024.5]]*
 			- *next up list*
 				- **Current query**
-					- #+BEGIN_QUERY
-id:: 6654b591-49ea-4d3a-b9d9-1dc4f25bab0c
+					- id:: 6654b591-49ea-4d3a-b9d9-1dc4f25bab0c
+					  #+BEGIN_QUERY
 					  {:inputs [:current-page #{"next"}]
 					   :query
 					   [:find ?current-page-id ?project-name ?manager-name ?project-properties
@@ -3764,8 +3785,8 @@ id:: 6654b591-49ea-4d3a-b9d9-1dc4f25bab0c
 						  ```
 			- *finished list*
 				- *current query*
-					- #+BEGIN_QUERY
-id:: 66e5f125-a19b-444b-ba8c-733711e2cd0f
+					- id:: 66e5f125-a19b-444b-ba8c-733711e2cd0f
+					  #+BEGIN_QUERY
 					  {:inputs [:current-page #{"finished"}]
 					   :query
 					   [:find ?current-page-id ?project-name ?manager-name ?project-properties
@@ -3848,8 +3869,8 @@ id:: 66e5f125-a19b-444b-ba8c-733711e2cd0f
 				- for related {{i ef91}} project see [[:logseq-events-and-appointments]]
 			- ### {{i eb89}} current query
 			  version: **v2.4.2**
-				- #+BEGIN_QUERY
-id:: 664e4055-3b72-4ba1-ac8b-48e34544629c
+				- id:: 664e4055-3b72-4ba1-ac8b-48e34544629c
+				  #+BEGIN_QUERY
 				  {:query
 				   [:find (min ?activity-datestamp) ?date ?activity-datestamp ?today-datestamp ?content ?props ?current-page-name ?activity-uuid ?current-page-uuid (distinct ?icon)
 				    :keys first-activity-datestamp date activity-datestamp today-datestamp content properties current-page-name activity-card-uuid current-page-uuid icon
@@ -5080,8 +5101,8 @@ id:: 664e4055-3b72-4ba1-ac8b-48e34544629c
 		      ![image.png](../assets/image_1719765985169_0.png){:height 30, :width 214}
 		- {{i eaff}}  online orders (journal widget)
 		      ![image.png](../assets/image_1719766180275_0.png){:height 31, :width 135}
-			- #+BEGIN_QUERY
-id:: 663f79d8-20d7-4027-9ff5-500ae36ff757
+			- id:: 663f79d8-20d7-4027-9ff5-500ae36ff757
+			  #+BEGIN_QUERY
 			  {
 			    :query [:find (pull ?b [*])
 			            :where 
@@ -5166,7 +5187,7 @@ id:: 663f79d8-20d7-4027-9ff5-500ae36ff757
 			      this block is no longer in use
 				- {{i ea0b}} *depreciated on* *[[Saturday, Aug 24th, 2024]]*
 			- [:small "upcoming appointments"]
-id:: 66415ca6-d397-4fc1-97f1-95f7b516e6d1
+			  id:: 66415ca6-d397-4fc1-97f1-95f7b516e6d1
 			  #+BEGIN_QUERY
 			  {:query
 			   [:find (min ?journal-day) ?date ?journal-day ?content ?props ?today ?activity ?event ?uuid ?current-page
