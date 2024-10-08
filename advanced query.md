@@ -3165,6 +3165,7 @@ repository:: DeadBranches/logseq-queries-and-scripts
 			  #+END_QUERY
 			  ```
 		- {{i ef91}}  **projects** journal widget
+		  id:: 6666f9ad-7589-4721-a459-d7d18591c09e
 		      ![image.png](../assets/image_1719764465551_0.png){:height 32, :width 210}
 			- {{i f635}} information
 				- for related {{i ef91}} project see [[:logseq-project-manager-2024.5]]
@@ -3220,6 +3221,7 @@ repository:: DeadBranches/logseq-queries-and-scripts
 				  }
 				  #+END_QUERY
 			- {{i ea0b}} *version archive*
+			  id:: 6653554c-6a4b-4673-9f08-a7e58a13c5fe
 			  *older stuff*
 				- version 2.4 improves styling (*current*)
 				- version 2.3
@@ -3864,6 +3866,7 @@ repository:: DeadBranches/logseq-queries-and-scripts
 					  }
 					  #+END_QUERY
 		- {{i ee21}}  **next appointment** journal widget
+		  id:: 664ceeec-b343-4d67-94d5-4db82220f06f
 		       ![image.png](../assets/image_1724503316662_0.png){:height 30, :width 245}
 			- {{i f635}} information
 				- for related {{i ef91}} project see [[:logseq-events-and-appointments]]
@@ -4863,7 +4866,8 @@ repository:: DeadBranches/logseq-queries-and-scripts
 					  ```
 				- v1.6 **appointment with** including date
 				      ![image.png](../assets/image_1718922194354_0.png){:height 27, :width 327}
-					- ```markdown
+					- id:: 6660535c-5420-4cdb-ba03-5e9ab8e66213
+					  ```markdown
 					  #+BEGIN_QUERY
 					  {:query
 					   [:find (min ?day) ?date ?day ?content ?props ?today
@@ -4991,8 +4995,10 @@ repository:: DeadBranches/logseq-queries-and-scripts
 					  #+END_QUERY
 					  ```
 		- {{i ec44}}  **current medication** list
+		  id:: 667a53af-9c93-4a1d-a01b-7e8b8fd22b53
 		       ![image.png](../assets/image_1719766132026_0.png){:height 107, :width 337}
-			- #+BEGIN_QUERY
+			- id:: 664cb068-64bb-4dc5-aa7e-b0678b63a6fe
+			  #+BEGIN_QUERY
 			  {:query
 			   [:find ?mname ?date ?day ?dose
 			    :keys mname date day dose
@@ -5098,8 +5104,10 @@ repository:: DeadBranches/logseq-queries-and-scripts
 				  #+END_QUERY
 				  ```
 		- {{i f21c}}  *grocery list* quick-ref (journal widget)
+		  id:: 6666f9ad-2b57-4f34-b088-41e5b3e5bd53
 		      ![image.png](../assets/image_1719765985169_0.png){:height 30, :width 214}
-			- #+BEGIN_QUERY
+			- id:: 663f8303-7fca-406d-83ed-d93002164105
+			  #+BEGIN_QUERY
 			  {:inputs ["grocery"]
 			    :query [:find (pull ?b [*])
 			            :in $ ?macro
@@ -5183,6 +5191,7 @@ repository:: DeadBranches/logseq-queries-and-scripts
 			  }
 			  #+END_QUERY
 		- {{i ee20}}  ~~future appointments list~~
+		  id:: 66415c9e-ff58-4281-8007-160cb44fb8b3
 			- ### {{i f6ef}}  depreciation warning
 			      this block is no longer in use
 				- {{i ea0b}} *depreciated on* *[[Saturday, Aug 24th, 2024]]*
@@ -5247,8 +5256,8 @@ repository:: DeadBranches/logseq-queries-and-scripts
 			  #+END_QUERY
 		- {{i eafd}}  ~~logseq graph news~~
 			- jump to: info  embed, history
-			- #+BEGIN_QUERY
-id:: 66415d9e-5591-4219-bc68-eb54393bccff
+			- id:: 66415d9e-5591-4219-bc68-eb54393bccff
+			  #+BEGIN_QUERY
 			  {:inputs ["news" :5d-before :today :current-page]
 			  :query
 			  [:find (pull ?b [*])
@@ -5273,6 +5282,7 @@ id:: 66415d9e-5591-4219-bc68-eb54393bccff
 			  }
 			  #+END_QUERY
 		- {{i ef66}} Individual **medication dose**
+		  id:: 660c9a6b-a79d-4bd7-bc24-02f8d0fb588a
 		  *From dose changes in journal page*\
 			- *Current dose is: 5mg*
 			- ```edn
@@ -5310,7 +5320,9 @@ id:: 66415d9e-5591-4219-bc68-eb54393bccff
 			  #[[advanced query]]
 			  ```
 		- Nutritional facts (vitamins)
-			- #+BEGIN_QUERY
+		  id:: 666f7716-c32e-40e0-8b10-8f93fc591165
+			- id:: 666f7733-1891-45d3-8bbb-8f32dd4631e1
+			  #+BEGIN_QUERY
 			   {:inputs [:current-page]
 			   :query
 			   [:find ?current-page ?nutrient ?amount ?unit
@@ -5339,7 +5351,9 @@ id:: 66415d9e-5591-4219-bc68-eb54393bccff
 			  
 			  #+END_QUERY
 		- Nutritional facts (minerals)
-			- #+BEGIN_QUERY
+		  id:: 666f7726-4350-45b0-b0fd-4cdd2b75497c
+			- id:: 666f7747-d031-4ef7-8a4e-faaadde102c4
+			  #+BEGIN_QUERY
 			   {:inputs [:current-page]
 			   :query
 			   [:find ?current-page ?nutrient ?amount ?unit
@@ -5948,6 +5962,7 @@ id:: 66415d9e-5591-4219-bc68-eb54393bccff
 			  
 			  ```
 		- Find **lost blocks**
+		  id:: 65ff0dba-73e5-4e18-b24d-e3647f09eb31
 		  That ended up on other pages
 			- ```datalog
 			  id:: 65fb3d5b-62ff-4797-a485-b9c7b06474f4
@@ -6046,10 +6061,11 @@ id:: 66415d9e-5591-4219-bc68-eb54393bccff
 		- *Queries and historical versions that appear on only one page*
 		- ### Shopping list -> In basket
 			- **version 1.2** {{code-inside}}
-id:: 669137d3-3f99-4931-9dff-3c584e43c00d
+			  id:: 669137d3-3f99-4931-9dff-3c584e43c00d
 			  Shows items crossed off today, or nothing.
 			  from June 12, 2024
 			- **version 1.0** {{code-inside}}
+			  id:: 669136b1-ac6e-4a40-abc3-50c3687cf2dd
 			  Shows items crossed off today, or "no results found".
 			  from June 12, 2024
 			  
@@ -6100,6 +6116,7 @@ id:: 669137d3-3f99-4931-9dff-3c584e43c00d
 - # {{i eb6d}}  query concepts
   *by use case*
 	- ### {{i eead}} query concept inbox
+	  id:: 66ae786c-0e7c-4d19-a94a-a1ae04fa3f19
 	        {{i f635}} *unsorted saved queries*
 		  #+BEGIN_QUERY
 		  {:inputs [:parent-block]
@@ -6314,6 +6331,7 @@ id:: 669137d3-3f99-4931-9dff-3c584e43c00d
 			  (not [(contains? #{"DONE" "CANCELED"} ?m)] )
 			  ```
 		- blocks **with a given \{\{macro}}**
+		  id:: 6638f4e8-101f-4d66-8aa5-0782d73d32f7
 			- news!!!
 			  #+BEGIN_QUERY
 			  {:inputs ["news"]
@@ -6621,6 +6639,7 @@ id:: 669137d3-3f99-4931-9dff-3c584e43c00d
 			  #+END_QUERY
 			  ```
 		- make a dd clickable :block/marker box
+		  id:: 66a05e34-42c8-4cf7-8b0b-27cb0943d9ac
 		  to `:view` function
 			- :view function excerpt
 				- ```
@@ -6669,7 +6688,8 @@ id:: 669137d3-3f99-4931-9dff-3c584e43c00d
 					- {{component}} Belly buttons
 					  id:: 66a05f8b-929c-4c83-beb9-61b01849f890
 						- *Component issue tracker*
-							- #+BEGIN_QUERY
+							- id:: 66a05fe3-c2a0-4867-8339-2cfa9060003d
+							  #+BEGIN_QUERY
 							  {:inputs [:parent-block "issue"]
 							   :query
 							   [:find (pull ?r [*]) ?uuid ?content ?first-line ?marker
@@ -6797,6 +6817,7 @@ id:: 669137d3-3f99-4931-9dff-3c584e43c00d
   }
   #+END_QUERY
 	- #### query predicate functions
+	  id:: 6666f9ad-ef7d-455e-8319-906283ee8dcc
 	  (*for the* `:where` *clause*)
 	  {{il ec1c,datascript/built_ins.cljc:L81,https://https://github.com/tonsky/datascript/blob/9e3ad968ec6b25b53963f3f96c8f6cae6713d918/src/datascript/built_ins.cljc#L81}}
 		- concatinated list of functions
@@ -6960,6 +6981,7 @@ id:: 669137d3-3f99-4931-9dff-3c584e43c00d
 		  *as a table*
 			- *note: use the `/page, code function documentation` template when adding new info*
 			- silly query attempt at automation
+			  id:: 66a2b92f-68a8-48fe-b9fa-921a4518ef4b
 				- ```
 				  #+BEGIN_QUERY
 				  {:query
@@ -6988,6 +7010,7 @@ id:: 669137d3-3f99-4931-9dff-3c584e43c00d
 			- ((66749df3-627b-4ef6-8e5d-88f843e2ccbc))
 				- {{embed ((66749df3-627b-4ef6-8e5d-88f843e2ccbc))}}
 	- #### {{i f3f3}} Database utility functions
+	  id:: 65c59bb1-08f0-4e2f-bf0f-a7d9e5a4bb79
 	  Keywords for `:inputs`
 	  *(e.g. `:current-page`, `:query-page`, etc*)
 	  {{Il ec1c,logseq db.cljs:L77,https://github.com/logseq/logseq/blob/c3df737390d4728edc865136c07ee74860bce39a/deps/graph-parser/src/logseq/graph_parser/util/db.cljs#L77}}
@@ -7245,6 +7268,7 @@ id:: 669137d3-3f99-4931-9dff-3c584e43c00d
   for `:result-transform` and `:view` clauses
 	- ### {{i f38e}} `:result-transform` functions
 		- #### Sort by journal day
+		  id:: 663a1fa7-6f8c-4790-b8d5-8d7c0ffff815
 		  `:sort-by-journal-day`
 			- Implements ((663a1f42-6ff8-4a1b-a953-cca70c833e52))
 	- ### {{i f4cb}} `:view` functions
@@ -7420,7 +7444,9 @@ id:: 669137d3-3f99-4931-9dff-3c584e43c00d
 		  ```
 		  #+END_QUOTE
 - ### datascript code
+  id:: 663a4752-f9b9-4dc2-b4bf-fb7b09d9c283
 	- #### and
+	  id:: 663a4799-cf84-4fa4-9a1b-88452254f1cf
 	  {{i-github}} [datascript/parser.clj:L548](https://github.com/tonsky/datascript/blob/61edb9e76d92fad2106f9c01bc80e659a4292ea8/src/datascript/parser.cljc#L548)   {{button copy,copy_second_sibling,ea6f,long squat}}
 		- {{nested-code-block}}
 			- copy_second_sibling:
