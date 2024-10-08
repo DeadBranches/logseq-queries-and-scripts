@@ -2,6 +2,9 @@ kit:: runpage journalOrganizationBlocks
 created-on:: [[Saturday, Jul 6th, 2024]]
 
 - ```javascript
+  // journalOrganizationBlocks
+  // kit:: runpage journalOrganizationBlocks
+  // created-on:: [[Saturday, Jul 6th, 2024]]
   logseq.kits.journalOrganizationBlocks = journalOrganizationBlocks;
   
   
@@ -9,12 +12,18 @@ created-on:: [[Saturday, Jul 6th, 2024]]
     
     /**
      * SOURCE_UUID: uuid
+     *  Depreciated. 
      *  The UUID of the block that contains the content to insert
+     * 
+     * SOURCE_TEMPLATE: str
+     *  The template name of the block that contains the content to insert
+     * 
      * INSERTION_IDENTIFIER: str
      *  The logseq macro name that identifies the relative insertion point of the source
      *  content in the destination page.
      */
-    const SOURCE_UUID = "66b0ead7-67ee-44fd-a324-bd5dd7602f39";
+    const SOURCE_TEMPLATE = "logseq, organization-blocks";
+    // const SOURCE_UUID = "66b0ead7-67ee-44fd-a324-bd5dd7602f39";
     const INSERTION_IDENTIFIER = "journal-container-insertion-point"; // macro name
   
     /**
@@ -63,6 +72,15 @@ created-on:: [[Saturday, Jul 6th, 2024]]
      * structuredBlockData() works to reformat the results of get_block() into
      *  { content: '' } objects, which is the format insert_batch_block() expects.
      */
+    const SOURCE_UUID = await (async (templateName = SOURCE_TEMPLATE) => {
+      if (!templateName) {
+        throw new Error("Source template name is required");
+      }
+  
+      const template = await logseq.api.get_template(templateName);
+      return template.uuid;
+    })();
+    
     const blockAndChildren = await (async (blockId = SOURCE_UUID) => {
       if (!blockId) {
         throw new Error("Source UUID is required");
