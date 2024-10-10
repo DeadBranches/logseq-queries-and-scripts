@@ -312,138 +312,144 @@ repository:: DeadBranches/logseq-queries-and-scripts
 				- id:: 66e5e078-e59c-4064-91cf-2c3eec36af87
 				  #+BEGIN_QUERY
 				  {:inputs [:current-page "topic"]
-				  :query
-				  [:find (pull ?b [*])
-				  :in $ ?cp ?tag
-				  :where
+				   :query
+				   [:find (pull ?b [*])
+				    :in $ ?cp ?tag
+				    :where
 				  
-				  ;; Return #topic blocks that reference either
+				  ;; Return blocks that reference either
 				  ;; the current page, or an alias of the current page.
-				  [?p :block/name ?cp]
-				  (or-join [?b ?p]
-				           (and
-				            [?b :block/refs ?p])
-				           (and
-				            [?p :block/alias ?pa]
-				            [?b :block/refs ?pa]))
+				    [?p :block/name ?cp]
+				    (or-join [?b ?p]
+				             (and
+				              [?b :block/refs ?p])
+				             (and
+				              [?p :block/alias ?pa]
+				              [?b :block/refs ?pa]))
 				  
-				  ;; Topic tag
+				    ;; Topic tag
 				  ;; Allow either references to #topic or aliases of #topic
-				  (or-join [?b ?tag]
-				           (and
-				            [?t :block/name ?tag]
-				            [?b :block/refs ?t]
-				            )
-				           (and
-				            [?t :block/name ?tag]
-				            [?t :block/alias ?ta]
-				            [?b :block/refs ?ta]
-				            ))
 				  
-				  [?b :block/marker ?m]
-				  [(contains? #{"TODO"} ?m)]
+				    [?t :block/name ?tag]
+				    (or-join [?b ?t]
+				             [?b :block/refs ?t]
+				             (and
+				              [?t :block/alias ?ta]
+				              [?b :block/refs ?ta]))
 				  
-				  [?b :block/properties ?props]
-				  (or-join [?b ?props ?journal-day]
-				           (and
-				            ;; The block is in a journal page
-				            [?b :block/page ?bp]
-				            [?bp :block/journal-day ?journal-day]
-				            [(some? ?journal-day)])
+				    [?b :block/marker ?m]
+				    [(contains? #{"TODO"} ?m)]
 				  
-				           (and
-				            ;; The block has a journal page ref in the property :created-on
-				            [(get ?props :created-on) ?created-on]
-				            [?cp :block/original-name ?all-page-names]
-				            [(contains? ?created-on ?all-page-names)]
-				            [?cp :block/journal-day ?journal-day]
-				            [(some? ?journal-day)])
+				    (or-join [?b ?journal-day]
+				             (and
+				             ;; The block is in a journal page
+				              [?b :block/page ?bp]
+				              [?bp :block/journal-day ?journal-day]
+				              [(some? ?journal-day)])
 				  
-				           (and
-				            ;; There is a block in a journal page referencing ?b
-				            [?r :block/refs ?b]
-				            [?r :block/page ?rp]
-				            [?rp :block/journal-day ?journal-day]
-				            [(some? ?journal-day)])
-				            )
-				  ]
+				             (and
+				             ;; The block has a journal page ref in the property :created-on
+				              [?b :block/properties ?props]
+				              [(get ?props :created-on) ?created-on]
+				              [?cp :block/original-name ?all-page-names]
+				              [(contains? ?created-on ?all-page-names)]
+				              [?cp :block/journal-day ?journal-day]
+				              [(some? ?journal-day)])
 				  
-				  :result-transform
-				   (fn [result] 
-				     (sort-by (comp - (fn [r] (get-in r [:block/page :block/journal-day]))) result)
-				     )
+				             (and
+				             ;; There is a block in a journal page referencing ?b
+				              [?r :block/refs ?b]
+				              [?r :block/page ?rp]
+				              [?rp :block/journal-day ?journal-day]
+				              [(some? ?journal-day)])
+				             
+				             (and
+				              [(missing? $ ?b :block/journal-day)]
+				              [(identity "00000000") ?journal-day])
+				             
+				             )] 
+				   :result-transform
+				   (fn [result]
+				     (sort-by
+				      (comp - (fn [r]
+				                (get-in r
+				                        [:block/page
+				                         :block/journal-day])))
+				      result))
 				  
-				  :group-by-page? true
-				  }
+				   :group-by-page? true}
 				  
 				  #+END_QUERY
 			- covered topics
 				- id:: 66e5e0c4-d1cc-4598-8e00-07f0abad84b0
 				  #+BEGIN_QUERY
 				  {:inputs [:current-page "topic"]
-				  :query
-				  [:find (pull ?b [*])
-				  :in $ ?cp ?tag
-				  :where
+				   :query
+				   [:find (pull ?b [*])
+				    :in $ ?cp ?tag
+				    :where
 				  
-				  ;; Return #topic blocks that reference either
+				  ;; Return blocks that reference either
 				  ;; the current page, or an alias of the current page.
-				  [?p :block/name ?cp]
-				  (or-join [?b ?p]
-				           (and
-				            [?b :block/refs ?p])
-				           (and
-				            [?p :block/alias ?pa]
-				            [?b :block/refs ?pa]))
+				    [?p :block/name ?cp]
+				    (or-join [?b ?p]
+				             (and
+				              [?b :block/refs ?p])
+				             (and
+				              [?p :block/alias ?pa]
+				              [?b :block/refs ?pa]))
 				  
-				  ;; Topic tag
+				    ;; Topic tag
 				  ;; Allow either references to #topic or aliases of #topic
-				  (or-join [?b ?tag]
-				           (and
-				            [?t :block/name ?tag]
-				            [?b :block/refs ?t]
-				            )
-				           (and
-				            [?t :block/name ?tag]
-				            [?t :block/alias ?ta]
-				            [?b :block/refs ?ta]
-				            ))
 				  
-				  [?b :block/marker ?m]
-				  [(contains? #{"DONE"} ?m)]
+				    [?t :block/name ?tag]
+				    (or-join [?b ?t]
+				             [?b :block/refs ?t]
+				             (and
+				              [?t :block/alias ?ta]
+				              [?b :block/refs ?ta]))
 				  
-				  [?b :block/properties ?props]
-				  (or-join [?b ?props ?journal-day]
-				           (and
-				            ;; The block is in a journal page
-				            [?b :block/page ?bp]
-				            [?bp :block/journal-day ?journal-day]
-				            [(some? ?journal-day)])
+				    [?b :block/marker ?m]
+				    [(contains? #{"DONE"} ?m)]
 				  
-				           (and
-				            ;; The block has a journal page ref in the property :created-on
-				            [(get ?props :created-on) ?created-on]
-				            [?cp :block/original-name ?all-page-names]
-				            [(contains? ?created-on ?all-page-names)]
-				            [?cp :block/journal-day ?journal-day]
-				            [(some? ?journal-day)])
+				    (or-join [?b ?journal-day]
+				             (and
+				             ;; The block is in a journal page
+				              [?b :block/page ?bp]
+				              [?bp :block/journal-day ?journal-day]
+				              [(some? ?journal-day)])
 				  
-				           (and
-				            ;; There is a block in a journal page referencing ?b
-				            [?r :block/refs ?b]
-				            [?r :block/page ?rp]
-				            [?rp :block/journal-day ?journal-day]
-				            [(some? ?journal-day)])
-				            )
-				  ]
+				             (and
+				             ;; The block has a journal page ref in the property :created-on
+				              [?b :block/properties ?props]
+				              [(get ?props :created-on) ?created-on]
+				              [?cp :block/original-name ?all-page-names]
+				              [(contains? ?created-on ?all-page-names)]
+				              [?cp :block/journal-day ?journal-day]
+				              [(some? ?journal-day)])
 				  
-				  :result-transform
-				   (fn [result] 
-				     (sort-by (comp - (fn [r] (get-in r [:block/page :block/journal-day]))) result)
-				     )
+				             (and
+				             ;; There is a block in a journal page referencing ?b
+				              [?r :block/refs ?b]
+				              [?r :block/page ?rp]
+				              [?rp :block/journal-day ?journal-day]
+				              [(some? ?journal-day)])
+				             
+				             (and
+				              [(missing? $ ?b :block/journal-day)]
+				              [(identity "00000000") ?journal-day])
+				             
+				             )] 
+				   :result-transform
+				   (fn [result]
+				     (sort-by
+				      (comp - (fn [r]
+				                (get-in r
+				                        [:block/page
+				                         :block/journal-day])))
+				      result))
 				  
-				  :group-by-page? true
-				  }
+				   :group-by-page? true}
 				  
 				  #+END_QUERY
 		- {{i fd1f}}  appointment summary
