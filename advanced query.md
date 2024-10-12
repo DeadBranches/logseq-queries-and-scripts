@@ -142,6 +142,390 @@ repository:: DeadBranches/logseq-queries-and-scripts
   #+END_QUERY
 	- ## Embedable queries
 	  {{i f635}} *`{{embed }}` these queries*
+		- upcoming medical activities table
+		  ![image.png](../assets/image_1728697248277_0.png){:height 71, :width 248}
+			- {{i feee}} *info*
+				- This Logseq advanced query retrieves and organizes upcoming medical-related activities (e.g., diagnostics, consultations, treatments) from your journal entries.
+					- Specifically, the query searches for blocks containing the `:activity` block property that have one or more of the predefined `:activity` values—such as "medical diagnostic," "medical consult," or "medical treatment"—that are hard-coded in the `:where` clause.
+				- The query is designed to work with linked-reference values for `:activity`, which Logseq stores as sets.
+					- For instance, a block like `activity:: [[medical consult]] [[dental]]` will be recognized as matching "medical consult."
+					- This feature requires you to use linked references for properties
+				- This query looks for blocks in your graph that have the following required block properties:
+					- `:activity` (a set of linked references categorizing the activity type)
+					- `:event` (a string describing the event)
+					- `:date` (a linked reference to a future or past journal page)
+				- This query produces a table that displays an icon associated with the first `:activity` property for a given entry.
+					- Include a tabler icon glyph code in the page's `:-icon` property to use this feature.
+					- E.g. `-icon:: f3f3`
+			- **current query:** ((6709d288-e8e4-4168-83e5-563bb0adce83))
+				- id:: 6709d372-b67c-4b85-9219-062fcde7f579
+				  #+BEGIN_QUERY
+				  {:query
+				   ;; version 1.1
+				   [:find (min ?journal-day) ?date ?journal-day ?content ?props ?today ?activity ?event (distinct ?icon)
+				    :keys min-day date journal-day content properties today activity event icon
+				    :in $ ?today
+				    :where
+				    [?b :block/properties ?props]
+				    [(get ?props :activity) ?activity]
+				  
+				    (or
+				     [(contains? ?activity "medical diagnostic")]
+				     [(contains? ?activity "medical consult")]
+				     [(contains? ?activity "medical treatment")])
+				    
+				    [?e :block/properties ?props]
+				    [(get ?props :event) ?event]
+				    [(get ?props :date) ?date]
+				    [?e :block/refs ?refs]
+				    [?e :block/content ?content]
+				    [?refs :block/journal-day ?journal-day]
+				    [(> ?journal-day ?today)]
+				  
+				    [?a :block/name ?activity-page]
+				    [(contains? ?activity ?activity-page)]
+				    (or-join [?a ?icon]
+				             (and
+				              [?a :block/properties ?activity-props]
+				              [(get ?activity-props :-icon) ?icon]
+				              [(some? ?icon)]) ;; :-icon exists and is not nil
+				             (and
+				              [?a :block/properties ?activity-props]
+				              [(get ?activity-props :-icon :not-found) ?icon-or-not-found]
+				              [(= ?icon-or-not-found :not-found)] ;; :block/properties, but nil icon
+				              [(identity "0000") ?icon])
+				             (and ;; no block properties
+				              [(missing? $ ?a :block/properties)] ;; no :bp
+				              [(identity "0000") ?icon]))]
+				  
+				   :result-transform
+				   (fn [results]
+				     (defn date-today-impl
+				       "Returns today's date as an integer in the format YYYYMMDD. Uses the datascript_query API to fetch the current date."
+				       [] (let [query-result (call-api "datascript_query"
+				                                       "[:find ?today :in $ ?today :where [_ :block/name _]]"
+				                                       ":today")
+				                date-integer (read-string (apply
+				                                           str
+				                                           query-result))]
+				            date-integer))
+				     (def date-today (memoize date-today-impl))
+				  
+				  
+				     (defn convert-range
+				       "Given a value within a range, converts the value to a different range
+				        Example: (convert-range -4 [-30 0] [0 255]) ;; => 221"
+				       [value [old-range-min old-range-max] [new-range-min new-range-max]]
+				       (+ (/ (* (- value
+				                   old-range-min)
+				                (- new-range-max
+				                   new-range-min))
+				             (- old-range-max
+				                old-range-min))
+				          new-range-min))
+				  
+				     (defn integer-floor
+				       "Returns the largest double less than or equal to number, and equal to a mathematical integer. Equivalent to clojure.math/floor.
+				      Example: (integer-floor 11.1) => ;; => 11"
+				       [number]
+				       (if (>= number 0)
+				         (int number)
+				         (dec (int number))))
+				  
+				     (defn number-absolute
+				       "Returns the absolute value of a number. Equivalent to abs."
+				       ":example (number-absolute -10) ;; => 10"
+				       [number]
+				       (if (>= number 0)
+				         number
+				         (- number)))
+				  
+				     (defn date-journal-day->julian-day
+				       "Converts a Gregorian calendar date to the Julian Day Number (JDN).
+				       
+				         Parameters:
+				           - `year`: Integer representing the Gregorian year (e.g., 2024).
+				           - `month`: Integer representing the month (1-12).
+				           - `day`: Integer representing the day of the month.
+				       
+				         Returns:
+				           - Integer representing the Julian Day Number for the given Gregorian date.
+				       
+				         Overview:
+				           - Calculates an adjustment factor to shift the year boundary, ensuring consistent handling of month variations.
+				           - Computes a reference year (`y`) and month (`m`) adjusted for easier conversion.
+				           - Applies a series of calculations to determine the Julian Day Number, considering leap years and other calendar corrections.
+				       
+				         Examples:
+				           (date-journal-day->julian-day 2024 1 1) ; => 2460467
+				           (date-journal-day->julian-day 2025 2 27) ; => 2460960
+				       
+				         Notes:
+				           - Handles leap years (divisible by 4, but not by 100 unless also divisible by 400).
+				           - Based on standard algorithms used in astronomical calculations.
+				         "
+				       [year month day]
+				       (let [a (integer-floor (/ (- 14 month) 12))
+				             y (+ year 4800 (- a))
+				             m (+ month (* 12 a) -3)]
+				         (+ day
+				            (integer-floor (/ (+ (* 153 m) 2) 5))
+				            (* 365 y)
+				            (integer-floor (/ y 4))
+				            (- (integer-floor (/ y 100)))
+				            (integer-floor (/ y 400))
+				            -32045)))
+				  
+				     (defn date-get-difference
+				       "Calculates the absolute difference in days between a date and today or between two dates.
+				     
+				       Parameters:
+				         - journal-day: Integer representing a date in YYYYMMDD format.
+				         - journal-day1, journal-day2: Integer representing dates in YYYYMMDD format.
+				       Returns: 
+				         - Integer representing the number of days between the two dates.
+				       
+				       Examples:
+				         (date-get-difference 20240918) ; => Difference in days from today.
+				         (date-get-difference 20240918 20240610) ; => 100"
+				       ([journal-day]
+				        (date-get-difference journal-day (date-today)))
+				       ([journal-day1 journal-day2]
+				        (let [extract-date (fn [date]
+				                             [(quot date 10000)            ;; Year
+				                              (rem (quot date 100) 100)    ;; Month
+				                              (rem date 100)])             ;; Day
+				              [year1 month1 day1] (extract-date journal-day1)
+				              [year2 month2 day2] (extract-date journal-day2)
+				              julian-day-number1 (date-journal-day->julian-day year1 month1 day1)
+				              julian-day-number2 (date-journal-day->julian-day year2 month2 day2)]
+				          (number-absolute (- julian-day-number1 julian-day-number2)))))
+				  
+				     (->> results
+				          (map (fn [r]
+				                 (let [days-difference (date-get-difference
+				                                        (get-in r [:journal-day])
+				                                        (date-today))
+				                       first-icon (first (get-in r [:icon]))]
+				                   (assoc r
+				                          :days-difference days-difference
+				                          :first-icon first-icon))))
+				          (sort-by :journal-day)))
+				  
+				  
+				   
+				  :view (fn [results]
+				  [:div
+				   [:table {:class "compact"}
+				    [:thead [:tr
+				             [:th]
+				             [:th "Event"]
+				             [:th "in (days)"]
+				             [:th "On"]]]
+				    [:tbody
+				     (for [result results]
+				       [:tr
+				        [:td [:span.ti
+				              (read-string (str "\"\\u"
+				                                (get-in result [:first-icon])
+				                                "\""))]]
+				        [:td (get-in result [:event])]
+				        [:td (get-in result [:days-difference])]
+				        [:td (get-in result [:date])]])]]])
+				  
+				   :inputs [:today]
+				   :breadcrumb-show? false
+				   :children? false
+				   :group-by-page? false}
+				  #+END_QUERY
+			- version 1.1
+			  id:: 6709d288-e8e4-4168-83e5-563bb0adce83
+				- created
+					- [[Friday, Oct 11th, 2024]]
+				- query result image
+					- ![image.png](../assets/image_1728697264705_0.png)
+				- Advanced query code
+					- ```clj
+					  #+BEGIN_QUERY
+					  {:query
+					   ;; version 1.1
+					   [:find (min ?journal-day) ?date ?journal-day ?content ?props ?today ?activity ?event (distinct ?icon)
+					    :keys min-day date journal-day content properties today activity event icon
+					    :in $ ?today
+					    :where
+					    [?b :block/properties ?props]
+					    [(get ?props :activity) ?activity]
+					  
+					    (or
+					     [(contains? ?activity "medical diagnostic")]
+					     [(contains? ?activity "medical consult")]
+					     [(contains? ?activity "medical treatment")])
+					    
+					    [?e :block/properties ?props]
+					    [(get ?props :event) ?event]
+					    [(get ?props :date) ?date]
+					    [?e :block/refs ?refs]
+					    [?e :block/content ?content]
+					    [?refs :block/journal-day ?journal-day]
+					    [(> ?journal-day ?today)]
+					  
+					    [?a :block/name ?activity-page]
+					    [(contains? ?activity ?activity-page)]
+					    (or-join [?a ?icon]
+					             (and
+					              [?a :block/properties ?activity-props]
+					              [(get ?activity-props :-icon) ?icon]
+					              [(some? ?icon)]) ;; :-icon exists and is not nil
+					             (and
+					              [?a :block/properties ?activity-props]
+					              [(get ?activity-props :-icon :not-found) ?icon-or-not-found]
+					              [(= ?icon-or-not-found :not-found)] ;; :block/properties, but nil icon
+					              [(identity "0000") ?icon])
+					             (and ;; no block properties
+					              [(missing? $ ?a :block/properties)] ;; no :bp
+					              [(identity "0000") ?icon]))]
+					  
+					   :result-transform
+					   (fn [results]
+					     (defn date-today-impl
+					       "Returns today's date as an integer in the format YYYYMMDD. Uses the datascript_query API to fetch the current date."
+					       [] (let [query-result (call-api "datascript_query"
+					                                       "[:find ?today :in $ ?today :where [_ :block/name _]]"
+					                                       ":today")
+					                date-integer (read-string (apply
+					                                           str
+					                                           query-result))]
+					            date-integer))
+					     (def date-today (memoize date-today-impl))
+					  
+					  
+					     (defn convert-range
+					       "Given a value within a range, converts the value to a different range
+					        Example: (convert-range -4 [-30 0] [0 255]) ;; => 221"
+					       [value [old-range-min old-range-max] [new-range-min new-range-max]]
+					       (+ (/ (* (- value
+					                   old-range-min)
+					                (- new-range-max
+					                   new-range-min))
+					             (- old-range-max
+					                old-range-min))
+					          new-range-min))
+					  
+					     (defn integer-floor
+					       "Returns the largest double less than or equal to number, and equal to a mathematical integer. Equivalent to clojure.math/floor.
+					      Example: (integer-floor 11.1) => ;; => 11"
+					       [number]
+					       (if (>= number 0)
+					         (int number)
+					         (dec (int number))))
+					  
+					     (defn number-absolute
+					       "Returns the absolute value of a number. Equivalent to abs."
+					       ":example (number-absolute -10) ;; => 10"
+					       [number]
+					       (if (>= number 0)
+					         number
+					         (- number)))
+					  
+					     (defn date-journal-day->julian-day
+					       "Converts a Gregorian calendar date to the Julian Day Number (JDN).
+					       
+					         Parameters:
+					           - `year`: Integer representing the Gregorian year (e.g., 2024).
+					           - `month`: Integer representing the month (1-12).
+					           - `day`: Integer representing the day of the month.
+					       
+					         Returns:
+					           - Integer representing the Julian Day Number for the given Gregorian date.
+					       
+					         Overview:
+					           - Calculates an adjustment factor to shift the year boundary, ensuring consistent handling of month variations.
+					           - Computes a reference year (`y`) and month (`m`) adjusted for easier conversion.
+					           - Applies a series of calculations to determine the Julian Day Number, considering leap years and other calendar corrections.
+					       
+					         Examples:
+					           (date-journal-day->julian-day 2024 1 1) ; => 2460467
+					           (date-journal-day->julian-day 2025 2 27) ; => 2460960
+					       
+					         Notes:
+					           - Handles leap years (divisible by 4, but not by 100 unless also divisible by 400).
+					           - Based on standard algorithms used in astronomical calculations.
+					         "
+					       [year month day]
+					       (let [a (integer-floor (/ (- 14 month) 12))
+					             y (+ year 4800 (- a))
+					             m (+ month (* 12 a) -3)]
+					         (+ day
+					            (integer-floor (/ (+ (* 153 m) 2) 5))
+					            (* 365 y)
+					            (integer-floor (/ y 4))
+					            (- (integer-floor (/ y 100)))
+					            (integer-floor (/ y 400))
+					            -32045)))
+					  
+					     (defn date-get-difference
+					       "Calculates the absolute difference in days between a date and today or between two dates.
+					     
+					       Parameters:
+					         - journal-day: Integer representing a date in YYYYMMDD format.
+					         - journal-day1, journal-day2: Integer representing dates in YYYYMMDD format.
+					       Returns: 
+					         - Integer representing the number of days between the two dates.
+					       
+					       Examples:
+					         (date-get-difference 20240918) ; => Difference in days from today.
+					         (date-get-difference 20240918 20240610) ; => 100"
+					       ([journal-day]
+					        (date-get-difference journal-day (date-today)))
+					       ([journal-day1 journal-day2]
+					        (let [extract-date (fn [date]
+					                             [(quot date 10000)            ;; Year
+					                              (rem (quot date 100) 100)    ;; Month
+					                              (rem date 100)])             ;; Day
+					              [year1 month1 day1] (extract-date journal-day1)
+					              [year2 month2 day2] (extract-date journal-day2)
+					              julian-day-number1 (date-journal-day->julian-day year1 month1 day1)
+					              julian-day-number2 (date-journal-day->julian-day year2 month2 day2)]
+					          (number-absolute (- julian-day-number1 julian-day-number2)))))
+					  
+					     (->> results
+					          (map (fn [r]
+					                 (let [days-difference (date-get-difference
+					                                        (get-in r [:journal-day])
+					                                        (date-today))
+					                       first-icon (first (get-in r [:icon]))]
+					                   (assoc r
+					                          :days-difference days-difference
+					                          :first-icon first-icon))))
+					          (sort-by :journal-day)))
+					  
+					  
+					   
+					  :view (fn [results]
+					  [:div
+					   [:table {:class "compact"}
+					    [:thead [:tr
+					             [:th]
+					             [:th "Event"]
+					             [:th "in (days)"]
+					             [:th "On"]]]
+					    [:tbody
+					     (for [result results]
+					       [:tr
+					        [:td [:span.ti
+					              (read-string (str "\"\\u"
+					                                (get-in result [:first-icon])
+					                                "\""))]]
+					        [:td (get-in result [:event])]
+					        [:td (get-in result [:days-difference])]
+					        [:td (get-in result [:date])]])]]])
+					  
+					   :inputs [:today]
+					   :breadcrumb-show? false
+					   :children? false
+					   :group-by-page? false}
+					  #+END_QUERY
+					  ```
 		- page tags or aliases
 			- template
 			  template:: query, page tags or aliases
@@ -1190,7 +1574,7 @@ repository:: DeadBranches/logseq-queries-and-scripts
 				  
 				     (defn date-journal-day->julian-day
 				       [year month day]
-				       ^{:doc "Converts a Gregorian calendar date to a Julian day number.
+				  	 ^{:doc "Converts a Gregorian calendar date to a Julian day number.
 				  				  		This function is used for date calculations.
 				  				  		Parameters:
 				  				  			 year: Integer representing the year
@@ -1198,32 +1582,16 @@ repository:: DeadBranches/logseq-queries-and-scripts
 				  				  			 day: Integer representing the day of the month
 				  				  		Returns: Integer representing the Julian day number"
 				         :example "(date-journal-day->julian-day 2024 9 18) ; => 2460211"}
-				       (let
-				        [adjustment
-				         (integer-floor (/ (- month
-				                              14)
-				                           12))
-				  
-				         adjusted-year
-				         (+ year
-				            4800
-				            adjustment)
-				  
-				         adjusted-month
-				         (+ month
-				            (* 12
-				               adjustment)
-				            -3)]
-				  
-				         (+ (integer-floor (+ (* 365.25
-				                                 adjusted-year)
-				                              0.5))
-				            (integer-floor (+ (* 30.6001
-				                                 (+ adjusted-month
-				                                    1))
-				                              0.5))
-				            day
-				            -32075)))
+				  		(let [a (integer-floor (/ (- 14 month) 12))
+				  					y (+ year 4800 (- a))
+				  					m (+ month (* 12 a) -3)]
+				  			(+ day
+				  				(integer-floor (/ (+ (* 153 m) 2) 5))
+				  				(* 365 y)
+				  				(integer-floor (/ y 4))
+				  				(- (integer-floor (/ y 100)))
+				  				(integer-floor (/ y 400))
+				  				-32045)))
 				  
 				     (defn date-get-difference
 				       ([journal-day] (date-get-difference journal-day (date-today)))
