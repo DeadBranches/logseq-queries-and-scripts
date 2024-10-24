@@ -12,9 +12,21 @@ created-on:: [[Saturday, Aug 10th, 2024]]
    * Event details are initially collapsed, and are revealed via a disclosure icon click.
    * A note with a linked reference to the activity card is added to the current day journal page upon clicking the event name.
    * The external link icon clicked  redirects to the original activity card in-graph.
+   * 
+   * @requires logseq-kits
+   * @see {@link https://discuss.logseq.com/t/edit-and-run-javascript-code-inside-logseq-itself/20763|Logseq Kits Installation}
+   *
+   * @usage
+   * To use this script:
+   * 1. Create a page named "futureEventsTable" in your Logseq graph
+   * 2. Add the script inside a JavaScript markdown code block on that page
+   * 3. Add the following macro to your Logseq config.edn file:
+   *   :futureEventsTable ":futureEventsTable "[:div {:class \"kit inline\" :data-kit \"futureEventsTable\" } ]"
+   * 4. Use the macro {{futureEventsTable}} where you want the table to appear
+   *
+   * @returns {void} This function doesn't return a value but modifies the DOM by appending a table to the provided div.
+   * 
    */
-  
-  const START_HIDDEN = ["anticipated"];
   
   function applyProcessingFunctions(
     itemArray,
@@ -81,18 +93,6 @@ created-on:: [[Saturday, Aug 10th, 2024]]
    * @function futureEventsTable
    * @param {HTMLElement} div - The DOM element where the future events table will be inserted.
    *
-   * @requires logseq-kits
-   * @see {@link https://discuss.logseq.com/t/edit-and-run-javascript-code-inside-logseq-itself/20763|Logseq Kits Installation}
-   *
-   * @usage
-   * To use this script:
-   * 1. Create a page named "futureEventsTable" in your Logseq graph
-   * 2. Add the script inside a JavaScript markdown code block on that page
-   * 3. Add the following macro to your Logseq config.edn file:
-   *   :futureEventsTable ":futureEventsTable "[:div {:class \"kit inline\" :data-kit \"futureEventsTable\" } ]"
-   * 4. Use the macro {{futureEventsTable}} where you want the table to appear
-   *
-   * @returns {void} This function doesn't return a value but modifies the DOM by appending a table to the provided div.
    */
   logseq.kits.setStatic(async function futureEventsTable(div) {
     // Start counting from startDate date into the future. You probably want
@@ -344,25 +344,19 @@ created-on:: [[Saturday, Aug 10th, 2024]]
                 [joinWithSpacesFormatterConfig]
               );
   
-              const hideIfHiddenActivity = (
-                hiddenActivities = START_HIDDEN,
-                eventActivities = []
-              ) => {
-                if (!eventActivities || eventActivities.length === 0) return "";
+              function buildActivityArrayString(activities) {
+                // Escape single and wrap in single quotes to accommodate events
+                // with spaces in them.
+                return `[${activities
+                  .map((activity) => `'${activity.replace(/'/g, "\\'")}'`)
+                  .join(", ")}]`;
+              }
   
-                const shouldBeHidden = eventActivities.some((activity) =>
-                  hiddenActivities.includes(activity)
-                );
-                if (!shouldBeHidden) return "";
-                return "hidden";
-              };
-  
-              //return classList;
-  
+              console.log(event.properties.activity, "activity event list");
               return `
-              <tr class="${activityClassList} ${hideIfHiddenActivity(
+              <tr class="${activityClassList}" x-show="!hiddenActivities.some(activity => ${buildActivityArrayString(
                 event.properties.activity
-              )}">
+              )}.includes(activity))">
                   <td rowspan="2" class="days-until"
                       >${event.daysUntil}</td>
                   <td class="touch-screen"><a onclick="logseq.api.append_block_in_page('${todaysJournalUUID}', '{{i-note}}\u0020\\n{{i-event}} [${
