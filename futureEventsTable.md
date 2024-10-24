@@ -13,25 +13,28 @@ created-on:: [[Saturday, Aug 10th, 2024]]
    * A note with a linked reference to the activity card is added to the current day journal page upon clicking the event name.
    * The external link icon clicked  redirects to the original activity card in-graph.
    */
+  
+  const START_HIDDEN = ["anticipated"];
+  
   function applyProcessingFunctions(
     itemArray,
     transformerFunctions,
     [outputFormatterConfig]
   ) {
     // Ensure transformerFunctions is an array
-    const transformers = Array.isArray(transformerFunctions[0]) 
-      ? transformerFunctions 
+    const transformers = Array.isArray(transformerFunctions[0])
+      ? transformerFunctions
       : [transformerFunctions];
   
     // Process each item in the array through all transformers
-    const transformedItemsArray = itemArray.map(item => {
+    const transformedItemsArray = itemArray.map((item) => {
       // Apply each transformer function in sequence to the current item
       return transformers.reduce((processedItem, [transformFn, config]) => {
         return transformFn(config, processedItem);
       }, item);
     });
   
-    const formattedOutput = ({ separator } = outputFormatterConfig) => 
+    const formattedOutput = ({ separator } = outputFormatterConfig) =>
       transformedItemsArray.join(separator);
   
     return formattedOutput();
@@ -43,6 +46,36 @@ created-on:: [[Saturday, Aug 10th, 2024]]
   function replaceCharacterTransformerFn({ match, replacement }, baseString) {
     return baseString.replaceAll(match, replacement);
   }
+  
+  function getActivityCounts(events) {
+    // Create a map to store activity counts
+    const activityCounts = new Map();
+  
+    // Count occurrences of each activity
+    events.forEach((event) => {
+      const activities = event.properties?.activity || [];
+      activities.forEach((activity) => {
+        activityCounts.set(activity, (activityCounts.get(activity) || 0) + 1);
+      });
+    });
+  
+    // Convert to array and sort by count (descending)
+    const sortedActivities = Array.from(activityCounts.entries())
+      .sort((a, b) => b[1] - a[1])
+      .map(([activity, count]) => ({
+        activity,
+        count,
+      }));
+  
+    return sortedActivities;
+  }
+  
+  window.toggleVisibilityByClass = function (selector) {
+    const selectedItems = document.querySelectorAll(selector);
+    selectedItems.forEach((row) => {
+      row.classList.toggle("hidden");
+    });
+  };
   
   /**
    * @function futureEventsTable
@@ -228,7 +261,45 @@ created-on:: [[Saturday, Aug 10th, 2024]]
   
     const table = document.createElement("table");
     table.className = "future-event-table";
-    table.innerHTML = `<thead>
+    table.setAttribute(
+      "x-data",
+      `{
+      hiddenActivities: $persist([]),
+      toggleActivity(activity) {
+        if (this.hiddenActivities.includes(activity)) {
+          this.hiddenActivities = this.hiddenActivities.filter(a => a !== activity);  
+        } else {
+         this.hiddenActivities.push(activity);
+        }
+       },
+       isHidden(activity) {
+        return this.hiddenActivities.includes(activity); 
+        }
+      }`
+    );
+    const activities = ["anticipated", "medical procedure", "appointment", "medication"];
+  
+    const chipsList = activities
+      .map(
+        (activity) => `
+      <md-filter-chip
+        label="${activity}"
+        x-on:click="toggleActivity('${activity}')"
+        :selected="!isHidden('${activity}')"
+        ></md-filter-chip>
+      `
+      )
+      .join("");
+    table.innerHTML = `<caption> 
+    <md-chip-set>
+      ${chipsList}
+      <!-- onclick="toggleVisibilityByClass('.activityName-anticipated')" -->
+      <md-suggestion-chip label="Add to calendar"></md-suggestion-chip>
+    </md-chip-set>
+    
+    </caption>
+    
+    <thead>
           <tr>
               <th class="days-until">In<br><small>days</small></th>
               <th>Event</th>
@@ -264,7 +335,7 @@ created-on:: [[Saturday, Aug 10th, 2024]]
                 separator: " ",
               };
   
-              const classList = applyProcessingFunctions(
+              const activityClassList = applyProcessingFunctions(
                 event.properties.activity,
                 [
                   [addPrefixToStringTransformerFn, activityPrefixTransformerConfig],
@@ -273,10 +344,25 @@ created-on:: [[Saturday, Aug 10th, 2024]]
                 [joinWithSpacesFormatterConfig]
               );
   
+              const hideIfHiddenActivity = (
+                hiddenActivities = START_HIDDEN,
+                eventActivities = []
+              ) => {
+                if (!eventActivities || eventActivities.length === 0) return "";
+  
+                const shouldBeHidden = eventActivities.some((activity) =>
+                  hiddenActivities.includes(activity)
+                );
+                if (!shouldBeHidden) return "";
+                return "hidden";
+              };
+  
               //return classList;
   
               return `
-              <tr class="${classList}">
+              <tr class="${activityClassList} ${hideIfHiddenActivity(
+                event.properties.activity
+              )}">
                   <td rowspan="2" class="days-until"
                       >${event.daysUntil}</td>
                   <td class="touch-screen"><a onclick="logseq.api.append_block_in_page('${todaysJournalUUID}', '{{i-note}}\u0020\\n{{i-event}} [${
@@ -320,5 +406,4 @@ created-on:: [[Saturday, Aug 10th, 2024]]
 	- `{{futureEventsTable}}`
 -
 	- {{futureEventsTable}}
--
 -
