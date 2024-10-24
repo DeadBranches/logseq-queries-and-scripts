@@ -2,8 +2,7 @@ kit:: futureEventsTable
 created-on:: [[Saturday, Aug 10th, 2024]]
 
 - ```javascript
-  /** 5e8fcc7
-   * chore(futureEventsTable): Remove getActivityCounts
+  /** 
    *
    * @file futureEventsTable.md
    * @description
@@ -108,19 +107,37 @@ created-on:: [[Saturday, Aug 10th, 2024]]
           );
         }
         const advancedQuery = `
-    [:find ?date ?day ?content ?props ?uuid
-    :keys date day content properties uuid
+    [:find ?date ?day ?content ?props ?uuid (distinct ?icon)
+    :keys date day content properties uuid icon
     :where
     [?e :block/properties ?props]
     [(get ?props :event) ?event]
     [(get ?props :date) ?date]
+    [(get ?props :activity) ?activity]
       [(get ?props :scheduling "") ?scheduling]
       (not [(contains? ?scheduling "CANCELED")])
     [?e :block/refs ?refs]
     [?e :block/content ?content]
     [?e :block/uuid ?uuid]
     [?refs :block/journal-day ?day]
-    [(>= ?day ${startDate})] ]     
+    [(>= ?day ${startDate})] 
+    
+    [?a :block/name ?activity-page]
+    [(contains? ?activity ?activity-page)]
+    (or-join [?a ?icon]
+             (and
+              [?a :block/properties ?activity-props]
+              [(get ?activity-props :-icon) ?icon]
+              [(some? ?icon)]) ;; :-icon exists and is not nil
+             (and
+              [?a :block/properties ?activity-props]
+              [(get ?activity-props :-icon :not-found) ?icon-or-not-found]
+              [(= ?icon-or-not-found :not-found)] ;; :block/properties, but nil icon
+              [(identity "0000") ?icon])
+             (and ;; no block properties
+              [(missing? $ ?a :block/properties)] ;; no :bp
+              [(identity "0000") ?icon]))
+    ]     
           `;
   
         const queryResults = await logseq.api.datascript_query(advancedQuery);
@@ -369,7 +386,7 @@ created-on:: [[Saturday, Aug 10th, 2024]]
               <td class="touch-screen"><a onclick="logseq.api.append_block_in_page('${todaysJournalUUID}', '{{i-note}}\u0020\\n{{i-event}} [${
             event.properties.event
           }](((${event.uuid})))')"
-                      >${event.properties.event}</a></td>
+                      ><span class="icon space-after quarter-bigger">&#x${event.icon[0]};</span> ${event.properties.event}</a></td>
               <td class="touch-screen ti disclosure" style="text-align: right"><a onclick="document.getElementById('event-info-${
                 event.uuid
               }').classList.toggle('closed');">&#xea5f;  </a></td>
@@ -378,7 +395,7 @@ created-on:: [[Saturday, Aug 10th, 2024]]
             event.properties.activity
           )}.includes(activity))">
               <td colspan="2" class="closed event-info" id="event-info-${event.uuid}" 
-                  ><div class="quick-view-container"><span class="content-slot">${[
+                  ><div class="quick-view-container">${[
                     eventTime(),
                     withWho(),
                     "on",
