@@ -2,7 +2,9 @@ kit:: futureEventsTable
 created-on:: [[Saturday, Aug 10th, 2024]]
 
 - ```javascript
-  /**
+  /** 5e8fcc7
+   * chore(futureEventsTable): Remove getActivityCounts
+   *
    * @file futureEventsTable.md
    * @description
    * This script generates a table of future events. It displays  event names, their dates, and the number of days until they occur.
@@ -12,7 +14,7 @@ created-on:: [[Saturday, Aug 10th, 2024]]
    * Event details are initially collapsed, and are revealed via a disclosure icon click.
    * A note with a linked reference to the activity card is added to the current day journal page upon clicking the event name.
    * The external link icon clicked  redirects to the original activity card in-graph.
-   * 
+   *
    * @requires logseq-kits
    * @see {@link https://discuss.logseq.com/t/edit-and-run-javascript-code-inside-logseq-itself/20763|Logseq Kits Installation}
    *
@@ -25,16 +27,27 @@ created-on:: [[Saturday, Aug 10th, 2024]]
    * 4. Use the macro {{futureEventsTable}} where you want the table to appear
    *
    * @returns {void} This function doesn't return a value but modifies the DOM by appending a table to the provided div.
-   * 
+   *
    */
   
-  const DATA_PAGE_NAME = 'data';
-  // Put the activity names you want in chips in kebab-case formatted block property
-  // in DATA_PAGE_NAME in JSON array format.
-  // E.g:
-  // page: data
-  // - future-events-activity-chips:: ["button", "mushroom face"]
-  const FUTURE_EVENTS_ACTIVITY_CHIPS_BLOCK_PROPERTY = 'futureEventsActivityChips'; // Use camel case here.
+  /** Constant definitions
+   *
+   * In-graph filter chip definitions
+   *  - The filter chips appearing beneath the event table are retrieved from a
+   *  page property value in your graph.
+   *  - Define the page name and property key below.
+   *  Usage:
+   *    - Put the activity names you want in chips in kebab-case formatted
+   *      block property in DATA_PAGE_NAME. in JSON array format.
+   *      E.g:
+   *        page: data
+   *        - future-events-activity-chips:: ["button", "mushroom face"]
+   *
+   *  DATA_PAGE_NAME (str):
+   *  FUTURE_EVENTS_ACTIVITY_CHIPS_BLOCK_PROPERTY (str):
+   */
+  const DATA_PAGE_NAME = "data";
+  const FUTURE_EVENTS_ACTIVITY_CHIPS_BLOCK_PROPERTY = "futureEventsActivityChips"; // Use camel case here.
   
   function applyProcessingFunctions(
     itemArray,
@@ -67,29 +80,6 @@ created-on:: [[Saturday, Aug 10th, 2024]]
     return baseString.replaceAll(match, replacement);
   }
   
-  function getActivityCounts(events) {
-    // Create a map to store activity counts
-    const activityCounts = new Map();
-  
-    // Count occurrences of each activity
-    events.forEach((event) => {
-      const activities = event.properties?.activity || [];
-      activities.forEach((activity) => {
-        activityCounts.set(activity, (activityCounts.get(activity) || 0) + 1);
-      });
-    });
-  
-    // Convert to array and sort by count (descending)
-    const sortedActivities = Array.from(activityCounts.entries())
-      .sort((a, b) => b[1] - a[1])
-      .map(([activity, count]) => ({
-        activity,
-        count,
-      }));
-  
-    return sortedActivities;
-  }
-  
   /**
    * @function futureEventsTable
    * @param {HTMLElement} div - The DOM element where the future events table will be inserted.
@@ -114,24 +104,24 @@ created-on:: [[Saturday, Aug 10th, 2024]]
           console.log(
             17,
             `function futureEventsArray: Expected startDate
-                          to be a string, but it was not.`
+                            to be a string, but it was not.`
           );
         }
         const advancedQuery = `
-  [:find ?date ?day ?content ?props ?uuid
-  :keys date day content properties uuid
-  :where
-  [?e :block/properties ?props]
-  [(get ?props :event) ?event]
-  [(get ?props :date) ?date]
-    [(get ?props :scheduling "") ?scheduling]
-    (not [(contains? ?scheduling "CANCELED")])
-  [?e :block/refs ?refs]
-  [?e :block/content ?content]
-  [?e :block/uuid ?uuid]
-  [?refs :block/journal-day ?day]
-  [(>= ?day ${startDate})] ]     
-        `;
+    [:find ?date ?day ?content ?props ?uuid
+    :keys date day content properties uuid
+    :where
+    [?e :block/properties ?props]
+    [(get ?props :event) ?event]
+    [(get ?props :date) ?date]
+      [(get ?props :scheduling "") ?scheduling]
+      (not [(contains? ?scheduling "CANCELED")])
+    [?e :block/refs ?refs]
+    [?e :block/content ?content]
+    [?e :block/uuid ?uuid]
+    [?refs :block/journal-day ?day]
+    [(>= ?day ${startDate})] ]     
+          `;
   
         const queryResults = await logseq.api.datascript_query(advancedQuery);
         //const flatQueryResults = queryResults?.flat();
@@ -149,7 +139,7 @@ created-on:: [[Saturday, Aug 10th, 2024]]
           console.log(
             46,
             `function chronologicalEvents: Expected futureEventsArray
-                          to be an object, but it was not.`
+                            to be an object, but it was not.`
           );
           return [];
         }
@@ -265,126 +255,131 @@ created-on:: [[Saturday, Aug 10th, 2024]]
     table.setAttribute(
       "x-data",
       `{
-      hiddenActivities: $persist([]),
-      toggleActivity(activity) {
-        if (this.hiddenActivities.includes(activity)) {
-          this.hiddenActivities = this.hiddenActivities.filter(a => a !== activity);  
-        } else {
-         this.hiddenActivities.push(activity);
-        }
-       },
-       isHidden(activity) {
-        return this.hiddenActivities.includes(activity); 
-        }
-      }`
+        hiddenActivities: $persist([]),
+        toggleActivity(activity) {
+          if (this.hiddenActivities.includes(activity)) {
+            this.hiddenActivities = this.hiddenActivities.filter(a => a !== activity);  
+          } else {
+           this.hiddenActivities.push(activity);
+          }
+         },
+         isHidden(activity) {
+          return this.hiddenActivities.includes(activity); 
+          }
+        }`
     );
-  
-    const activitiesString = logseq.api.get_page(DATA_PAGE_NAME).properties[FUTURE_EVENTS_ACTIVITY_CHIPS_BLOCK_PROPERTY];
+    // const activities = ["anticipated", "medical procedure", "appointment", "medication"];
+    const activitiesString =
+      await logseq.api.get_page(DATA_PAGE_NAME).properties[
+        FUTURE_EVENTS_ACTIVITY_CHIPS_BLOCK_PROPERTY
+      ];
     const activityChips = JSON.parse(activitiesString);
   
+    // const chipsList = activities
     const chipsList = activityChips
       .map(
         (activity) => `
-      <md-filter-chip
-        label="${activity}"
-        x-on:click="toggleActivity('${activity}')"
-        :selected="!isHidden('${activity}')"
-        ></md-filter-chip>
-      `
+        <md-filter-chip
+          label="${activity}"
+          x-on:click="toggleActivity('${activity}')"
+          :selected="!isHidden('${activity}')"
+          ></md-filter-chip>
+        `
       )
       .join("");
     table.innerHTML = `<caption> 
-    <md-chip-set>
-      ${chipsList}
-    </md-chip-set>
-    
-    </caption>
-    
-    <thead>
-          <tr>
-              <th class="days-until">In<br><small>days</small></th>
-              <th>Event</th>
-              <th class="disclosure"></th>
-          </tr>
-      </thead>
-      <tbody>
-          ${result
-            .map((event, index) => {
-              // Since the first event is already displayed in the upcoming events
-              // journal widget, don't repeat it in the table. (nevermind)
-              // if (event.day === result[0].day) return '';
-              const eventTime = () => {
-                const time = event.properties.time;
-                if (time) return "@ " + time;
-                return "";
-              };
-              const withWho = () => {
-                const withWho = event.properties.with;
-                if (withWho) return "w/ " + withWho;
-                return "";
-              };
+      <md-chip-set>
+        ${chipsList}
+      </md-chip-set>
+      </caption>
+      
+      <thead>
+            <tr>
+                <th class="days-until">In<br><small>days</small></th>
+                <th>Event</th>
+                <th class="disclosure"></th>
+            </tr>
+        </thead>
+        <tbody>
+            ${result
+              .map((event, index) => {
+                // Since the first event is already displayed in the upcoming events
+                // journal widget, don't repeat it in the table. (nevermind)
+                // if (event.day === result[0].day) return '';
+                const eventTime = () => {
+                  const time = event.properties.time;
+                  if (time) return "@ " + time;
+                  return "";
+                };
+                const withWho = () => {
+                  const withWho = event.properties.with;
+                  if (withWho) return "w/ " + withWho;
+                  return "";
+                };
   
-              const activityPrefixTransformerConfig = {
-                prefixString: "activityName",
-                separator: "-",
-              };
-              const spaceToDashTransformerConfig = {
-                match: " ",
-                replacement: "-",
-              };
-              const joinWithSpacesFormatterConfig = {
-                separator: " ",
-              };
+                const activityPrefixTransformerConfig = {
+                  prefixString: "activityName",
+                  separator: "-",
+                };
+                const spaceToDashTransformerConfig = {
+                  match: " ",
+                  replacement: "-",
+                };
+                const joinWithSpacesFormatterConfig = {
+                  separator: " ",
+                };
   
-              const activityClassList = applyProcessingFunctions(
-                event.properties.activity,
-                [
-                  [addPrefixToStringTransformerFn, activityPrefixTransformerConfig],
-                  [replaceCharacterTransformerFn, spaceToDashTransformerConfig],
-                ],
-                [joinWithSpacesFormatterConfig]
-              );
+                const activityClassList = applyProcessingFunctions(
+                  event.properties.activity,
+                  [
+                    [addPrefixToStringTransformerFn, activityPrefixTransformerConfig],
+                    [replaceCharacterTransformerFn, spaceToDashTransformerConfig],
+                  ],
+                  [joinWithSpacesFormatterConfig]
+                );
   
-              function buildActivityArrayString(activities) {
-                // Escape single and wrap in single quotes to accommodate events
-                // with spaces in them.
-                return `[${activities
-                  .map((activity) => `'${activity.replace(/'/g, "\\'")}'`)
-                  .join(", ")}]`;
-              }
+                function buildActivityArrayString(activities) {
+                  // Escape single and wrap in single quotes to accommodate events
+                  // with spaces in them.
+                  return `[${activities
+                    .map((activity) => `'${activity.replace(/'/g, "\\'")}'`)
+                    .join(", ")}]`;
+                }
   
-              return `
-              <tr class="${activityClassList}" x-show="!hiddenActivities.some(activity => ${buildActivityArrayString(
-                event.properties.activity
-              )}.includes(activity))">
-                  <td rowspan="2" class="days-until"
-                      >${event.daysUntil}</td>
-                  <td class="touch-screen"><a onclick="logseq.api.append_block_in_page('${todaysJournalUUID}', '{{i-note}}\u0020\\n{{i-event}} [${
-                event.properties.event
-              }](((${event.uuid})))')"
-                          >${event.properties.event}</a></td>
-                  <td class="touch-screen ti disclosure" style="text-align: right"><a onclick="document.getElementById('event-info-${
-                    event.uuid
-                  }').classList.toggle('closed');">&#xea5f;  </a></td>
-              </tr>
-              <tr x-show="!hiddenActivities.some(activity => ${buildActivityArrayString(
-                event.properties.activity
-              )}.includes(activity))">
-                  <td colspan="2" class="closed event-info" id="event-info-${event.uuid}" 
-                      ><div class="quick-view-container"><span class="content-slot">${[
-                        eventTime(),
-                        withWho(),
-                        "on",
-                        event.date,
-                      ].join(
-                        " "
-                      )}</span><span class="trailing-slot touch-screen-fit bti"><a onclick="logseq.api.push_state('page', { name: '${
-                event.uuid
-              }' })">&#xea99;</a></span></div></td>
-              </tr>`;
-            })
-            .join("")}
-      </tbody>`;
+                return `
+                <tr class="${activityClassList}" x-show="!hiddenActivities.some(activity => ${buildActivityArrayString(
+                  event.properties.activity
+                )}.includes(activity))">
+                    <td rowspan="2" class="days-until"
+                        >${event.daysUntil}</td>
+                    <td class="touch-screen"><a onclick="logseq.api.append_block_in_page('${todaysJournalUUID}', '{{i-note}}\u0020\\n{{i-event}} [${
+                  event.properties.event
+                }](((${event.uuid})))')"
+                            >${event.properties.event}</a></td>
+                    <td class="touch-screen ti disclosure" style="text-align: right"><a onclick="document.getElementById('event-info-${
+                      event.uuid
+                    }').classList.toggle('closed');">&#xea5f;  </a></td>
+                </tr>
+                <tr x-show="!hiddenActivities.some(activity => ${buildActivityArrayString(
+                  event.properties.activity
+                )}.includes(activity))">
+                    <td colspan="2" class="closed event-info" id="event-info-${
+                      event.uuid
+                    }" 
+                        ><div class="quick-view-container"><span class="content-slot">${[
+                          eventTime(),
+                          withWho(),
+                          "on",
+                          event.date,
+                        ].join(
+                          " "
+                        )}</span><span class="trailing-slot touch-screen-fit bti"><a onclick="logseq.api.push_state('page', { name: '${
+                  event.uuid
+                }' })">&#xea99;</a></span></div></td>
+                </tr>`;
+              })
+              .join("")}
+        </tbody>`;
   
     table.addEventListener("mousedown", function cancel(e) {
       e.stopPropagation();
