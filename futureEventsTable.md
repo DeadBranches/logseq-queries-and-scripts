@@ -269,10 +269,9 @@ created-on:: [[Saturday, Aug 10th, 2024]]
         }`
     );
     // const activities = ["anticipated", "medical procedure", "appointment", "medication"];
-    const activitiesString =
-      await logseq.api.get_page(DATA_PAGE_NAME).properties[
-        FUTURE_EVENTS_ACTIVITY_CHIPS_BLOCK_PROPERTY
-      ];
+    const activitiesString = await logseq.api.get_page(DATA_PAGE_NAME).properties[
+      FUTURE_EVENTS_ACTIVITY_CHIPS_BLOCK_PROPERTY
+    ];
     const activityChips = JSON.parse(activitiesString);
   
     // const chipsList = activities
@@ -287,99 +286,112 @@ created-on:: [[Saturday, Aug 10th, 2024]]
         `
       )
       .join("");
-    table.innerHTML = `<caption> 
+    table.innerHTML = `
+    <caption> 
       <md-chip-set>
         ${chipsList}
       </md-chip-set>
-      </caption>
-      
-      <thead>
-            <tr>
-                <th class="days-until">In<br><small>days</small></th>
-                <th>Event</th>
-                <th class="disclosure"></th>
-            </tr>
-        </thead>
-        <tbody>
-            ${result
-              .map((event, index) => {
-                // Since the first event is already displayed in the upcoming events
-                // journal widget, don't repeat it in the table. (nevermind)
-                // if (event.day === result[0].day) return '';
-                const eventTime = () => {
-                  const time = event.properties.time;
-                  if (time) return "@ " + time;
-                  return "";
-                };
-                const withWho = () => {
-                  const withWho = event.properties.with;
-                  if (withWho) return "w/ " + withWho;
-                  return "";
-                };
+    </caption>
   
-                const activityPrefixTransformerConfig = {
-                  prefixString: "activityName",
-                  separator: "-",
-                };
-                const spaceToDashTransformerConfig = {
-                  match: " ",
-                  replacement: "-",
-                };
-                const joinWithSpacesFormatterConfig = {
-                  separator: " ",
-                };
+    <thead>
+      <tr>
+          <th class="days-until">In<br><small>days</small></th>
+          <th>Event</th>
+          <th class="disclosure"></th>
+      </tr>
+    </thead>
+    <tbody>
+      ${result
+        .map((event, index) => {
+          /**
+           * Event Time and Participant Formatting
+           * Processes event timing and participant details into human-readable format
+           */
+          const eventTime = () => {
+            const time = event.properties.time;
+            if (time) return "@ " + time;
+            return "";
+          };
   
-                const activityClassList = applyProcessingFunctions(
-                  event.properties.activity,
-                  [
-                    [addPrefixToStringTransformerFn, activityPrefixTransformerConfig],
-                    [replaceCharacterTransformerFn, spaceToDashTransformerConfig],
-                  ],
-                  [joinWithSpacesFormatterConfig]
-                );
+          const withWho = () => {
+            const withWho = event.properties.with;
+            if (withWho) return "w/ " + withWho;
+            return "";
+          };
   
-                function buildActivityArrayString(activities) {
-                  // Escape single and wrap in single quotes to accommodate events
-                  // with spaces in them.
-                  return `[${activities
-                    .map((activity) => `'${activity.replace(/'/g, "\\'")}'`)
-                    .join(", ")}]`;
-                }
+          /**
+           * Transform Configuration Settings
+           * Defines configuration objects for string transformations and formatting
+           */
+          const activityPrefixTransformerConfig = {
+            prefixString: "activityName",
+            separator: "-",
+          };
+          const spaceToDashTransformerConfig = {
+            match: " ",
+            replacement: "-",
+          };
+          const joinWithSpacesFormatterConfig = {
+            separator: " ",
+          };
   
-                return `
-                <tr class="${activityClassList}" x-show="!hiddenActivities.some(activity => ${buildActivityArrayString(
-                  event.properties.activity
-                )}.includes(activity))">
-                    <td rowspan="2" class="days-until"
-                        >${event.daysUntil}</td>
-                    <td class="touch-screen"><a onclick="logseq.api.append_block_in_page('${todaysJournalUUID}', '{{i-note}}\u0020\\n{{i-event}} [${
-                  event.properties.event
-                }](((${event.uuid})))')"
-                            >${event.properties.event}</a></td>
-                    <td class="touch-screen ti disclosure" style="text-align: right"><a onclick="document.getElementById('event-info-${
-                      event.uuid
-                    }').classList.toggle('closed');">&#xea5f;  </a></td>
-                </tr>
-                <tr x-show="!hiddenActivities.some(activity => ${buildActivityArrayString(
-                  event.properties.activity
-                )}.includes(activity))">
-                    <td colspan="2" class="closed event-info" id="event-info-${
-                      event.uuid
-                    }" 
-                        ><div class="quick-view-container"><span class="content-slot">${[
-                          eventTime(),
-                          withWho(),
-                          "on",
-                          event.date,
-                        ].join(
-                          " "
-                        )}</span><span class="trailing-slot touch-screen-fit bti"><a onclick="logseq.api.push_state('page', { name: '${
-                  event.uuid
-                }' })">&#xea99;</a></span></div></td>
-                </tr>`;
-              })
-              .join("")}
-        </tbody>`;
+          /**
+           * Activity Class Name Generation
+           * Applies transformation functions to create CSS class names from activity properties
+           */
+          const activityClassList = applyProcessingFunctions(
+            event.properties.activity,
+            [
+              [addPrefixToStringTransformerFn, activityPrefixTransformerConfig],
+              [replaceCharacterTransformerFn, spaceToDashTransformerConfig],
+            ],
+            [joinWithSpacesFormatterConfig]
+          );
+  
+          /**
+           * Activity Array Serialization
+           * Converts activity array into properly escaped string representation
+           */
+          function buildActivityArrayString(activities) {
+            // Escape single and wrap in single quotes to accommodate events
+            // with spaces in them.
+            return `[${activities
+              .map((activity) => `'${activity.replace(/'/g, "\\'")}'`)
+              .join(", ")}]`;
+          }
+  
+          return `
+          <tr class="${activityClassList}" x-show="!hiddenActivities.some(activity => ${buildActivityArrayString(
+            event.properties.activity
+          )}.includes(activity))">
+              <td rowspan="2" class="days-until"
+                  >${event.daysUntil}</td>
+              <td class="touch-screen"><a onclick="logseq.api.append_block_in_page('${todaysJournalUUID}', '{{i-note}}\u0020\\n{{i-event}} [${
+            event.properties.event
+          }](((${event.uuid})))')"
+                      >${event.properties.event}</a></td>
+              <td class="touch-screen ti disclosure" style="text-align: right"><a onclick="document.getElementById('event-info-${
+                event.uuid
+              }').classList.toggle('closed');">&#xea5f;  </a></td>
+          </tr>
+          <tr x-show="!hiddenActivities.some(activity => ${buildActivityArrayString(
+            event.properties.activity
+          )}.includes(activity))">
+              <td colspan="2" class="closed event-info" id="event-info-${event.uuid}" 
+                  ><div class="quick-view-container"><span class="content-slot">${[
+                    eventTime(),
+                    withWho(),
+                    "on",
+                    event.date,
+                  ].join(
+                    " "
+                  )}</span><span class="trailing-slot touch-screen-fit bti"><a onclick="logseq.api.push_state('page', { name: '${
+            event.uuid
+          }' })">&#xea99;</a></span></div></td>
+          </tr>`;
+        })
+        .join("")}
+    </tbody>`;
   
     table.addEventListener("mousedown", function cancel(e) {
       e.stopPropagation();
