@@ -48,6 +48,10 @@ created-on:: [[Saturday, Aug 10th, 2024]]
   const DATA_PAGE_NAME = "data";
   const FUTURE_EVENTS_ACTIVITY_CHIPS_BLOCK_PROPERTY = "futureEventsActivityChips"; // Use camel case here.
   
+  
+  /**
+   * Helper functions
+   */
   function applyProcessingFunctions(
     itemArray,
     transformerFunctions,
@@ -80,9 +84,43 @@ created-on:: [[Saturday, Aug 10th, 2024]]
   }
   
   /**
+   * @function convertDays
+   * @description Convert days to a human-readable format.
+   * Less than 2 months: return days
+   * 3 years or more: round to nearest year
+   * 1-3 years: round to nearest half year
+   * 4+ months: round to nearest month
+   * 2-4 months: round to nearest half month
+   * @param {number} days
+   * @returns {string} Human-readable string representing the number of days
+   *
+   * @example
+   * convertDays(30);
+   */
+  const convertDays = days => {
+    const DAYS_IN_MONTH = 30.44; // Average days in a month
+    const DAYS_IN_YEAR = 365.25; // Account for leap years
+    const months = days / DAYS_IN_MONTH;
+    const years = days / DAYS_IN_YEAR;
+  
+    if (months < 2) return `${days}`;
+    if (years >= 3) return `${Math.round(years)} y`;
+    if (years >= 1) {
+      const roundedYears = Math.round(years * 2) / 2;
+      return `${roundedYears} y`;
+    }
+  
+    if (months >= 4) {
+      return `${Math.round(months)} m`;
+    }
+  
+    const roundedMonths = Math.round(months * 2) / 2;
+    return `${roundedMonths} m`;
+  };
+  
+  /**
    * @function futureEventsTable
    * @param {HTMLElement} div - The DOM element where the future events table will be inserted.
-   *
    */
   logseq.kits.setStatic(async function futureEventsTable(div) {
     // Start counting from startDate date into the future. You probably want
@@ -312,7 +350,7 @@ created-on:: [[Saturday, Aug 10th, 2024]]
   
     <thead>
       <tr>
-          <th class="days-until">In<br><small>days</small></th>
+          <th class="days-until">In</th>
           <th>Event</th>
           <th class="disclosure"></th>
       </tr>
@@ -382,7 +420,7 @@ created-on:: [[Saturday, Aug 10th, 2024]]
             event.properties.activity
           )}.includes(activity))">
               <td rowspan="2" class="days-until"
-                  >${event.daysUntil}</td>
+                  >${convertDays(event.daysUntil)}</td>
               <td class="touch-screen"><a onclick="logseq.api.append_block_in_page('${todaysJournalUUID}', '{{i-note}}\u0020\\n{{i-event}} [${
             event.properties.event
           }](((${event.uuid})))')"
@@ -426,4 +464,44 @@ created-on:: [[Saturday, Aug 10th, 2024]]
 	- `{{futureEventsTable}}`
 -
 	- {{futureEventsTable}}
--
+- ```javascript
+  const convertDays = days => {
+    const DAYS_IN_MONTH = 30.44; // Average days in a month
+    const DAYS_IN_YEAR = 365.25; // Account for leap years
+    const months = days / DAYS_IN_MONTH;
+    const years = days / DAYS_IN_YEAR;
+  
+    // Less than 2 months: return days
+    if (months < 2) return `${days}`;
+  
+    // 3 years or more: round to nearest year
+    if (years >= 3) return `${Math.round(years)} y`;
+  
+    // 1-3 years: round to nearest half year
+    if (years >= 1) {
+      const roundedYears = Math.round(years * 2) / 2;
+      return `${roundedYears} y`;
+    }
+  
+    // 4+ months: round to nearest month
+    if (months >= 4) {
+      return `${Math.round(months)} m`;
+    }
+  
+    // 2-4 months: round to nearest half month
+    const roundedMonths = Math.round(months * 2) / 2;
+    return `${roundedMonths} m`;
+  };
+  console.log(convertDays(15), "15");      // "15"
+  console.log(convertDays(45), "45");      // "45"
+  console.log(convertDays(68), "68 = 2 m");      // "2 m"
+  console.log(convertDays(69), "69 = 2.5 m");      // "2.5 m"
+  console.log(convertDays(75), "2.5 m");      // "2.5 m"
+  console.log(convertDays(100), "3.5 m");     // "3.5 m"
+  console.log(convertDays(150), "5 m");     // "5 m"
+  console.log(convertDays(365), "1 y");     // "1 y"
+  console.log(convertDays(550), "1.5 y");     // "1.5 y"
+  console.log(convertDays(1095), "3 y");    // "3 y"
+  console.log(convertDays(1460), "4 y");    // "4 y"
+  ```
+	- {{evalparent}}
