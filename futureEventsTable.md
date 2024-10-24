@@ -28,6 +28,14 @@ created-on:: [[Saturday, Aug 10th, 2024]]
    * 
    */
   
+  const DATA_PAGE_NAME = 'data';
+  // Put the activity names you want in chips in kebab-case formatted block property
+  // in DATA_PAGE_NAME in JSON array format.
+  // E.g:
+  // page: data
+  // - future-events-activity-chips:: ["button", "mushroom face"]
+  const FUTURE_EVENTS_ACTIVITY_CHIPS_BLOCK_PROPERTY = 'futureEventsActivityChips'; // Use camel case here.
+  
   function applyProcessingFunctions(
     itemArray,
     transformerFunctions,
@@ -59,6 +67,28 @@ created-on:: [[Saturday, Aug 10th, 2024]]
     return baseString.replaceAll(match, replacement);
   }
   
+  function getActivityCounts(events) {
+    // Create a map to store activity counts
+    const activityCounts = new Map();
+  
+    // Count occurrences of each activity
+    events.forEach((event) => {
+      const activities = event.properties?.activity || [];
+      activities.forEach((activity) => {
+        activityCounts.set(activity, (activityCounts.get(activity) || 0) + 1);
+      });
+    });
+  
+    // Convert to array and sort by count (descending)
+    const sortedActivities = Array.from(activityCounts.entries())
+      .sort((a, b) => b[1] - a[1])
+      .map(([activity, count]) => ({
+        activity,
+        count,
+      }));
+  
+    return sortedActivities;
+  }
   
   /**
    * @function futureEventsTable
@@ -248,9 +278,11 @@ created-on:: [[Saturday, Aug 10th, 2024]]
         }
       }`
     );
-    const activities = ["anticipated", "medical procedure", "appointment", "medication"];
   
-    const chipsList = activities
+    const activitiesString = logseq.api.get_page(DATA_PAGE_NAME).properties[FUTURE_EVENTS_ACTIVITY_CHIPS_BLOCK_PROPERTY];
+    const activityChips = JSON.parse(activitiesString);
+  
+    const chipsList = activityChips
       .map(
         (activity) => `
       <md-filter-chip
@@ -264,7 +296,6 @@ created-on:: [[Saturday, Aug 10th, 2024]]
     table.innerHTML = `<caption> 
     <md-chip-set>
       ${chipsList}
-      <md-suggestion-chip label="Add to calendar"></md-suggestion-chip>
     </md-chip-set>
     
     </caption>
@@ -322,7 +353,6 @@ created-on:: [[Saturday, Aug 10th, 2024]]
                   .join(", ")}]`;
               }
   
-              console.log(event.properties.activity, "activity event list");
               return `
               <tr class="${activityClassList}" x-show="!hiddenActivities.some(activity => ${buildActivityArrayString(
                 event.properties.activity
@@ -337,7 +367,9 @@ created-on:: [[Saturday, Aug 10th, 2024]]
                     event.uuid
                   }').classList.toggle('closed');">&#xea5f;  </a></td>
               </tr>
-              <tr>
+              <tr x-show="!hiddenActivities.some(activity => ${buildActivityArrayString(
+                event.properties.activity
+              )}.includes(activity))">
                   <td colspan="2" class="closed event-info" id="event-info-${event.uuid}" 
                       ><div class="quick-view-container"><span class="content-slot">${[
                         eventTime(),
