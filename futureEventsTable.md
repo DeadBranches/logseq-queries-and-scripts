@@ -82,12 +82,6 @@ created-on:: [[Saturday, Aug 10th, 2024]]
     return sortedActivities;
   }
   
-  window.toggleVisibilityByClass = function (selector) {
-    const selectedItems = document.querySelectorAll(selector);
-    selectedItems.forEach((row) => {
-      row.classList.toggle("hidden");
-    });
-  };
   
   /**
    * @function futureEventsTable
@@ -293,7 +287,6 @@ created-on:: [[Saturday, Aug 10th, 2024]]
     table.innerHTML = `<caption> 
     <md-chip-set>
       ${chipsList}
-      <!-- onclick="toggleVisibilityByClass('.activityName-anticipated')" -->
       <md-suggestion-chip label="Add to calendar"></md-suggestion-chip>
     </md-chip-set>
     
