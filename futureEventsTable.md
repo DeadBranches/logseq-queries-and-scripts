@@ -59,29 +59,6 @@ created-on:: [[Saturday, Aug 10th, 2024]]
     return baseString.replaceAll(match, replacement);
   }
   
-  function getActivityCounts(events) {
-    // Create a map to store activity counts
-    const activityCounts = new Map();
-  
-    // Count occurrences of each activity
-    events.forEach((event) => {
-      const activities = event.properties?.activity || [];
-      activities.forEach((activity) => {
-        activityCounts.set(activity, (activityCounts.get(activity) || 0) + 1);
-      });
-    });
-  
-    // Convert to array and sort by count (descending)
-    const sortedActivities = Array.from(activityCounts.entries())
-      .sort((a, b) => b[1] - a[1])
-      .map(([activity, count]) => ({
-        activity,
-        count,
-      }));
-  
-    return sortedActivities;
-  }
-  
   
   /**
    * @function futureEventsTable
