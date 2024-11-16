@@ -1585,7 +1585,7 @@ repository:: DeadBranches/logseq-queries-and-scripts
 					  				  				  			 day: Integer representing the day of the month
 					  				  				  		Returns: Integer representing the Julian day number"
 					         :example "(date-journal-day->julian-day 2024 9 18) ; => 2460211"
-									 }
+					  		 }
 					       (let [a (integer-floor (/ (- 14 month) 12))
 					             y (+ year 4800 (- a))
 					             m (+ month (* 12 a) -3)]
@@ -1876,9 +1876,9 @@ repository:: DeadBranches/logseq-queries-and-scripts
 					                [:tr
 					                 [:td.left-column.icon-cell {:rowspan "2"}
 					                  [:span.bti.bigger {:dangerouslySetInnerHTML
-                                          {:__html (make-icon
-                                                    grocery-item
-                                                    icon-data-map)}}]]
+					                                     {:__html (make-icon
+					                                               grocery-item
+					                                               icon-data-map)}}]]
 					  
 					                 [:td.touch-screen
 					                  (if (and
@@ -2809,8 +2809,7 @@ repository:: DeadBranches/logseq-queries-and-scripts
 				  
 				   :breadcrumb-show? false}
 				  ```
-				- id:: 66c12458-4744-4f60-bc2b-8396c7bd3819
-				  #+BEGIN_QUERY
+				- #+BEGIN_QUERY
 				  ;; query v5
 				  {:inputs ["grocery" :today]
 				   :query
@@ -6499,8 +6498,373 @@ repository:: DeadBranches/logseq-queries-and-scripts
 			- {{i f635}} information
 				- for related {{i ef91}} project see [[:logseq-events-and-appointments]]
 			- ### {{i eb89}} current query
-			  version: **v2.4.2**
+			  version **v2.5**
 				- id:: 664e4055-3b72-4ba1-ac8b-48e34544629c
+				  #+BEGIN_QUERY
+				  {:query
+				   [:find (min ?activity-datestamp) ?date ?activity-datestamp ?today-datestamp ?content ?props ?current-page-name ?activity-uuid ?current-page-uuid (distinct ?icon)
+				    :keys first-activity-datestamp date activity-datestamp today-datestamp content properties current-page-name activity-card-uuid current-page-uuid icon
+				    :in $ ?today-datestamp ?current-page-name
+				    :where
+				  
+				    [?b :block/properties ?props]
+				    [(get ?props :activity) ?activity]
+				    [(get ?props :event) ?event]
+				    [(get ?props :date) ?date]
+				    [(get ?props :scheduling "") ?scheduling]
+				    (not [(contains? ?scheduling "CANCELED")])
+				  
+				  			    ;; :date
+				    [?d :block/original-name ?bn]
+				    [(contains? ?date ?bn)]
+				    [?d :block/journal-day ?activity-datestamp]
+				    [(>= ?activity-datestamp ?today-datestamp)]
+				  
+				    [?b :block/content ?content]
+				    [?b :block/uuid ?activity-uuid]
+				  
+				    [?p :block/name ?current-page-name]
+				    [?p :block/uuid ?current-page-uuid]
+				  
+				    [?a :block/name ?activity-page]
+				    [(contains? ?activity ?activity-page)]
+				    (or-join [?a ?icon]
+				             (and
+				              [?a :block/properties ?activity-props]
+				              [(get ?activity-props :-icon) ?icon]
+				              [(some? ?icon)]) ;; :-icon exists and is not nil
+				             (and
+				              [?a :block/properties ?activity-props]
+				              [(get ?activity-props :-icon :not-found) ?icon-or-not-found]
+				              [(= ?icon-or-not-found :not-found)] ;; :block/properties, but nil icon
+				              [(identity "0000") ?icon])
+				             (and ;; no block properties
+				              [(missing? $ ?a :block/properties)] ;; no :bp
+				              [(identity "0000") ?icon]))]
+				  
+				  
+				   :result-transform
+				   (letfn [(format-event-string [event-name person-names]
+				             (if (seq person-names)
+				               (str event-name " with " (clojure.string/join ", " person-names))
+				               (str event-name)))
+				  
+				           (sort-by-activity-datestamp [results]
+				             (sort-by (fn [r] (get-in r [:activity-datestamp])) compare results))
+				  
+				           (filter-next-events [results]
+				             (let [first-activity-datestamp (get-in (first results) [:first-activity-datestamp])]
+				               (filter (fn [result]
+				                         (= (get-in result [:activity-datestamp]) first-activity-datestamp))
+				                       results)))
+				  
+				           (format-event [result]
+				             (let [event-name (get-in result [:properties :event])
+				                   person-names (get-in result [:properties :with])
+				                   event-uuid (str (get-in result [:activity-card-uuid]))
+				                   current-page-uuid (str (get-in result [:current-page-uuid]))
+				  
+				                   event-icon (first (get-in result [:icon]))]
+				               {:name (format-event-string event-name person-names)
+				                :uuid event-uuid
+				                :current-page-uuid current-page-uuid
+				                :icon event-icon
+				                :event-properties  (get-in result [:properties])}))]
+				  
+				  
+				     (fn [results]
+				       (->> results
+				            (sort-by-activity-datestamp)
+				            (filter-next-events)
+				            (map format-event))))
+				  
+				  
+				   :view
+				   (fn [formatted-events]
+				  			   ;; Primary date-generation functions
+				     (defn date-today-impl
+				       "Returns today's date as an integer in the format YYYYMMDD. Uses the datascript_query API to fetch the current date."
+				       [] (let [query-result (call-api "datascript_query"
+				                                       "[:find ?today :in $ ?today :where [_ :block/name _]]"
+				                                       ":today")
+				  
+				                date-integer (read-string (apply str
+				                                                 query-result))]
+				            date-integer))
+				     (def date-today (memoize date-today-impl))
+				  
+				  
+				  			  ;; Helper functions
+				     (defn integer-floor
+				       "Returns the largest double less than or equal to number, and equal to a mathematical integer. Equivalent to clojure.math/floor"
+				       [number] (if (>= number 0)
+				                  (int number)
+				                  (dec (int number))))
+				  
+				     (defn explode-journal-day
+				       "Return integers for YYYY MM DD from YYYYMMDD"
+				       [journal-day] [(quot journal-day 10000)
+				                      (rem (quot journal-day 100) 100)
+				                      (rem journal-day 100)])
+				  
+				     (defn number-absolute
+				       "Returns the absolute value of a number. Equivalent to abs."
+				       [number] (if (>= number 0)
+				                  number
+				                  (- number)))
+				  
+				  			  ;; Date conversion functions
+				     (defn date-reference->journal-day
+				       "Uses a datascript query to get the :journal-day value for a given date reference. Assumes that the date string has already been referenced. Example: (date-reference->journal-day \"Sunday, Nov 11th, 2024\") => 20241111"
+				       [s]
+				       (let [query-string (str "[:find ?journal-day :where"
+				                               "[?p :block/original-name \"" s "\"]"
+				                               "[?p :block/journal-day ?journal-day]"
+				                               "]")
+				             query-results (call-api "datascript_query" query-string)]
+				         (int query-results)))
+				  
+				     (defn journal-day->julian-day
+				       "Converts a Gregorian calendar date to a Julian day number."
+				       ([YYYYMMDD] (let
+				                    [[year month day] (explode-journal-day YYYYMMDD)]
+				                     (journal-day->julian-day year month day)))
+				  
+				       ([year month day] (let [a (integer-floor (/ (- 14 month) 12))
+				                               y (+ year 4800 (- a))
+				                               m (+ month (* 12 a) -3)]
+				                           (+ day
+				                              (integer-floor (/ (+ (* 153 m) 2) 5))
+				                              (* 365 y)
+				                              (integer-floor (/ y 4))
+				                              (- (integer-floor (/ y 100)))
+				                              (integer-floor (/ y 400))
+				                              -32045))))
+				  
+				  
+				     (defn julian-day->journal-day
+				       "Convert a Julian day to a Gregorian calendar date.
+				  			  
+				  			    Parameters:
+				  			    - `julian-day` (integer): The Julian day to convert.
+				  			    - `opts` (optional map):
+				  			      - `:format` (keyword): The desired output format. Can be `:map` or `:int`  (default).
+				  			  
+				  			    Returns:
+				  			    - If `:format` is `:map` (default), returns a map with keys `:year`, `:month`, and `:day`.
+				  			    - If `:format` is `:int`, returns a int in `YYYYMMDD` format.
+				  			  
+				  			    Examples:
+				  			    (julian-day->journal-day 2460660)
+				  			    ;; => {:year 2024, :month 1, :day 1}
+				  			  
+				  			    (julian-day->journal-day 2460660 {:format :int})
+				  			    ;; => 20240101"
+				       ([julian-day]
+				        (julian-day->journal-day julian-day {:format :int}))
+				       ([julian-day opts]
+				        (let [l (+ julian-day 68569)
+				              n (quot (* 4 l) 146097)
+				              l (- l (quot (+ (* 146097 n) 3) 4))
+				              i (quot (* 4000 (+ l 1)) 1461001)
+				              l (+ (- l (quot (* 1461 i) 4)) 31)
+				              j (quot (* 80 l) 2447)
+				              k (- l (quot (* 2447 j) 80))
+				              l (quot j 11)
+				              j (+ j 2 (- (* 12 l)))
+				              i (+ (* 100 (- n 49)) i l)
+				              year i
+				              month j
+				              day k]
+				          (let [format-type (get opts :format :map)]
+				            (case format-type
+				              :map {:year year :month month :day day}
+				              :int (int (str year month day))
+				              (throw (ex-info "Invalid format option. Use :map or :int" {:format format-type})))))))
+				  
+				  
+				     (defn date-get-difference
+				       "Calculates the absolute difference in days between a date and today (default) or a second date."
+				       ([journal-day] (date-get-difference journal-day (date-today)))
+				       ([journal-day1 journal-day2]
+				        (let [julian-day-number1 (journal-day->julian-day journal-day1)
+				              julian-day-number2 (journal-day->julian-day journal-day2)]
+				          (number-absolute (- julian-day-number1
+				                              julian-day-number2)))))
+				  
+				  			  ;; source: https://discuss.logseq.com/t/add-query-input-or-function-day-of-week/18361/12
+				     (def months {1 "January" 2 "February"  3 "March" 4 "April" 5 "May" 6 "June" 7 "July" 8 "August" 9 "September" 10 "October" 11 "November" 12 "December"})
+				     (def monthName (fn [dd]
+				                      (get months (int dd))))
+				     (def days {0 "Saturday" 1 "Sunday" 2 "Monday" 3 "Tuesday" 4 "Wednesday" 5 "Thursday" 6 "Friday"})
+				     (def weekDay (fn [date]
+				                    (def month (quot (mod date 10000) 100))
+				                    (def month6 (quot (- month 8) 6))
+				                    (def year6 (+ (quot date 10000)
+				                                  month6))
+				                    (def yearnum (mod year6 100))
+				                    (def century (quot year6 100))
+				                    (def d (mod (+ (mod date 100)
+				                                   (quot (* 13
+				                                            (inc (- month
+				                                                    (* month6 12))))
+				                                         5)
+				                                   yearnum
+				                                   (quot yearnum 4)
+				                                   (quot century 4)
+				                                   (* 5 century))
+				                                7))
+				                    (get days d)))
+				  
+				     (def suffixes {0 "th" 1 "st" 2 "nd" 3 "rd" 4 "th" 5 "th" 6 "th" 7 "th" 8 "th" 9 "th"})
+				     (def positionalSuffix (fn [dd]
+				                             (if (or (= dd "11") (= dd "12") (= dd "13"))
+				                               (get suffixes 0)
+				                               (get suffixes (int (subs dd (count dd) 1))))))
+				  
+				     (def token (fn [s] (str "⟨" s "⟩")))
+				     (def format
+				       (-> (get (js->clj (call-api "get_user_configs")) "preferredDateFormat")
+				           (clojure.string/replace "do" (token "1"))
+				           (clojure.string/replace "dd" (token "2"))
+				           (clojure.string/replace "d" (token "3"))
+				           (clojure.string/replace "EEEE" (token "4"))
+				           (clojure.string/replace "EEE" (token "5"))
+				           (clojure.string/replace "EE" (token "6"))
+				           (clojure.string/replace "E" (token "7"))
+				           (clojure.string/replace "MMMM" (token "8"))
+				           (clojure.string/replace "MMM" (token "9"))
+				           (clojure.string/replace "MM" (token "10"))
+				           (clojure.string/replace "M" (token "11"))
+				           (clojure.string/replace "yyyy" (token "12"))
+				           (clojure.string/replace "yy" (token "13"))))
+				  
+				     (def parseDate (fn [date]
+				                      (if-not date nil
+				                              (let [regex (re-pattern "(\\d{4})(\\d{2})(\\d{2})")
+				                                    [_ yyyy mm dd] (re-matches regex (str date))
+				                                    yy (subs yyyy 2 4)
+				                                    d (str (int dd))
+				                                    do (str d (positionalSuffix dd))
+				                                    mmmm (monthName mm)
+				                                    mmm (subs mmmm 0 3)
+				                                    m (str (int mm))
+				                                    eeee (weekDay date)
+				                                    eee (subs eeee 0 3)
+				                                    ee (subs eeee 0 2)
+				                                    e eee]
+				                                (-> format
+				                                    (clojure.string/replace (token "1") do)
+				                                    (clojure.string/replace (token "2") dd)
+				                                    (clojure.string/replace (token "3") d)
+				                                    (clojure.string/replace (token "4") eeee)
+				                                    (clojure.string/replace (token "5") eee)
+				                                    (clojure.string/replace (token "6") ee)
+				                                    (clojure.string/replace (token "7") e)
+				                                    (clojure.string/replace (token "8") mmmm)
+				                                    (clojure.string/replace (token "9") mmm)
+				                                    (clojure.string/replace (token "10") mm)
+				                                    (clojure.string/replace (token "11") m)
+				                                    (clojure.string/replace (token "12") yyyy)
+				                                    (clojure.string/replace (token "13") yy))))))
+				     (def parseDateRef (fn [date]
+				                         (if-not date nil
+				                                 (str "[[" (parseDate date) "]]"))))
+				  
+				     (defn +d [s n]
+				       (let [input-date-string s
+				             journal-day-from-date-string (date-reference->journal-day input-date-string)
+				             julian-day-from-journal-day (journal-day->julian-day journal-day-from-date-string)
+				             future-julian-day-date (+ n julian-day-from-journal-day)
+				             journal-day-from-future-julian-day (julian-day->journal-day future-julian-day-date)
+				             parsed-date (parseDate journal-day-from-future-julian-day)]
+				         parsed-date))
+				  
+				     (defn does-future-activity-exist
+				       "Returns true if an activity with the same event name and with the same person exists in the future."
+				       [properties]
+				       (let [this-event (:event properties)
+				             this-event-date (:date properties)
+				             this-person (:with properties)
+				             query-string (str "[:find ?today ?future-date"
+				                               " :in $ ?today ?tomorrow ?this-event ?this-person"
+				                               " :where"
+				                               " [?b :block/properties ?props]"
+				                               " [(get ?props :event) ?event]"
+				                               " [(= ?event ?this-event)]"
+				                               " [(get ?props :with) ?with]"
+				                               " [(= ?with ?this-person)]"
+				                               " [(get ?props :with) ?with]"
+				  
+				                               " [(get ?props :date) ?date]"
+				                               " [?dp :block/original-name ?on]"
+				                               " [(contains? ?date ?on)]"
+				                               " [?dp :block/journal-day ?future-date]"
+				  
+				                               " [(> ?future-date ?today)]"
+				                               "]")
+				  
+				             query-inputs [":today"
+				                           ":tomorrow"
+				                           (pr-str this-event)
+				                           (pr-str this-person)]
+				             query-results (apply call-api "datascript_query" query-string query-inputs)]
+				  
+				  			         ;; return true if query-results has any results; false otherwise
+				         (boolean (seq query-results))))
+				  
+				     (defn make-schedule-next-hiccup
+				       ([properties uuid activity-name-trigger]
+				        (let [activities-set (:activity properties)
+				              repeat-interval (:repeat-interval properties)
+				              should-render-button (and
+				                                    (contains? activities-set activity-name-trigger)
+				                                    (not (does-future-activity-exist properties)))]
+				          (when should-render-button
+				            [:span.content-slot
+				             [:button
+				              {:on-click
+				               (fn []
+				                 (call-api "append_block_in_page"
+				                           uuid
+				                           (str "")
+				                           {:focus false
+				                            :properties
+				                            {:event    (:event properties)
+				                             :activity (:activity properties)
+				                             :with     (:with properties)
+				                             :location (:location properties)
+				                             :time     (:time properties)
+				                             :date     (str "[["
+				                                            (+d (first (:date properties))
+				                                                (int (:repeat-interval-days properties)))
+				                                            "]]")
+				                             :repeat-interval-days (:repeat-interval-days properties)}}))} "REPEATABLE"]]))))
+				  
+				     (if (empty? formatted-events)
+				       "no events"
+				       (for [event formatted-events]
+				         [:div {:class "quick-view-container left-spacing"}
+				          [:span.ti (read-string (str "\"\\u" (:icon event) "\""))]
+				          [:span.content-slot
+				           [:a {:on-click (fn []
+				                            (call-api "append_block_in_page"
+				                                      (:current-page-uuid event)
+				                                      (str "{{i eb6d}} note for {{i f621}} ["
+				                                           (:name event)
+				                                           "]((("
+				                                           (:uuid event)
+				                                           ")))")))}
+				            (:name event)]]
+				          (make-schedule-next-hiccup (:event-properties event) (:current-page-uuid event) "repeating appointment")])))
+				  
+				  
+				  
+				   :inputs [:today :current-page]}
+				  #+END_QUERY
+			- ### {{i eb89}} current query
+			  version: **v2.4.2**
+				- id:: 6737f61d-8940-48d0-810d-36c20421b095
 				  #+BEGIN_QUERY
 				  {:query
 				   [:find (min ?activity-datestamp) ?date ?activity-datestamp ?today-datestamp ?content ?props ?current-page-name ?activity-uuid ?current-page-uuid (distinct ?icon)
@@ -6596,6 +6960,371 @@ repository:: DeadBranches/logseq-queries-and-scripts
 				  #+END_QUERY
 			- {{i ea0b}} *version archive*
 			  *older stuff*
+				- v2.5 feature: Add "repeatable" appointments.
+					- Adds a *REPEATABLE* button beside appointments, which duplicates the appointment *n* days in the future
+					- **Usage**: Include the `:activity``[[repeatable appointment]]` and add the number of days in which to add to the date when repeating the event via the property `:repeat-interval {d}`.
+					- ```clojure
+					  {:query
+					   [:find (min ?activity-datestamp) ?date ?activity-datestamp ?today-datestamp ?content ?props ?current-page-name ?activity-uuid ?current-page-uuid (distinct ?icon)
+					    :keys first-activity-datestamp date activity-datestamp today-datestamp content properties current-page-name activity-card-uuid current-page-uuid icon
+					    :in $ ?today-datestamp ?current-page-name
+					    :where
+					  
+					    [?b :block/properties ?props]
+					    [(get ?props :activity) ?activity]
+					    [(get ?props :event) ?event]
+					    [(get ?props :date) ?date]
+					    [(get ?props :scheduling "") ?scheduling]
+					    (not [(contains? ?scheduling "CANCELED")])
+					  
+					  			    ;; :date
+					    [?d :block/original-name ?bn]
+					    [(contains? ?date ?bn)]
+					    [?d :block/journal-day ?activity-datestamp]
+					    [(>= ?activity-datestamp ?today-datestamp)]
+					  
+					    [?b :block/content ?content]
+					    [?b :block/uuid ?activity-uuid]
+					  
+					    [?p :block/name ?current-page-name]
+					    [?p :block/uuid ?current-page-uuid]
+					  
+					    [?a :block/name ?activity-page]
+					    [(contains? ?activity ?activity-page)]
+					    (or-join [?a ?icon]
+					             (and
+					              [?a :block/properties ?activity-props]
+					              [(get ?activity-props :-icon) ?icon]
+					              [(some? ?icon)]) ;; :-icon exists and is not nil
+					             (and
+					              [?a :block/properties ?activity-props]
+					              [(get ?activity-props :-icon :not-found) ?icon-or-not-found]
+					              [(= ?icon-or-not-found :not-found)] ;; :block/properties, but nil icon
+					              [(identity "0000") ?icon])
+					             (and ;; no block properties
+					              [(missing? $ ?a :block/properties)] ;; no :bp
+					              [(identity "0000") ?icon]))]
+					  
+					  
+					   :result-transform
+					   (letfn [(format-event-string [event-name person-names]
+					             (if (seq person-names)
+					               (str event-name " with " (clojure.string/join ", " person-names))
+					               (str event-name)))
+					  
+					           (sort-by-activity-datestamp [results]
+					             (sort-by (fn [r] (get-in r [:activity-datestamp])) compare results))
+					  
+					           (filter-next-events [results]
+					             (let [first-activity-datestamp (get-in (first results) [:first-activity-datestamp])]
+					               (filter (fn [result]
+					                         (= (get-in result [:activity-datestamp]) first-activity-datestamp))
+					                       results)))
+					  
+					           (format-event [result]
+					             (let [event-name (get-in result [:properties :event])
+					                   person-names (get-in result [:properties :with])
+					                   event-uuid (str (get-in result [:activity-card-uuid]))
+					                   current-page-uuid (str (get-in result [:current-page-uuid]))
+					  
+					                   event-icon (first (get-in result [:icon]))]
+					               {:name (format-event-string event-name person-names)
+					                :uuid event-uuid
+					                :current-page-uuid current-page-uuid
+					                :icon event-icon
+					                :event-properties  (get-in result [:properties])}))]
+					  
+					  
+					     (fn [results]
+					       (->> results
+					            (sort-by-activity-datestamp)
+					            (filter-next-events)
+					            (map format-event))))
+					  
+					  
+					   :view
+					   (fn [formatted-events]
+					  			   ;; Primary date-generation functions
+					     (defn date-today-impl
+					       "Returns today's date as an integer in the format YYYYMMDD. Uses the datascript_query API to fetch the current date."
+					       [] (let [query-result (call-api "datascript_query"
+					                                       "[:find ?today :in $ ?today :where [_ :block/name _]]"
+					                                       ":today")
+					  
+					                date-integer (read-string (apply str
+					                                                 query-result))]
+					            date-integer))
+					     (def date-today (memoize date-today-impl))
+					  
+					  
+					  			  ;; Helper functions
+					     (defn integer-floor
+					       "Returns the largest double less than or equal to number, and equal to a mathematical integer. Equivalent to clojure.math/floor"
+					       [number] (if (>= number 0)
+					                  (int number)
+					                  (dec (int number))))
+					  
+					     (defn explode-journal-day
+					       "Return integers for YYYY MM DD from YYYYMMDD"
+					       [journal-day] [(quot journal-day 10000)
+					                      (rem (quot journal-day 100) 100)
+					                      (rem journal-day 100)])
+					  
+					     (defn number-absolute
+					       "Returns the absolute value of a number. Equivalent to abs."
+					       [number] (if (>= number 0)
+					                  number
+					                  (- number)))
+					  
+					  			  ;; Date conversion functions
+					     (defn date-reference->journal-day
+					       "Uses a datascript query to get the :journal-day value for a given date reference. Assumes that the date string has already been referenced. Example: (date-reference->journal-day \"Sunday, Nov 11th, 2024\") => 20241111"
+					       [s]
+					       (let [query-string (str "[:find ?journal-day :where"
+					                               "[?p :block/original-name \"" s "\"]"
+					                               "[?p :block/journal-day ?journal-day]"
+					                               "]")
+					             query-results (call-api "datascript_query" query-string)]
+					         (int query-results)))
+					  
+					     (defn journal-day->julian-day
+					       "Converts a Gregorian calendar date to a Julian day number."
+					       ([YYYYMMDD] (let
+					                    [[year month day] (explode-journal-day YYYYMMDD)]
+					                     (journal-day->julian-day year month day)))
+					  
+					       ([year month day] (let [a (integer-floor (/ (- 14 month) 12))
+					                               y (+ year 4800 (- a))
+					                               m (+ month (* 12 a) -3)]
+					                           (+ day
+					                              (integer-floor (/ (+ (* 153 m) 2) 5))
+					                              (* 365 y)
+					                              (integer-floor (/ y 4))
+					                              (- (integer-floor (/ y 100)))
+					                              (integer-floor (/ y 400))
+					                              -32045))))
+					  
+					  
+					     (defn julian-day->journal-day
+					       "Convert a Julian day to a Gregorian calendar date.
+					  			  
+					  			    Parameters:
+					  			    - `julian-day` (integer): The Julian day to convert.
+					  			    - `opts` (optional map):
+					  			      - `:format` (keyword): The desired output format. Can be `:map` or `:int`  (default).
+					  			  
+					  			    Returns:
+					  			    - If `:format` is `:map` (default), returns a map with keys `:year`, `:month`, and `:day`.
+					  			    - If `:format` is `:int`, returns a int in `YYYYMMDD` format.
+					  			  
+					  			    Examples:
+					  			    (julian-day->journal-day 2460660)
+					  			    ;; => {:year 2024, :month 1, :day 1}
+					  			  
+					  			    (julian-day->journal-day 2460660 {:format :int})
+					  			    ;; => 20240101"
+					       ([julian-day]
+					        (julian-day->journal-day julian-day {:format :int}))
+					       ([julian-day opts]
+					        (let [l (+ julian-day 68569)
+					              n (quot (* 4 l) 146097)
+					              l (- l (quot (+ (* 146097 n) 3) 4))
+					              i (quot (* 4000 (+ l 1)) 1461001)
+					              l (+ (- l (quot (* 1461 i) 4)) 31)
+					              j (quot (* 80 l) 2447)
+					              k (- l (quot (* 2447 j) 80))
+					              l (quot j 11)
+					              j (+ j 2 (- (* 12 l)))
+					              i (+ (* 100 (- n 49)) i l)
+					              year i
+					              month j
+					              day k]
+					          (let [format-type (get opts :format :map)]
+					            (case format-type
+					              :map {:year year :month month :day day}
+					              :int (int (str year month day))
+					              (throw (ex-info "Invalid format option. Use :map or :int" {:format format-type})))))))
+					  
+					  
+					     (defn date-get-difference
+					       "Calculates the absolute difference in days between a date and today (default) or a second date."
+					       ([journal-day] (date-get-difference journal-day (date-today)))
+					       ([journal-day1 journal-day2]
+					        (let [julian-day-number1 (journal-day->julian-day journal-day1)
+					              julian-day-number2 (journal-day->julian-day journal-day2)]
+					          (number-absolute (- julian-day-number1
+					                              julian-day-number2)))))
+					  
+					  			  ;; source: https://discuss.logseq.com/t/add-query-input-or-function-day-of-week/18361/12
+					     (def months {1 "January" 2 "February"  3 "March" 4 "April" 5 "May" 6 "June" 7 "July" 8 "August" 9 "September" 10 "October" 11 "November" 12 "December"})
+					     (def monthName (fn [dd]
+					                      (get months (int dd))))
+					     (def days {0 "Saturday" 1 "Sunday" 2 "Monday" 3 "Tuesday" 4 "Wednesday" 5 "Thursday" 6 "Friday"})
+					     (def weekDay (fn [date]
+					                    (def month (quot (mod date 10000) 100))
+					                    (def month6 (quot (- month 8) 6))
+					                    (def year6 (+ (quot date 10000)
+					                                  month6))
+					                    (def yearnum (mod year6 100))
+					                    (def century (quot year6 100))
+					                    (def d (mod (+ (mod date 100)
+					                                   (quot (* 13
+					                                            (inc (- month
+					                                                    (* month6 12))))
+					                                         5)
+					                                   yearnum
+					                                   (quot yearnum 4)
+					                                   (quot century 4)
+					                                   (* 5 century))
+					                                7))
+					                    (get days d)))
+					  
+					     (def suffixes {0 "th" 1 "st" 2 "nd" 3 "rd" 4 "th" 5 "th" 6 "th" 7 "th" 8 "th" 9 "th"})
+					     (def positionalSuffix (fn [dd]
+					                             (if (or (= dd "11") (= dd "12") (= dd "13"))
+					                               (get suffixes 0)
+					                               (get suffixes (int (subs dd (count dd) 1))))))
+					  
+					     (def token (fn [s] (str "⟨" s "⟩")))
+					     (def format
+					       (-> (get (js->clj (call-api "get_user_configs")) "preferredDateFormat")
+					           (clojure.string/replace "do" (token "1"))
+					           (clojure.string/replace "dd" (token "2"))
+					           (clojure.string/replace "d" (token "3"))
+					           (clojure.string/replace "EEEE" (token "4"))
+					           (clojure.string/replace "EEE" (token "5"))
+					           (clojure.string/replace "EE" (token "6"))
+					           (clojure.string/replace "E" (token "7"))
+					           (clojure.string/replace "MMMM" (token "8"))
+					           (clojure.string/replace "MMM" (token "9"))
+					           (clojure.string/replace "MM" (token "10"))
+					           (clojure.string/replace "M" (token "11"))
+					           (clojure.string/replace "yyyy" (token "12"))
+					           (clojure.string/replace "yy" (token "13"))))
+					  
+					     (def parseDate (fn [date]
+					                      (if-not date nil
+					                              (let [regex (re-pattern "(\\d{4})(\\d{2})(\\d{2})")
+					                                    [_ yyyy mm dd] (re-matches regex (str date))
+					                                    yy (subs yyyy 2 4)
+					                                    d (str (int dd))
+					                                    do (str d (positionalSuffix dd))
+					                                    mmmm (monthName mm)
+					                                    mmm (subs mmmm 0 3)
+					                                    m (str (int mm))
+					                                    eeee (weekDay date)
+					                                    eee (subs eeee 0 3)
+					                                    ee (subs eeee 0 2)
+					                                    e eee]
+					                                (-> format
+					                                    (clojure.string/replace (token "1") do)
+					                                    (clojure.string/replace (token "2") dd)
+					                                    (clojure.string/replace (token "3") d)
+					                                    (clojure.string/replace (token "4") eeee)
+					                                    (clojure.string/replace (token "5") eee)
+					                                    (clojure.string/replace (token "6") ee)
+					                                    (clojure.string/replace (token "7") e)
+					                                    (clojure.string/replace (token "8") mmmm)
+					                                    (clojure.string/replace (token "9") mmm)
+					                                    (clojure.string/replace (token "10") mm)
+					                                    (clojure.string/replace (token "11") m)
+					                                    (clojure.string/replace (token "12") yyyy)
+					                                    (clojure.string/replace (token "13") yy))))))
+					     (def parseDateRef (fn [date]
+					                         (if-not date nil
+					                                 (str "[[" (parseDate date) "]]"))))
+					  
+					     (defn +d [s n]
+					       (let [input-date-string s
+					             journal-day-from-date-string (date-reference->journal-day input-date-string)
+					             julian-day-from-journal-day (journal-day->julian-day journal-day-from-date-string)
+					             future-julian-day-date (+ n julian-day-from-journal-day)
+					             journal-day-from-future-julian-day (julian-day->journal-day future-julian-day-date)
+					             parsed-date (parseDate journal-day-from-future-julian-day)]
+					         parsed-date))
+					  
+					     (defn does-future-activity-exist
+					       "Returns true if an activity with the same event name and with the same person exists in the future."
+					       [properties]
+					       (let [this-event (:event properties)
+					             this-event-date (:date properties)
+					             this-person (:with properties)
+					             query-string (str "[:find ?today ?future-date"
+					                               " :in $ ?today ?tomorrow ?this-event ?this-person"
+					                               " :where"
+					                               " [?b :block/properties ?props]"
+					                               " [(get ?props :event) ?event]"
+					                               " [(= ?event ?this-event)]"
+					                               " [(get ?props :with) ?with]"
+					                               " [(= ?with ?this-person)]"
+					                               " [(get ?props :with) ?with]"
+					  
+					                               " [(get ?props :date) ?date]"
+					                               " [?dp :block/original-name ?on]"
+					                               " [(contains? ?date ?on)]"
+					                               " [?dp :block/journal-day ?future-date]"
+					  
+					                               " [(> ?future-date ?today)]"
+					                               "]")
+					  
+					             query-inputs [":today"
+					                           ":tomorrow"
+					                           (pr-str this-event)
+					                           (pr-str this-person)]
+					             query-results (apply call-api "datascript_query" query-string query-inputs)]
+					  
+					  			         ;; return true if query-results has any results; false otherwise
+					         (boolean (seq query-results))))
+					  
+					     (defn make-schedule-next-hiccup
+					       ([properties uuid activity-name-trigger]
+					        (let [activities-set (:activity properties)
+					              repeat-interval (:repeat-interval properties)
+					              should-render-button (and
+					                                    (contains? activities-set activity-name-trigger)
+					                                    (not (does-future-activity-exist properties)))]
+					          (when should-render-button
+					            [:span.content-slot
+					             [:button
+					              {:on-click
+					               (fn []
+					                 (call-api "append_block_in_page"
+					                           uuid
+					                           (str "")
+					                           {:focus false
+					                            :properties
+					                            {:event    (:event properties)
+					                             :activity (:activity properties)
+					                             :with     (:with properties)
+					                             :location (:location properties)
+					                             :time     (:time properties)
+					                             :date     (str "[["
+					                                            (+d (first (:date properties))
+					                                                (int (:repeat-interval-days properties)))
+					                                            "]]")
+					                             :repeat-interval-days (:repeat-interval-days properties)}}))} "REPEATABLE"]]))))
+					  
+					     (if (empty? formatted-events)
+					       "no events"
+					       (for [event formatted-events]
+					         [:div {:class "quick-view-container left-spacing"}
+					          [:span.ti (read-string (str "\"\\u" (:icon event) "\""))]
+					          [:span.content-slot
+					           [:a {:on-click (fn []
+					                            (call-api "append_block_in_page"
+					                                      (:current-page-uuid event)
+					                                      (str "{{i eb6d}} note for {{i f621}} ["
+					                                           (:name event)
+					                                           "]((("
+					                                           (:uuid event)
+					                                           ")))")))}
+					            (:name event)]]
+					          (make-schedule-next-hiccup (:event-properties event) (:current-page-uuid event) "repeating appointment")])))
+					  
+					  
+					  
+					   :inputs [:today :current-page]}
+					  ```
 				- v2.4.2 fix: Do not skip results where :block/properties exists but is empty.
 					- See workspace: ((66d5be14-15cf-4d64-8fbf-ca561c6c4084))
 					- ```cljs
