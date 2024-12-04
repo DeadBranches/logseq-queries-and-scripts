@@ -1,5 +1,6 @@
 kit:: futureEventsTable
 created-on:: [[Saturday, Aug 10th, 2024]]
+-icon:: fd2f
 
 - ```javascript
   /** 
@@ -125,6 +126,9 @@ created-on:: [[Saturday, Aug 10th, 2024]]
   logseq.kits.setStatic(async function futureEventsTable(div) {
     // Start counting from startDate date into the future. You probably want
     // to start from today
+    
+    //[?a :block/name ?activity-page]
+    //[(contains? ?activity ?activity-page)]
     const fromDate = new Date();
     fromDate.setDate(fromDate.getDate() + 1); // Don't show events for today
     const futureEventsPromise = (async (startDate = fromDate) => {
@@ -179,6 +183,7 @@ created-on:: [[Saturday, Aug 10th, 2024]]
           `;
   
         const queryResults = await logseq.api.datascript_query(advancedQuery);
+        console.table(queryResults, "queryResults");
         //const flatQueryResults = queryResults?.flat();
         // The expected format for the :date property is that it includes a single
         // linked reference. Logseq returns that as a single-item array.
@@ -202,6 +207,8 @@ created-on:: [[Saturday, Aug 10th, 2024]]
           return a.day - b.day;
         });
       })();
+  
+      console.table(chronologicalEvents, "chronologicalEvents");
   
       const futureEventsWithCountdown = ((
         activities = chronologicalEvents,

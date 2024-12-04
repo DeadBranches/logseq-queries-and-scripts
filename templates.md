@@ -360,6 +360,38 @@ description:: `/template`s with boilerplate for collector blocks, page tags, dai
 						- {{embed ((66e5dcbc-31a8-4e66-a0b3-2b393d3b4919))}}
 	-
 	- ##### {{i fab5}}  blocks
+		- {{i-ai}} llm-template assistant
+		  {{templateSlashCommand}}
+			- ### {{i-example}} samples
+			- ### {{i-template}} template
+			  template:: block, llm task assistant 
+			  template-including-parent:: false
+				- {{refIcon}} **task-name.** brief description
+					- ### {{refIcon}} [[CustomGPT]]
+						- {{i-ai}} []()
+						  llm-task-assistant:: 
+						  url::
+					- ### {{refIcon}} [[Goal]]
+						- ...
+					- ### {{refIcon}} [[Features]]
+						- ....
+					- ### {{refIcon}} [[instruction sets]]
+						- *v0.1.0* initial version
+							- {[refIcon]} whee [[meta-prompt]]
+							  version:: 0.1.0
+							  
+							  *meta prompt*
+							  #+BEGIN_QUOTE
+							  
+							  #+END_QUOTE
+							- {[refIcon]} whee [[prompt]]
+							  version:: 0.1.0
+							  
+							  *prompt*
+							  #+BEGIN_QUOTE
+							  
+							  #+END_QUOTE
+					- {{refIcon}} [[example input]]
 		- {{i-conversation}} advanced query conversation
 		       {{templateSlashCommand}}
 			- **w/ prompt & response**
@@ -469,6 +501,17 @@ description:: `/template`s with boilerplate for collector blocks, page tags, dai
 					- {{i ea0b}} *depreciated on* *<% today %>*
 - ## {{i ed2b}} page templates
   *w/* common {{i-properties}} property sets & {{i ef94}} block structure
+	- medications
+		- {{i }} title
+			- *use for pharmacological knowledge*
+			- ### {{i-example}} samples
+			- ### {{i-template}} template
+			  template :: 
+			  template-including-parent :: false
+				- site-selectivity::
+			- ### {{i-info}} information
+				- **site selectivity.** refers to the physical location (site) where the drug acts predominantly, distinguishing effects in the central nervous system (CNS) versus peripheral tissues.
+					- peripheral, central
 	- {{i fea0}}  full :with page
 	       {{templateSlashCommand}}
 		- *Use on any :with linked reference*

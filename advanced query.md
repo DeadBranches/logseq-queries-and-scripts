@@ -6825,7 +6825,10 @@ repository:: DeadBranches/logseq-queries-and-scripts
 				             [:button
 				              {:on-click
 				               (fn []
-				                 (call-api "append_block_in_page"
+				                 (log "Button clicked: Starting API call" (clj->js properties))
+				                 (try
+				                  (let [result 
+				  							(call-api "append_block_in_page"
 				                           uuid
 				                           (str "")
 				                           {:focus false
@@ -6839,7 +6842,17 @@ repository:: DeadBranches/logseq-queries-and-scripts
 				                                            (+d (first (:date properties))
 				                                                (int (:repeat-interval-days properties)))
 				                                            "]]")
-				                             :repeat-interval-days (:repeat-interval-days properties)}}))} "REPEATABLE"]]))))
+				                             :repeat-interval-days (:repeat-interval-days properties)}})
+				  												 ]
+				  												 (log "API call successful" result)
+				  												 result) ; Return the result if needed
+				  												 (catch :default e
+				  												 (log "Error during API call:" e)
+				  												 (log "Properties" (clj->js properties))
+				  												 
+				  												 )
+				  												 )
+				  												 )} "REPEATABLE"]]))))
 				  
 				     (if (empty? formatted-events)
 				       "no events"

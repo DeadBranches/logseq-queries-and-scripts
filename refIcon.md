@@ -1,4 +1,5 @@
 kit:: refIcon
+-icon:: f7ee
 
 - ```javascript
   /**
@@ -153,31 +154,56 @@ kit:: refIcon
   ```
 	- {{evalparent}}
 	- {{refIcon}} [[:logseq-ideas-assistant]]
-	-
+- {{kitButton issues,collapseBlock,ea06,-button-style full-width small-caps}}
+	- {{embed ((66ccdccf-f9e2-4028-b867-a7b5406fd634))}}
+- {{kitButton ideas,collapseBlock,ea76,-button-style full-width small-caps}}
+	- {{embed ((66df909d-79a2-4532-917e-94d3bd8b32a8))}}
+- {{kitButton questions,collapseBlock,ea76,-button-style full-width small-caps}}
+	- {{embed ((66df90b1-ccba-494b-94c9-76f3194e0963))}}
+- # {{i eb6c}} Topics
+  *use the \#topics tag to show content here*
+	- ### Open topics
+		- {{embed ((66e5e078-e59c-4064-91cf-2c3eec36af87))}}
+		- {{kitButton export,exportquery,'',squat}}
+	- Covered topics
+		- {{embed ((66e5e0c4-d1cc-4598-8e00-07f0abad84b0))}}
+		- {{kitButton export,exportquery,'',squat}}
 - page has an icon
 	- test data
+		-
 		- my uuid: 66f08832-0446-450c-8f23-89366ffe00a9
 		  id:: 66f08832-0446-450c-8f23-89366ffe00a9
 		  reficon: {{refIcon}} 
-		  ref: [[projects]]
-		  
+		  ref: [Therapy appointment with @Shane WWC](((6707fdd4-3f35-4e71-b362-a298adf916ab)))
 		  
 		  #+BEGIN_QUERY
 		  {:query
 		   [:find ?icon
+		    :in $ ?b
 		    :keys icon
 		    :where
-		    [?b :block/uuid #uuid "66f08832-0446-450c-8f23-89366ffe00a9"]
 		    [?b :block/refs ?r]
+		    [?b :block/properties ?block-props]
 		  
 		    [(identity "0000") ?default-icon]
-		    (or-join [?r ?default-icon ?icon]
+		    (or-join [?r ?block-props ?default-icon ?icon]
+		             ;; Check for icon in primary linked reference
 		             (and
 		              [?r :block/properties ?props]
 		              [(get ?props :-icon) ?icon]
 		              [(some? ?icon)])
+		             ;; Check for icon in activity reference
 		             (and
-		              ;; :block/properties exists, but :-icon is nil.
+		              [?r :block/properties ?props]
+		              [(get ?props :-icon) ?r-icon]
+		              [(nil? ?r-icon)]
+		              [(get ?block-props :activity) ?activity]
+		              [?a :block/name ?activity]
+		              [?a :block/properties ?activity-props]
+		              [(get ?activity-props :-icon) ?icon]
+		              [(some? ?icon)])
+		             ;; Default cases
+		             (and
 		              [?r :block/properties ?props]
 		              [(get ?props :-icon :not-found) ?icon-or-not-found]
 		              [(= ?icon-or-not-found :not-found)]

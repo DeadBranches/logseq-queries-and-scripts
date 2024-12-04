@@ -4,6 +4,9 @@ created-on:: [[Monday, Aug 5th, 2024]]
 -icon:: f2da
 
 - ```javascript
+  // doingWidget.js
+  // created-on:: [[Monday, Aug 5th, 2024]]
+  
   logseq.kits.doingWidget = doingWidget;
   
   async function get_block_content(uuid) {
@@ -25,11 +28,23 @@ created-on:: [[Monday, Aug 5th, 2024]]
   
     /**
      * Container content
+     *  get_template() returns an object with this structure:
+     *    { uuid: str }
+     *  and get_block returns an object with this structure:
+     *    { children: [ ['uuid', str] ] }
+     *    where the second array item is the uuid
      */
-    const TEMPALTE_UUID = "66aaac57-179b-457a-8b06-3814ddbaa12b"; // doing-container data
+    const SOURCE_TEMPLATE_NAME = "logseq, doing-holder";
+    const TEMPLATE_UUID = await (async (templateName = SOURCE_TEMPLATE_NAME) => {
+      if (!templateName) throw new Error("Source template name is required");
+      const template = await logseq.api.get_template(templateName);
+      const templateBlock = await logseq.api.get_block(template.uuid);
+      return templateBlock.children[0][1];
+    })();
+    // const TEMPLATE_UUID = "66aaac57-179b-457a-8b06-3814ddbaa12b"; // doing-container data
     const BATCH_BLOCK_CONTENT = [
       {
-        content: `${await get_block_content(TEMPALTE_UUID)}`,
+        content: `${await get_block_content(TEMPLATE_UUID)}`,
       },
     ];
   
@@ -111,11 +126,7 @@ created-on:: [[Monday, Aug 5th, 2024]]
   
   ```
 	- {{evalparent}}
-- #### {{kitButton Doing today,testkit,ec45,-button-style full-width flex-grow-1 +bold-nth-word:1}}
-  {{kitButton do,insertListItem,ec45,long,template='do'}}
-  
-  {{kitButton '',insertListItem,f1fa,'',template='doKitchen'}}  {{kitButton '',insertListItem,ea89,'',template='doOffice'}}  {{kitButton '',insertListItem,ef48,'',template='doBathroom'}}
-  {{doing-holder}}
 - # UI Elements
   {{i ec9e}} *[[:logseq-journal-buddy-improvement-2024.6]]* *(live embed)*
 	- {{embed ((668d8204-e490-4d23-8d14-1c8f167c9edb))}}
+-

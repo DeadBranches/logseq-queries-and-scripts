@@ -3,6 +3,12 @@ description:: Converting code-button blocks to logseq kits `{{evalpage}}` button
 completed-on:: [[Saturday, Sep 14th, 2024]] 
 -icon:: ec9e
 
+- {{kitButton issues,collapseBlock,ea06,-button-style full-width small-caps}}
+	- {{embed ((66ccdccf-f9e2-4028-b867-a7b5406fd634))}}
+- {{kitButton ideas,collapseBlock,ea76,-button-style full-width small-caps}}
+	- {{embed ((66df909d-79a2-4532-917e-94d3bd8b32a8))}}
+- {{kitButton questions,collapseBlock,ea76,-button-style full-width small-caps}}
+	- {{embed ((66df90b1-ccba-494b-94c9-76f3194e0963))}}
 - # {{i f51a}} goal
 	- A journal buddy-widget that works properly
 - # {{i eb4e}} objectives

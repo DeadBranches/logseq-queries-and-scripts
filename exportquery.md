@@ -49,7 +49,7 @@ created-on:: [[Sunday, Jun 23rd, 2024]]
     return htmlContent.outerHTML;
   }
   
-  async function exportquery(el, mode = 'process') {
+  async function exportquery(el, mode = 'original') {
     const me = event.target.closest('.ls-block');
     const parentBlock = me.parentElement.closest('.ls-block');
     
