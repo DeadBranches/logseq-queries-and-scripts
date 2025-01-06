@@ -127,6 +127,42 @@ created-on:: [[Saturday, Aug 10th, 2024]]
     // Start counting from startDate date into the future. You probably want
     // to start from today
     
+  
+    async function getJournalUUIDForElement(triggerElement, logLevel = "quiet") {
+      // Constants
+      const journalRootIdentifier = '.journal-item';
+      const journalDateIdentifier = '.journal-title h1';
+  
+      // Helper functions
+      function log(content, verbosity = logLevel) {
+  
+        if (verbosity == "quiet") { return }
+  
+        console.group("getJournalUUIDForElement");
+        let messagePrefix = '';
+        if (verbosity == "error") { messagePrefix = "[error]: "; }
+        console.log(messagePrefix + content);
+        console.groupEnd();
+      }
+  
+      // Initial sanity check
+      if (!triggerElement) { return null; }
+      
+      // Main logic
+      const journalRoot = triggerElement.closest(journalRootIdentifier);
+      if (!journalRoot) { log("Not a journal page."); return null; }
+  
+      const pageDate = journalRoot.querySelector(journalDateIdentifier);
+      if (!pageDate) { 
+        log("Can't find page date when page date was expected. Check to see if the element selectors have changed.", "error"); 
+        return;
+      }
+  
+      const pageUUID = await logseq.api.get_page(pageDate.textContent).uuid;
+      return pageUUID;
+    }
+    const elementJournalUUID = await getJournalUUIDForElement(div);
+  
     //[?a :block/name ?activity-page]
     //[(contains? ?activity ?activity-page)]
     const fromDate = new Date();
@@ -305,6 +341,7 @@ created-on:: [[Saturday, Aug 10th, 2024]]
       return journalUUID;
     }
   
+  
     const todaysJournalUUID = await toJournalPageUUID(new Date());
   
     // Doesn't work because it doesn't deal with ordinals
@@ -428,7 +465,7 @@ created-on:: [[Saturday, Aug 10th, 2024]]
           )}.includes(activity))">
               <td rowspan="2" class="days-until"
                   >${convertDays(event.daysUntil)}</td>
-              <td class="touch-screen"><a onclick="logseq.api.append_block_in_page('${todaysJournalUUID}', '{{i-note}}\u0020\\n{{i-event}} [${
+              <td class="touch-screen"><a onclick="logseq.api.append_block_in_page('${elementJournalUUID ? elementJournalUUID : todaysJournalUUID}', '{{i-note}}\u0020\\n{{i-event}} [${
             event.properties.event
           }](((${event.uuid})))')"
                       ><span class="icon space-after quarter-bigger">&#x${event.icon[0]};</span> ${event.properties.event}</a></td>
@@ -465,6 +502,12 @@ created-on:: [[Saturday, Aug 10th, 2024]]
   ```
 	- **Re-evaluate kit**
 	  {{evalparent}}
+- {{kitButton issues,collapseBlock,ea06,-button-style full-width small-caps}}
+	- {{embed ((66ccdccf-f9e2-4028-b867-a7b5406fd634))}}
+- {{kitButton ideas,collapseBlock,ea76,-button-style full-width small-caps}}
+	- {{embed ((66df909d-79a2-4532-917e-94d3bd8b32a8))}}
+- {{kitButton questions,collapseBlock,ea76,-button-style full-width small-caps}}
+	- {{embed ((66df90b1-ccba-494b-94c9-76f3194e0963))}}
 - # Documentation
   id:: 66b750b0-17c1-4fa1-be49-6445f5617ebd
 - ### Usage
