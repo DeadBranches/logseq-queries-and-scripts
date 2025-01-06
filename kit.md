@@ -153,6 +153,45 @@ alias:: kits
 		    div.appendChild(output());
 		  });
 		  ```
+	- Function: journal page UUID of triggering element
+	  id:: 677c4505-f8ab-4edf-acc0-b3775b5c6120
+		- ```javascript
+		  async function getJournalUUIDForElement(triggerElement, logLevel = "quiet") {
+		    // Constants
+		    const journalRootIdentifier = '.journal-item';
+		    const journalDateIdentifier = '.journal-title h1';
+		  
+		    // Helper functions
+		    function log(content, verbosity = logLevel) {
+		  
+		      if (verbosity == "quiet") { return }
+		  
+		      console.group("getJournalUUIDForElement");
+		      let messagePrefix = '';
+		      if (verbosity == "error") { messagePrefix = "[error]: "; }
+		      console.log(messagePrefix + content);
+		      console.groupEnd();
+		    }
+		  
+		    // Initial sanity check
+		    if (!triggerElement) { return null; }
+		    
+		    // Main logic
+		    const journalRoot = triggerElement.closest(journalRootIdentifier);
+		    if (!journalRoot) { log("Not a journal page."); return null; }
+		  
+		    const pageDate = journalRoot.querySelector(journalDateIdentifier);
+		    if (!pageDate) { 
+		      log("Can't find page date when page date was expected. Check to see if the element selectors have changed.", "error"); 
+		      return;
+		    }
+		  
+		    const pageUUID = await logseq.api.get_page(pageDate.textContent).uuid;
+		    return pageUUID;
+		  }
+		  const elementJournalUUID = await getJournalUUIDForElement(div);
+		  console.log(elementJournalUUID);
+		  ```
 - # {{i eb6b}}  Kits list
 	- #+BEGIN_QUERY
 	  {:query
