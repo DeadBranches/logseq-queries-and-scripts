@@ -1149,7 +1149,7 @@ repository:: DeadBranches/logseq-queries-and-scripts
 				                           first :idea-type)]
 				         [:div
 				          [:table {:class "future-event-table stop-click compact"}
-				           [:caption state " " idea-type "s"]
+				           [:caption.top state " " idea-type "s"]
 				           [:thead [:tr
 				                    [:th {:width "80"} "Status"] [:th idea-type] [:th]]]
 				           [:tbody
@@ -1304,7 +1304,7 @@ repository:: DeadBranches/logseq-queries-and-scripts
 				                           first :idea-type)]
 				         [:div
 				          [:table {:class "future-event-table stop-click compact"}
-				           [:caption state " " idea-type "s"]
+				           [:caption.top state " " idea-type "s"]
 				           [:thead [:tr
 				                    [:th {:width "80"} "Status"] [:th idea-type] [:th]]]
 				           [:tbody
@@ -1459,7 +1459,7 @@ repository:: DeadBranches/logseq-queries-and-scripts
 				                           first :idea-type)]
 				         [:div
 				          [:table {:class "future-event-table stop-click compact"}
-				           [:caption state " " idea-type "s"]
+				           [:caption.top state " " idea-type "s"]
 				           [:thead [:tr
 				                    [:th {:width "80"} "Status"] [:th idea-type] [:th]]]
 				           [:tbody
