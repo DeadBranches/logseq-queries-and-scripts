@@ -6,15 +6,16 @@
 
 # logseq kits
 !insertToPurchases.md
-!refIcon.md
 !templateSlashCommand.md
 !referenceCountKit.md
 !embedQuery.md
 !md-button.md
 !newActivityWizard.md # not done
 !futureEventsTable.md
+!nextRefIcon.md
 # DEPRECIATED
 !futureAppointmentTable.md
+!refIcon.md
 
 !purchaseHolderComponent.md
 !daysUntilNextAppointment.md
