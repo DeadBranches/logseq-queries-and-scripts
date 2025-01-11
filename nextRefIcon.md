@@ -1,32 +1,25 @@
 - ```javascript
   /**
+   * description
+   *
+   * @file nextRefIcon.md
+   *
+   * @usage Use with a logseq macro
+   *  :refIcon "[:div.kit.inline { :data-kit refIcon :data-arguments \"$1\"} ]"
+   */
+  
+  /**
+   * These functions are used in the main
+   *
+   * @namespace HelperFunctions
+   */
+  /**
    * Recursively creates a DOM element or text node from a format object.
    *
-   * @param {(string|Object)} formatObject - The format object or string to convert.
-   * @param {string} formatObject.element - The HTML tag name for the element.
-   * @param {(string|Array|Object)} [formatObject.content] - The content of the element.
-   * @returns {(Node|Element)} A DOM node or element.
+   * @function outputFormatter
+   * @namespace HelperFunctions.Transformation
    *
-   * @example
-   * // Returns a text node
-   * createElementFromObject("Hello");
-   *
-   * @example
-   * // Returns <div><small><i>Hello</i><b>World</b></small></div>
-   * createElementFromObject({
-   *   element: "div",
-   *   content: {
-   *     element: "small",
-   *     content: [
-   *       { element: "i", content: "Hello" },
-   *       { element: "b", content: "World" }
-   *     ]
-   *   }
-   * });
-   *
-   * @usage
-   * Use with a logseq macro
-   *  :refIcon "[:div.kit.inline { :data-kit refIcon :data-arguments \"$1\"} ]"
+   * @param formatObject {string|object} - The format object to process
    */
   const outputFormatter = (formatObject) => {
     // Case 1: String input
@@ -64,111 +57,232 @@
     return element;
   };
   
+  /**
+   * Generate whitespace by processing a logseq macro argument value.
+   *
+   * @function generateWhitespace
+   * @namespace HelperFunctions.Generation
+   *
+   * @param whitespace {string} - The number of spaces to generate
+   * @returns {string} - A string of zero or more spaces
+   */
+  function generateWhitespace(whitespace) {
+    // Input validation
+    if (typeof whitespace === "string" && whitespace.startsWith("$")) {
+      return ""; // Reject strings like '$1'
+    }
+  
+    const number = Number(whitespace); // Convert to number
+    return Number.isInteger(number) && number > 0 ? "&nbsp;".repeat(number) : "";
+  }
+  
+  /**
+   *
+   * @param startingElement
+   * @param siblingQuerySelectorPattern
+   * @param attributeName
+   * @returns
+   */
+  function getAttributeValueFromSiblingOfElement(
+    startingElement,
+    siblingQuerySelectorPattern,
+    attributeName
+  ) {
+    let currentSiblingElement = startingElement.nextElementSibling;
+    let targetAttributeValue = null;
+  
+    console.group("getAttributeValueFromSiblingOfElement");
+    console.log("Starting search from:", startingElement);
+    console.log("Looking for:", siblingQuerySelectorPattern);
+    console.log("Attribute to extract:", attributeName);
+  
+    while (currentSiblingElement) {
+      console.log("Checking sibling:", currentSiblingElement);
+  
+      // Case 1: Check if the sibling itself matches
+      if (currentSiblingElement.matches(siblingQuerySelectorPattern)) {
+        console.log("Direct match found on sibling");
+        targetAttributeValue = currentSiblingElement
+          .getAttribute(attributeName)
+          ?.toLowerCase();
+        if (targetAttributeValue) {
+          console.log("Found value:", targetAttributeValue);
+          break;
+        }
+      }
+  
+      // Case 2: Check if any children match
+      const matchingElement = currentSiblingElement.querySelector(
+        siblingQuerySelectorPattern
+      );
+      if (matchingElement) {
+        console.log("Match found in child:", matchingElement);
+        targetAttributeValue = matchingElement.getAttribute(attributeName)?.toLowerCase();
+        if (targetAttributeValue) {
+          console.log("Found value:", targetAttributeValue);
+          break;
+        }
+      }
+  
+      console.log("No match found, moving to next sibling");
+      currentSiblingElement = currentSiblingElement.nextElementSibling;
+    }
+  
+    console.log("Final result:", targetAttributeValue);
+    console.groupEnd();
+  
+    return targetAttributeValue || null;
+  }
+  
+  /**
+   * Show a tabler icon for the linked reference in a block following the
+   * triggering macro.
+   *
+   * @function nextRefIcon
+   *
+   * @async
+   * @param div {HTMLElement} - The div element that triggered the macro
+   *
+   */
   logseq.kits.setStatic(async function nextRefIcon(div) {
-    const blockUUID = div.closest(".ls-block").getAttribute("blockid");
-    //const blockId = "66e6f56f-3005-458a-b0cd-65502c9beef1";
-    //const block = logseq.api.get_block(blockUUID);
-    //const targetBlock = block;
-    console.group("inputs");
-    console.log("div:", div);
-    // console.log("blockUUID:", blockUUID);
-    // console.log("blockUUID type:", typeof blockUUID);
-    console.groupEnd;
-   
-    const macro = div.closest("[data-macro-name]")
-    const nextRef = macro.nextElementSibling;
-    const nextRefValue = nextRef.getAttribute("data-ref").toLowerCase()
-    console.log("nextRef", nextRef);
-  
-  
+    /**
+     * Inputs
+     */
     const leftWhitespace = div.dataset.leftWhitespace;
     const rightWhitespace = div.dataset.rightWhitespace;
   
     /**
-     * Advanced query
+     * Target element logic
      */
-    const advancedQueryPromise = (async () => {
+    const startingElement = div.closest("[data-macro-name]");
+    console.log("startingElement", startingElement);
+    const querySelectorPattern = ".page-reference";
+    const attributeName = "data-ref";
+    const nextRefValue = getAttributeValueFromSiblingOfElement(
+      startingElement,
+      querySelectorPattern,
+      attributeName
+    );
+    console.log("nextRef", nextRefValue);
+  
+    /**
+     * Data fetching logic
+     */
+    // Helper functions
+    const processAdvancedQuery = async (queryString) => {
       const resultArray = await (async () => {
-        const advancedQuery = `
-   [:find ?icon
-    :keys icon
-    :where
-    [?r :block/name "${nextRefValue}"]
-  
-    [(identity "0000") ?default-icon]
-    (or-join [?r ?default-icon ?icon]
-             (and
-              [?r :block/properties ?props]
-              [(get ?props :-icon) ?icon]
-              [(some? ?icon)])
-             (and
-              ;; :block/properties exists, but :-icon is nil.
-              [?r :block/properties ?props]
-              [(get ?props :-icon :not-found) ?icon-or-not-found]
-              [(= ?icon-or-not-found :not-found)]
-              [(identity ?default-icon) ?icon])
-             (and
-              [(missing? $ ?r :block/properties)]
-              [(identity ?default-icon) ?icon]))
-    ]
-        `;
-  
-        const queryResults = await logseq.api.datascript_query(advancedQuery)?.flat();
+        const queryResults = await logseq.api.datascript_query(queryString)?.flat();
         return queryResults;
       })();
-  
       return await resultArray;
-    })();
-  
-    const queryResult = await advancedQueryPromise;
-    // console.group("Query results");
-    // console.table(queryResult);
-    // console.log("result array length:", queryResult.length)
-    // console.groupEnd;
-    // return;
-  
-    console.log("icon:", queryResult[0].icon);
-    /**
-     * Definitions: Strings and format
-     */
-    function generateWhitespace(whitespace) {
-      // Ensure whitespace is a valid number and doesn't start with $
-      if (typeof whitespace === 'string' && whitespace.startsWith('$')) {
-        return ''; // Reject strings like '$1'
-      }
-  
-      const number = Number(whitespace); // Convert to number
-      return Number.isInteger(number) && number > 0
-        ? '&nbsp;'.repeat(number)
-        : '';
-    }
-    const MESSAGES = {
-      noResults: "&#x0000;",
-      resultString: `${generateWhitespace(leftWhitespace)}&#x${queryResult[0].icon};${generateWhitespace(rightWhitespace)}`,
     };
-    const outputFormat = (message) => ({
-      // Refer to createElementFromObject() docstring for details on how
-      // to structure the message format
-      element: "span",
-      classNames: "bti inline",
-      content: `${message}`,
-    });
+  
+    // Function inputs
+    const queryStringLibrary = {
+      fetchPageIcon: `
+        [:find ?icon
+        :keys icon
+        :where
+        [?r :block/name "${nextRefValue}"]
+      
+        [(identity "0000") ?default-icon]
+        (or-join [?r ?default-icon ?icon]
+                  (and
+                  [?r :block/properties ?props]
+                  [(get ?props :-icon) ?icon]
+                  [(some? ?icon)])
+                  (and
+                  ;; :block/properties exists, but :-icon is nil.
+                  [?r :block/properties ?props]
+                  [(get ?props :-icon :not-found) ?icon-or-not-found]
+                  [(= ?icon-or-not-found :not-found)]
+                  [(identity ?default-icon) ?icon])
+                  (and
+                  [(missing? $ ?r :block/properties)]
+                  [(identity ?default-icon) ?icon]))
+        ]`,
+    };
+  
+    const queryResult = await processAdvancedQuery(queryStringLibrary.fetchPageIcon);
+    console.log("[nextRefIcon] icon:", queryResult[0].icon);
   
     /**
      * Output logic
      */
-    const output = () => {
-      if (queryResult.length === 0) {
-        return outputFormatter(outputFormat(MESSAGES.noResults));
-      }
-      if (queryResult.length > 0) {
-        return outputFormatter(outputFormat(MESSAGES.resultString));
-      }
+    /**
+     * Factory function to create a standardized output object for use
+     * with outputFormatter.
+     *
+     * @param {string} noResultsString - Content for the "no result" case.
+     * @param {string} resultString - Content for the "result" case.
+     * @returns {Object} - Object containing the standardized inputs for outputFormatter.
+     */
+    const OUTPUT_STRINGS_TEMPLATE = (noResultsString, resultString) => ({
+      noResults: noResultsString,
+      resultString: resultString,
+    });
+  
+    /**
+     * Define the actual string values to be used in the output.
+     */
+    const DEFAULT_NO_RESULTS = "&#x0000;";
+    const outputStringValues = {
+      noResults: DEFAULT_NO_RESULTS, // Default content for "no results"
+      resultString: `${generateWhitespace(leftWhitespace)}&#x${
+        queryResult[0].icon
+      };${generateWhitespace(rightWhitespace)}`,
     };
-    div.appendChild(output());
+  
+    /**
+     * Format the output text content into an object compatible with outputFormatter.
+     *
+     * @param {string} textContent - The text content to format.
+     * @returns {Object} - The formatted object for output.
+     */
+    const DEFAULT_ELEMENT = "span";
+    const formatOutputContent = (textContent) => ({
+      element: DEFAULT_ELEMENT,
+      classNames: "bti inline",
+      content: textContent,
+    });
+  
+    /**
+     * Generate the final output by selecting and formatting content.
+     *
+     * @param {Array} queryResult - The result of the query.
+     * @param {Object} outputStringsObject - The standardized output strings object.
+     * @param {Function} contentFormatterFunction - Function to format the content (default: formatOutputContent).
+     * @param {Function} outputFormatFunction - Function to format the final output (default: outputFormatter).
+     * @returns {HTMLElement} - The formatted output element.
+     */
+    const generateOutput = (
+      queryResult,
+      outputStringsObject,
+      contentFormatterFunction = formatOutputContent,
+      outputFormatFunction = outputFormatter
+    ) => {
+      const content =
+        queryResult.length === 0
+          ? outputStringsObject.noResults
+          : outputStringsObject.resultString;
+  
+      // Format and return the output
+      const formattedObject = contentFormatterFunction(content);
+      return outputFormatFunction(formattedObject);
+    };
+  
+    // Generate the DOM output
+    const output = generateOutput(
+      queryResult,
+      outputStringValues,
+      formatOutputContent,
+      outputFormatter
+    );
+    // Append the generated output to the DOM
+    div.appendChild(output);
   });
   
   ```
 	- {{evalparent}}
 	-
--
+- This is
