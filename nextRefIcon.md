@@ -2,7 +2,7 @@ kit:: `{{ii}}`
 
 - ```javascript
   /**
-   * description
+   * Get the icon associated with the linked reference following the macro.
    *
    * @file nextRefIcon.md
    *
@@ -64,26 +64,32 @@ kit:: `{{ii}}`
    *
    * @function generateWhitespace
    * @namespace HelperFunctions.Generation
+   * 
+   * @description Logseq macros passed without arguments result in
+   * strings such as $1. Reject those.
    *
-   * @param whitespace {string} - The number of spaces to generate
+   * @param {string} whitespace - The number of spaces to generate
    * @returns {string} - A string of zero or more spaces
    */
   function generateWhitespace(whitespace) {
     // Input validation
     if (typeof whitespace === "string" && whitespace.startsWith("$")) {
-      return ""; // Reject strings like '$1'
+      return ""; // 
     }
   
-    const number = Number(whitespace); // Convert to number
+    const number = Number(whitespace);
     return Number.isInteger(number) && number > 0 ? "&nbsp;".repeat(number) : "";
   }
   
   /**
-   *
-   * @param startingElement
-   * @param siblingQuerySelectorPattern
-   * @param attributeName
-   * @returns
+   * Get an HTML attribute value from a sibling later in the DOM
+   * 
+   * @function getAttributeValueFromSiblingOfElement
+   * 
+   * @param {HTMLElement} startingElement - The DOM element from which the search begins, ensuring a valid starting point for sibling traversal.
+   * @param {string} siblingQuerySelectorPattern - A CSS selector string used to identify the target sibling or one of its descendant elements.
+   * @param {string} attributeName - The name of the HTML attribute whose value is to be retrieved from the matching element.
+   * @returns {string|null} - The lowercase value of the specified attribute if found; otherwise, null.
    */
   function getAttributeValueFromSiblingOfElement(
     startingElement,
@@ -143,19 +149,15 @@ kit:: `{{ii}}`
    * @function nextRefIcon
    *
    * @async
-   * @param div {HTMLElement} - The div element that triggered the macro
+   * @param {HTMLElement} div - The div element that triggered the macro
    *
    */
   logseq.kits.setStatic(async function nextRefIcon(div) {
-    /**
-     * Inputs
-     */
+    // Inputs
     const leftWhitespace = div.dataset.leftWhitespace;
     const rightWhitespace = div.dataset.rightWhitespace;
   
-    /**
-     * Target element logic
-     */
+    // Target element logic
     const startingElement = div.closest("[data-macro-name]");
     console.log("startingElement", startingElement);
     const querySelectorPattern = ".page-reference";
@@ -167,10 +169,16 @@ kit:: `{{ii}}`
     );
     console.log("nextRef", nextRefValue);
   
+    // Data fetching logic
     /**
-     * Data fetching logic
+     * Processes an advanced query using the Logseq datascript query API.
+     *
+     * @async
+     * @function processAdvancedQuery
+     *
+     * @param {string} queryString - The datascript query string to execute via the Logseq API.
+     * @returns {Promise<Array>} - A promise that resolves to an array containing the flattened query results.
      */
-    // Helper functions
     const processAdvancedQuery = async (queryString) => {
       const resultArray = await (async () => {
         const queryResults = await logseq.api.datascript_query(queryString)?.flat();
@@ -208,13 +216,13 @@ kit:: `{{ii}}`
     const queryResult = await processAdvancedQuery(queryStringLibrary.fetchPageIcon);
     console.log("[nextRefIcon] icon:", queryResult[0].icon);
   
-    /**
-     * Output logic
-     */
+    // Output logic
     /**
      * Factory function to create a standardized output object for use
      * with outputFormatter.
      *
+     * @function OUTPUT_STRINGS_TEMPLATE
+     * 
      * @param {string} noResultsString - Content for the "no result" case.
      * @param {string} resultString - Content for the "result" case.
      * @returns {Object} - Object containing the standardized inputs for outputFormatter.
@@ -224,12 +232,10 @@ kit:: `{{ii}}`
       resultString: resultString,
     });
   
-    /**
-     * Define the actual string values to be used in the output.
-     */
+    // Define the actual string values to be used in the output.
     const DEFAULT_NO_RESULTS = "&#x0000;";
     const outputStringValues = {
-      noResults: DEFAULT_NO_RESULTS, // Default content for "no results"
+      noResults: DEFAULT_NO_RESULTS,
       resultString: `${generateWhitespace(leftWhitespace)}&#x${
         queryResult[0].icon
       };${generateWhitespace(rightWhitespace)}`,
@@ -238,6 +244,8 @@ kit:: `{{ii}}`
     /**
      * Format the output text content into an object compatible with outputFormatter.
      *
+     * @function formatOutputContent
+     * 
      * @param {string} textContent - The text content to format.
      * @returns {Object} - The formatted object for output.
      */
@@ -251,6 +259,8 @@ kit:: `{{ii}}`
     /**
      * Generate the final output by selecting and formatting content.
      *
+     * @function generateOutput
+     * 
      * @param {Array} queryResult - The result of the query.
      * @param {Object} outputStringsObject - The standardized output strings object.
      * @param {Function} contentFormatterFunction - Function to format the content (default: formatOutputContent).
@@ -268,22 +278,21 @@ kit:: `{{ii}}`
           ? outputStringsObject.noResults
           : outputStringsObject.resultString;
   
-      // Format and return the output
+  
       const formattedObject = contentFormatterFunction(content);
       return outputFormatFunction(formattedObject);
     };
   
-    // Generate the DOM output
+  
     const output = generateOutput(
       queryResult,
       outputStringValues,
       formatOutputContent,
       outputFormatter
     );
-    // Append the generated output to the DOM
+  
     div.appendChild(output);
   });
-  
   ```
 	- {{evalparent}}
 	-
