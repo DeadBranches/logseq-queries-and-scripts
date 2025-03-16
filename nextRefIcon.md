@@ -1,3 +1,5 @@
+kit:: `{{ii}}`
+
 - ```javascript
   /**
    * description
@@ -5,7 +7,7 @@
    * @file nextRefIcon.md
    *
    * @usage Use with a logseq macro
-   *  :refIcon "[:div.kit.inline { :data-kit refIcon :data-arguments \"$1\"} ]"
+   *  :ii "[:div.kit.inline { :data-kit nextRefIcon :data-arguments \"$1\"} ]"
    */
   
   /**
