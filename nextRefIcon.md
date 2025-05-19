@@ -218,19 +218,26 @@ kit:: `{{ii}}`
   
     // Output logic
     /**
+     * @deprecated 2025-05-19  
+     * Legacy helper retained solely for reference.  
+     * Prefer literal objects unless multiple call-sites require the abstraction.
+     * 
      * Factory function to create a standardized output object for use
      * with outputFormatter.
      *
-     * @function OUTPUT_STRINGS_TEMPLATE
+     * @function legacy.OUTPUT_STRINGS_TEMPLATE
      * 
      * @param {string} noResultsString - Content for the "no result" case.
      * @param {string} resultString - Content for the "result" case.
      * @returns {Object} - Object containing the standardized inputs for outputFormatter.
      */
-    const OUTPUT_STRINGS_TEMPLATE = (noResultsString, resultString) => ({
+    const legacy= {};
+    legacy.OUTPUT_STRINGS_TEMPLATE = (noResultsString, resultString) => ({
       noResults: noResultsString,
       resultString: resultString,
     });
+    // eslint-disable-next-line no-unused-vars
+    // Intentionally unused until the abstraction is required again.
   
     // Define the actual string values to be used in the output.
     const DEFAULT_NO_RESULTS = "&#x0000;";
