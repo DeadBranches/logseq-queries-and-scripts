@@ -1,8 +1,6 @@
-## supported clojure.set namespace predicates
+## Supported clojure.walk namespace functions
 
-The following predicates are supported in logseq advanced query:
-- :view function
-- :result-transform function
+The clojurescript predicates listed below are supported in logseq advanced query: :view functions and :result-transform functions
 
 <clojure.set>
 difference
