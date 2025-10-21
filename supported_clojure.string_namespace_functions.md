@@ -1,10 +1,6 @@
-## Supported clojure.edn namespace predicates
+## Supported clojure.string namespace predicates
 
 The clojurescript predicates listed below are supported in logseq advanced query: :view functions and :result-transform functions
-
-supported_clojure.string_namespace_functions.md
-
-## clojure.string
 
 <clojure.string>
 blank?
