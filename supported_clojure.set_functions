@@ -1,0 +1,20 @@
+## supported clojure.set namespace predicates
+
+The following predicates are supported in logseq advanced query:
+- :view function
+- :result-transform function
+
+<clojure.set>
+difference
+index
+intersection
+join
+map-invert
+project
+rename
+rename-keys
+select
+subset?
+superset?
+union
+</clojure.set>
