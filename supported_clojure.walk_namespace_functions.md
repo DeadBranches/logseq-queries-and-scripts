@@ -1,4 +1,4 @@
-## Supported clojure.walk namespace 
+## Supported clojure.walk namespace functions
 
 The clojurescript predicates listed below are supported in logseq advanced query: :view functions and :result-transform functions
 
