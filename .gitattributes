@@ -1,5 +1,5 @@
 # Ignore changes to 'collapsed::' properties
-*.md filter=ignore-collapsed-changes
+# *.md filter=ignore-collapsed-changes # CHANGED 2026-02-24: commented out
 
 # Also set up a diff driver for viewing diffs
 *.md diff=ignore-collapsed-changes
@@ -10,4 +10,7 @@
 #
 # filter.ignore-collapsed-changes.clean=grep -vE '^[[:space:]-]*collapsed::[[:space:]]*true$'
 # filter.ignore-collapsed-changes.smudge=cat
-# diff.ignore-collapsed-changes.command=grep -vE '^[[:space:]-]*collapsed::[[:space:]]*true$' 
+# diff.ignore-collapsed-changes.command=grep -vE '^[[:space:]-]*collapsed::[[:space:]]*true$'
+# Strip Logseq UI state from the repo view
+diff=ignore-collapsed-changes
+*.md filter=ignore-collapsed-changes
