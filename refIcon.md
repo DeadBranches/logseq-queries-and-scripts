@@ -72,11 +72,15 @@ kit:: refIcon
     //const blockId = "66e6f56f-3005-458a-b0cd-65502c9beef1";
     //const block = logseq.api.get_block(blockUUID);
     //const targetBlock = block;
-    // console.group("inputs");
+    console.group("inputs");
+    console.log("div:", div);
     // console.log("blockUUID:", blockUUID);
     // console.log("blockUUID type:", typeof blockUUID);
-    // console.groupEnd;
-  
+    console.groupEnd;
+   
+    const macro = div.closest("[data-macro-name]")
+    const nextRef = macro.nextElementSibling;
+    console.log("nextRef", nextRef);
     /**
      * Advanced query
      */
@@ -153,7 +157,7 @@ kit:: refIcon
   
   ```
 	- {{evalparent}}
-	- {{refIcon}} [[:logseq-ideas-assistant]]
+	- WHEE MUSHROOMS {{refIcon}} [[:Logseq-ideas-assistant]] ok?
 - {{kitButton issues,collapseBlock,ea06,-button-style full-width small-caps}}
 	- {{embed ((66ccdccf-f9e2-4028-b867-a7b5406fd634))}}
 - {{kitButton ideas,collapseBlock,ea76,-button-style full-width small-caps}}

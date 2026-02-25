@@ -5,18 +5,28 @@ repository:: DeadBranches/logseq-queries-and-scripts
 
 - #### {{i-inbox}} Logseq inbox
   id:: 660c8b4b-be82-4019-943b-dfabdb2c7161
-- ## Idea trackers
+- ### {{ii}} [[Issue]] trackers
+     [:span.sc.dg "ideas" "   " "questions" "   " "ideas"]
 	- {{kitButton issues,collapseBlock,ea06,-button-style full-width small-caps}}
 		- {{embed ((66ccdccf-f9e2-4028-b867-a7b5406fd634))}}
 	- {{kitButton ideas,collapseBlock,ea76,-button-style full-width small-caps}}
 		- {{embed ((66df909d-79a2-4532-917e-94d3bd8b32a8))}}
 	- {{kitButton questions,collapseBlock,ea76,-button-style full-width small-caps}}
 		- {{embed ((66df90b1-ccba-494b-94c9-76f3194e0963))}}
-- ## Useful things
+- ## {{ii}} REPL
+	- ### ((ii)) predicate reference
+	    [:span.sm.dg "Available in logseq."]
+		- -icon:: eb00
+	- ### {{ii}} ClojureScript
+		- ```:results
+		  ```
+- ## {{ii}} External [[Resources]]
+    [:span.sc.dg+ "logseq source" "   " "config.edn"]
 	- Logseq config.edn template -> {{i-github}} [logseq/logseq](https://github.com/logseq/logseq/blob/4374741afd9add1716da62b3bf6466cffa5be082/src/resources/templates/config.edn#L4)
 		- My local version last drawn from commit [`26d255d`](https://github.com/logseq/logseq/commit/26d255d0b1a065fa66c135b0fbe4d7270b55e1b5)
 	- [[logseq-source]]
-- ## Things I built
+- ## {{ii}} Logseq Custom [[Mods]]
+  [:span.sm.dg+ "Personally authored."]
 	- #### Insert batch blocks from UUID
 		- See page [[journalOrganizationBlocks]]
 		- ```js

@@ -2,11 +2,11 @@ tags:: project
 -icon:: f830
 
 - [[Friday, Jun 14th, 2024]] Renamed page from `[[logseq-appointments-journal-widget]]` to `[[logseq-events-and-appointments]]` to reflect the fact that the MS-journal, medical appointments, and journal widget are all an overlapping concern.
-- {{kitButton issues,collapseBlock,ea06,-button-style full-width small-caps}}
+- ## {{kitButton issues,collapseBlock,ea06,-button-style full-width small-caps}}
 	- {{embed ((66ccdccf-f9e2-4028-b867-a7b5406fd634))}}
-- {{kitButton ideas,collapseBlock,ea76,-button-style full-width small-caps}}
+- ## {{kitButton ideas,collapseBlock,ea76,-button-style full-width small-caps}}
 	- {{embed ((66df909d-79a2-4532-917e-94d3bd8b32a8))}}
-- {{kitButton questions,collapseBlock,ea76,-button-style full-width small-caps}}
+- ## {{kitButton questions,collapseBlock,ea76,-button-style full-width small-caps}}
 	- {{embed ((66df90b1-ccba-494b-94c9-76f3194e0963))}}
 - # Status
 	- Current code base:

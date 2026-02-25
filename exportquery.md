@@ -49,7 +49,7 @@ created-on:: [[Sunday, Jun 23rd, 2024]]
     return htmlContent.outerHTML;
   }
   
-  async function exportquery(el, mode = 'original') {
+  async function exportquery(el, mode) {
     const me = event.target.closest('.ls-block');
     const parentBlock = me.parentElement.closest('.ls-block');
     
@@ -93,11 +93,21 @@ created-on:: [[Sunday, Jun 23rd, 2024]]
       console.error('Failed to copy content to clipboard:', error);
     }
   }
-  exportquery(null)
+  exportquery(null, 'process')
   ```
 	- {{evalparent}}
-- Example table
-  | item | content |
-  | --- | --- |
-  | 1 | stuff |
-	- {{runpage exportBlockContent}}
+- ## {{ii}} [[Tests]]
+	- Example table
+	  | item | content |
+	  | --- | --- |
+	  | 1 | stuff |
+		- {{runpage exportquery,export query,'',squat}}
+-
+- ## {{kitButton issues,collapseBlock,ea06,-button-style full-width small-caps}}
+	- {{embed ((66ccdccf-f9e2-4028-b867-a7b5406fd634))}}
+- ## {{kitButton ideas, collapseBlock,ea76,-button-style full-width small-caps}}
+	- {{embed ((66df909d-79a2-4532-917e-94d3bd8b32a8))}}
+- ## {{kitButton questions,collapseBlock,ea76,-button-style full-width small-caps}}
+	- {{embed ((66df90b1-ccba-494b-94c9-76f3194e0963))}}
+-
+-

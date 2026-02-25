@@ -3,8 +3,7 @@ description:: Insert a logseq block and it's children as a target blocks' childr
 created-on:: [[Sunday, Jul 7th, 2024]]
 depreciated?:: [[Friday, Sep 6th, 2024]]
 
-- ```javascript
-  // Usage:
+- // Usage:
   // {{kitButton blocks,insertSomeBlocks,ea69,'',source='66a2ecd4-644b-47b5-a9b7-cfc4b50f1376' target='66a2f05f-9991-4030-abc1-11d5b3b603c2'}}
   
   logseq.kits.insertSomeBlocks = insertSomeBlocks;
@@ -239,8 +238,6 @@ depreciated?:: [[Friday, Sep 6th, 2024]]
     });
   }
   //await insertSomeBlocks();
-  
-  ```
 	- {{evalparent}}
 - ```javascript
   ```

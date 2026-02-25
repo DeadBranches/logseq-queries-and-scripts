@@ -3,13 +3,13 @@ description:: Inserts either a grocery or shopping list item under the purchase 
 created-on:: [[Thursday, Aug 15th, 2024]]
 -icon:: f2da
 
-- ```javascript
+  ```javascript
   logseq.kits.insertListItem = insertListItem;
   
   async function insertListItem() {
     const buttonElement = event.target;
     const containerDiv = buttonElement.closest(".ls-block");
-    const containerId = containerDiv.getAttribute("blockid");
+    const containerId = containerDiv.getAttribute("blockId");
   
     // Defaults
     const DEFAULT_BLOCK = "grocery";

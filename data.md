@@ -1,5 +1,6 @@
 tags:: page
 future-events-activity-chips:: ["anticipated", "appointment"]
+-icon:: f05c
 
 - ### previous grocery purchase icon data.
 	- {{i-info}} The {{i f287}} [*Previous grocery purchases*](((670573d6-fb31-4f86-ab91-e536af8c6760))) tool checks this map for tabler-icon hex codes associated with a given grocery item.

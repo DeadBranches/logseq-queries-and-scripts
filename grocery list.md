@@ -72,6 +72,7 @@ repository:: DeadBranches/logseq-queries-and-scripts
 	   :breadcrumb-show? false
 	  }
 	  #+END_QUERY
+		- {{kitButton go,exportquery}}
 - {{kitButton previous purchases,collapseBlock,eb9b,-button-style}}
 	- {{embed ((66c12458-4744-4f60-bc2b-8396c7bd3819))}}
 - #### {{i f5f8}} in my basket..
@@ -2071,3 +2072,4 @@ repository:: DeadBranches/logseq-queries-and-scripts
   
     :breadcrumb-show? false}
   #+END_QUERY
+-

@@ -39,10 +39,10 @@ description:: `/template`s with boilerplate for collector blocks, page tags, dai
 					- depreciate block
 	- ##### {{i ef91}}  tools
 	  id:: 66b0fc6d-037d-4651-b081-f021d3ef06fa
-		- {{i ea76}}  ideas, issues, questions
+		- {{i ea76}} tag tracker - ideas, issues, questions
 		        {{templateSlashCommand}}
 			- ### {{i-template}} template
-			  template:: tool, thought assistant
+			  template:: widget, tag tracker -  ideas/issues/questions
 			  template-including-parent:: false
 				- {{kitButton issues,collapseBlock,ea06,-button-style full-width small-caps}}
 					- {{embed ((66ccdccf-f9e2-4028-b867-a7b5406fd634))}}
@@ -204,12 +204,230 @@ description:: `/template`s with boilerplate for collector blocks, page tags, dai
 				  
 				  #+END_QUERY
 				  {{idea-identifier}}
-		- {{i ee21}}  expected event
+		- {{i fec4}} tag tracker - discussion \#topics
+		  id:: 66e5df7d-d9af-4c1f-966f-b684ff55b400
+		  project:: [[:logseq-discussion-topic-assistant]]
+		  project-component:: template
+		  +hide-all:: true
+		       {{templateSlashCommand}}
+			- *Often used on @people pages*
+			- {{i ee1d}} *project*
+				- [[:logseq-discussion-topic-assistant]]
+			- {{i-example}} samples
+				- [[@Dr Teplitsky]]
+			- ### {{i-template}} template
+			  template:: widget, tag tracker - topics
+			  template-including-parent:: false
+				- # {{i eb6c}} Topics
+				  *use the \#topics tag to show content here*
+					- ### Open topics
+						- {{embed ((66e5e078-e59c-4064-91cf-2c3eec36af87))}}
+						- {{kitButton export,exportquery}}
+					- Covered topics
+						- {{embed ((66e5e0c4-d1cc-4598-8e00-07f0abad84b0))}}
+						- {{kitButton export,exportquery}}
+		- {{i fd1f}} event tracker - appointment history
+		       {{templateSlashCommand}}
+			- *Use on :with pages*
+			- ### {{i-example}} samples
+				- [[@Dr Teplitsky]]
+			- ### {{i-template}} template
+			  template:: widget, event tracker - appointments
+			  template-including-parent:: false
+				- # {{i f621}} appointment summary
+					- ## {{i fad2}} future appointments
+						- {{embed }}
+						  id:: 66e5dda7-4ff1-47a8-aab5-059310859898
+						- {{embed ((66e5dcc2-148a-4f77-88fc-bad898a3fdde))}}
+					- ## {{i f824}} previous appointments
+						- {{embed ((66e5dcb2-1960-4c28-9fe3-45371b023f0e))}}
+						- {{embed ((66e5dcbc-31a8-4e66-a0b3-2b393d3b4919))}}
+		- {{i f51a}}  task manager - project goals & tasks
+		       {{templateSlashCommand}}
+			- #### {{i-example}} samples
+				- ((65bcf5d6-660a-4dff-b086-d5cb795540c7))
+			- ### {{i-template}} template
+			  template:: tool, task manager - projact goals & tasks
+			  template-including-parent:: false
+				- ## [[Goals]]
+					- TODO This is a goal
+					  id:: 65fb267e-8199-4ada-95e3-2232fa2d2190
+					  **tip** reference me
+						- #+BEGIN_QUERY
+						  {:query
+						  [:find (pull ?c [*])
+						  ;:keys tasks
+						  :in $ ?current-page
+						  :where
+						  [?e :block/name ?current-page]
+						  [?t :block/name "tasks"]
+						  [?b :block/refs ?t]
+						  [?b :block/page ?e]
+						  (?c :block/parent ?b)
+						  [?c :block/marker ?marker]
+						  [(= "TODO" ?marker)]
+						  [?c :block/content ?tasks]
+						  ]
+						  
+						  :result-transform (fn [r] (map (fn [m] (assoc m :block/collapsed? true)) r))
+						  :breadcrumb-show? false
+						  :inputs [:current-page]
+						  }
+						  #+END_QUERY
+				- ## [[Tasks]]
+					- TODO This is a task
+						- I like mushrooms
+					- TODO This is another task
+					- lol
+			- #### current template notes
+				- ref to: ((65fb267e-8199-4ada-95e3-2232fa2d2190))
+	- ##### {{i fab5}}  blocks
+		- {{ii}} ~~joycaption settings [[checkboxes]]~~
+		  {{templateSlashCommand}}
+			- ### {{i f6ef}}  depreciation warning
+			      this block is no longer in use
+				- {{i ea0b}} *depreciated on* *[[Friday, Jun 6th, 2025]]*
+			- ### {{i-template}} template
+			  depreciated-template:: block, joycaption checkboxes
+			  template-including-parent:: false
+				- {{ii}} [[settings]]
+					- Caption Type
+						- TODO Descriptive
+						- TODO Descriptive (Informal)
+						- TODO Training prompt
+						- TODO Midjourney
+						- TODO Booru tag list
+						- TODO Booru-like tag list
+						- TODO Art Critic
+						- TODO Product Listing
+						- TODO Social media post
+					- Caption length
+						- TODO any
+						- TODO very short
+						- TODO short
+						- TODO medium-length
+						- TODO long
+						- TODO very-long
+					- *Extra Options*
+						- TODO If there is a person/character in the image you must refer to them as {name}.
+						  Do NOT include information about people/characters that cannot be changed (like ethnicity, gender, etc), but do still include changeable attributes (like hair style).
+						- TODO Include information about lighting.
+						- TODO Include information about camera angle.
+						- TODO Include information about whether there is a watermark or not.
+						- TODO Include information about whether there are JPEG artifacts or not.
+						- TODO If it is a photo you MUST include information about what camera was likely used and details such as aperture, shutter speed, ISO, etc.
+						- TODO Do NOT include anything sexual; keep it PG.
+						- TODO Do NOT mention the image's resolution.
+						- TODO You MUST include information about the subjective aesthetic quality of the image from low to very high.
+						- TODO Include information on the image's composition style, such as leading lines, rule of thirds, or symmetry.
+						- TODO Do NOT mention any text that is in the image.
+						- TODO Specify the depth of field and whether the background is in focus or blurred.
+						- TODO If applicable, mention the likely use of artificial or natural lighting sources.
+						- TODO Do NOT use any ambiguous language.
+						- TODO Include whether the image is sfw, suggestive, or nsfw.
+						- TODO ONLY describe the most important elements of the image.
+				- {{ii}} captioning [[results]]
+					- {{ii}} [[joycaption-prompt]] that was used
+						- ```plain_text
+						  
+						  ```
+					- {{ii}} [[image caption]] generated
+						- ```plain_text
+						  
+						  ```
+					- {{ii}} enhanced [[bigasp]] [[image-prompt]]
+						- ```plain_text
+						  
+						  ```
+		- {{i-ai}} ~~llm-assistant prompt set~~
+		  {{templateSlashCommand}}
+			- ### {{i f6ef}}  depreciation warning
+			      this block is no longer in use
+				- {{i ea0b}} *depreciated on* *[[Friday, Jun 6th, 2025]]*
+			- ### {{i-template}} template
+			  depreciated-template:: block, llm task assistant
+			  template-including-parent:: false
+				- {{refIcon}} **task-name.** brief description
+					- ### {{refIcon}} [[CustomGPT]]
+						- {{i-ai}} []()
+						  llm-task-assistant:: 
+						  url::
+					- ### {{refIcon}} [[Goal]]
+						- ...
+					- ### {{refIcon}} [[Features]]
+						- ....
+					- ### {{refIcon}} [[instruction sets]]
+						- *v0.1.0* initial version
+							- {[refIcon]} whee [[meta-prompt]]
+							  version:: 0.1.0
+							  
+							  *meta prompt*
+							  #+BEGIN_QUOTE
+							  
+							  #+END_QUOTE
+							- {[refIcon]} whee [[prompt]]
+							  version:: 0.1.0
+							  
+							  *prompt*
+							  #+BEGIN_QUOTE
+							  
+							  #+END_QUOTE
+					- {{refIcon}} [[example input]]
+		- {{i-conversation}} ~~advanced query conversation~~
+		       {{templateSlashCommand}}
+			- **w/ prompt & response**
+			- ### {{i-example}} samples
+				- ((6678932d-b247-4894-af50-3c3161cfbec4))
+			- ### {{i-template}} template
+			  depreciated-template:: block, llm coding iteration
+			  template-including-parent:: false
+				- {{chat with,http://}}
+					- **Result**: 
+					  *
+					  *
+					  
+					  (*sample*):
+				- **Prompt** given to claude
+					- >
+				- **Response**
+					- **Result**
+						- ```edn
+						  
+						  ```
+					- **Advanced query**
+						- ```clojure
+						  
+						  ```
+		- {{i-coding}}  workspace - coding iteration
+		  id:: 66818163-8a53-447b-a959-0ae93dde245f
+		       {{templateSlashCommand}}
+			- ![image.png](../assets/image_1719949398805_0.png){:height 178, :width 216}
+			- *w/ feature goal, scope, result, final code*
+			- ### {{i-template}} template
+			  template:: block, coding - iteration workspace
+			  template-including-parent:: false
+				- ### {{i f6af}} iteration: title of work
+					- {{i f51a}} feature goal
+						-
+					- {{i efb1}} iteration goal (scope)
+						-
+					- {{i ea99}} external resources
+						- `{{chat name,url}}`
+					- {{i f082}} workspace
+						- *work it!*
+					- {{i f35e}} result
+						-
+					- {{i eb45}} final {{i ea77}} code for this iteration
+					    {{code-inside}}
+						- ```
+						  
+						  ```
+		- {{i ee21}} event tracker - expected event reminder
 		       {{templateSlashCommand}}
 			- ### {{i-example}} samples
 				- [[~autism assessment]]
 			- ### {{i-template}} template
-			  template:: tool, expecting event assistant
+			  template:: block, event tracker - expected event reminder
 			  template-including-parent:: false
 				- ## {{i ee21}} Expecting
 					- ### {{i ed07}} Take Action
@@ -281,171 +499,12 @@ description:: `/template`s with boilerplate for collector blocks, page tags, dai
 						  #+END_QUERY
 					- *example usage*
 						- TODO **[[EXPECT]]** some things \/schedule
-		- {{i f51a}}  project goals, task state
-		       {{templateSlashCommand}}
-			- #### {{i-example}} samples
-				- ((65bcf5d6-660a-4dff-b086-d5cb795540c7))
-			- ### {{i-template}} template
-			  template:: tool, project goal + task assistant
-			  template-including-parent:: false
-				- ## [[Goals]]
-					- TODO This is a goal
-					  id:: 65fb267e-8199-4ada-95e3-2232fa2d2190
-					  **tip** reference me
-						- #+BEGIN_QUERY
-						  {:query
-						  [:find (pull ?c [*])
-						  ;:keys tasks
-						  :in $ ?current-page
-						  :where
-						  [?e :block/name ?current-page]
-						  [?t :block/name "tasks"]
-						  [?b :block/refs ?t]
-						  [?b :block/page ?e]
-						  (?c :block/parent ?b)
-						  [?c :block/marker ?marker]
-						  [(= "TODO" ?marker)]
-						  [?c :block/content ?tasks]
-						  ]
-						  
-						  :result-transform (fn [r] (map (fn [m] (assoc m :block/collapsed? true)) r))
-						  :breadcrumb-show? false
-						  :inputs [:current-page]
-						  }
-						  #+END_QUERY
-				- ## [[Tasks]]
-					- TODO This is a task
-						- I like mushrooms
-					- TODO This is another task
-					- lol
-			- #### current template notes
-				- ref to: ((65fb267e-8199-4ada-95e3-2232fa2d2190))
-		- {{i fec4}} discussion \#topics
-		  id:: 66e5df7d-d9af-4c1f-966f-b684ff55b400
-		  project:: [[:logseq-discussion-topic-assistant]]
-		  project-component:: template
-		  +hide-all:: true
-		       {{templateSlashCommand}}
-			- *Often used on @people pages*
-			- {{i ee1d}} *project*
-				- [[:logseq-discussion-topic-assistant]]
-			- {{i-example}} samples
-				- [[@Dr Teplitsky]]
-			- ### {{i-template}} template
-			  template:: tool, @ discussion topic assistant
-			  template-including-parent:: false
-				- # {{i eb6c}} Topics
-				  *use the \#topics tag to show content here*
-					- ### Open topics
-						- {{embed ((66e5e078-e59c-4064-91cf-2c3eec36af87))}}
-						- {{kitButton export,exportquery,'',squat}}
-					- Covered topics
-						- {{embed ((66e5e0c4-d1cc-4598-8e00-07f0abad84b0))}}
-						- {{kitButton export,exportquery,'',squat}}
-		- {{i fd1f}} future & past appointments
-		       {{templateSlashCommand}}
-			- *Use on :with pages*
-			- ### {{i-example}} samples
-				- [[@Dr Teplitsky]]
-			- ### {{i-template}} template
-			  template:: tool, @ appointment tracker
-			  template-including-parent:: false
-				- # {{i f621}} appointment summary
-					- ## {{i fad2}} future appointments
-						- {{embed }}
-						  id:: 66e5dda7-4ff1-47a8-aab5-059310859898
-						- {{embed ((66e5dcc2-148a-4f77-88fc-bad898a3fdde))}}
-					- ## {{i f824}} previous appointments
-						- {{embed ((66e5dcb2-1960-4c28-9fe3-45371b023f0e))}}
-						- {{embed ((66e5dcbc-31a8-4e66-a0b3-2b393d3b4919))}}
-	-
-	- ##### {{i fab5}}  blocks
-		- {{i-ai}} llm-template assistant
-		  {{templateSlashCommand}}
-			- ### {{i-example}} samples
-			- ### {{i-template}} template
-			  template:: block, llm task assistant 
-			  template-including-parent:: false
-				- {{refIcon}} **task-name.** brief description
-					- ### {{refIcon}} [[CustomGPT]]
-						- {{i-ai}} []()
-						  llm-task-assistant:: 
-						  url::
-					- ### {{refIcon}} [[Goal]]
-						- ...
-					- ### {{refIcon}} [[Features]]
-						- ....
-					- ### {{refIcon}} [[instruction sets]]
-						- *v0.1.0* initial version
-							- {[refIcon]} whee [[meta-prompt]]
-							  version:: 0.1.0
-							  
-							  *meta prompt*
-							  #+BEGIN_QUOTE
-							  
-							  #+END_QUOTE
-							- {[refIcon]} whee [[prompt]]
-							  version:: 0.1.0
-							  
-							  *prompt*
-							  #+BEGIN_QUOTE
-							  
-							  #+END_QUOTE
-					- {{refIcon}} [[example input]]
-		- {{i-conversation}} advanced query conversation
-		       {{templateSlashCommand}}
-			- **w/ prompt & response**
-			- ### {{i-example}} samples
-				- ((6678932d-b247-4894-af50-3c3161cfbec4))
-			- ### {{i-template}} template
-			  template:: block, llm coding iteration
-			  template-including-parent:: false
-				- {{chat with,http://}}
-					- **Result**: 
-					  *
-					  *
-					  
-					  (*sample*):
-				- **Prompt** given to claude
-					- >
-				- **Response**
-					- **Result**
-						- ```edn
-						  
-						  ```
-					- **Advanced query**
-						- ```clojure
-						  
-						  ```
-		- {{i-coding}} coding iteration
-		  id:: 66818163-8a53-447b-a959-0ae93dde245f
-		       {{templateSlashCommand}}
-			- ![image.png](../assets/image_1719949398805_0.png){:height 178, :width 216}
-			- *w/ feature goal, scope, result, final code*
-			- ### {{i-template}} template
-			  template:: block, code iteration
-			  template-including-parent:: false
-				- ### {{i f6af}} iteration: title of work
-					- {{i f51a}} feature goal
-						-
-					- {{i efb1}} iteration goal (scope)
-						-
-					- {{i ea99}} external resources
-						- `{{chat name,url}}`
-					- {{i f082}} workspace
-						- *work it!*
-					- {{i f35e}} result
-						-
-					- {{i eb45}} final {{i ea77}} code for this iteration
-					    {{code-inside}}
-						- ```
-						  
-						  ```
-		- {{i-template}} *template page* structure
+		- {{i-template}} blank template - *template-page* item
+		  id:: 6764a609-9f70-4dbd-8bcf-31050b9bf610
 		       {{templateSlashCommand}}
 			- *template & examples headers*
 			- ### {{i-template}} template
-			  template:: block, templates-template
+			  template:: block, blank template - templates-page item
 			  template-including-parent:: false
 				- {{i }} title
 					- **
@@ -454,29 +513,20 @@ description:: `/template`s with boilerplate for collector blocks, page tags, dai
 					  template :: 
 					  template-including-parent :: false
 						-
-	-
-	- ##### {{i f510}}  cards
-		- {{i ebba}} agenda item - appointment, event, activity
+		- {{i f07b}} online order - expected delivery reminder
 		       {{templateSlashCommand}}
-			- *for appointments and events*
-			- ### {{i-example}} examples
 			- ### {{i-template}} template
-			  template:: card, activity
+			  template:: block, online order - delivery reminder
 			  template-including-parent:: false
-				- event :: 
-				  activity :: 
-				  with :: 
-				  location ::
-				  date ::
-				  time ::
-				  scheduling ::
-				  related ::
-	-
-	- ##### {{i f035}}  data
-		- {{i eb25}} online order
+				- TODO **[[EXPECT]]]** **[[retailer]] [[online order]] [[delivery]].** -short description-
+				  DEADLINE: <>
+				  SCHEDULED: <>
+			- ### {{i-example}} samples
+				- {{embed ((676f4ac4-68ec-424f-b701-34ffd901027a))}}
+		- {{i eb25}} online order - purchase data
 		       {{templateSlashCommand}}
 			- ### {{i-template}} template
-			  template:: data, online order 
+			  template:: block, online order - purchase data
 			  template-including-parent:: false
 				- TODO ^_^
 				  {{i eb25}} [[online order]] with **retailer**:
@@ -488,13 +538,99 @@ description:: `/template`s with boilerplate for collector blocks, page tags, dai
 					  | Item | Qty |
 					  |---|---|
 					-
+		- {{i f07b}} ~~*mood* rating helper~~
+		  id:: 677c2f68-4b38-403d-8cdc-15b6576c49ff
+		       {{templateSlashCommand}}
+			- ### {{i-template}} template
+			  template-including-parent:: false
+			  depreciated-template::  block- mood rating
+				- **[[Mood log]]:** Current mood, situation, and rating.
+					- {{i-info}} [:small.gray "from mental health and me, mind over mood week 3"]
+					- ### {{i f7cf}} Situation
+						-
+					- ### {{i f2e7}} Mood
+						-
+						- {{kitButton hints,collapseBlock,feba,-button-style small-caps gray full-width}}
+							- Anxious
+							  Angry
+							  Guilty
+							  Ashamed
+							  Sad
+							  Embarrassed
+							  Excited
+							  Frightened
+							  Irritated
+							  Insecure
+							  Proud
+							  Mad
+							  Panic
+							  Frustrated
+							  Nervous
+							  Disgusted
+							  Hurt
+							  Cheerful
+							  Disappointed
+							  Enraged
+							  Scared
+							  Happy
+							  Loving
+							  Humiliated
+							  Grief
+							  Eager
+							  Afraid
+							  Content
+							  Grateful
+					- ### {{i ed38}} Rating
+						- 0 10 20 30 40 50 60 70 80 90
+	- ##### {{ii}}  data [[cards]]
+		- {{ii}} [[supplement]] - dose record
+		       {{templateSlashCommand}}
+			- ### {{i-template}} template
+			  template:: card, supplement - dose record
+			  template-including-parent:: false
+				- supplement ::
+				  dose::
+		- {{i ebba}} agenda item - appointment, event, activity entry
+		       {{templateSlashCommand}}
+			- *for appointments and events*
+			- ### {{i-example}} examples
+			- ### {{i-template}} template
+			  template:: card, agenda item - activity
+			  template-including-parent:: false
+				- event :: 
+				  activity :: 
+				  with :: 
+				  location ::
+				  date ::
+				  time ::
+				  scheduling ::
+				  related ::
+		- {{i f060}} vitals - blood pressure and heart rate
+		      {{templateSlashCommand}}
+			- ### {{i-template}} template
+			  template:: card, vitals - measurement record
+			  template-including-parent:: false
+				- {{refIcon}} **[[Vitals]] check.** Blood pressure and heart rate
+				  bp-systolic::
+				  bp-diastolic::
+				  bp-heart-rate::
+				  current-time::
+				  last-propranolol-dose-time::
+		- {{ii}} [[medication]] - dose change
+		       {{templateSlashCommand}}
+			- ### {{i-template}} template
+			  template:: card, medication - dose change
+			  template-including-parent:: false
+				- medication ::
+				  dose::  mg
+	- ##### {{i f035}}  data
 	-
 	- #### {{i f8b1}}  logseq
-		- {{i f6ef}} depreciate logseq block
+		- {{i f6ef}} information - depreciated block
 		       {{templateSlashCommand}}
 			- ![image.png](../assets/image_1719951269675_0.png){:height 76, :width 307}
 			- ### {{i-template}} template
-			  template:: logseq, depreciate
+			  template:: logseq, info - depreciate
 			  template-including-parent:: false
 				- ### {{i f6ef}}  depreciation warning
 				      this block is no longer in use
@@ -512,17 +648,17 @@ description:: `/template`s with boilerplate for collector blocks, page tags, dai
 			- ### {{i-info}} information
 				- **site selectivity.** refers to the physical location (site) where the drug acts predominantly, distinguishing effects in the central nervous system (CNS) versus peripheral tissues.
 					- peripheral, central
-	- {{i fea0}}  full :with page
+	- {{i fea0}}  new @with page
 	       {{templateSlashCommand}}
 		- *Use on any :with linked reference*
 		- ### {{i-example}} samples
 		- ### {{i-template}} template
-		  template:: page, :with collection 
+		  template:: page, new @with page
 		  template-including-parent:: false
 			-
-			- \/template page, calendar event summary
-			- \/template page, topics
-	- {{i ef91}}  project page
+			- /template widget, event tracker - appointments
+			- \/template widget, tag tracker
+	- {{i ef91}} new :project page
 	  id:: 0698280a-d53c-457e-81a1-03b231ac6d11
 	       {{templateSlashCommand}}
 		- stuff
@@ -707,7 +843,7 @@ description:: `/template`s with boilerplate for collector blocks, page tags, dai
 					  {{realized-idea-tracker}}
 		- ### {{i-example}} samples
 		- ### {{i-template}} template
-		  template:: page, project 
+		  template:: page, new :project 
 		  template-including-parent:: false
 			- {{kitButton issues,collapseBlock,ea06,-button-style full-width small-caps}}
 				- {{embed ((66ccdccf-f9e2-4028-b867-a7b5406fd634))}}
@@ -1094,12 +1230,12 @@ description:: `/template`s with boilerplate for collector blocks, page tags, dai
 								   }
 								  #+END_QUERY
 					- ### {{i f4e1}} advanced queries
-	- {{i f5a5}}  location
+	- {{i f5a5}} new .location page
 	       {{templateSlashCommand}}
 		- ### {{i-example}} examples
 			- [[.Snowdon Pharmacy]]
 		- ### {{i-template}} template
-		  template:: page, . location
+		  template:: page, new .location
 		  template-including-parent:: false
 			- ### {{i ea70}} Business Hours
 				- *Mon-Fri*: am-pm
@@ -1114,11 +1250,11 @@ description:: `/template`s with boilerplate for collector blocks, page tags, dai
 				- {{fax}} () -
 			- ### {{i ebf2}} Contacts
 				- Name, *title*
-	- {{i }} organization
+	- {{i }} new %organization
 	       {{templateSlashCommand}}
 		- ### {{i-example}} samples
 		- ### {{i-template}} template
-		  template:: page, % organization
+		  template:: page, new %organization
 		  template-including-parent :: false
 			- # {{i ea4f}} organization
 			  details
@@ -1256,7 +1392,7 @@ description:: `/template`s with boilerplate for collector blocks, page tags, dai
 	- ## {{i ec9e}} Journal buddies component
 	  id:: 662becda-117c-4bed-a4e7-d27b7cd1b6f3
 	  {{i ea06}} *this block must remain open.*
-		- ### {{i-template}} template B
+		- ### {{i-template}} template C - mood challenge
 		  template:: logseq, daily journal
 		  template-including-parent:: false
 			- {{kitButton grocery list,collapseBlock,f21c,-button-style full-width small-caps}}
@@ -1277,10 +1413,31 @@ description:: `/template`s with boilerplate for collector blocks, page tags, dai
 			  {{embed ((664e4055-3b72-4ba1-ac8b-48e34544629c))}}
 			  {{journal-container-insertion-point}}
 				- {{futureEventsTable}}
+		- ### {{i-template}} template B - usual
+		  template :: logseq, daily journal
+		  template-including-parent :: false
+			- {{kitButton grocery list,collapseBlock,f21c,-button-style full-width small-caps}}
+				- {{kitButton '',insertToPurchases,eb0b f21c,squat full-width dark-gray gray-border,template='grocery'}}
+				- {{embed ((6682d241-16ee-4991-bf3f-85c90add7dbd))}}
+				- {{kitButton  previous purchases,collapseBlock,ebea,-button-style full-width small-caps gray}}
+					- {{embed ((66c12458-4744-4f60-bc2b-8396c7bd3819))}}
+			- {{kitButton shopping list,collapseBlock,eb25,-button-style full-width small-caps}}
+				- {{kitButton '',insertToPurchases,eb0b eb25,squat inline full-width flex-grow-2 dark-gray gray-border,template='shopping'}}
+				- {{embed ((6644ee82-6e4e-4936-af4f-8a47ece6985d))}}
+			- {{kitButton '',doingWidget,ec45,squat half-long dark-gray gray-border}}  {{kitButton '',journalOrganizationBlocks,eaad,squat half-long dark-gray gray-border}}  {{kitButton '',purchaseHolderComponent,eb25 f21c,squat half-long dark-gray gray-border}}
+			- {{kitButton project focus,collapseBlock,ee1d,-button-style full-width small-caps}}
+			  {{embed ((664f42a4-40eb-44ba-8e8c-89dba2c17a06))}}
+				- {{embed ((6654b591-49ea-4d3a-b9d9-1dc4f25bab0c))}}
+				- {{kitButton completed projects,collapseBlock,ebea,-button-style full-width small-caps gray}}
+					- {{embed ((66e5f125-a19b-444b-ba8c-733711e2cd0f))}}
+			- {{kitButton next appointment: |nextAppointment| days,collapseBlock,ea53,-button-style full-width small-caps}}
+			  {{embed ((664e4055-3b72-4ba1-ac8b-48e34544629c))}}
+			  {{journal-container-insertion-point}}
+				- {{futureEventsTable}}
 		- ### {{i-template}} template A
 		  id:: 65fb3d58-f121-4f03-a702-fbc3e6e5c98c
-		  template:: logseq, daily journal pre-2024.8
-		  template-including-parent:: false
+		  template :: logseq, daily journal pre-2024.8
+		  template-including-parent :: false
 		  
 		  {{i f6ef}}  **depreciation warning**
 		    this block is no longer in use

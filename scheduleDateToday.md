@@ -6,6 +6,7 @@ created-on:: [[Sunday, Mar 3rd, 2024]]
 - id:: 6682d244-247e-4fa9-9a6e-df88b5f981ab
   ```javascript
   logseq.kits.setStatic(function scheduleDateToday(div){
+    
     const blockId = div.closest(".ls-block").getAttribute("blockid");
     const block = logseq.api.get_block(blockId);
     

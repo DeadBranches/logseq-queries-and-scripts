@@ -3,60 +3,61 @@ tags:: collector, page
 collection:: [[logseq queries]]
 repository:: DeadBranches/logseq-queries-and-scripts
 
-- query:: ((65f61ef5-45b1-4c58-b2b5-bced3827ae44))
-  #+BEGIN_QUERY
-  
-  {:inputs [:parent-block #{1 2 3}]
-   :query [:find (pull ?children [*])
-           :in $ ?cb ?heading-set
-           :where
-           [?children :block/parent ?cb]
-           [?children :block/properties ?prop]
-           [(get ?prop :heading) ?heading-value]
-           [(contains? ?heading-set ?heading-value)]]
-   :result-transform
-   (fn [result]
-     (let [heading-pattern (re-pattern "^(#+\\s+)") ;; => `### ` ; used to get rid of header
-           icon-macro-pattern (re-pattern "(\\s*\\{\\{[iI] [a-fA-F0-9]{4}\\}\\}\\s*)") ;; => ` {{i f3f3}} ` ; used for getting rid of icon 
-           glyph-pattern (re-pattern "^.*\\{\\{[iI] ([a-fA-F0-9]{4})\\}\\}.*") ;; => `f3f3` ; used to isolate glyph code
-           replace-macro (fn [macro-match]
-                           (if (seq macro-match)
-                             (second macro-match)
-                             ""))
-  
-           ;icon-pattern (re-pattern "\\s*\\{\\{[iI] ([a-fA-F0-9]{4})\\}\\}\\s*")
-           ;macro-pattern (re-pattern "\\{\\{[iI] ([a-fA-F0-9]{4})\\}\\}")
-           first-lines (map (fn [r]
-                              (let [content (get-in r [:block/content])
-                                    first-newline (str/index-of content "\n")
-                                    line (if first-newline (subs content 0 first-newline) content)
-                                    uuid (get-in r [:block/uuid])
-  
-                                    line-without-heading (clojure.string/replace line heading-pattern "")
-                                    line-without-heading-or-icon (clojure.string/replace line-without-heading icon-macro-pattern "")
-                                    ;glyph-code (clojure.string/replace line glyph-pattern replace-macro)
-                                    ;glyph-code (clojure.string/replace line )
-                                    ;line-with-glyphs (clojure.string/replace line-without-heading macro-pattern replace-macro)
-                                    ]
-                                {:text line-without-heading-or-icon
-                                 :icon (if (re-find glyph-pattern line)
-                                         (str "&#x" (replace-macro (re-find glyph-pattern line)))
-                                         "")
-                                 :uuid uuid}))
-                            result)]
-       first-lines))
-  :view (fn [items]
-          [:div
-           (interpose ", "
-                      (for [{:keys [text icon uuid]} items]
-                        [:a {:class "tag" :href (str "logseq://graph/main?block-id=" uuid)}
-                         (if (and (seq icon) (not (empty? icon)))
-                           [:span {:class "ti" :dangerouslySetInnerHTML {:__html icon}}]
-                           "")
-                         [:span {:dangerouslySetInnerHTML {:__html text}}]]))])
-   }
-  
-  #+END_QUERY
+- #### {{ii 0,0,contents}} Table of contents
+	- query:: ((65f61ef5-45b1-4c58-b2b5-bced3827ae44))
+	  #+BEGIN_QUERY
+	  
+	  {:inputs [:parent-block #{1 2 3}]
+	   :query [:find (pull ?children [*])
+	           :in $ ?cb ?heading-set
+	           :where
+	           [?children :block/parent ?cb]
+	           [?children :block/properties ?prop]
+	           [(get ?prop :heading) ?heading-value]
+	           [(contains? ?heading-set ?heading-value)]]
+	   :result-transform
+	   (fn [result]
+	     (let [heading-pattern (re-pattern "^(#+\\s+)") ;; => `### ` ; used to get rid of header
+	           icon-macro-pattern (re-pattern "(\\s*\\{\\{[iI] [a-fA-F0-9]{4}\\}\\}\\s*)") ;; => ` {{i f3f3}} ` ; used for getting rid of icon 
+	           glyph-pattern (re-pattern "^.*\\{\\{[iI] ([a-fA-F0-9]{4})\\}\\}.*") ;; => `f3f3` ; used to isolate glyph code
+	           replace-macro (fn [macro-match]
+	                           (if (seq macro-match)
+	                             (second macro-match)
+	                             ""))
+	  
+	           ;icon-pattern (re-pattern "\\s*\\{\\{[iI] ([a-fA-F0-9]{4})\\}\\}\\s*")
+	           ;macro-pattern (re-pattern "\\{\\{[iI] ([a-fA-F0-9]{4})\\}\\}")
+	           first-lines (map (fn [r]
+	                              (let [content (get-in r [:block/content])
+	                                    first-newline (str/index-of content "\n")
+	                                    line (if first-newline (subs content 0 first-newline) content)
+	                                    uuid (get-in r [:block/uuid])
+	  
+	                                    line-without-heading (clojure.string/replace line heading-pattern "")
+	                                    line-without-heading-or-icon (clojure.string/replace line-without-heading icon-macro-pattern "")
+	                                    ;glyph-code (clojure.string/replace line glyph-pattern replace-macro)
+	                                    ;glyph-code (clojure.string/replace line )
+	                                    ;line-with-glyphs (clojure.string/replace line-without-heading macro-pattern replace-macro)
+	                                    ]
+	                                {:text line-without-heading-or-icon
+	                                 :icon (if (re-find glyph-pattern line)
+	                                         (str "&#x" (replace-macro (re-find glyph-pattern line)))
+	                                         "")
+	                                 :uuid uuid}))
+	                            result)]
+	       first-lines))
+	  :view (fn [items]
+	          [:div
+	           (interpose ", "
+	                      (for [{:keys [text icon uuid]} items]
+	                        [:a {:class "tag" :href (str "logseq://graph/main?block-id=" uuid)}
+	                         (if (and (seq icon) (not (empty? icon)))
+	                           [:span {:class "ti" :dangerouslySetInnerHTML {:__html icon}}]
+	                           "")
+	                         [:span {:dangerouslySetInnerHTML {:__html text}}]]))])
+	   }
+	  
+	  #+END_QUERY
 - See: [[:result-transform]] for interactive REPL
 - ### {{i-cloud}} idea trackers
 	- {{kitButton issues,collapseBlock,ea06,-button-style full-width small-caps}}
@@ -66,6 +67,7 @@ repository:: DeadBranches/logseq-queries-and-scripts
 	- {{kitButton questions,collapseBlock,ea76,-button-style full-width small-caps}}
 		- {{embed ((66df90b1-ccba-494b-94c9-76f3194e0963))}}
 - Namespace reference
+	-
 	- #+BEGIN_QUERY
 	  {:title "find"
 	   :query [:find (pull ?b [*])
@@ -84,449 +86,469 @@ repository:: DeadBranches/logseq-queries-and-scripts
 	                                              "/"
 	                                              (str name))} (str name)])]]])])}
 	  #+END_QUERY
-		- https://clojuredocs.org/clojure.core/zipmap
-- # {{i eff2}} Query library
-  query:: ((65f7767a-9fe3-4b51-a564-c36be58ce5fa))
-  *for re-use*
-  #+BEGIN_QUERY
-  {:inputs [:current-block #{1 2 3 4 5}]
-   :query [:find (pull ?children [*])
-           :in $ ?cb ?heading-set
-           :where
-           [?children :block/parent ?cb]
-           [?children :block/properties ?prop]
-           [(get ?prop :heading) ?heading-value]
-           [(contains? ?heading-set ?heading-value)]
-           ]
-   :result-transform
-   (fn [result]
-     (let [heading-pattern (re-pattern "^(#+\\s+)") ;; => `### ` ; used to get rid of header
-           icon-macro-pattern (re-pattern "(\\s*\\{\\{[iI] [a-fA-F0-9]{4}\\}\\}\\s*)") ;; => ` {{i f3f3}} ` ; used for getting rid of icon 
-           glyph-pattern (re-pattern "^.*\\{\\{[iI] ([a-fA-F0-9]{4})\\}\\}.*") ;; => `f3f3` ; used to isolate glyph code
-           replace-macro (fn [macro-match]
-                           (if (seq macro-match)
-                             (second macro-match)
-                             ""))
-  
-           ;icon-pattern (re-pattern "\\s*\\{\\{[iI] ([a-fA-F0-9]{4})\\}\\}\\s*")
-           ;macro-pattern (re-pattern "\\{\\{[iI] ([a-fA-F0-9]{4})\\}\\}")
-           first-lines (map (fn [r]
-                              (let [content (get-in r [:block/content])
-                                    first-newline (str/index-of content "\n")
-                                    line (if first-newline (subs content 0 first-newline) content)
-                                    uuid (get-in r [:block/uuid])
-  
-                                    line-without-heading (clojure.string/replace line heading-pattern "")
-                                    line-without-heading-or-icon (clojure.string/replace line-without-heading icon-macro-pattern "")
-                                    ;glyph-code (clojure.string/replace line glyph-pattern replace-macro)
-                                    ;glyph-code (clojure.string/replace line )
-                                    ;line-with-glyphs (clojure.string/replace line-without-heading macro-pattern replace-macro)
-                                    ]
-                                {:text line-without-heading-or-icon
-                                 :icon (if (re-find glyph-pattern line)
-                                         (str "&#x" (replace-macro (re-find glyph-pattern line)))
-                                         "")
-                                 :uuid uuid}))
-                            result)]
-       first-lines))
-  :view (fn [items]
-          [:div [:span {:class "ti"} "   \uf019 "]
-           (interpose ", "
-                      (for [{:keys [text icon uuid]} items]
-                        [:a {:class "tag" :href (str "logseq://graph/main?block-id=" uuid)}
-                         (if (and (seq icon) (not (empty? icon)))
-                           [:span {:class "ti" :dangerouslySetInnerHTML {:__html icon}}]
-                           "")
-                         [:span {:dangerouslySetInnerHTML {:__html text}}]]))])
-   }
-  
-  #+END_QUERY
-	- ## Embedable queries
-	  {{i f635}} *`{{embed }}` these queries*
-		- upcoming medical activities table
-		  ![image.png](../assets/image_1728697248277_0.png){:height 71, :width 248}
-			- {{i feee}} *info*
-				- This Logseq advanced query retrieves and organizes upcoming medical-related activities (e.g., diagnostics, consultations, treatments) from your journal entries.
-					- Specifically, the query searches for blocks containing the `:activity` block property that have one or more of the predefined `:activity` values—such as "medical diagnostic," "medical consult," or "medical treatment"—that are hard-coded in the `:where` clause.
-				- The query is designed to work with linked-reference values for `:activity`, which Logseq stores as sets.
-					- For instance, a block like `activity:: [[medical consult]] [[dental]]` will be recognized as matching "medical consult."
-					- This feature requires you to use linked references for properties
-				- This query looks for blocks in your graph that have the following required block properties:
-					- `:activity` (a set of linked references categorizing the activity type)
-					- `:event` (a string describing the event)
-					- `:date` (a linked reference to a future or past journal page)
-				- This query produces a table that displays an icon associated with the first `:activity` property for a given entry.
-					- Include a tabler icon glyph code in the page's `:-icon` property to use this feature.
-					- E.g. `-icon:: f3f3`
-			- **current query:** ((6709d288-e8e4-4168-83e5-563bb0adce83))
-				- id:: 6709d372-b67c-4b85-9219-062fcde7f579
-				  #+BEGIN_QUERY
-				  {:query
-				   ;; version 1.1
-				   [:find (min ?journal-day) ?date ?journal-day ?content ?props ?today ?activity ?event (distinct ?icon)
-				    :keys min-day date journal-day content properties today activity event icon
-				    :in $ ?today
-				    :where
-				    [?b :block/properties ?props]
-				    [(get ?props :activity) ?activity]
-				  
-				    (or
-				     [(contains? ?activity "medical diagnostic")]
-				     [(contains? ?activity "medical consult")]
-				     [(contains? ?activity "medical treatment")])
-				    
-				    [?e :block/properties ?props]
-				    [(get ?props :event) ?event]
-				    [(get ?props :date) ?date]
-				    [?e :block/refs ?refs]
-				    [?e :block/content ?content]
-				    [?refs :block/journal-day ?journal-day]
-				    [(> ?journal-day ?today)]
-				  
-				    [?a :block/name ?activity-page]
-				    [(contains? ?activity ?activity-page)]
-				    (or-join [?a ?icon]
-				             (and
-				              [?a :block/properties ?activity-props]
-				              [(get ?activity-props :-icon) ?icon]
-				              [(some? ?icon)]) ;; :-icon exists and is not nil
-				             (and
-				              [?a :block/properties ?activity-props]
-				              [(get ?activity-props :-icon :not-found) ?icon-or-not-found]
-				              [(= ?icon-or-not-found :not-found)] ;; :block/properties, but nil icon
-				              [(identity "0000") ?icon])
-				             (and ;; no block properties
-				              [(missing? $ ?a :block/properties)] ;; no :bp
-				              [(identity "0000") ?icon]))]
-				  
-				   :result-transform
-				   (fn [results]
-				     (defn date-today-impl
-				       "Returns today's date as an integer in the format YYYYMMDD. Uses the datascript_query API to fetch the current date."
-				       [] (let [query-result (call-api "datascript_query"
-				                                       "[:find ?today :in $ ?today :where [_ :block/name _]]"
-				                                       ":today")
-				                date-integer (read-string (apply
-				                                           str
-				                                           query-result))]
-				            date-integer))
-				     (def date-today (memoize date-today-impl))
-				  
-				  
-				     (defn convert-range
-				       "Given a value within a range, converts the value to a different range
-				        Example: (convert-range -4 [-30 0] [0 255]) ;; => 221"
-				       [value [old-range-min old-range-max] [new-range-min new-range-max]]
-				       (+ (/ (* (- value
-				                   old-range-min)
-				                (- new-range-max
-				                   new-range-min))
-				             (- old-range-max
-				                old-range-min))
-				          new-range-min))
-				  
-				     (defn integer-floor
-				       "Returns the largest double less than or equal to number, and equal to a mathematical integer. Equivalent to clojure.math/floor.
-				      Example: (integer-floor 11.1) => ;; => 11"
-				       [number]
-				       (if (>= number 0)
-				         (int number)
-				         (dec (int number))))
-				  
-				     (defn number-absolute
-				       "Returns the absolute value of a number. Equivalent to abs."
-				       ":example (number-absolute -10) ;; => 10"
-				       [number]
-				       (if (>= number 0)
-				         number
-				         (- number)))
-				  
-				     (defn date-journal-day->julian-day
-				       "Converts a Gregorian calendar date to the Julian Day Number (JDN).
-				       
-				         Parameters:
-				           - `year`: Integer representing the Gregorian year (e.g., 2024).
-				           - `month`: Integer representing the month (1-12).
-				           - `day`: Integer representing the day of the month.
-				       
-				         Returns:
-				           - Integer representing the Julian Day Number for the given Gregorian date.
-				       
-				         Overview:
-				           - Calculates an adjustment factor to shift the year boundary, ensuring consistent handling of month variations.
-				           - Computes a reference year (`y`) and month (`m`) adjusted for easier conversion.
-				           - Applies a series of calculations to determine the Julian Day Number, considering leap years and other calendar corrections.
-				       
-				         Examples:
-				           (date-journal-day->julian-day 2024 1 1) ; => 2460467
-				           (date-journal-day->julian-day 2025 2 27) ; => 2460960
-				       
-				         Notes:
-				           - Handles leap years (divisible by 4, but not by 100 unless also divisible by 400).
-				           - Based on standard algorithms used in astronomical calculations.
-				         "
-				       [year month day]
-				       (let [a (integer-floor (/ (- 14 month) 12))
-				             y (+ year 4800 (- a))
-				             m (+ month (* 12 a) -3)]
-				         (+ day
-				            (integer-floor (/ (+ (* 153 m) 2) 5))
-				            (* 365 y)
-				            (integer-floor (/ y 4))
-				            (- (integer-floor (/ y 100)))
-				            (integer-floor (/ y 400))
-				            -32045)))
-				  
-				     (defn date-get-difference
-				       "Calculates the absolute difference in days between a date and today or between two dates.
-				     
-				       Parameters:
-				         - journal-day: Integer representing a date in YYYYMMDD format.
-				         - journal-day1, journal-day2: Integer representing dates in YYYYMMDD format.
-				       Returns: 
-				         - Integer representing the number of days between the two dates.
-				       
-				       Examples:
-				         (date-get-difference 20240918) ; => Difference in days from today.
-				         (date-get-difference 20240918 20240610) ; => 100"
-				       ([journal-day]
-				        (date-get-difference journal-day (date-today)))
-				       ([journal-day1 journal-day2]
-				        (let [extract-date (fn [date]
-				                             [(quot date 10000)            ;; Year
-				                              (rem (quot date 100) 100)    ;; Month
-				                              (rem date 100)])             ;; Day
-				              [year1 month1 day1] (extract-date journal-day1)
-				              [year2 month2 day2] (extract-date journal-day2)
-				              julian-day-number1 (date-journal-day->julian-day year1 month1 day1)
-				              julian-day-number2 (date-journal-day->julian-day year2 month2 day2)]
-				          (number-absolute (- julian-day-number1 julian-day-number2)))))
-				  
-				     (->> results
-				          (map (fn [r]
-				                 (let [days-difference (date-get-difference
-				                                        (get-in r [:journal-day])
-				                                        (date-today))
-				                       first-icon (first (get-in r [:icon]))]
-				                   (assoc r
-				                          :days-difference days-difference
-				                          :first-icon first-icon))))
-				          (sort-by :journal-day)))
-				  
-				  
-				   
-				  :view (fn [results]
-				  [:div
-				   [:table {:class "compact"}
-				    [:thead [:tr
-				             [:th]
-				             [:th "Event"]
-				             [:th "in (days)"]
-				             [:th "On"]]]
-				    [:tbody
-				     (for [result results]
-				       [:tr
-				        [:td [:span.ti
-				              (read-string (str "\"\\u"
-				                                (get-in result [:first-icon])
-				                                "\""))]]
-				        [:td (get-in result [:event])]
-				        [:td (get-in result [:days-difference])]
-				        [:td (get-in result [:date])]])]]])
-				  
-				   :inputs [:today]
-				   :breadcrumb-show? false
-				   :children? false
-				   :group-by-page? false}
-				  #+END_QUERY
-			- version 1.1
+	  {{kitButton export,exportquery}}
+		- (no links)
+			- #+BEGIN_QUERY
+			  {:title "find"
+			   :query [:find (pull ?b [*])
+			           :where
+			           [?b :block/properties ?p]
+			           [(get ?p :type) ?t]
+			           [(= ?t "demo")]]
+			   :view (fn [r] [:div.flex.flex-wrap.gap-4
+			                  (for [ns (all-ns)]
+			                    [:div [[:h2 (str ns)]
+			                           [:div.grid.grid-cols-4
+			                            (for
+			                             [name (sort (keys (ns-publics ns)))]
+			                              [:div "" (str name)])]]])])}
+			  #+END_QUERY
+			  {{kitButton export,exportquery}}
+			  ```
+			  - https://clojuredocs.org/clojure.core/zipmap
+			  - # {{i eff2}} Query library
+			  query:: ((65f7767a-9fe3-4b51-a564-c36be58ce5fa))
+			  
+			  [:span.sc.dg
+			  #+BEGIN_QUERY
+			  {:inputs [:current-block #{1 2 3 4 5}]
+			  :query [:find (pull ?children [*])
+			        :in $ ?cb ?heading-set
+			        :where
+			        [?children :block/parent ?cb]
+			        [?children :block/properties ?prop]
+			        [(get ?prop :heading) ?heading-value]
+			        [(contains? ?heading-set ?heading-value)]
+			        ]
+			  :result-transform
+			  (fn [result]
+			  (let [heading-pattern (re-pattern "^(#+\\s+)") ;; => `### ` ; used to get rid of header
+			        icon-macro-pattern (re-pattern "(\\s*\\{\\{[iI] [a-fA-F0-9]{4}\\}\\}\\s*)") ;; => ` {{i f3f3}} ` ; used for getting rid of icon 
+			        glyph-pattern (re-pattern "^.*\\{\\{[iI] ([a-fA-F0-9]{4})\\}\\}.*") ;; => `f3f3` ; used to isolate glyph code
+			        replace-macro (fn [macro-match]
+			                        (if (seq macro-match)
+			                          (second macro-match)
+			                          ""))
+			  
+			        ;icon-pattern (re-pattern "\\s*\\{\\{[iI] ([a-fA-F0-9]{4})\\}\\}\\s*")
+			        ;macro-pattern (re-pattern "\\{\\{[iI] ([a-fA-F0-9]{4})\\}\\}")
+			        first-lines (map (fn [r]
+			                           (let [content (get-in r [:block/content])
+			                                 first-newline (str/index-of content "\n")
+			                                 line (if first-newline (subs content 0 first-newline) content)
+			                                 uuid (get-in r [:block/uuid])
+			  
+			                                 line-without-heading (clojure.string/replace line heading-pattern "")
+			                                 line-without-heading-or-icon (clojure.string/replace line-without-heading icon-macro-pattern "")
+			                                 ;glyph-code (clojure.string/replace line glyph-pattern replace-macro)
+			                                 ;glyph-code (clojure.string/replace line )
+			                                 ;line-with-glyphs (clojure.string/replace line-without-heading macro-pattern replace-macro)
+			                                 ]
+			                             {:text line-without-heading-or-icon
+			                              :icon (if (re-find glyph-pattern line)
+			                                      (str "&#x" (replace-macro (re-find glyph-pattern line)))
+			                                      "")
+			                              :uuid uuid}))
+			                         result)]
+			    first-lines))
+			  :view (fn [items]
+			       [:div [:span {:class "ti"} "   \uf019 "]
+			        (interpose ", "
+			                   (for [{:keys [text icon uuid]} items]
+			                     [:a.sc.dg {:class "tag" :href (str "logseq://graph/main?block-id=" uuid)}
+			                      (if (and (seq icon) (not (empty? icon)))
+			                        [:span {:class "ti" :dangerouslySetInnerHTML {:__html icon}}]
+			                        "")
+			                      [:span {:dangerouslySetInnerHTML {:__html text}}]]))])
+			  }
+			  
+			  #+END_QUERY
+			  - ## Embedable queries
+			  {{i f635}} *`{{embed }}` these queries*
+			  - upcoming medical activities table
+			  ![image.png](../assets/image_1728697248277_0.png){:height 71, :width 248}
+			  - {{i feee}} *info*
+			  - This Logseq advanced query retrieves and organizes upcoming medical-related activities (e.g., diagnostics, consultations, treatments) from your journal entries.
+			  - Specifically, the query searches for blocks containing the `:activity` block property that have one or more of the predefined `:activity` values—such as "medical diagnostic," "medical consult," or "medical treatment"—that are hard-coded in the `:where` clause.
+			  - The query is designed to work with linked-reference values for `:activity`, which Logseq stores as sets.
+			  - For instance, a block like `activity:: [[medical consult]] [[dental]]` will be recognized as matching "medical consult."
+			  - This feature requires you to use linked references for properties
+			  - This query looks for blocks in your graph that have the following required block properties:
+			  - `:activity` (a set of linked references categorizing the activity type)
+			  - `:event` (a string describing the event)
+			  - `:date` (a linked reference to a future or past journal page)
+			  - This query produces a table that displays an icon associated with the first `:activity` property for a given entry.
+			  - Include a tabler icon glyph code in the page's `:-icon` property to use this feature.
+			  - E.g. `-icon:: f3f3`
+			  - **current query:** ((6709d288-e8e4-4168-83e5-563bb0adce83))
+			  - id:: 6709d372-b67c-4b85-9219-062fcde7f579
+			   #+BEGIN_QUERY
+			   {:query
+			    ;; version 1.1
+			    [:find (min ?journal-day) ?date ?journal-day ?content ?props ?today ?activity ?event (distinct ?icon)
+			     :keys min-day date journal-day content properties today activity event icon
+			     :in $ ?today
+			     :where
+			     [?b :block/properties ?props]
+			     [(get ?props :activity) ?activity]
+			   
+			     (or
+			      [(contains? ?activity "medical diagnostic")]
+			      [(contains? ?activity "medical consult")]
+			      [(contains? ?activity "medical treatment")])
+			     
+			     [?e :block/properties ?props]
+			     [(get ?props :event) ?event]
+			     [(get ?props :date) ?date]
+			     [?e :block/refs ?refs]
+			     [?e :block/content ?content]
+			     [?refs :block/journal-day ?journal-day]
+			     [(> ?journal-day ?today)]
+			   
+			     [?a :block/name ?activity-page]
+			     [(contains? ?activity ?activity-page)]
+			     (or-join [?a ?icon]
+			              (and
+			               [?a :block/properties ?activity-props]
+			               [(get ?activity-props :-icon) ?icon]
+			               [(some? ?icon)]) ;; :-icon exists and is not nil
+			              (and
+			               [?a :block/properties ?activity-props]
+			               [(get ?activity-props :-icon :not-found) ?icon-or-not-found]
+			               [(= ?icon-or-not-found :not-found)] ;; :block/properties, but nil icon
+			               [(identity "0000") ?icon])
+			              (and ;; no block properties
+			               [(missing? $ ?a :block/properties)] ;; no :bp
+			               [(identity "0000") ?icon]))]
+			   
+			    :result-transform
+			    (fn [results]
+			      (defn date-today-impl
+			        "Returns today's date as an integer in the format YYYYMMDD. Uses the datascript_query API to fetch the current date."
+			        [] (let [query-result (call-api "datascript_query"
+			                                        "[:find ?today :in $ ?today :where [_ :block/name _]]"
+			                                        ":today")
+			                 date-integer (read-string (apply
+			                                            str
+			                                            query-result))]
+			             date-integer))
+			      (def date-today (memoize date-today-impl))
+			   
+			   
+			      (defn convert-range
+			        "Given a value within a range, converts the value to a different range
+			         Example: (convert-range -4 [-30 0] [0 255]) ;; => 221"
+			        [value [old-range-min old-range-max] [new-range-min new-range-max]]
+			        (+ (/ (* (- value
+			                    old-range-min)
+			                 (- new-range-max
+			                    new-range-min))
+			              (- old-range-max
+			                 old-range-min))
+			           new-range-min))
+			   
+			      (defn integer-floor
+			        "Returns the largest double less than or equal to number, and equal to a mathematical integer. Equivalent to clojure.math/floor.
+			       Example: (integer-floor 11.1) => ;; => 11"
+			        [number]
+			        (if (>= number 0)
+			          (int number)
+			          (dec (int number))))
+			   
+			      (defn number-absolute
+			        "Returns the absolute value of a number. Equivalent to abs."
+			        ":example (number-absolute -10) ;; => 10"
+			        [number]
+			        (if (>= number 0)
+			          number
+			          (- number)))
+			   
+			      (defn date-journal-day->julian-day
+			        "Converts a Gregorian calendar date to the Julian Day Number (JDN).
+			        
+			          Parameters:
+			            - `year`: Integer representing the Gregorian year (e.g., 2024).
+			            - `month`: Integer representing the month (1-12).
+			            - `day`: Integer representing the day of the month.
+			        
+			          Returns:
+			            - Integer representing the Julian Day Number for the given Gregorian date.
+			        
+			          Overview:
+			            - Calculates an adjustment factor to shift the year boundary, ensuring consistent handling of month variations.
+			            - Computes a reference year (`y`) and month (`m`) adjusted for easier conversion.
+			            - Applies a series of calculations to determine the Julian Day Number, considering leap years and other calendar corrections.
+			        
+			          Examples:
+			            (date-journal-day->julian-day 2024 1 1) ; => 2460467
+			            (date-journal-day->julian-day 2025 2 27) ; => 2460960
+			        
+			          Notes:
+			            - Handles leap years (divisible by 4, but not by 100 unless also divisible by 400).
+			            - Based on standard algorithms used in astronomical calculations.
+			          "
+			        [year month day]
+			        (let [a (integer-floor (/ (- 14 month) 12))
+			              y (+ year 4800 (- a))
+			              m (+ month (* 12 a) -3)]
+			          (+ day
+			             (integer-floor (/ (+ (* 153 m) 2) 5))
+			             (* 365 y)
+			             (integer-floor (/ y 4))
+			             (- (integer-floor (/ y 100)))
+			             (integer-floor (/ y 400))
+			             -32045)))
+			   
+			      (defn date-get-difference
+			        "Calculates the absolute difference in days between a date and today or between two dates.
+			      
+			        Parameters:
+			          - journal-day: Integer representing a date in YYYYMMDD format.
+			          - journal-day1, journal-day2: Integer representing dates in YYYYMMDD format.
+			        Returns: 
+			          - Integer representing the number of days between the two dates.
+			        
+			        Examples:
+			          (date-get-difference 20240918) ; => Difference in days from today.
+			          (date-get-difference 20240918 20240610) ; => 100"
+			        ([journal-day]
+			         (date-get-difference journal-day (date-today)))
+			        ([journal-day1 journal-day2]
+			         (let [extract-date (fn [date]
+			                              [(quot date 10000)            ;; Year
+			                               (rem (quot date 100) 100)    ;; Month
+			                               (rem date 100)])             ;; Day
+			               [year1 month1 day1] (extract-date journal-day1)
+			               [year2 month2 day2] (extract-date journal-day2)
+			               julian-day-number1 (date-journal-day->julian-day year1 month1 day1)
+			               julian-day-number2 (date-journal-day->julian-day year2 month2 day2)]
+			           (number-absolute (- julian-day-number1 julian-day-number2)))))
+			   
+			      (->> results
+			           (map (fn [r]
+			                  (let [days-difference (date-get-difference
+			                                         (get-in r [:journal-day])
+			                                         (date-today))
+			                        first-icon (first (get-in r [:icon]))]
+			                    (assoc r
+			                           :days-difference days-difference
+			                           :first-icon first-icon))))
+			           (sort-by :journal-day)))
+			   
+			   
+			    
+			   :view (fn [results]
+			   [:div
+			    [:table {:class "compact"}
+			     [:thead [:tr
+			              [:th]
+			              [:th "Event"]
+			              [:th "in (days)"]
+			              [:th "On"]]]
+			     [:tbody
+			      (for [result results]
+			        [:tr
+			         [:td [:span.ti
+			               (read-string (str "\"\\u"
+			                                 (get-in result [:first-icon])
+			                                 "\""))]]
+			         [:td (get-in result [:event])]
+			         [:td (get-in result [:days-difference])]
+			         [:td (get-in result [:date])]])]]])
+			   
+			    :inputs [:today]
+			    :breadcrumb-show? false
+			    :children? false
+			    :group-by-page? false}
+			   #+END_QUERY
+			  - version 1.1
 			  id:: 6709d288-e8e4-4168-83e5-563bb0adce83
-				- created
-					- [[Friday, Oct 11th, 2024]]
-				- query result image
-					- ![image.png](../assets/image_1728697264705_0.png)
-				- Advanced query code
-					- ```clj
-					  #+BEGIN_QUERY
-					  {:query
-					   ;; version 1.1
-					   [:find (min ?journal-day) ?date ?journal-day ?content ?props ?today ?activity ?event (distinct ?icon)
-					    :keys min-day date journal-day content properties today activity event icon
-					    :in $ ?today
-					    :where
-					    [?b :block/properties ?props]
-					    [(get ?props :activity) ?activity]
-					  
-					    (or
-					     [(contains? ?activity "medical diagnostic")]
-					     [(contains? ?activity "medical consult")]
-					     [(contains? ?activity "medical treatment")])
-					    
-					    [?e :block/properties ?props]
-					    [(get ?props :event) ?event]
-					    [(get ?props :date) ?date]
-					    [?e :block/refs ?refs]
-					    [?e :block/content ?content]
-					    [?refs :block/journal-day ?journal-day]
-					    [(> ?journal-day ?today)]
-					  
-					    [?a :block/name ?activity-page]
-					    [(contains? ?activity ?activity-page)]
-					    (or-join [?a ?icon]
-					             (and
-					              [?a :block/properties ?activity-props]
-					              [(get ?activity-props :-icon) ?icon]
-					              [(some? ?icon)]) ;; :-icon exists and is not nil
-					             (and
-					              [?a :block/properties ?activity-props]
-					              [(get ?activity-props :-icon :not-found) ?icon-or-not-found]
-					              [(= ?icon-or-not-found :not-found)] ;; :block/properties, but nil icon
-					              [(identity "0000") ?icon])
-					             (and ;; no block properties
-					              [(missing? $ ?a :block/properties)] ;; no :bp
-					              [(identity "0000") ?icon]))]
-					  
-					   :result-transform
-					   (fn [results]
-					     (defn date-today-impl
-					       "Returns today's date as an integer in the format YYYYMMDD. Uses the datascript_query API to fetch the current date."
-					       [] (let [query-result (call-api "datascript_query"
-					                                       "[:find ?today :in $ ?today :where [_ :block/name _]]"
-					                                       ":today")
-					                date-integer (read-string (apply
-					                                           str
-					                                           query-result))]
-					            date-integer))
-					     (def date-today (memoize date-today-impl))
-					  
-					  
-					     (defn convert-range
-					       "Given a value within a range, converts the value to a different range
-					        Example: (convert-range -4 [-30 0] [0 255]) ;; => 221"
-					       [value [old-range-min old-range-max] [new-range-min new-range-max]]
-					       (+ (/ (* (- value
-					                   old-range-min)
-					                (- new-range-max
-					                   new-range-min))
-					             (- old-range-max
-					                old-range-min))
-					          new-range-min))
-					  
-					     (defn integer-floor
-					       "Returns the largest double less than or equal to number, and equal to a mathematical integer. Equivalent to clojure.math/floor.
-					      Example: (integer-floor 11.1) => ;; => 11"
-					       [number]
-					       (if (>= number 0)
-					         (int number)
-					         (dec (int number))))
-					  
-					     (defn number-absolute
-					       "Returns the absolute value of a number. Equivalent to abs."
-					       ":example (number-absolute -10) ;; => 10"
-					       [number]
-					       (if (>= number 0)
-					         number
-					         (- number)))
-					  
-					     (defn date-journal-day->julian-day
-					       "Converts a Gregorian calendar date to the Julian Day Number (JDN).
-					       
-					         Parameters:
-					           - `year`: Integer representing the Gregorian year (e.g., 2024).
-					           - `month`: Integer representing the month (1-12).
-					           - `day`: Integer representing the day of the month.
-					       
-					         Returns:
-					           - Integer representing the Julian Day Number for the given Gregorian date.
-					       
-					         Overview:
-					           - Calculates an adjustment factor to shift the year boundary, ensuring consistent handling of month variations.
-					           - Computes a reference year (`y`) and month (`m`) adjusted for easier conversion.
-					           - Applies a series of calculations to determine the Julian Day Number, considering leap years and other calendar corrections.
-					       
-					         Examples:
-					           (date-journal-day->julian-day 2024 1 1) ; => 2460467
-					           (date-journal-day->julian-day 2025 2 27) ; => 2460960
-					       
-					         Notes:
-					           - Handles leap years (divisible by 4, but not by 100 unless also divisible by 400).
-					           - Based on standard algorithms used in astronomical calculations.
-					         "
-					       [year month day]
-					       (let [a (integer-floor (/ (- 14 month) 12))
-					             y (+ year 4800 (- a))
-					             m (+ month (* 12 a) -3)]
-					         (+ day
-					            (integer-floor (/ (+ (* 153 m) 2) 5))
-					            (* 365 y)
-					            (integer-floor (/ y 4))
-					            (- (integer-floor (/ y 100)))
-					            (integer-floor (/ y 400))
-					            -32045)))
-					  
-					     (defn date-get-difference
-					       "Calculates the absolute difference in days between a date and today or between two dates.
-					     
-					       Parameters:
-					         - journal-day: Integer representing a date in YYYYMMDD format.
-					         - journal-day1, journal-day2: Integer representing dates in YYYYMMDD format.
-					       Returns: 
-					         - Integer representing the number of days between the two dates.
-					       
-					       Examples:
-					         (date-get-difference 20240918) ; => Difference in days from today.
-					         (date-get-difference 20240918 20240610) ; => 100"
-					       ([journal-day]
-					        (date-get-difference journal-day (date-today)))
-					       ([journal-day1 journal-day2]
-					        (let [extract-date (fn [date]
-					                             [(quot date 10000)            ;; Year
-					                              (rem (quot date 100) 100)    ;; Month
-					                              (rem date 100)])             ;; Day
-					              [year1 month1 day1] (extract-date journal-day1)
-					              [year2 month2 day2] (extract-date journal-day2)
-					              julian-day-number1 (date-journal-day->julian-day year1 month1 day1)
-					              julian-day-number2 (date-journal-day->julian-day year2 month2 day2)]
-					          (number-absolute (- julian-day-number1 julian-day-number2)))))
-					  
-					     (->> results
-					          (map (fn [r]
-					                 (let [days-difference (date-get-difference
-					                                        (get-in r [:journal-day])
-					                                        (date-today))
-					                       first-icon (first (get-in r [:icon]))]
-					                   (assoc r
-					                          :days-difference days-difference
-					                          :first-icon first-icon))))
-					          (sort-by :journal-day)))
-					  
-					  
-					   
-					  :view (fn [results]
-					  [:div
-					   [:table {:class "compact"}
-					    [:thead [:tr
-					             [:th]
-					             [:th "Event"]
-					             [:th "in (days)"]
-					             [:th "On"]]]
-					    [:tbody
-					     (for [result results]
-					       [:tr
-					        [:td [:span.ti
-					              (read-string (str "\"\\u"
-					                                (get-in result [:first-icon])
-					                                "\""))]]
-					        [:td (get-in result [:event])]
-					        [:td (get-in result [:days-difference])]
-					        [:td (get-in result [:date])]])]]])
-					  
-					   :inputs [:today]
-					   :breadcrumb-show? false
-					   :children? false
-					   :group-by-page? false}
-					  #+END_QUERY
-					  ```
+			  - created
+			  - [[Friday, Oct 11th, 2024]]
+			  - query result image
+			  - ![image.png](../assets/image_1728697264705_0.png)
+			  - Advanced query code
+			  - ```clj
+			    #+BEGIN_QUERY
+			    {:query
+			     ;; version 1.1
+			     [:find (min ?journal-day) ?date ?journal-day ?content ?props ?today ?activity ?event (distinct ?icon)
+			      :keys min-day date journal-day content properties today activity event icon
+			      :in $ ?today
+			      :where
+			      [?b :block/properties ?props]
+			      [(get ?props :activity) ?activity]
+			    
+			      (or
+			       [(contains? ?activity "medical diagnostic")]
+			       [(contains? ?activity "medical consult")]
+			       [(contains? ?activity "medical treatment")])
+			      
+			      [?e :block/properties ?props]
+			      [(get ?props :event) ?event]
+			      [(get ?props :date) ?date]
+			      [?e :block/refs ?refs]
+			      [?e :block/content ?content]
+			      [?refs :block/journal-day ?journal-day]
+			      [(> ?journal-day ?today)]
+			    
+			      [?a :block/name ?activity-page]
+			      [(contains? ?activity ?activity-page)]
+			      (or-join [?a ?icon]
+			               (and
+			                [?a :block/properties ?activity-props]
+			                [(get ?activity-props :-icon) ?icon]
+			                [(some? ?icon)]) ;; :-icon exists and is not nil
+			               (and
+			                [?a :block/properties ?activity-props]
+			                [(get ?activity-props :-icon :not-found) ?icon-or-not-found]
+			                [(= ?icon-or-not-found :not-found)] ;; :block/properties, but nil icon
+			                [(identity "0000") ?icon])
+			               (and ;; no block properties
+			                [(missing? $ ?a :block/properties)] ;; no :bp
+			                [(identity "0000") ?icon]))]
+			    
+			     :result-transform
+			     (fn [results]
+			       (defn date-today-impl
+			         "Returns today's date as an integer in the format YYYYMMDD. Uses the datascript_query API to fetch the current date."
+			         [] (let [query-result (call-api "datascript_query"
+			                                         "[:find ?today :in $ ?today :where [_ :block/name _]]"
+			                                         ":today")
+			                  date-integer (read-string (apply
+			                                             str
+			                                             query-result))]
+			              date-integer))
+			       (def date-today (memoize date-today-impl))
+			    
+			    
+			       (defn convert-range
+			         "Given a value within a range, converts the value to a different range
+			          Example: (convert-range -4 [-30 0] [0 255]) ;; => 221"
+			         [value [old-range-min old-range-max] [new-range-min new-range-max]]
+			         (+ (/ (* (- value
+			                     old-range-min)
+			                  (- new-range-max
+			                     new-range-min))
+			               (- old-range-max
+			                  old-range-min))
+			            new-range-min))
+			    
+			       (defn integer-floor
+			         "Returns the largest double less than or equal to number, and equal to a mathematical integer. Equivalent to clojure.math/floor.
+			        Example: (integer-floor 11.1) => ;; => 11"
+			         [number]
+			         (if (>= number 0)
+			           (int number)
+			           (dec (int number))))
+			    
+			       (defn number-absolute
+			         "Returns the absolute value of a number. Equivalent to abs."
+			         ":example (number-absolute -10) ;; => 10"
+			         [number]
+			         (if (>= number 0)
+			           number
+			           (- number)))
+			    
+			       (defn date-journal-day->julian-day
+			         "Converts a Gregorian calendar date to the Julian Day Number (JDN).
+			         
+			           Parameters:
+			             - `year`: Integer representing the Gregorian year (e.g., 2024).
+			             - `month`: Integer representing the month (1-12).
+			             - `day`: Integer representing the day of the month.
+			         
+			           Returns:
+			             - Integer representing the Julian Day Number for the given Gregorian date.
+			         
+			           Overview:
+			             - Calculates an adjustment factor to shift the year boundary, ensuring consistent handling of month variations.
+			             - Computes a reference year (`y`) and month (`m`) adjusted for easier conversion.
+			             - Applies a series of calculations to determine the Julian Day Number, considering leap years and other calendar corrections.
+			         
+			           Examples:
+			             (date-journal-day->julian-day 2024 1 1) ; => 2460467
+			             (date-journal-day->julian-day 2025 2 27) ; => 2460960
+			         
+			           Notes:
+			             - Handles leap years (divisible by 4, but not by 100 unless also divisible by 400).
+			             - Based on standard algorithms used in astronomical calculations.
+			           "
+			         [year month day]
+			         (let [a (integer-floor (/ (- 14 month) 12))
+			               y (+ year 4800 (- a))
+			               m (+ month (* 12 a) -3)]
+			           (+ day
+			              (integer-floor (/ (+ (* 153 m) 2) 5))
+			              (* 365 y)
+			              (integer-floor (/ y 4))
+			              (- (integer-floor (/ y 100)))
+			              (integer-floor (/ y 400))
+			              -32045)))
+			    
+			       (defn date-get-difference
+			         "Calculates the absolute difference in days between a date and today or between two dates.
+			       
+			         Parameters:
+			           - journal-day: Integer representing a date in YYYYMMDD format.
+			           - journal-day1, journal-day2: Integer representing dates in YYYYMMDD format.
+			         Returns: 
+			           - Integer representing the number of days between the two dates.
+			         
+			         Examples:
+			           (date-get-difference 20240918) ; => Difference in days from today.
+			           (date-get-difference 20240918 20240610) ; => 100"
+			         ([journal-day]
+			          (date-get-difference journal-day (date-today)))
+			         ([journal-day1 journal-day2]
+			          (let [extract-date (fn [date]
+			                               [(quot date 10000)            ;; Year
+			                                (rem (quot date 100) 100)    ;; Month
+			                                (rem date 100)])             ;; Day
+			                [year1 month1 day1] (extract-date journal-day1)
+			                [year2 month2 day2] (extract-date journal-day2)
+			                julian-day-number1 (date-journal-day->julian-day year1 month1 day1)
+			                julian-day-number2 (date-journal-day->julian-day year2 month2 day2)]
+			            (number-absolute (- julian-day-number1 julian-day-number2)))))
+			    
+			       (->> results
+			            (map (fn [r]
+			                   (let [days-difference (date-get-difference
+			                                          (get-in r [:journal-day])
+			                                          (date-today))
+			                         first-icon (first (get-in r [:icon]))]
+			                     (assoc r
+			                            :days-difference days-difference
+			                            :first-icon first-icon))))
+			            (sort-by :journal-day)))
+			    
+			    
+			     
+			    :view (fn [results]
+			    [:div
+			     [:table {:class "compact"}
+			      [:thead [:tr
+			               [:th]
+			               [:th "Event"]
+			               [:th "in (days)"]
+			               [:th "On"]]]
+			      [:tbody
+			       (for [result results]
+			         [:tr
+			          [:td [:span.ti
+			                (read-string (str "\"\\u"
+			                                  (get-in result [:first-icon])
+			                                  "\""))]]
+			          [:td (get-in result [:event])]
+			          [:td (get-in result [:days-difference])]
+			          [:td (get-in result [:date])]])]]])
+			    
+			     :inputs [:today]
+			     :breadcrumb-show? false
+			     :children? false
+			     :group-by-page? false}
+			    #+END_QUERY
+			    ```
 		- page tags or aliases
 			- template
 			  template:: query, page tags or aliases
@@ -8919,7 +8941,7 @@ repository:: DeadBranches/logseq-queries-and-scripts
 			                [:td (get-in r [:day])]])]])
 			  }
 			  #+END_QUERY
-				- {{kitButton export,exportquery}}
+				- {{runpage exportquery,export query,'',squat}}
 			- {{runpage exportquery}}
 			- idk what this is, but it's broke:
 				- ```
@@ -9973,7 +9995,7 @@ repository:: DeadBranches/logseq-queries-and-scripts
 	- ### {{i eead}} query concept inbox
 	  id:: 66ae786c-0e7c-4d19-a94a-a1ae04fa3f19
 	        {{i f635}} *unsorted saved queries*
-		  #+BEGIN_QUERY
+		- #+BEGIN_QUERY
 		  {:inputs [:parent-block]
 		  :query
 		  [:find (pull ?b [*])
